@@ -45,3 +45,21 @@ html, .lato-bold {
   --depth: 1;
   --noise: 1;
 }
+
+@keyframes slideUp {
+  0% {
+    transform: translateY(100%);
+  }
+
+  100% {
+    transform: translateY(-100%);
+  }
+}
+
+.animate-slideUp {
+  display: inline-block;
+  animation: slideUp 20s linear infinite;
+}
+
+
+/* */

@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from 'react'
 
 import heroImg from "../../assets/imgs/HomeImg/heroimg.jpeg"
+import HomeForm from './HomeForm';
+import Home_Jobs from './Home_Jobs/Home_Jobs';
+import ConnectesCompany from './ConnectedCompany/ConnectesCompany';
+// import { Marquee } from 'marquee';
 
 const Home = () => {
 
@@ -28,28 +32,65 @@ const Home = () => {
     }, [])
 
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const trendingJobs = ["Software Development", "Web Development", "Graphis Design", "Frontend Developer", "Backend Developer"]
+
+    const [currentIndex, setCurrentIndex] = useState(0);
+    const [displayText, setDisplayText] = useState("");
+    const [charIndex, setCharIndex] = useState(0);
+
+    useEffect(() => {
+        if (charIndex < trendingJobs[currentIndex].length) {
+            const timeout = setTimeout(() => {
+                setDisplayText((prev) => prev + trendingJobs[currentIndex][charIndex]);
+                setCharIndex((prev) => prev + 1);
+            }, 50); // typing speed
+            return () => clearTimeout(timeout);
+        } else {
+            const pauseBeforeNext = setTimeout(() => {
+                setCharIndex(0);
+                setDisplayText("");
+                setCurrentIndex((prev) => (prev + 1) % trendingJobs.length);
+            }, 1500); // pause after full text
+            return () => clearTimeout(pauseBeforeNext);
+        }
+    }, [charIndex, currentIndex, trendingJobs]);
+
+
+
 
     return (
         <>
             <div
                 className="hero min-h-screen"
                 style={{
+                    // backgroundImage: `url(${heroImg})`,
                     backgroundImage: `url(${heroImg})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    backgroundRepeat: 'no-repeat',
+                    backgroundAttachment: 'fixed',
+                    position: 'relative'
                 }}
             >
                 <div className="hero-overlay"></div>
-                <div className="hero-content text-neutral-content text-center">
-                    <div className="max-w-md">
-                        <h1 className="mb-5 text-5xl font-bold">Hello there</h1>
-                        <p className="mb-5">
-                            Provident cupiditate voluptatem et in. Quaerat fugiat ut assumenda excepturi exercitationem
-                            quasi. In deleniti eaque aut repudiandae et a id nisi.
-                        </p>
-                        <button className="btn btn-primary">Get Started</button>
-                    </div>
-                </div>
-            </div>
+                <div className="text-neutral-content">
+                    <div>
 
+                        <div className='text-6xl md:w-40 lg:w-[55%] text-start text-shadow-white '>
+                            <p className='mb-5'>Find your next big opportunity — <span>faster
+                            </span> </p>
+                        </div>
+                        <div className='text-start lg:mt-3 pb-5'>
+                            <p className='text-shadow-white text-2xl'>
+                                Trending Job: <span className="font-semibold">{displayText}</span>
+                            </p>
+                        </div>
+                    </div>
+                    <HomeForm />
+                </div>
+            </div >
+            <ConnectesCompany />
         </>
     )
 }

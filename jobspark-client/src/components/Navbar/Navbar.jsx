@@ -65,7 +65,7 @@ const Navbar = () => {
                     <li className="relative">
                         <details className="dropdown">
                             <summary className="text-sm">{"ENG"}</summary>
-                            <ul className="p-2  menu dropdown-content  rounded-box w-32">
+                            <ul className="p-2  menu dropdown-content  rounded-box w-20">
                                 <li><a>EN</a></li>
                                 {/* <li><a onClick={() => handleChange('বাংলা')}>BN</a></li>
                                     <li><a onClick={() => handleChange('हिन्दी')}>HI</a></li> */}
