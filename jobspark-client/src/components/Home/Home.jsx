@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react'
 
 import heroImg from "../../assets/imgs/HomeImg/heroimg.jpeg"
-import HomeForm from './HomeForm';
-import Home_Jobs from './Home_Jobs/Home_Jobs';
+// import HomeForm from './HomeForm';
+import HomeJobs from './HomeJobs/HomeJobs';
 import ConnectesCompany from './ConnectedCompany/ConnectesCompany';
 // import { Marquee } from 'marquee';
+import HomeForm from './HomeForm/HomeForm';
+import HomeCategory from './HomeCategory/HomeCategory';
+import HomeSubscribe from './HomeSubscribe/HomeSubscribe';
 
 const Home = () => {
 
@@ -90,7 +93,17 @@ const Home = () => {
                     <HomeForm />
                 </div>
             </div >
+            {/* <HomeForm /> */}
             <ConnectesCompany />
+            <HomeJobs />
+            <div className='py-15 flex justify-center'>
+                <button className='btn btn-success text-black text-xl p-5'>Browse For More Jobs</button>
+            </div>
+            <HomeCategory />
+            <div className='py-15 flex justify-center'>
+                <button className='btn btn-success text-black text-xl p-5'>Browse For More Category</button>
+            </div>
+            <HomeSubscribe />
         </>
     )
 }

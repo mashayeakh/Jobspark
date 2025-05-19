@@ -34,7 +34,7 @@ const ConnectesCompany = () => {
     return (
         <>
 
-            <div className="flex flex-col items-center justify-center py-10">
+            <div className="flex flex-col items-center justify-center py-10 shadow-lg">
                 <p className="text-center text-6xl text-shadow-orange-50 text-[#404b5b] ">
                     Helping people secure better jobs—faster—since 2007.
                 </p>
