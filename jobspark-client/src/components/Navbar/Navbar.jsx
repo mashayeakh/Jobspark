@@ -3,25 +3,79 @@ import React from 'react'
 // import logo from "../../assets/imgs/logo.png"
 import j from "../../assets/imgs/j.jpg"
 import logo2 from "../../assets/imgs/logo2.png"
-import { Link } from 'react-router'
+import { Link, NavLink } from 'react-router'
 const Navbar = () => {
 
 
-    const links =
+    const links = (
         <>
-            <li><Link to="/">Home</Link></li>
-            <li><Link to="/jobs">Jobs</Link></li>
-            <li><Link to="/">Companies</Link></li>
-            <li><Link to="/">Network</Link></li>
-            <li><Link to="/">Notification</Link></li>
-
-
+            <li>
+                <NavLink
+                    to="/"
+                    className={({ isActive }) =>
+                        isActive
+                            ? "underline decoration-2 decoration-primary text-primary font-semibold"
+                            : ""
+                    }
+                >
+                    Home
+                </NavLink>
+            </li>
+            <li>
+                <NavLink
+                    to="/jobs"
+                    className={({ isActive }) =>
+                        isActive
+                            ? "underline decoration-2 decoration-primary text-primary font-semibold"
+                            : ""
+                    }
+                >
+                    Jobs
+                </NavLink>
+            </li>
+            <li>
+                <NavLink
+                    to="/companies"
+                    className={({ isActive }) =>
+                        isActive
+                            ? "underline decoration-2 decoration-primary text-primary font-semibold"
+                            : ""
+                    }
+                >
+                    Companies
+                </NavLink>
+            </li>
+            <li>
+                <NavLink
+                    to="/network"
+                    className={({ isActive }) =>
+                        isActive
+                            ? "underline decoration-2 decoration-primary text-primary font-semibold"
+                            : ""
+                    }
+                >
+                    Network
+                </NavLink>
+            </li>
+            <li>
+                <NavLink
+                    to="/notification"
+                    className={({ isActive }) =>
+                        isActive
+                            ? "underline decoration-2 decoration-primary text-primary font-semibold"
+                            : ""
+                    }
+                >
+                    Notification
+                </NavLink>
+            </li>
         </>
+    )
 
 
     return (
         <>
-            <div className="navbar bg-white/20 bg-opacity-50 md:px-5 lg:px-10" style={{ backgroundColor: "rgba(255,255,255,0.2)" }}>
+            <div className="navbar bg-white/20 bg-opacity-50 md:px-5 lg:px-10 border-b border-gray-300 shadow-md ">
                 <div className="navbar-start">
                     <div className="dropdown">
                         <div tabIndex={0} role="button" className="btn btn-ghost lg:hidden">
@@ -38,7 +92,7 @@ const Navbar = () => {
                     </Link>
                 </div>
                 <div className="navbar-center hidden lg:flex">
-                    <ul className="menu menu-horizontal px-1">
+                    <ul className="menu menu-horizontal px-1 text-lg">
                         {links}
                         {/* <li className="relative">
                             <details className="dropdown">
@@ -75,8 +129,6 @@ const Navbar = () => {
                 </ul>
             </div >
         </>
-
-
 
     )
 }

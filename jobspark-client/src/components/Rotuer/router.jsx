@@ -4,6 +4,7 @@ import Root from "../Root/Root"
 // import random from './../random';
 import Test from "../Test/test"
 import Job from "../Job/Job"
+import Company from "../Company/Company"
 
 
 const router = createBrowserRouter([
@@ -22,6 +23,10 @@ const router = createBrowserRouter([
             {
                 path: "/jobs",
                 element: <Job />
+            },
+            {
+                path: "/companies",
+                element: <Company />
             },
         ]
     }
