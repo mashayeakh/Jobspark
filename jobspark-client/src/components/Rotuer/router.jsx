@@ -5,6 +5,8 @@ import Root from "../Root/Root"
 import Test from "../Test/test"
 import Job from "../Job/Job"
 import Company from "../Company/Company"
+import Network from "../Network/Network"
+import Signup from "../Accounts/Signup/Signup"
 
 
 const router = createBrowserRouter([
@@ -28,6 +30,15 @@ const router = createBrowserRouter([
                 path: "/companies",
                 element: <Company />
             },
+            {
+                path: "/network",
+                element: <Network />
+            },
+            // Accounts
+            {
+                path: "/signup",
+                element: <Signup />
+            }
         ]
     }
 ])

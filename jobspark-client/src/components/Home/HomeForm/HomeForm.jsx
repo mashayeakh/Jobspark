@@ -11,13 +11,13 @@ const HomeForm = () => {
                         <div className="join">
                             <input
                                 type="text"
-                                className="input join-item lg:input-xl text-black placeholder-black w-fit"
+                                className="input join-item lg:input-xl text-black  placeholder-black w-fit "
                                 placeholder="Search for keywords"
                             />
 
 
 
-                            <select defaultValue="Select location" className="select input join-item w-fit lg:input-xl text-black">
+                            <select defaultValue="Select location" className="select input join-item w-fit lg:input-xl text-black  placeholder-black ">
 
                                 <option disabled={true}>Select location
                                 </option>
@@ -27,7 +27,7 @@ const HomeForm = () => {
                             </select>
 
 
-                            <select defaultValue="Category" className="select input join-item w-fit lg:input-xl text-black">
+                            <select defaultValue="Category" className="select input join-item w-fit lg:input-xl text-black  placeholder-black ">
 
                                 <option disabled={true}>Category
                                 </option>

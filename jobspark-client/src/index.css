@@ -1,20 +1,43 @@
 @import url('https://fonts.googleapis.com/css2?family=Funnel+Sans:ital,wght@0,300..800;1,300..800&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap');
 
+@import "tailwindcss";
+@plugin "flowbite-react/plugin/tailwindcss";
+@source "../.flowbite-react/class-list.json";
 
+@plugin "daisyui" {
+  themes: light --default, dark --prefersdark, cupcake;
+}
+
+/*  */
+
+@plugin "flowbite/plugin";
+@source "../node_modules/flowbite";
+
+
+
+/* FONT OVERRIDE */
 html, .lato-bold {
   font-family: "Lato", sans-serif;
   font-weight: 500;
   font-style: normal;
 }
 
-@import "tailwindcss";
-@plugin "daisyui";
+/* ✅ Add custom utility inside Tailwind's utility layer */
+@layer utilities {
+  .text-glow-light {
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+  }
 
+  .dark .text-glow-light {
+    text-shadow: none;
+  }
+}
 
 @plugin "daisyui/theme" {
   name: "";
   default: false;
   prefersdark: false;
+
   color-scheme: "light";
   --color-base-100: oklch(98% 0 0);
   --color-base-200: oklch(96% 0.001 286.375);
@@ -46,6 +69,7 @@ html, .lato-bold {
   --noise: 1;
 }
 
+/* Slide Up Animation */
 @keyframes slideUp {
   0% {
     transform: translateY(100%);
@@ -56,10 +80,9 @@ html, .lato-bold {
   }
 }
 
-.animate-slideUp {
-  display: inline-block;
-  animation: slideUp 20s linear infinite;
+@layer utilities {
+  .animate-slideUp {
+    display: inline-block;
+    animation: slideUp 20s linear infinite;
+  }
 }
-
-
-/* */

@@ -52,7 +52,7 @@ const ConnectesCompany = () => {
                                         src={company.logo}
                                         alt={`${company.name} logo`}
                                         className="w-20 object-contain"
-                                    />
+                                    />  
                                 </div>
                             ))}
                         </div>

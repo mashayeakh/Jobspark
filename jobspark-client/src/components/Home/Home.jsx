@@ -8,6 +8,8 @@ import ConnectesCompany from './ConnectedCompany/ConnectesCompany';
 import HomeForm from './HomeForm/HomeForm';
 import HomeCategory from './HomeCategory/HomeCategory';
 import HomeSubscribe from './HomeSubscribe/HomeSubscribe';
+// App.jsx or index.jsx
+import '../../../src/index.css';
 
 const Home = () => {
 
@@ -81,7 +83,7 @@ const Home = () => {
                     <div>
 
                         <div className='text-6xl md:w-40 lg:w-[55%] text-start text-shadow-white '>
-                            <p className='mb-5'>Find your next big opportunity — <span>faster
+                            <p className='mb-5 '>Find your next big opportunity — <span>faster
                             </span> </p>
                         </div>
                         <div className='text-start lg:mt-3 pb-5'>
