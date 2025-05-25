@@ -49,7 +49,7 @@ const Job = () => {
                 </div>
             </div>
         </div >
-    );
+    )
 };
 
 export default Job;
