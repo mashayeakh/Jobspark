@@ -1,8 +1,10 @@
 const express = require('express');
-const { testingReq } = require('../Controller/TestController'); // ✅ CORRECT IMPORT
+const { testingReq, testingNameReq } = require('../Controller/TestController');
 
 const router = express.Router();
 
-router.get('/test', testingReq); // ✅ testingReq is a function
+router.get('/test', testingReq);
+router.get('/name', testingNameReq);
+
 
 module.exports = router;

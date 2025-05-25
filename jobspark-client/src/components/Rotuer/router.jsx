@@ -8,6 +8,8 @@ import Company from "../Company/Company"
 import Network from "../Network/Network"
 import Signup from "../Accounts/Signup/Signup"
 import Signin from "../Accounts/Signin/Signin"
+import JobSeekingForm from "../Accounts/Signup/JobSeekingForm"
+import RecruiterForm from "../Accounts/Signup/RecruiterForm"
 
 
 const router = createBrowserRouter([
@@ -39,6 +41,14 @@ const router = createBrowserRouter([
             {
                 path: "/signup",
                 element: <Signup />
+            },
+            {
+                path: "/job-seeking-form",
+                element: <JobSeekingForm />
+            },
+            {
+                path: "/recruiter-form",
+                element: <RecruiterForm />
             },
             {
                 path: "/signin",

@@ -1,15 +1,23 @@
-import React, { useContext } from 'react'
+import React, { useContext, useState } from 'react'
 
 // import logo from "../../assets/imgs/logo.png"
 import j from "../../assets/imgs/j.jpg"
 import logo2 from "../../assets/imgs/logo2.png"
 import { Link, NavLink, useNavigate } from 'react-router'
 import { ThemeContext } from '../Context/ThemeProvider'
+import { Player } from '@lottiefiles/react-lottie-player';
+
+import signupAnimation from "../../assets/imgs/animations/signup.json"
+import { useStableMemo } from 'flowbite-react/helpers/resolve-theme'
+
+
 const Navbar = () => {
 
 
     //context api
     // const { theme, toggleTheme, setTheme } = useContext(ThemeContext);
+
+    // const [selectform,] = useState("job_seeker");
 
 
     const links = (
@@ -83,10 +91,22 @@ const Navbar = () => {
 
     }
 
-    // const handleSignup = (e) => {
-    //     e.preventDefault();
-    //     // navigate("/");
-    // }
+    const handleJobSeekingForm = () => {
+
+        const modal = document.getElementById("my_modal_1");
+        if (modal) {
+            modal.close();
+        }
+        navigate("/job-seeking-form");
+    }
+    const handleFormRecruiter = () => {
+
+        const modal = document.getElementById("my_modal_1");
+        if (modal) {
+            modal.close();
+        }
+        navigate("/recruiter-form?role=recruiter");
+    }
 
 
     return (
@@ -110,16 +130,7 @@ const Navbar = () => {
                 <div className="navbar-center hidden lg:flex">
                     <ul className="menu menu-horizontal px-1 text-lg">
                         {links}
-                        {/* <li className="relative">
-                            <details className="dropdown">
-                                <summary className="btn btn-ghost">{"language"}</summary>
-                                <ul className="p-2  menu dropdown-content bg-base-100 rounded-box w-32">
-                                    <li><a>EN</a></li>
-                                    <li><a onClick={() => handleChange('বাংলা')}>BN</a></li>
-                                    <li><a onClick={() => handleChange('हिन्दी')}>HI</a></li>
-                                </ul>
-                            </details>
-                        </li> */}
+
                     </ul>
                 </div>
                 <div className="navbar-end">
@@ -128,11 +139,34 @@ const Navbar = () => {
                             Join Now
                         </button>
                     </Link>
-                    <Link to="/signup">
-                        <button className="btn btn-warning px-6 py-2 lg:px-8 lg:py-3 md:px-6 md:py-2 sm:px-3 sm:py-1 text-sm lg:text-base">
+
+                    {/* <button className="btn btn-warning px-6 py-2 lg:px-8 lg:py-3 md:px-6 md:py-2 sm:px-3 sm:py-1 text-sm lg:text-base">
                             Signup
-                        </button>
-                    </Link>
+                        </button> */}
+                    {/* Open the modal using document.getElementById('ID').showModal() method */}
+                    <button className="btn bg-warning" onClick={() => document.getElementById('my_modal_1').showModal()}>Signup</button>
+                    <dialog id="my_modal_1" className="modal">
+                        <div className="modal-box flex flex-col items-center justify-center">
+
+                            {/* Animation */}
+                            <Player
+                                autoplay
+                                loop
+                                src={signupAnimation}
+                                style={{ height: '200px', width: '200px' }}
+                            />
+
+                            {/* Links */}
+                            <div className="modal-action flex justify-around items-center w-full mt-4">
+                                <button onClick={handleFormRecruiter} className="link link-primary">Sign up as a Recruiter</button>
+
+                                <button onClick={handleJobSeekingForm} className="link link-primary">Sign up as a Job Seeker</button>
+
+                            </div>
+                        </div>
+                    </dialog>
+
+
                 </div>
                 <ul className='menu menu-horizontal px-1'>
 
