@@ -7,6 +7,7 @@ import Job from "../Job/Job"
 import Company from "../Company/Company"
 import Network from "../Network/Network"
 import Signup from "../Accounts/Signup/Signup"
+import Signin from "../Accounts/Signin/Signin"
 
 
 const router = createBrowserRouter([
@@ -38,6 +39,10 @@ const router = createBrowserRouter([
             {
                 path: "/signup",
                 element: <Signup />
+            },
+            {
+                path: "/signin",
+                element: <Signin />
             }
         ]
     }

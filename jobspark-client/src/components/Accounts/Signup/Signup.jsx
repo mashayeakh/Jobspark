@@ -141,8 +141,22 @@ const Signup = () => {
                             {/* location Field */}
                             <div className="flex-1">
                                 <label className="input validator w-full">
-                                    <img src={location} alt="location icon" className="h-[1.5em] opacity-100" />
-
+                                    <span
+                                        style={{
+                                            display: "flex",
+                                            alignItems: "center",
+                                            background: "transparent",
+                                            padding: 0,
+                                            marginRight: "0.5em"
+                                        }}
+                                    >
+                                        <img
+                                            src={location}
+                                            alt="location icon"
+                                            className="h-[1.5em] opacity-100"
+                                            style={{ background: "transparent" }}
+                                        />
+                                    </span>
                                     <input
                                         type="text"
                                         required
@@ -159,73 +173,87 @@ const Signup = () => {
                                     <br />containing only letters, numbers or dash
                                 </p>
                             </div>
-
-                            {/* university Field */}
                             <div className="flex-1">
                                 <label className="input validator w-full">
-                                    <img src={uni} alt="location icon" className="h-[1.5em]  opacity-100" />
-
+                                    <span
+                                        style={{
+                                            display: "flex",
+                                            alignItems: "center",
+                                            background: "transparent",
+                                            padding: 0,
+                                            marginRight: "0.5em"
+                                        }}
+                                    >
+                                        <img
+                                            src={uni}
+                                            alt="university icon"
+                                            className="h-[1.5em] opacity-100"
+                                            style={{ background: "transparent" }}
+                                        />
+                                    </span>
                                     <input
                                         type="text"
                                         required
                                         placeholder="Aiub"
                                         className="w-full"
+                                        style={{ background: "transparent" }}
                                     />
                                 </label>
                                 {/* <div className="validator-hint hidden">Enter valid email address</div> */}
                             </div>
                         </div>
+             
 
-                        <div className="flex gap-6 mb-10">
-                            {/* Username Field */}
-                            <div className="flex-1">
-                                <input
-                                    list="browsers"
-                                    name="browser"
-                                    placeholder="Pick a Role or write your own"
-                                    className="input w-full select placeholder-white"
-                                />
+                <div className="flex gap-6 mb-10">
+                    {/* Username Field */}
+                    <div className="flex-1">
+                        <input
+                            list="browsers"
+                            name="browser"
+                            placeholder="Pick a Role or write your own"
+                            className="input w-full select placeholder-white"
+                        />
 
-                                <datalist id="browsers">
-                                    <option value="Chrome" />
-                                    <option value="Firefox" />
-                                    <option value="Safari" />
-                                    <option value="Brave" />
-                                </datalist>
-                            </div>
+                        <datalist id="browsers">
+                            <option value="Chrome" />
+                            <option value="Firefox" />
+                            <option value="Safari" />
+                            <option value="Brave" />
+                        </datalist>
+                    </div>
 
-                            {/* Email Field */}
-                            <div className="flex-1">
-                                <select defaultValue="Skills" className="select ">
-                                    <option disabled={true}>Skills</option>
-                                    <option>Light mode</option>
-                                    <option>Dark mode</option>
-                                    <option>System</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div className="flex gap-38 ">
-                            {/* Username Field */}
-                            <div className="flex-1">
-                                <select defaultValue="Experience Level" className="select">
-                                    <option disabled={true}>Experience Level</option>
-                                    <option>Crimson</option>
-                                    <option>Amber</option>
-                                    <option>Velvet</option>
-                                </select>
-                            </div>
-                            <button className='btn btn-primary'>
-                                Create an User
-                            </button>
-                        </div>
-                        <div className='pt-10'>
-                            <button className="btn bg-white text-black w-full border-[#e5e5e5]">
-                                <svg aria-label="Google logo" width="16" height="16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><g><path d="m0 0H512V512H0" fill="#fff"></path><path fill="#34a853" d="M153 292c30 82 118 95 171 60h62v48A192 192 0 0190 341"></path><path fill="#4285f4" d="m386 400a140 175 0 0053-179H260v74h102q-7 37-38 57"></path><path fill="#fbbc02" d="m90 341a208 200 0 010-171l63 49q-12 37 0 73"></path><path fill="#ea4335" d="m153 219c22-69 116-109 179-50l55-54c-78-75-230-72-297 55"></path></g></svg>
-                                Continue with Google
-                            </button>
-                        </div>
-                    </form>
+                    {/* Email Field */}
+                    <div className="flex-1">
+                        <select defaultValue="Skills" className="select ">
+                            <option disabled={true}>Skills</option>
+                            <option>Light mode</option>
+                            <option>Dark mode</option>
+                            <option>System</option>
+                        </select>
+                    </div>
                 </div>
+                <div className="flex gap-38 ">
+                    {/* Username Field */}
+                    <div className="flex-1">
+                        <select defaultValue="Experience Level" className="select">
+                            <option disabled={true}>Experience Level</option>
+                            <option>Crimson</option>
+                            <option>Amber</option>
+                            <option>Velvet</option>
+                        </select>
+                    </div>
+                    <button className='btn btn-primary'>
+                        Create an User
+                    </button>
+                </div>
+                <div className='pt-10'>
+                    <button className="btn bg-white text-black w-full border-[#e5e5e5]">
+                        <svg aria-label="Google logo" width="16" height="16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><g><path d="m0 0H512V512H0" fill="#fff"></path><path fill="#34a853" d="M153 292c30 82 118 95 171 60h62v48A192 192 0 0190 341"></path><path fill="#4285f4" d="m386 400a140 175 0 0053-179H260v74h102q-7 37-38 57"></path><path fill="#fbbc02" d="m90 341a208 200 0 010-171l63 49q-12 37 0 73"></path><path fill="#ea4335" d="m153 219c22-69 116-109 179-50l55-54c-78-75-230-72-297 55"></path></g></svg>
+                        Continue with Google
+                    </button>
+                </div>
+            </form>
+        </div >
             </div >
         </>
     )
