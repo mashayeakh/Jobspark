@@ -6,13 +6,17 @@ import { useLocation } from 'react-router'
 import { AuthContext } from '../../Context/AuthContextProvider'
 import { postMethod } from '../../Utils/Api'
 // import { create } from 'flowbite-react/cli/commands/create'
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+
 const RecruiterForm = () => {
 
 
     const [showPassword, setShowPassword] = useState(false)
     const [c_showPassword, setC_showPassword] = useState(false)
 
-    const { createUser } = useContext(AuthContext);
+    const { createUser, loading, setLoading } = useContext(AuthContext);
 
 
     const location = useLocation();
@@ -38,6 +42,8 @@ const RecruiterForm = () => {
         }
 
         console.log("Form Data:", formData);
+        setLoading(true);
+
 
         try {
 
@@ -46,10 +52,26 @@ const RecruiterForm = () => {
 
             const url = `http://localhost:5000/api/v1/user?role=${role}`
             const data = await postMethod(url, formData);
-            console.log("Data posted successfully:", data);
+            if (data.success === true) {
+                console.log("Success!!!");
+                console.log("Data posted successfully for job seekers:", data);
+                toast.success("Signup successful! 🎉");
+                e.target.reset();
+            } else {
+                console.error("Error posting data for job seekers:", data);
+                toast.error("Signup failed. Please try again.");
+            }
 
         } catch (err) {
-            console.log(err);
+            console.log("Err ", err);
+            if (err.code === "auth/email-already-in-use") {
+                toast.error(`Email already taken.`);
+            } else {
+                toast.error(`Signup failed.${err.message} Please try again`);
+            }
+        } finally {
+            setLoading(false);
+            console.log("Loading state reset to false");
         }
     }
 
@@ -150,7 +172,7 @@ const RecruiterForm = () => {
                                     <br />containing only letters, numbers or dash
                                 </p>
                             </div>
-
+                            {loading && <span className="loading loading-spinner loading-2xl"></span>}
                             {/* confirm password Field */}
                             <div className="flex-1">
                                 <label className="input validator w-full">
@@ -175,6 +197,7 @@ const RecruiterForm = () => {
                                         placeholder="confirm password"
                                         className="w-full"
                                     />
+
                                     {/* <span onClick={() => setShowPass(!showPass)} className='absolute top-[60%] right-3 text-lg cursor-pointer'>
                                         {showPass ? <FaEye /> : <FaEyeSlash />}
                                     </span> */}
@@ -186,8 +209,10 @@ const RecruiterForm = () => {
                                     Must be 3 to 30 characters
                                     <br />containing only letters, numbers or dash
                                 </p>
+
                             </div>
                         </div>
+
                         <div className="flex gap-6">
                             {/* location Field */}
                             <div className="flex-1">
@@ -290,6 +315,7 @@ const RecruiterForm = () => {
                             </button>
                         </div>
                     </form>
+                    <ToastContainer position="top-right" autoClose={3000} />
                 </div >
             </div >
         </>

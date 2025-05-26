@@ -6,6 +6,8 @@ import { postMethod } from '../../Utils/Api'
 // import { createUserWithEmailAndPassword } from 'firebase/auth'
 import { useLocation } from 'react-router'
 import { AuthContext } from '../../Context/AuthContextProvider'
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 const JobSeekingForm = () => {
 
 
@@ -35,7 +37,6 @@ const JobSeekingForm = () => {
             skills: e.target.skills.value,
             experienceLevel: e.target.experienceLevel.value,
             role,
-
         }
 
         console.log("Form Data:", formData);
@@ -50,16 +51,21 @@ const JobSeekingForm = () => {
             const data = await postMethod(url, formData);
             if (data.success === true) {
                 console.log("Success!!!");
-                console.log("Data posted successfully for job seekers:", data); <div className="toast toast-end">
-
-
-                </div>
+                console.log("Data posted successfully for job seekers:", data);
+                toast.success("Signup successful! 🎉");
+                e.target.reset();
             } else {
                 console.error("Error posting data for job seekers:", data);
+                toast.error("Signup failed. Please try again.");
             }
 
         } catch (err) {
-            console.log(err);
+            console.log("Err ", err);
+            if (err.code === "auth/email-already-in-use") {
+                toast.error(`Email already taken.`);
+            } else {
+                toast.error(`Signup failed.${err.message} Please try again`);
+            }
         } finally {
             setLoading(false);
             console.log("Loading state reset to false");
@@ -314,8 +320,9 @@ const JobSeekingForm = () => {
                                 Continue with Google
                             </button>
                         </div>
-
                     </form>
+                    <ToastContainer position="top-right" autoClose={3000} />
+
                 </div >
             </div >
         </>
