@@ -10,6 +10,15 @@ import Signup from "../Accounts/Signup/Signup"
 import Signin from "../Accounts/Signin/Signin"
 import JobSeekingForm from "../Accounts/Signup/JobSeekingForm"
 import RecruiterForm from "../Accounts/Signup/RecruiterForm"
+import Dashboard from "../Users/Recruiter/Dashboard/Dashboard"
+import SummaryCards from "../Users/Recruiter/Dashboard/SummaryCards/SummaryCards"
+import ApplicatoinGraph from "../Users/Recruiter/Dashboard/ApplicationGraph/ApplicatoinGraph"
+import Inbox from "../Users/Recruiter/Dashboard/Inbox/Inbox"
+import LastestApplicants from "../Users/Recruiter/Dashboard/LatestApplicants/LastestApplicants"
+import ActiveJobs from "../Users/Recruiter/Dashboard/SummaryCards/ActiveJobs/ActiveJobs"
+import TotalApplicants from "../Users/Recruiter/Dashboard/SummaryCards/TotalApplicants/TotalApplicants"
+import ShortListed from "../Users/Recruiter/Dashboard/SummaryCards/ShortListed/ShortListed"
+import InterviewScheduled from "../Users/Recruiter/Dashboard/SummaryCards/InterviewScheduled/InterviewScheduled"
 
 
 const router = createBrowserRouter([
@@ -17,6 +26,7 @@ const router = createBrowserRouter([
         path: "/",
         element: <Root />,
         children: [
+
             {
                 path: "/",
                 element: <Home />
@@ -53,7 +63,58 @@ const router = createBrowserRouter([
             {
                 path: "/signin",
                 element: <Signin />
-            }
+            },
+            //* for recruiter Dashbaord -----------------------------------------------------
+            {
+                path: "/recruiter/dashboard",
+                element: <Dashboard />,
+                children: [
+                    {
+                        index: true,
+                        element: <SummaryCards />
+
+                    },
+                    {
+                        path: "summary-cards",
+                        element: <SummaryCards />,
+                        children: [
+                            {
+                                path: "active-Jobs",
+                                element: <ActiveJobs />
+                            },
+                            {
+                                path: "total-applications",
+                                element: <TotalApplicants />
+                            },
+                            {
+                                path: "shortlisted",
+                                element: <ShortListed />
+                            },
+                            {
+                                path: "interviews-scheduled",
+                                element: <InterviewScheduled />
+                            }
+                        ]
+                    },
+                    {
+                        path: "application-graph",
+                        element: <ApplicatoinGraph />
+                    },
+                    {
+                        path: "inbox",
+                        element: <Inbox />
+                    },
+                    {
+                        path: "latest-applicants",
+                        element: <LastestApplicants />
+                    },
+                    // {
+                    //     path: "application-graph",
+                    //     element: <ApplicatoinGraph />
+                    // },
+
+                ]
+            },
         ]
     }
 ])

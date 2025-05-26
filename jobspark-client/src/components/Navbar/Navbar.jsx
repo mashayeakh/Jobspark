@@ -3,6 +3,7 @@ import React, { useContext, useState } from 'react'
 // import logo from "../../assets/imgs/logo.png"
 import j from "../../assets/imgs/j.jpg"
 import logo2 from "../../assets/imgs/logo2.png"
+import profile from "../../assets/imgs/icons/user.png"
 import { Link, NavLink, useNavigate } from 'react-router'
 import { ThemeContext } from '../Context/ThemeProvider'
 import { Player } from '@lottiefiles/react-lottie-player';
@@ -10,120 +11,181 @@ import { Player } from '@lottiefiles/react-lottie-player';
 import signupAnimation from "../../assets/imgs/animations/signup.json"
 import { useStableMemo } from 'flowbite-react/helpers/resolve-theme'
 import { AuthContext } from '../Context/AuthContextProvider'
+import { SlSettings } from "react-icons/sl";
+import { IoLogOutOutline } from "react-icons/io5";
+
+
 
 
 const Navbar = () => {
 
-    const { user } = useContext(AuthContext);
+    const { user, signingOut } = useContext(AuthContext);
 
     console.log("User ", user);
     console.log("USER = ", user?.name);
     // console.log("ROLE = ", user?.role || "No Role");
     console.log("ROLE = ", user ? user.role : "No User");
 
+    const handleSignout = async (e) => {
+        e.preventDefault();
+
+        // Call the signingOut function and wait for it to complete
+        const success = await signingOut();
+
+        // If signing out is successful, navigate to the signin page
+        if (success) {
+            navigate("/signin");
+        }
+    };
 
     const links = (
         <>
-            <li>
-                <NavLink
-                    to="/"
-                    className={({ isActive }) =>
-                        isActive
-                            ? "underline decoration-2 decoration-primary text-primary font-semibold"
-                            : ""
-                    }
-                >
-                    Home
-                </NavLink>
-            </li>
-            <li>
-                <NavLink
-                    to="/jobs"
-                    className={({ isActive }) =>
-                        isActive
-                            ? "underline decoration-2 decoration-primary text-primary font-semibold"
-                            : ""
-                    }
-                >
-                    Jobs
-                </NavLink>
-            </li>
-            <li>
-                <NavLink
-                    to="/companies"
-                    className={({ isActive }) =>
-                        isActive
-                            ? "underline decoration-2 decoration-primary text-primary font-semibold"
-                            : ""
-                    }
-                >
-                    Companies
-                </NavLink>
-            </li>
-            {
-                // if(fsd){
 
-                // }
-                // user ? <button>
-                //     logout
-                // </button> : ""
-                user && (user?.role === "job_seeker") ? <div>
-                    {user?.name || "Job Seeker"}
-                </div> :
-                    (user?.role === "recruiter") ? <div>
-                        {user?.name || "recruiter"}
-                    </div> : ""
-            }
 
-            <li>
-                <NavLink
-                    to="/network"
-                    className={({ isActive }) =>
-                        isActive
-                            ? "underline decoration-2 decoration-primary text-primary font-semibold"
-                            : ""
-                    }
-                >
-                    Network
-                </NavLink>
-            </li>
-            <li>
-                <NavLink
-                    to="/notification"
-                    className={({ isActive }) =>
-                        isActive
-                            ? "underline decoration-2 decoration-primary text-primary font-semibold"
-                            : ""
-                    }
-                >
-                    Notification
-                </NavLink>
-            </li>
+            {user?.role === "recruiter" ? (
+                <>
+                    <li>
+                        <NavLink
+                            to="/recruiter/dashboard/summary-cards"
+                            className={({ isActive }) =>
+                                isActive
+                                    ? "underline decoration-2 decoration-primary text-primary font-semibold"
+                                    : ""
+                            }
+                        >
+                            Dashboard
+                        </NavLink>
+                    </li>
+                    <li>
+                        <NavLink
+                            to="/applications"
+                            className={({ isActive }) =>
+                                isActive
+                                    ? "underline decoration-2 decoration-primary text-primary font-semibold"
+                                    : ""
+                            }
+                        >
+                            Applications
+                        </NavLink>
+                    </li>
+                    <li>
+                        <NavLink
+                            to="/company-profile"
+                            className={({ isActive }) =>
+                                isActive
+                                    ? "underline decoration-2 decoration-primary text-primary font-semibold"
+                                    : ""
+                            }
+                        >
+                            Company Profile
+                        </NavLink>
+                    </li>
+                    <li>
+                        <NavLink
+                            to="/notification"
+                            className={({ isActive }) =>
+                                isActive
+                                    ? "underline decoration-2 decoration-primary text-primary font-semibold"
+                                    : ""
+                            }
+                        >
+                            Notification
+                        </NavLink>
+                    </li>
+                </>
+            ) :
+                (
+                    <>
+                        <li>
+                            <NavLink
+                                to="/"
+                                className={({ isActive }) =>
+                                    isActive
+                                        ? "underline decoration-2 decoration-primary text-primary font-semibold"
+                                        : ""
+                                }
+                            >
+                                Home
+                            </NavLink>
+                        </li>
+                        <li>
+                            <NavLink
+                                to="/jobs"
+                                className={({ isActive }) =>
+                                    isActive
+                                        ? "underline decoration-2 decoration-primary text-primary font-semibold"
+                                        : ""
+                                }
+                            >
+                                Jobs
+                            </NavLink>
+                        </li>
+                        <li>
+                            <NavLink
+                                to="/companies"
+                                className={({ isActive }) =>
+                                    isActive
+                                        ? "underline decoration-2 decoration-primary text-primary font-semibold"
+                                        : ""
+                                }
+                            >
+                                Companies
+                            </NavLink>
+                        </li>
+                        <li>
+                            <NavLink
+                                to="/network"
+                                className={({ isActive }) =>
+                                    isActive
+                                        ? "underline decoration-2 decoration-primary text-primary font-semibold"
+                                        : ""
+                                }
+                            >
+                                Network
+                            </NavLink>
+                        </li>
+                        <li>
+                            <NavLink
+                                to="/notification"
+                                className={({ isActive }) =>
+                                    isActive
+                                        ? "underline decoration-2 decoration-primary text-primary font-semibold"
+                                        : ""
+                                }
+                            >
+                                Notification
+                            </NavLink>
+                        </li>
+                    </>
+                )}
+            {/* Fallback or logged out user (optional) */}
+            {/*  */}
         </>
-    )
+    );
+
 
     const navigate = useNavigate();
 
-    const handleJoinNow = () => {
+    // const handleJoinNow = () => {
 
-    }
+    // }
 
-    const handleJobSeekingForm = () => {
+    // const handleJobSeekingForm = () => {
 
-        const modal = document.getElementById("my_modal_1");
-        if (modal) {
-            modal.close();
-        }
-        navigate("/job-seeking-form");
-    }
-    const handleFormRecruiter = () => {
+    //     const modal = document.getElementById("my_modal_1");
+    //     if (modal) {
+    //         modal.close();
+    //     }
+    //     navigate("/job-seeking-form");
+    // }
+    // const handleFormRecruiter = () => {
 
-        const modal = document.getElementById("my_modal_1");
-        if (modal) {
-            modal.close();
-        }
-        navigate("/recruiter-form?role=recruiter");
-    }
+    //     const modal = document.getElementById("my_modal_1");
+    //     if (modal) {
+    //         modal.close();
+    //     }
+    //     navigate("/recruiter-form?role=recruiter");
+    // }
 
 
     return (
@@ -147,45 +209,57 @@ const Navbar = () => {
                 <div className="navbar-center hidden lg:flex">
                     <ul className="menu menu-horizontal px-1 text-lg">
                         {links}
-
                     </ul>
                 </div>
-                <div className="navbar-end">
-                    <Link to="/signin">
-                        <button onClick={handleJoinNow} className="btn btn-primary mr-2 px-6 py-2 lg:px-8 lg:py-3 md:px-6 md:py-2 sm:px-3 sm:py-1 text-sm lg:text-base">
-                            Join Now
-                        </button>
-                    </Link>
-
-                    {/* <button className="btn btn-warning px-6 py-2 lg:px-8 lg:py-3 md:px-6 md:py-2 sm:px-3 sm:py-1 text-sm lg:text-base">
-                            Signup
-                        </button> */}
-                    {/* Open the modal using document.getElementById('ID').showModal() method */}
-                    <button className="btn bg-warning" onClick={() => document.getElementById('my_modal_1').showModal()}>Signup</button>
-                    <dialog id="my_modal_1" className="modal">
-                        <div className="modal-box flex flex-col items-center justify-center">
-
-                            {/* Animation */}
-                            <Player
-                                autoplay
-                                loop
-                                src={signupAnimation}
-                                style={{ height: '200px', width: '200px' }}
-                            />
-
-                            {/* Links */}
-                            <div className="modal-action flex justify-around items-center w-full mt-4">
-                                <button onClick={handleFormRecruiter} className="link link-primary">Sign up as a Recruiter</button>
-
-                                <button onClick={handleJobSeekingForm} className="link link-primary">Sign up as a Job Seeker</button>
-
+                <div className="navbar-end mr-4">
+                    {user ? (
+                        <div className="dropdown dropdown-bottom">
+                            <div tabIndex={0} role="button">
+                                <div className="avatar cursor-pointer">
+                                    <div className="ring-primary ring-offset-base-100 rounded-full ring-2 ring-offset-2 w-10 h-10 overflow-hidden">
+                                        <img
+                                            src={user.photoURL || "https://img.daisyui.com/images/profile/demo/spiderperson@192.webp"}
+                                            className="w-full h-full object-cover"
+                                            alt="User Avatar"
+                                        />
+                                    </div>
+                                </div>
                             </div>
+                            <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-1 w-36 p-2 shadow-sm">
+                                <li>
+                                    <Link to="/profile">
+                                        <div className="flex gap-2 items-center">
+                                            <img src={profile} alt="" className="w-4" />
+                                            Profile
+                                        </div>
+                                    </Link>
+                                </li>
+                                <li>
+                                    <Link to="/settings">
+                                        <div className="flex gap-2 items-center">
+                                            <SlSettings size={20} />
+                                            Settings
+                                        </div>
+                                    </Link>
+                                </li>
+                                <li>
+                                    <button onClick={handleSignout} className="flex gap-2 items-center w-full text-left">
+                                        <IoLogOutOutline size={20} />
+                                        Logout
+                                    </button>
+                                </li>
+                            </ul>
                         </div>
-                    </dialog>
-
-
+                    ) : (
+                        <>
+                            <Link to="/signin">
+                                <button className="btn btn-primary mr-2 px-6 py-2">Join Now</button>
+                            </Link>
+                        </>
+                    )}
                 </div>
-                <ul className='menu menu-horizontal px-1'>
+
+                <ul className='menu menu-horizontal px-1 mr-4'>
 
                     <li className="relative">
                         <details className="dropdown">

@@ -1,6 +1,6 @@
 import React, { createContext, useEffect, useState } from 'react'
 import { auth } from '../Firebase/Firebase.init';
-import { createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import { getMethod } from '../Utils/Api';
 
 export const AuthContext = createContext();
@@ -54,12 +54,30 @@ const AuthContextProvider = ({ children }) => {
         return () => unsubscribe();
     }, []);
 
+
+    const signingOut = () => {
+        return signOut(auth)
+            .then(() => {
+                // Sign-out successful.
+                setUser(null);
+                console.log("User signed out successfully.");
+                return true;  // Return true when sign out is successful
+            })
+            .catch((error) => {
+                // An error occurred
+                console.log("Error while signing out", error.message);
+                return false;  // Return false if an error occurs
+            });
+    }
+
+
     const info = {
         createUser,
         loading,
         setLoading,
         user,
-        loginUser
+        loginUser,
+        signingOut,
     }
 
 

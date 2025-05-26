@@ -5,6 +5,11 @@ import { AuthContext } from '../../Context/AuthContextProvider'
 import { patchMethod } from '../../Utils/Api'
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { Player } from '@lottiefiles/react-lottie-player'
+import signupAnimation from "../../../assets/imgs/animations/signup.json"
+// import signupAnimation from "../../assets/imgs/animations/signup.json"
+
+
 const Signin = () => {
 
 
@@ -59,6 +64,25 @@ const Signin = () => {
         }
     }
 
+    const handleFormRecruiter = () => {
+
+        const modal = document.getElementById("my_modal_1");
+        if (modal) {
+            modal.close();
+        }
+        navigate("/recruiter-form?role=recruiter");
+    }
+
+
+    const handleJobSeekingForm = () => {
+
+        const modal = document.getElementById("my_modal_1");
+        if (modal) {
+            modal.close();
+        }
+        navigate("/job-seeking-form");
+    }
+
     return (
         <>
             <div className='pt-20'>
@@ -92,7 +116,7 @@ const Signin = () => {
                                 {/* {loading && <span className="loading loading-spinner flex justify-center loading-2xl"></span>} */}
                             </div>
                         </div>
-                        <div className="flex gap-6 relative py-7">
+                        <div className="flex gap-6 relative pt-7 pb-5">
                             {/* Password Field */}
                             <label className="input validator w-full">
                                 <svg className="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -123,12 +147,31 @@ const Signin = () => {
                         </div>
                         {/* confirm password Field */}
                         <div className='mb-4 text-center'>
-                            <p>Not Registered ?
-                                <Link to="/signup" className='text-blue-600 hover:text-blue-800'>
 
-                                    <span className='text-red-800 ml-2'>Register here</span>
-                                </Link>
+                            <p className="text-sm text-gray-500 mx-auto">
+                                Don't have an account?
+                                <span className="text-red-800 cursor-pointer hover:underline ml-2 font-bold" onClick={() => document.getElementById('my_modal_1').showModal()}>
+                                    Signup
+                                </span>
+
                             </p>
+
+                            
+                            <dialog id="my_modal_1" className="modal">
+                                <div className="modal-box text-center">
+                                    <Player autoplay loop src={signupAnimation} style={{ height: 200, width: 200 }} />
+                                    <div className="modal-action justify-around mt-4">
+                                        <button onClick={handleFormRecruiter} className="link link-primary">
+                                            Sign up as a Recruiter
+                                        </button>
+                                        <button onClick={handleJobSeekingForm} className="link link-primary">
+                                            Sign up as a Job Seeker
+                                        </button>
+                                    </div>
+                                </div>
+                            </dialog>
+
+
                         </div>
                         <div>
                             <div>

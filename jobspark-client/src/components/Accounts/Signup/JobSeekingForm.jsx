@@ -4,7 +4,7 @@ import uni from "../../../assets/imgs/icons/university.svg"
 import { FaEyeSlash, FaRegEye } from 'react-icons/fa'
 import { postMethod } from '../../Utils/Api'
 // import { createUserWithEmailAndPassword } from 'firebase/auth'
-import { useLocation } from 'react-router'
+import { Link, useLocation } from 'react-router'
 import { AuthContext } from '../../Context/AuthContextProvider'
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -312,10 +312,10 @@ const JobSeekingForm = () => {
                                 </select>
                             </div>
                         </div>
-                        <div className="flex gap-38 ">
+                        <div className="flex gap-32 ">
                             {/* Username Field */}
-                            <div className="flex-1">
-                                <select defaultValue="Experience Level" name='experienceLevel' className="select">
+                            <div className="flex-1 w-full">
+                                <select defaultValue="Experience Level" name='experienceLevel' className="select w-full">
                                     <option disabled={true}>Experience Level</option>
                                     <option>Crimson</option>
                                     <option>Amber</option>
@@ -324,7 +324,7 @@ const JobSeekingForm = () => {
                             </div>
                             <div>
                                 <button
-                                    className="btn btn-primary w-full py-3 text-lg flex justify-center items-center gap-2"
+                                    className="btn btn-warning text-black w-full py-3 text-sm flex justify-center items-center gap-2"
                                     type="submit"
                                     disabled={loading}
                                 >
@@ -337,6 +337,14 @@ const JobSeekingForm = () => {
                                         "Create a Job seeker account"
                                     )}
                                 </button>
+                                <div className='text-center mt-2'>
+                                    <p>Already joined?
+                                        <Link to="/signin">
+                                            <span className='text-red-800 font-bold hover:underline cursor-pointer'> Login here</span>
+                                        </Link>
+
+                                    </p>
+                                </div>
                             </div>
 
                         </div>

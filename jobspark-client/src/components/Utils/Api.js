@@ -44,7 +44,7 @@ export async function patchMethod(url, data) {
     }
 }
 
-export async function getMethod(url) { 
+export async function getMethod(url) {
     try {
         const response = await fetch(url, {
             method: 'GET',
