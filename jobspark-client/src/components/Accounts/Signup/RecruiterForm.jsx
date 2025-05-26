@@ -29,10 +29,18 @@ const RecruiterForm = () => {
         e.preventDefault();
         console.log("Form submitted");
 
+        const password = e.target.password.value;
+        const confirmPassword = e.target.confirm_password.value;
+
+        if (password !== confirmPassword) {
+            toast.error(`password do not match`);
+            return;
+        }
+
         const formData = {
             name: e.target.name.value,
             email: e.target.email.value,
-            password: e.target.password.value,
+            password,
             c_password: e.target.confirm_password.value,
             location: e.target.location.value,
             phone: e.target.phone.value,
@@ -40,6 +48,8 @@ const RecruiterForm = () => {
             company_role: e.target.company_role.value,
             website: e.target.website.value,
         }
+
+
 
         console.log("Form Data:", formData);
         setLoading(true);
@@ -159,6 +169,8 @@ const RecruiterForm = () => {
                                         name="password"
                                         placeholder="password"
                                         className="w-full"
+                                        pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
+                                        title="Must be more than 8 characters, including number, lowercase letter, uppercase letter"
                                     />
                                     {/* <span onClick={() => setShowPass(!showPass)} className='absolute top-[60%] right-3 text-lg cursor-pointer'>
                                         {showPass ? <FaEye /> : <FaEyeSlash />}
@@ -172,7 +184,7 @@ const RecruiterForm = () => {
                                     <br />containing only letters, numbers or dash
                                 </p>
                             </div>
-                            {loading && <span className="loading loading-spinner loading-2xl"></span>}
+                            {/* {loading && <span className="loading loading-spinner loading-2xl"></span>} */}
                             {/* confirm password Field */}
                             <div className="flex-1">
                                 <label className="input validator w-full">
@@ -196,6 +208,8 @@ const RecruiterForm = () => {
                                         name="confirm_password"
                                         placeholder="confirm password"
                                         className="w-full"
+                                        pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
+                                        title="Must be more than 8 characters, including number, lowercase letter, uppercase letter"
                                     />
 
                                     {/* <span onClick={() => setShowPass(!showPass)} className='absolute top-[60%] right-3 text-lg cursor-pointer'>
@@ -306,8 +320,19 @@ const RecruiterForm = () => {
                             <textarea name="website" placeholder="www.google.com" className="textarea  w-full"></textarea>
                         </div>
                         <div className='pt-10'>
-                            <button className='btn btn-primary w-full mb-5'>
-                                Create a recruiter account
+                            <button
+                                className="btn btn-primary w-full py-3 text-lg flex justify-center items-center gap-2"
+                                type="submit"
+                                disabled={loading}
+                            >
+                                {loading ? (
+                                    <>
+                                        <span className="loading loading-spinner loading-sm"></span>
+                                        <span>Creating your account...</span>
+                                    </>
+                                ) : (
+                                    "Create a recruiter account"
+                                )}
                             </button>
                             <button className="btn bg-white text-black w-full border-[#e5e5e5]">
                                 <svg aria-label="Google logo" width="16" height="16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><g><path d="m0 0H512V512H0" fill="#fff"></path><path fill="#34a853" d="M153 292c30 82 118 95 171 60h62v48A192 192 0 0190 341"></path><path fill="#4285f4" d="m386 400a140 175 0 0053-179H260v74h102q-7 37-38 57"></path><path fill="#fbbc02" d="m90 341a208 200 0 010-171l63 49q-12 37 0 73"></path><path fill="#ea4335" d="m153 219c22-69 116-109 179-50l55-54c-78-75-230-72-297 55"></path></g></svg>

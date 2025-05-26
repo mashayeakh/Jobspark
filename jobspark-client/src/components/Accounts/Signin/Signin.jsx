@@ -1,13 +1,63 @@
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import { FaEyeSlash, FaRegEye } from 'react-icons/fa'
-import { Link } from 'react-router'
-
+import { Link, useNavigate } from 'react-router'
+import { AuthContext } from '../../Context/AuthContextProvider'
+import { patchMethod } from '../../Utils/Api'
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 const Signin = () => {
 
 
     const [showPassword, setShowPassword] = useState(false)
     // const [c_showPassword, setC_showPassword] = useState(false)
+    const { loginUser, loading, setLoading } = useContext(AuthContext);
+    const navigate = useNavigate();
 
+    const handleLoginUser = async (e) => {
+        e.preventDefault();
+        const loginData = {
+            email: e.target.email.value.trim(),
+            password: e.target.password.value.trim(),
+        }
+        console.log("Login Data ", loginData);
+        setLoading(true);
+        try {
+            const loggedInUser = await loginUser(loginData.email, loginData.password);
+            console.log("Logged in user", loggedInUser);
+
+            //grab the time
+            console.log("time of the logged in user ", loggedInUser?.user?.metadata?.lastSignInTime);
+
+            const currDate = new Date(loggedInUser?.user?.metadata?.lastSignInTime).toLocaleString();
+            console.log("Curr Data ", currDate);
+
+            const url = "http://localhost:5000/api/v1/u"
+
+            const wrappedData = {
+                email: loginData.email,
+                currDate,
+            }
+
+            const result = await patchMethod(url, wrappedData);
+            if (result.success === true) {
+                // alert("Success");
+                console.log("Result ", result);
+                toast.success("Signing successful! 🎉");
+                e.target.reset();
+                navigate("/");
+            } else {
+                console.error("Error posting data for job seekers:", wrappedData);
+                toast.error("Signup failed. Please try again.");
+            }
+
+        } catch (err) {
+            console.log("ERR ", err);
+            toast.error(`Signup failed.${err.message} Please try again`);
+        } finally {
+            setLoading(false);
+            console.log("Loading state reset to false");
+        }
+    }
 
     return (
         <>
@@ -16,7 +66,7 @@ const Signin = () => {
                     <p className="text-center my-5 text-xl font-semibold">
                         Sign in
                     </p>
-                    <form className="max-w-4xl mx-auto pb-5 px-10">
+                    <form onSubmit={handleLoginUser} className="max-w-4xl mx-auto pb-5 px-10">
                         <div className="flex gap-6">
                             {/* Username Field */}
 
@@ -32,12 +82,14 @@ const Signin = () => {
                                     </svg>
                                     <input
                                         type="email"
+                                        name='email'
                                         required
                                         placeholder="mail@site.com"
                                         className="w-full"
                                     />
                                 </label>
                                 <div className="validator-hint hidden">Enter valid email address</div>
+                                {/* {loading && <span className="loading loading-spinner flex justify-center loading-2xl"></span>} */}
                             </div>
                         </div>
                         <div className="flex gap-6 relative py-7">
@@ -60,6 +112,7 @@ const Signin = () => {
                                 <input
                                     type={showPassword ? "text" : "password"}
                                     required
+                                    name='password'
                                     placeholder="password"
                                     className="w-full"
                                 />
@@ -78,9 +131,23 @@ const Signin = () => {
                             </p>
                         </div>
                         <div>
-                            <button className='btn btn-primary w-full py-3 text-lg'>
-                                Join Now
-                            </button>
+                            <div>
+                                <button
+                                    className="btn btn-primary w-full py-3 text-lg flex justify-center items-center gap-2"
+                                    type="submit"
+                                    disabled={loading}
+                                >
+                                    {loading ? (
+                                        <>
+                                            <span className="loading loading-spinner loading-sm"></span>
+                                            <span>Logging in...</span>
+                                        </>
+                                    ) : (
+                                        "Join Now"
+                                    )}
+                                </button>
+                            </div>
+
                         </div>
                         <div className='pt-5'>
                             <button className="btn bg-white text-black w-full border-[#e5e5e5]">
@@ -89,6 +156,7 @@ const Signin = () => {
                             </button>
                         </div>
                     </form>
+                    <ToastContainer position="top-right" autoClose={3000} />
                 </div >
             </div >
         </>

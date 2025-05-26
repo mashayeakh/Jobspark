@@ -9,15 +9,17 @@ import { Player } from '@lottiefiles/react-lottie-player';
 
 import signupAnimation from "../../assets/imgs/animations/signup.json"
 import { useStableMemo } from 'flowbite-react/helpers/resolve-theme'
+import { AuthContext } from '../Context/AuthContextProvider'
 
 
 const Navbar = () => {
 
+    const { user } = useContext(AuthContext);
 
-    //context api
-    // const { theme, toggleTheme, setTheme } = useContext(ThemeContext);
-
-    // const [selectform,] = useState("job_seeker");
+    console.log("User ", user);
+    console.log("USER = ", user?.name);
+    // console.log("ROLE = ", user?.role || "No Role");
+    console.log("ROLE = ", user ? user.role : "No User");
 
 
     const links = (
@@ -58,6 +60,21 @@ const Navbar = () => {
                     Companies
                 </NavLink>
             </li>
+            {
+                // if(fsd){
+
+                // }
+                // user ? <button>
+                //     logout
+                // </button> : ""
+                user && (user?.role === "job_seeker") ? <div>
+                    {user?.name || "Job Seeker"}
+                </div> :
+                    (user?.role === "recruiter") ? <div>
+                        {user?.name || "recruiter"}
+                    </div> : ""
+            }
+
             <li>
                 <NavLink
                     to="/network"

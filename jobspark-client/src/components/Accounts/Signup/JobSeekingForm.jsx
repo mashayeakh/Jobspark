@@ -27,10 +27,18 @@ const JobSeekingForm = () => {
         e.preventDefault();
         console.log("Form submitted");
 
+        const password = e.target.password.value;
+        const confirmPassword = e.target.c_password.value
+
+        if (password !== confirmPassword) {
+            toast.error(`password do not match`);
+            return;
+        }
+
         const formData = {
             name: e.target.name.value,
             email: e.target.email.value,
-            password: e.target.password.value,
+            password,
             c_password: e.target.c_password.value,
             location: e.target.location.value,
             university: e.target.university.value,
@@ -152,6 +160,8 @@ const JobSeekingForm = () => {
                                         name="password"
                                         placeholder="password"
                                         className="w-full"
+                                        pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
+                                        title="Must be more than 8 characters, including number, lowercase letter, uppercase letter"
                                     />
                                     {/* <span onClick={() => setShowPass(!showPass)} className='absolute top-[60%] right-3 text-lg cursor-pointer'>
                                         {showPass ? <FaEye /> : <FaEyeSlash />}
@@ -165,7 +175,7 @@ const JobSeekingForm = () => {
                                     <br />containing only letters, numbers or dash
                                 </p>
                             </div>
-                            {loading && <span className="loading loading-spinner loading-2xl"></span>}
+                            {/* {loading && <span className="loading loading-spinner loading-2xl"></span>} */}
 
                             {/* confirm password Field */}
                             <div className="flex-1">
@@ -190,6 +200,8 @@ const JobSeekingForm = () => {
                                         name="c_password"
                                         placeholder="confirm password"
                                         className="w-full"
+                                        pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
+                                        title="Must be more than 8 characters, including number, lowercase letter, uppercase letter"
                                     />
                                     {/* <span onClick={() => setShowPass(!showPass)} className='absolute top-[60%] right-3 text-lg cursor-pointer'>
                                         {showPass ? <FaEye /> : <FaEyeSlash />}
@@ -310,9 +322,23 @@ const JobSeekingForm = () => {
                                     <option>Velvet</option>
                                 </select>
                             </div>
-                            <button className='btn btn-primary'>
-                                Create an User
-                            </button>
+                            <div>
+                                <button
+                                    className="btn btn-primary w-full py-3 text-lg flex justify-center items-center gap-2"
+                                    type="submit"
+                                    disabled={loading}
+                                >
+                                    {loading ? (
+                                        <>
+                                            <span className="loading loading-spinner loading-sm"></span>
+                                            <span>Creating in...</span>
+                                        </>
+                                    ) : (
+                                        "Create a Job seeker account"
+                                    )}
+                                </button>
+                            </div>
+
                         </div>
                         <div className='pt-10'>
                             <button className="btn bg-white text-black w-full border-[#e5e5e5]">

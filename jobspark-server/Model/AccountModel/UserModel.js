@@ -75,6 +75,10 @@ const userSchema = mongoose.Schema({
             return this.role === "recruiter";
         },
         trim: true,
+    },
+    lastSignInTime: {
+        type: Date,
+        default: null,
     }
 
 })
