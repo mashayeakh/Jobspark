@@ -17,7 +17,7 @@ const ActiveJobs = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 w-full max-w-7xl">
                         <div className="bg-white rounded-4xl w-full">
                             <div className=" card-lg ">
-                                <div className="card-body"> c    
+                                <div className="card-body">
                                     <h2 className="card-title">Most Popular Jobs</h2>
                                     <div className="flex justify-between items-center w-full flex-wrap md:flex-nowrap">
                                         <div className="flex-1">
