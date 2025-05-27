@@ -33,7 +33,7 @@ const DashboardSidebar = () => {
     return (
 
 
-        <aside className={`bg-white shadow-xl h-full overflow-y-auto overflow-x-hidden transition-all duration-300 ${collapsed ? 'w-20' : 'w-64'}`}>
+        <aside className={`bg-white shadow-xl min-h-full overflow-y-auto overflow-x-hidden transition-all duration-300 ${collapsed ? 'w-20' : 'w-64'}`}>
 
             <div className="p-4">
                 <div className="flex justify-between items-center mb-4">

@@ -3,10 +3,8 @@ import { Outlet } from 'react-router'
 
 const SummaryCards = () => {
     return (
-        <div>
-            
+        <div className='w-full'>
             <Outlet />
-
         </div>
     )
 }
