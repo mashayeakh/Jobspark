@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { IoMdAdd } from "react-icons/io";
 import { getMethod, postMethod } from '../../../../../Utils/Api';
 import { Link } from 'react-router';
+import { ActiveJobsContext } from '../../../../../Context/ActiveJobsContextProvider';
 
 const ActiveJobsTable = () => {
 
@@ -40,16 +41,18 @@ const ActiveJobsTable = () => {
     }
 
     const [actJobs, setActJobs] = useState({});
+    const { allActiveJobs, fetchedActiveJobs } = useContext(ActiveJobsContext);
 
     const fetchActiveJobs = async () => {
 
         try {
             const url = "http://localhost:5000/api/v1/"
-            const data = await getMethod(url);
+            const data = await fetchedActiveJobs(url);
             if (data.success === true) {
                 console.log("Data = ", data);
                 setActJobs(data);
             }
+
         } catch (err) {
             console.log("Err from Client - ", err.message);
         }

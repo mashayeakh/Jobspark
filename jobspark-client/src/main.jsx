@@ -6,6 +6,7 @@ import { RouterProvider } from 'react-router'
 import router from './components/Rotuer/router.jsx';
 import ThemeProvider from './components/Context/ThemeProvider.jsx'
 import AuthContextProvider from './components/Context/AuthContextProvider.jsx'
+import ActiveJobsContextProvider from './components/Context/ActiveJobsContextProvider.jsx'
 
 
 
@@ -14,8 +15,10 @@ import AuthContextProvider from './components/Context/AuthContextProvider.jsx'
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     {/* <ThemeProvider> */}
-    <AuthContextProvider>
-      <RouterProvider router={router} />
+    <AuthContextProvider>\
+      <ActiveJobsContextProvider>
+        <RouterProvider router={router} />
+      </ActiveJobsContextProvider>
     </AuthContextProvider>
     {/* </ThemeProvider>gvbcncgvnfgvngfnfgnvb  */}
   </StrictMode>,
