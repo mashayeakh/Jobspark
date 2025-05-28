@@ -6,7 +6,9 @@ const port = process.env.Port || 5000;
 // const routes = require("./Routes/TestRoutes");
 // const testRoutes = require('./Routes/TestRoutes');
 const userRoutes = require('./Routes/UserRoutes');
+const activeJobsRoutes = require("./Routes/Recruiter/ActiveJobs");
 const { default: mongoose } = require("mongoose");
+
 
 app.use(express.json());
 app.use(cors());
@@ -25,6 +27,8 @@ app.get("/test", async (req, res) => {
 
 // app.use('/api/v1', testRoutes);
 app.use('/api/v1', userRoutes);
+
+app.use("/api/v1", activeJobsRoutes);
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
