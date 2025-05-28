@@ -1,8 +1,73 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { IoMdAdd } from "react-icons/io";
-
+import { getMethod, postMethod } from '../../../../../Utils/Api';
+import { Link } from 'react-router';
 
 const ActiveJobsTable = () => {
+
+    const handleAddJobs = async (e) => {
+        e.preventDefault();
+        console.log("Form Submitted");
+
+        const addJobs = {
+            jobTitle: e.target.job_title.value.trim(),
+            companyName: e.target.company_name.value.trim(),
+            location: e.target.location.value.trim(),
+            employeeType: e.target.emp_type.value.trim(),
+            experienceLevel: e.target.exp_level.value.trim(),
+            jobCategory: e.target.job_category.value.trim(),
+            skills: e.target.skills.value.trim(),
+            salary: e.target.salary.value.trim(),
+            deadline: e.target.deadline.value.trim(),
+            status: e.target.status.value.trim(),
+            qualification: e.target.qualification.value.trim(),
+            responsibility: e.target.responsibility.value.trim(),
+            description: e.target.description.value.trim(),
+        }
+        console.log("Add Jobs = ", addJobs);
+
+        try {
+            const url = "http://localhost:5000/api/v1/job"
+            const data = await postMethod(url, addJobs);
+
+            console.log("Data = ", data);
+
+
+        } catch (err) {
+            console.log("Err from client while post req, ", err.message);
+        }
+
+    }
+
+    const [actJobs, setActJobs] = useState({});
+
+    const fetchActiveJobs = async () => {
+
+        try {
+            const url = "http://localhost:5000/api/v1/"
+            const data = await getMethod(url);
+            if (data.success === true) {
+                console.log("Data = ", data);
+                setActJobs(data);
+            }
+        } catch (err) {
+            console.log("Err from Client - ", err.message);
+        }
+    }
+
+    useEffect(() => {
+        fetchActiveJobs();
+    }, [])
+
+
+    console.log("Active Jobs --- ", actJobs);
+    console.log("Active Jobs type  --- ", Array.isArray(actJobs.data));
+    // // Example: Access the companyName of the first job in the data array
+    // if (actJobs.data && Array.isArray(actJobs.data) && actJobs.data.length > 0) {
+    //     console.log("Active companyName --- ", actJobs.data[0].companyName);
+    // }
+
+
     return (
         <div>
             <div className="overflow-x-auto shadow-2xl rounded-4xl bg-white ">
@@ -30,7 +95,7 @@ const ActiveJobsTable = () => {
 
                                 {/* if there is a button in form, it will close the modal */}
 
-                                <form method="dialog" className="max-w-4xl mx-auto pb-5 px-10">
+                                <form onSubmit={handleAddJobs} method="dialog" className="max-w-4xl mx-auto pb-5 px-10">
                                     <div className="flex gap-6">
                                         {/* Username Field */}
                                         <div className="flex-1 pb-8">
@@ -49,7 +114,7 @@ const ActiveJobsTable = () => {
                                                 <input
                                                     type="text"
                                                     required
-                                                    name="comapny_name"
+                                                    name="company_name"
                                                     placeholder="Company Name"
                                                     className="w-full"
                                                 />
@@ -73,9 +138,10 @@ const ActiveJobsTable = () => {
                                         <div className="flex-1 pb-8">
                                             <select defaultValue="Employee Type" name="emp_type" className="select">
                                                 <option disabled={true}>Employee Type</option>
-                                                <option>Crimson</option>
-                                                <option>Amber</option>
-                                                <option>Velvet</option>
+                                                {/* 'Full time', 'Part time', 'Internship' */}
+                                                <option value={"Full time"}>Full time</option>
+                                                <option value={"Part time"}>Part time</option>
+                                                <option value={"Internship"}>Internship</option>
                                             </select>
                                         </div>
                                     </div>
@@ -84,17 +150,19 @@ const ActiveJobsTable = () => {
                                         <div className="flex-1 pb-8">
                                             <select defaultValue="Experience Level" name="exp_level" className="select">
                                                 <option disabled={true}>Experience Level</option>
-                                                <option>Mid</option>
-                                                <option>Amber</option>
-                                                <option>Velvet</option>
+                                                {/* Entry', 'Mid', 'Senior */}
+                                                <option value={"Entry"}>Entry</option>
+                                                <option value={"Mid"}>Mid</option>
+                                                <option value={"Senior"}>Senior</option>
                                             </select>
                                         </div>
                                         <div className="flex-1 pb-8">
-                                            <select defaultValue="Experience Level" name="job_category" className="select">
+                                            <select defaultValue="Job Category" name="job_category" className="select">
                                                 <option disabled={true}>Job Category</option>
-                                                <option>Mid</option>
-                                                <option>Amber</option>
-                                                <option>Velvet</option>
+                                                {/* Engineering', 'Design', 'Marketing */}
+                                                <option value={"Engineering"}>Engineering</option>
+                                                <option value={"Design"}>Design</option>
+                                                <option value={"Marketing"}>Marketing</option>
                                             </select>
                                         </div>
                                     </div>
@@ -141,9 +209,9 @@ const ActiveJobsTable = () => {
                                         <div className="flex-1 pb-8">
                                             <select defaultValue="Status" name="status" className="select">
                                                 <option disabled={true}>Status</option>
-                                                <option>Ongoing</option>
-                                                <option>Closed</option>
-                                                <option>Velvet</option>
+                                                <option value={"ongoing"}>Ongoing</option>
+                                                <option value={"closed"}>Closed</option>
+                                                {/* <option>Velvet</option> */}
                                             </select>
                                         </div>
                                     </div>
@@ -169,7 +237,7 @@ const ActiveJobsTable = () => {
                                     </div>
 
                                     <div className="flex-1 pb-8">
-                                        <textarea className="textarea w-full" name="describtion" placeholder="describtion"></textarea>
+                                        <textarea className="textarea w-full" name="description" placeholder="description"></textarea>
 
                                     </div>
                                     <div>
@@ -183,7 +251,7 @@ const ActiveJobsTable = () => {
                     </dialog>
                 </div>
                 <table className="table">
-                    {/* head */}
+
                     <thead className="text-sm text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                         <tr>
                             <th>
@@ -200,156 +268,45 @@ const ActiveJobsTable = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {/* row 1 */}
-                        <tr>
-                            <th>
-                                <label>
-                                    <input type="checkbox" className="checkbox" />
-                                </label>
-                            </th>
-                            <td>
-                                <div className="flex items-center gap-3">
-                                    UX/UI Designer
-                                </div>
-                            </td>
-                            <td>
-                                <div>
-
-                                    193 applied
-                                </div>
-                            </td>
-                            <td> <p>Ongoing</p></td>
-                            <th>
-                                21st march, 2025
-                            </th>
-                            <th>
-                                View Details
-                            </th>
-                        </tr>
-                        <tr>
-                            <th>
-                                <label>
-                                    <input type="checkbox" className="checkbox" />
-                                </label>
-                            </th>
-                            <td>
-                                <div className="flex items-center gap-3">
-                                    UX/UI Designer
-                                </div>
-                            </td>
-                            <td>
-                                <div>
-
-                                    193 applied
-                                </div>
-                            </td>
-                            <td> <p>Ongoing</p></td>
-                            <th>
-                                21st march, 2025
-                            </th>
-                            <th>
-                                View Details
-                            </th>
-                        </tr>
-                        <tr>
-                            <th>
-                                <label>
-                                    <input type="checkbox" className="checkbox" />
-                                </label>
-                            </th>
-                            <td>
-                                <div className="flex items-center gap-3">
-                                    UX/UI Designer
-                                </div>
-                            </td>
-                            <td>
-                                <div>
-
-                                    193 applied
-                                </div>
-                            </td>
-                            <td> <p>Ongoing</p></td>
-                            <th>
-                                21st march, 2025
-                            </th>
-                            <th>
-                                View Details
-                            </th>
-                        </tr>
-                        <tr>
-                            <th>
-                                <label>
-                                    <input type="checkbox" className="checkbox" />
-                                </label>
-                            </th>
-                            <td>
-                                <div className="flex items-center gap-3">
-                                    UX/UI Designer
-                                </div>
-                            </td>
-                            <td>
-                                <div>
-
-                                    193 applied
-                                </div>
-                            </td>
-                            <td> <p>Ongoing</p></td>
-                            <th>
-                                21st march, 2025
-                            </th>
-                            <th>
-                                View Details
-                            </th>
-                        </tr>
-                        <tr>
-                            <th>
-                                <label>
-                                    <input type="checkbox" className="checkbox" />
-                                </label>
-                            </th>
-                            <td>
-                                <div className="flex items-center gap-3">
-                                    UX/UI Designer
-                                </div>
-                            </td>
-                            <td>
-                                <div>
-                                    193 applied
-                                </div>
-                            </td>
-                            <td> <p>Ongoing</p></td>
-                            <th>
-                                21st march, 2025
-                            </th>
-                            <th>
-                                View Details
-                            </th>
-                        </tr>
-                        <tr>
-                            <th>
-                                <label>
-                                    <input type="checkbox" className="checkbox" />
-                                </label>
-                            </th>
-                            <td>
-                                <div className="flex items-center gap-3">
-                                    UX/UI Designer
-                                </div>
-                            </td>
-                            <td>
-                                <div>
-
-                                    193 applied
-                                </div>
-                            </td>
-                            <td> <p>Ongoing</p></td>
-                            <th>
-                                21st march, 2025
-                            </th>
-                            <th>
-                                View Details
-                            </th>
-                        </tr>
+                        {/* Render active jobs */}
+                        {actJobs.data && Array.isArray(actJobs.data) && actJobs.data.length > 0 ? (
+                            actJobs.data.map((job, idx) => (
+                                <tr key={job._id || idx}>
+                                    <th>
+                                        <label>
+                                            <input type="checkbox" className="checkbox" />
+                                        </label>
+                                    </th>
+                                    <td>
+                                        <div className="flex items-center gap-3">
+                                            {job.jobTitle}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div>
+                                            {/* Replace with actual applicants count if available */}
+                                            {job.applicantsCount || 0} applied
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <p>{job.status}</p>
+                                    </td>
+                                    <th>
+                                        {/* Format deadline if needed */}
+                                        {job.deadline}
+                                    </th>
+                                    <th>
+                                        <Link to={`/recruiter/dashboard/summary-cards/active-job/${job._id}`}>
+                                            <p className="link link-primary">View Details</p>
+                                        </Link>
+                                    </th>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan={7} className="text-center py-4">No active jobs found.</td>
+                            </tr>
+                        )}
                     </tbody>
                     {/* foot */}
 

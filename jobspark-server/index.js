@@ -6,7 +6,7 @@ const port = process.env.Port || 5000;
 // const routes = require("./Routes/TestRoutes");
 // const testRoutes = require('./Routes/TestRoutes');
 const userRoutes = require('./Routes/UserRoutes');
-const activeJobsRoutes = require("./Routes/Recruiter/ActiveJobs");
+const activeJobsRoutes = require("./Routes/Recruiter/ActiveJobsRouter");
 const { default: mongoose } = require("mongoose");
 
 

@@ -67,8 +67,11 @@ const ActiveJobSchema = mongoose.Schema({
         required: true,
         trim: true
     },
+    applicantsCount: {
+        type: Number,
+        default: 0,
+    }
 
 }, { timestamps: true });
 
-module.exports = mongoose.model("ActiveJob", ActiveJobSchema
-);
+module.exports = mongoose.model("ActiveJob", ActiveJobSchema);

@@ -19,6 +19,7 @@ import ActiveJobs from "../Users/Recruiter/Dashboard/SummaryCards/ActiveJobs/Act
 import TotalApplicants from "../Users/Recruiter/Dashboard/SummaryCards/TotalApplicants/TotalApplicants"
 import ShortListed from "../Users/Recruiter/Dashboard/SummaryCards/ShortListed/ShortListed"
 import InterviewScheduled from "../Users/Recruiter/Dashboard/SummaryCards/InterviewScheduled/InterviewScheduled"
+import ActiveJobsDetails from "../Users/Recruiter/Dashboard/SummaryCards/ActiveJobs/ActiveJobsDetails"
 
 
 const router = createBrowserRouter([
@@ -82,6 +83,13 @@ const router = createBrowserRouter([
                                 path: "active-Jobs",
                                 element: <ActiveJobs />
                             },
+                            {
+                                path: "active-job/:id",
+                                element: <ActiveJobsDetails />,
+                                loader: ({ params }) => fetch(`http://localhost:5000/api/v1/${params.id}`)
+
+                            },
+
                             {
                                 path: "total-applications",
                                 element: <TotalApplicants />
