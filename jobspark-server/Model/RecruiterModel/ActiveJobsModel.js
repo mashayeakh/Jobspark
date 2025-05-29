@@ -70,7 +70,13 @@ const ActiveJobSchema = mongoose.Schema({
     applicantsCount: {
         type: Number,
         default: 0,
+    },
+    recruiter: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        require: true,
     }
+
 
 }, { timestamps: true });
 

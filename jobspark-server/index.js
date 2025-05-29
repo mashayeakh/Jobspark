@@ -5,8 +5,9 @@ const dotenv = require("dotenv");
 const port = process.env.Port || 5000;
 // const routes = require("./Routes/TestRoutes");
 // const testRoutes = require('./Routes/TestRoutes');
-const userRoutes = require('./Routes/UserRoutes');
-const activeJobsRoutes = require("./Routes/Recruiter/ActiveJobsRouter");
+const userRoutes = require('./Routes/UserRouter/UserRoutes');
+const activeJobsRoutes = require("./Routes/ActiveJobsRecruiter/ActiveJobsRouter");
+const recruiterJobsRoutes = require("./Routes/RecruiterJobsRouter/RecruiterJobsRouter");
 const { default: mongoose } = require("mongoose");
 
 
@@ -27,8 +28,8 @@ app.get("/test", async (req, res) => {
 
 // app.use('/api/v1', testRoutes);
 app.use('/api/v1', userRoutes);
-
 app.use("/api/v1", activeJobsRoutes);
+app.use("/api/v1", recruiterJobsRoutes);
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
