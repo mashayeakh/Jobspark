@@ -15,8 +15,6 @@ import { SlSettings } from "react-icons/sl";
 import { IoLogOutOutline } from "react-icons/io5";
 
 
-
-
 const Navbar = () => {
 
     const { user, signingOut } = useContext(AuthContext);

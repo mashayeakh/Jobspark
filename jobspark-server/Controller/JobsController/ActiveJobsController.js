@@ -2,7 +2,7 @@ const activeJobsModel = require("../../Model/RecruiterModel/ActiveJobsModel");
 
 const createActiveJobs = async (req, res) => {
     try {
-        const allJobsData = req.body;
+        const allJobsData = req.body; // coming including recuiter.
 
         if (!allJobsData.recruiter) {
             return res.status(400).json({ message: "Recruiter ID is required" });

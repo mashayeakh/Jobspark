@@ -15,7 +15,7 @@ import ActiveJobsContextProvider from './components/Context/ActiveJobsContextPro
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     {/* <ThemeProvider> */}
-    <AuthContextProvider>\
+    <AuthContextProvider>
       <ActiveJobsContextProvider>
         <RouterProvider router={router} />
       </ActiveJobsContextProvider>

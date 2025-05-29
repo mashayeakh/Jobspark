@@ -112,7 +112,7 @@ const RecruiterForm = () => {
                                         name="name"
                                         required
                                         placeholder="Username"
-                                        pattern="[A-Za-z][A-Za-z0-9\-]*"
+                                        // pattern="[A-Za-z][A-Za-z0-9\-]*"
                                         minLength="3"
                                         maxLength="30"
                                         title="Only letters, numbers or dash"
@@ -308,10 +308,10 @@ const RecruiterForm = () => {
                                 />
 
                                 <datalist id="browsers">
-                                    <option value="Chrome" />
-                                    <option value="Firefox" />
-                                    <option value="Safari" />
-                                    <option value="Brave" />
+                                    <option value="hiring_manager" />
+                                    <option value="hr" />
+                                    <option value="cto" />
+                                    {/* <option value="Brave" /> */}
                                 </datalist>
                             </div>
                         </div>

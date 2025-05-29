@@ -7,11 +7,20 @@ import { AuthContext } from '../../../../../Context/AuthContextProvider';
 
 const ActiveJobsTable = () => {
 
+    const { user } = useContext(AuthContext);
+
+    const recruiterId = user?._id;
+
+    console.log("Recruiter id ", recruiterId);
+
+
     const handleAddJobs = async (e) => {
         e.preventDefault();
         console.log("Form Submitted");
 
         const addJobs = {
+            recruiter: recruiterId, //this is the place where specific user can create specific jobs
+
             jobTitle: e.target.job_title.value.trim(),
             companyName: e.target.company_name.value.trim(),
             location: e.target.location.value.trim(),
@@ -31,8 +40,12 @@ const ActiveJobsTable = () => {
         try {
             const url = "http://localhost:5000/api/v1/job"
             const data = await postMethod(url, addJobs);
-
-            console.log("Data = ", data);
+            if (data.success === "true") {
+                console.log("Dataaaaa = ", data);
+                alert("Job Added Successfully");
+                // window.location.reload();
+                e.target.reset();
+            }
 
 
         } catch (err) {
@@ -41,7 +54,6 @@ const ActiveJobsTable = () => {
 
     }
 
-    const { user } = useContext(AuthContext);
 
     console.log("user id", user?._id);
 

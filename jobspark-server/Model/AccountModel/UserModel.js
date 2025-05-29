@@ -30,12 +30,11 @@ const userSchema = mongoose.Schema({
         },
     },
     skills: {
-        type: String,
-        required: true,
-        trim: true,
+        type: [String],
         required: function () {
             return this.role === 'job_seeker';
         },
+        trim: true,
     },
     experienceLevel: {
         type: String,

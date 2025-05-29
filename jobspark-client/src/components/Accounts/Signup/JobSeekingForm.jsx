@@ -80,6 +80,16 @@ const JobSeekingForm = () => {
         }
     }
 
+
+    // const skills = [
+    //     'JavaScript', 'TypeScript', 'Java', 'C#', 'Ruby',
+    //     'Swift', 'Kotlin', 'Scala', 'HTML', 'CSS',
+    //     'React', 'Vue', 'Next.js', 'Node.js', 'Express', 'NestJS',
+    //     'Spring', 'Django', 'ASP.NET', 'MongoDB', 'MySQL',
+    //     'PostgreSQL', 'GraphQL', 'REST',
+    //     'AWS', 'Azure', 'Git', 'CI/CD', 'Machine Learning', 'Data Science'
+    // ];
+
     return (
         <>
             <div className='pt-10'>
@@ -103,7 +113,7 @@ const JobSeekingForm = () => {
                                         required
                                         name="name"
                                         placeholder="Username"
-                                        pattern="[A-Za-z][A-Za-z0-9\-]*"
+                                        // pattern="[A-Za-z][A-Za-z0-9\-]*"
                                         minLength="3"
                                         maxLength="30"
                                         title="Only letters, numbers or dash"
@@ -285,41 +295,41 @@ const JobSeekingForm = () => {
                         </div>
 
                         <div className="flex gap-6 mb-10">
-                            {/* Username Field */}
+                            {/* Role Field */}
                             <div className="flex-1">
                                 <input
                                     list="roles"
                                     name="roles"
                                     placeholder="Pick a Role or write your own"
-                                    className=" w-full select "
+                                    className="w-full select"
                                 />
-
-                                <datalist id="browsers">
-                                    <option value="Chrome" />
-                                    <option value="Firefox" />
-                                    <option value="Safari" />
-                                    <option value="Brave" />
+                                <datalist id="roles">
+                                    <option value="Software Engineer" />
+                                    <option value="Junior Software Engineer" />
+                                    <option value="Web Developer" />
+                                    <option value="Others" />
                                 </datalist>
                             </div>
-
-                            {/* Email Field */}
                             <div className="flex-1">
-                                <select defaultValue="Skills" name="skills" className="select ">
-                                    <option disabled={true}>Skills</option>
-                                    <option>Light mode</option>
-                                    <option>Dark mode</option>
-                                    <option>System</option>
-                                </select>
+                                <label className="input validator w-full">
+                                    <input
+                                        type="text"
+                                        required
+                                        name="skills"
+                                        placeholder="skills like reactjs, nodejs......"
+                                        className="w-full"
+                                    />
+                                </label>
                             </div>
                         </div>
                         <div className="flex gap-32 ">
                             {/* Username Field */}
                             <div className="flex-1 w-full">
-                                <select defaultValue="Experience Level" name='experienceLevel' className="select w-full">
-                                    <option disabled={true}>Experience Level</option>
-                                    <option>Crimson</option>
-                                    <option>Amber</option>
-                                    <option>Velvet</option>
+                                <select defaultValue="Experience Level" name="experienceLevel" className="select">
+                                    <option disabled>Experience Level</option>
+                                    <option>Junior Level (0-1 years)</option>
+                                    <option>Mid Level (1-3 years)</option>
+                                    <option>Senior Level (3-5 years)</option>
                                 </select>
                             </div>
                             <div>
@@ -356,7 +366,6 @@ const JobSeekingForm = () => {
                         </div>
                     </form>
                     <ToastContainer position="top-right" autoClose={3000} />
-
                 </div >
             </div >
         </>

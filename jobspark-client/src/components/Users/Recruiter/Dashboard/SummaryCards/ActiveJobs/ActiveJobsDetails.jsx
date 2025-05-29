@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react'
 import { Link, useLoaderData } from 'react-router'
 import { IoLocationOutline } from "react-icons/io5";
 import { ActiveJobsContext } from '../../../../../Context/ActiveJobsContextProvider';
+import { AuthContext } from '../../../../../Context/AuthContextProvider';
 
 const ActiveJobsDetails = () => {
 
@@ -12,20 +13,24 @@ const ActiveJobsDetails = () => {
     console.log("ID", data.data._id);
     const id = data.data._id;
 
-    const { fetchedActiveJobs } = useContext(ActiveJobsContext);
+    const { fetchActiveJobsFromAPI } = useContext(ActiveJobsContext);
+    const { user } = useContext(AuthContext);
+    console.log("USER ID", user._id);
     const [remainingActiveJobs, setRemainingActiveJobs] = useState({});
 
     useEffect(() => {
         const restOfTheActiveJobs = async () => {
-            const url = "http://localhost:5000/api/v1/";
-            const allActiveJobs = await fetchedActiveJobs(url);
+            if (!user?._id) return;
+            const url = `http://localhost:5000/api/v1/job/recruiter?recruiterId=${user._id}`;
+            const allActiveJobs = await fetchActiveJobsFromAPI(url);
             const result = allActiveJobs.data.filter(jobId => jobId._id !== id);
-            console.log("Result ", result);
             setRemainingActiveJobs(result);
         };
 
         restOfTheActiveJobs();
-    }, [id]);
+    }, [fetchActiveJobsFromAPI, id, user?._id]);
+
+
     return (
         <div>
             {/* Lorem, ipsum dolor sit amet consectetur adipisicing elit. Iure at assumenda iusto natus vel explicabo debitis dignissimos minus alias? Libero atque qui, iure cumque nemo dolor omnis? Soluta, saepe commodi. */}
