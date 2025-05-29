@@ -3,6 +3,7 @@ import { IoMdAdd } from "react-icons/io";
 import { getMethod, postMethod } from '../../../../../Utils/Api';
 import { Link } from 'react-router';
 import { ActiveJobsContext } from '../../../../../Context/ActiveJobsContextProvider';
+import { AuthContext } from '../../../../../Context/AuthContextProvider';
 
 const ActiveJobsTable = () => {
 
@@ -40,31 +41,43 @@ const ActiveJobsTable = () => {
 
     }
 
-    const [actJobs, setActJobs] = useState({});
-    const { allActiveJobs, fetchedActiveJobs } = useContext(ActiveJobsContext);
+    const { user } = useContext(AuthContext);
+
+    console.log("user id", user?._id);
+
+    const { allActiveJobs, fetchRecruiterActiveJobs } = useContext(ActiveJobsContext);
+    const [actJobs, setActJobs] = useState([]);
 
     const fetchActiveJobs = async () => {
-
         try {
-            const url = "http://localhost:5000/api/v1/"
-            const data = await fetchedActiveJobs(url);
-            if (data.success === true) {
-                console.log("Data = ", data);
-                setActJobs(data);
-            }
+            const url = `http://localhost:5000/api/v1/job/recruiter?recruiterId=${user._id}`;
+            console.log("Fetch URL: ", url);
 
+            const data = await fetchRecruiterActiveJobs(url);
+            console.log("Returned Data: ", data);
+
+            if (data.status === "success") {
+                setActJobs(data.data);
+            }
         } catch (err) {
             console.log("Err from Client - ", err.message);
         }
-    }
+    };
+
 
     useEffect(() => {
-        fetchActiveJobs();
-    }, [])
+        if (user?._id) {
+            fetchActiveJobs();
 
+        }
+    }, [user?._id]);
 
-    console.log("Active Jobs --- ", actJobs);
-    console.log("Active Jobs type  --- ", Array.isArray(actJobs.data));
+    useEffect(() => {
+        console.log("actJobs ", actJobs);
+    }, [actJobs]);
+
+    // console.log("Act Jobssss ", actJobs);
+
     // // Example: Access the companyName of the first job in the data array
     // if (actJobs.data && Array.isArray(actJobs.data) && actJobs.data.length > 0) {
     //     console.log("Active companyName --- ", actJobs.data[0].companyName);
@@ -272,8 +285,8 @@ const ActiveJobsTable = () => {
                     </thead>
                     <tbody>
                         {/* Render active jobs */}
-                        {actJobs.data && Array.isArray(actJobs.data) && actJobs.data.length > 0 ? (
-                            actJobs.data.map((job, idx) => (
+                        {actJobs.length > 0 ? (
+                            actJobs.map((job, idx) => (
                                 <tr key={job._id || idx}>
                                     <th>
                                         <label>
