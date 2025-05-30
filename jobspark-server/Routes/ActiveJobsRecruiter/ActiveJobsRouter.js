@@ -9,7 +9,7 @@ const router = express.Router();
 
 router.post("/job", createActiveJobs);
 router.get("/", showActiveJobs);
-router.get("/:id", findActiveJobsById);
+router.get("/job/:id", findActiveJobsById);
 // router.get("/job/recruiter", showRecuiterJobs);
 // router.get("/job/recruiter", showRecruiterJobs);
 

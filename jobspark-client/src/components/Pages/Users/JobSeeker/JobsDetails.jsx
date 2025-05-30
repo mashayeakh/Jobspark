@@ -1,10 +1,9 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { Link, useLoaderData } from 'react-router'
-import { IoLocationOutline } from "react-icons/io5";
-import { ActiveJobsContext } from '../../../../../Context/ActiveJobsContextProvider';
-import { AuthContext } from '../../../../../Context/AuthContextProvider';
+import { AuthContext } from '../../../Context/AuthContextProvider';
+import { ActiveJobsContext } from '../../../Context/ActiveJobsContextProvider';
+import { useLoaderData } from 'react-router';
 
-const ActiveJobsDetails = () => {
+const JobsDetails = () => {
 
 
     const data = useLoaderData();
@@ -13,22 +12,23 @@ const ActiveJobsDetails = () => {
     console.log("ID", data.data._id);
     const id = data.data._id;
 
-    const { fetchRecruiterActiveJobs } = useContext(ActiveJobsContext);
+    // const { fetchRecruiterActiveJobs } = useContext(ActiveJobsContext);
     const { user } = useContext(AuthContext);
     // console.log("USER ID", user._id);
-    const [remainingActiveJobs, setRemainingActiveJobs] = useState({});
+    // const [remainingActiveJobs, setRemainingActiveJobs] = useState({});
 
-    useEffect(() => {
-        const restOfTheActiveJobs = async () => {
-            if (!user?._id) return;
-            const url = `http://localhost:5000/api/v1/job/recruiter?recruiterId=${user?._id}`;
-            const allActiveJobs = await fetchRecruiterActiveJobs(url);
-            const result = allActiveJobs.data.filter(jobId => jobId?._id !== id);
-            setRemainingActiveJobs(result);
-        };
+    // useEffect(() => {
+    //     const restOfTheActiveJobs = async () => {
+    //         if (!user?._id) return;
+    //         const url = `http://localhost:5000/api/v1/job/recruiter?recruiterId=${user?._id}`;
+    //         const allActiveJobs = await fetchRecruiterActiveJobs(url);
+    //         const result = allActiveJobs.data.filter(jobId => jobId?._id !== id);
+    //         setRemainingActiveJobs(result);
+    //     };
 
-        restOfTheActiveJobs();
-    }, [fetchRecruiterActiveJobs, id, user?._id]);
+    //     restOfTheActiveJobs();
+    // }, [fetchRecruiterActiveJobs, id, user?._id]);
+
 
 
     return (
@@ -160,4 +160,4 @@ const ActiveJobsDetails = () => {
     )
 }
 
-export default ActiveJobsDetails
+export default JobsDetails

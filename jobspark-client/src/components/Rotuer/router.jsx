@@ -20,6 +20,7 @@ import ShortListed from "../Users/Recruiter/Dashboard/SummaryCards/ShortListed/S
 import InterviewScheduled from "../Users/Recruiter/Dashboard/SummaryCards/InterviewScheduled/InterviewScheduled"
 import ActiveJobsDetails from "../Users/Recruiter/Dashboard/SummaryCards/ActiveJobs/ActiveJobsDetails"
 import Job from './../Pages/Jobs/Jobs';
+import JobsDetails from "../Pages/Users/JobSeeker/JobsDetails"
 
 
 const router = createBrowserRouter([
@@ -40,6 +41,12 @@ const router = createBrowserRouter([
             {
                 path: "/jobs",
                 element: <Job />
+            },
+            //* job details -----------------------------------------------
+            {
+                path: "/job/:id",
+                element: <JobsDetails />,
+                loader: ({ params }) => fetch(`http://localhost:5000/api/v1/${params.id}`)
             },
             {
                 path: "/companies",

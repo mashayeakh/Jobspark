@@ -1,10 +1,12 @@
 
 import { FaSearch } from 'react-icons/fa';
-import Filterbar from './Filterbar/Filterbar';
-import JobLayout from './JobLayout/JobLayout';
+import Filterbar from './shared/Filterbar/Filterbar';
+import JobLayout from './shared/JobLayout/JobLayout';
 // import JobLayout from './JobLayout/JobLayout';
 
 const Job = () => {
+
+
     return (
         <div>
             <div className='rounded-2xl p-4'>
@@ -40,11 +42,11 @@ const Job = () => {
 
                 </div>
             </div>
-            <div className="flex flex-col md:flex-row px-4 md:px-8 py-6 gap-6">
+            <div className="flex flex-col md:flex-row px-4 md:px-24 py-6 gap-6">
                 <div className="w-72">
                     <Filterbar />
                 </div>
-                <div className="flex-1">
+                <div className="flex-1  px-12 ">
                     <JobLayout />
                 </div>
             </div>

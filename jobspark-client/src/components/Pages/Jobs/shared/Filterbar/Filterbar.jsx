@@ -1,6 +1,6 @@
 import React from 'react'
 import { IoIosArrowDown } from 'react-icons/io'
-import saveIcon from "../../../../assets/imgs/icons/save-instagram.png"
+import saveIcon from "../../../../../assets/imgs/icons/save-instagram.png"
 const Filterbar = () => {
     return (
 
