@@ -2,6 +2,7 @@
 import { FaSearch } from 'react-icons/fa';
 import Filterbar from './Filterbar/Filterbar';
 import JobLayout from './JobLayout/JobLayout';
+// import JobLayout from './JobLayout/JobLayout';
 
 const Job = () => {
     return (
@@ -16,7 +17,6 @@ const Job = () => {
                             <option>VScode fork</option>
                             <option>Another VScode fork</option>
                         </select>
-
 
                         <select defaultValue="Location" className="select select-secondary">
                             <option disabled={true}>Location</option>

@@ -10,7 +10,6 @@ const JobLayout = () => {
                     <span className='text-gray-400'>UI Designer | Dhaka, BD</span>
                 </div>
 
-
                 <div className="flex justify-center w-fit">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
                         {/* CARD 1 */}
@@ -93,8 +92,6 @@ const JobLayout = () => {
                     </div>
                 </div>
             </div>
-
-
         </>
     )
 }

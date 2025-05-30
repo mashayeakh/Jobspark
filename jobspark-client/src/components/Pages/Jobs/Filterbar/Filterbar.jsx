@@ -1,6 +1,6 @@
 import React from 'react'
 import { IoIosArrowDown } from 'react-icons/io'
-import saveIcon from "../../../assets/imgs/icons/save-instagram.png"
+import saveIcon from "../../../../assets/imgs/icons/save-instagram.png"
 const Filterbar = () => {
     return (
 
@@ -184,14 +184,11 @@ const Filterbar = () => {
                         </div>
                         <button className='py-1 '>
                             <img src={saveIcon} alt="" className='w-5 cursor-pointer' />
-
                         </button>
                     </div>
                 </div>
-
             </div>
         </>
-
     )
 }
 

@@ -3,7 +3,6 @@ import Home from "../Home/Home"
 import Root from "../Root/Root"
 // import random from './../random';
 import Test from "../Test/test"
-import Job from "../Job/Job"
 import Company from "../Company/Company"
 import Network from "../Network/Network"
 import Signup from "../Accounts/Signup/Signup"
@@ -20,6 +19,7 @@ import TotalApplicants from "../Users/Recruiter/Dashboard/SummaryCards/TotalAppl
 import ShortListed from "../Users/Recruiter/Dashboard/SummaryCards/ShortListed/ShortListed"
 import InterviewScheduled from "../Users/Recruiter/Dashboard/SummaryCards/InterviewScheduled/InterviewScheduled"
 import ActiveJobsDetails from "../Users/Recruiter/Dashboard/SummaryCards/ActiveJobs/ActiveJobsDetails"
+import Job from './../Pages/Jobs/Jobs';
 
 
 const router = createBrowserRouter([
@@ -36,6 +36,7 @@ const router = createBrowserRouter([
                 path: "/test",
                 element: <Test />
             },
+            //* shared----------------------------------------------------
             {
                 path: "/jobs",
                 element: <Job />

@@ -15,15 +15,15 @@ const ActiveJobsDetails = () => {
 
     const { fetchActiveJobsFromAPI } = useContext(ActiveJobsContext);
     const { user } = useContext(AuthContext);
-    console.log("USER ID", user._id);
+    // console.log("USER ID", user._id);
     const [remainingActiveJobs, setRemainingActiveJobs] = useState({});
 
     useEffect(() => {
         const restOfTheActiveJobs = async () => {
             if (!user?._id) return;
-            const url = `http://localhost:5000/api/v1/job/recruiter?recruiterId=${user._id}`;
+            const url = `http://localhost:5000/api/v1/job/recruiter?recruiterId=${user?._id}`;
             const allActiveJobs = await fetchActiveJobsFromAPI(url);
-            const result = allActiveJobs.data.filter(jobId => jobId._id !== id);
+            const result = allActiveJobs.data.filter(jobId => jobId?._id !== id);
             setRemainingActiveJobs(result);
         };
 
