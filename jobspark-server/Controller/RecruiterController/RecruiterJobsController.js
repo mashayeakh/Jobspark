@@ -1,7 +1,7 @@
 const ActiveJobsModel = require("../../Model/RecruiterModel/ActiveJobsModel");
 
-//!show recruiter posted jobs.
-// /http://localhost:5000/api/v1/job/recruiter
+//show recruiter posted jobs.
+//http://localhost:5000/api/v1/job/recruiter
 const showRecuiterJobs = async (req, res) => {
     try {
         const result = await ActiveJobsModel.find();

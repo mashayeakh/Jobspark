@@ -34,7 +34,7 @@ const ActiveJobsDetails = () => {
             }
         }
         allActiveJobs()
-    }, [remainingActiveJobs])
+    }, [id])
 
     return (
         <div>

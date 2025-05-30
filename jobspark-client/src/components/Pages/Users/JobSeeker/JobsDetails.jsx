@@ -3,6 +3,7 @@ import { AuthContext } from '../../../Context/AuthContextProvider';
 import { ActiveJobsContext } from '../../../Context/ActiveJobsContextProvider';
 import { Link, useLoaderData, useParams } from 'react-router';
 import { IoLocationOutline } from "react-icons/io5";
+import { postMethod } from '../../../Utils/Api';
 
 
 const JobsDetails = () => {
@@ -28,7 +29,7 @@ const JobsDetails = () => {
             }
         }
         allActiveJobs()
-    }, [])
+    }, [data.data?._id]); // run effect only when job id changes
 
 
 
@@ -40,7 +41,7 @@ const JobsDetails = () => {
 
     // console.log("User Info ", user);
 
-    const handleApplyNowBtn = (e) => {
+    const handleApplyNowBtn = async (e) => {
         e.preventDefault();
         console.log("apply now clicked");
 
@@ -50,8 +51,22 @@ const JobsDetails = () => {
             userInfo: user,
             currentJobId: params?.id
         }
-
         console.log("UserForm ", userInfoForm);
+
+        const url = `http://localhost:5000/api/v1/apply/job/${userInfoForm.currentJobId}`
+        try {
+            const response = await postMethod(url, userInfoForm);
+            console.log("Response:", response);
+
+            if (response.success) {
+                alert("Successfully applied!");
+            } else {
+                alert("Application failed.");
+            }
+        } catch (err) {
+            console.error("Application error:", err);
+            alert("Something went wrong while applying.");
+        }
 
     }
 

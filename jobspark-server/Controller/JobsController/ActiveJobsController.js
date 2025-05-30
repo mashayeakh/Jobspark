@@ -31,10 +31,6 @@ const showActiveJobs = async (req, res) => {
 
     const jobs = await activeJobsModel.find().populate("recruiter",);
 
-    console.log("Jobs ", jobs);
-
-    // console.log("Jobs length", jobs.length);
-
     if (!jobs || jobs.length === 0) {
         return res.status(404).json({
             message: "No jobs found",
@@ -57,7 +53,7 @@ const showActiveJobs = async (req, res) => {
 }
 
 
-//find active jobs by id or active job details
+//find active jobs by id means active job details
 // http://localhost:5000/api/v1/job/${id}
 const findActiveJobsById = async (req, res) => {
     const { id } = req.params;
@@ -95,7 +91,8 @@ const findActiveJobsById = async (req, res) => {
 };
 
 
-//apply to jobs
+//apply to jobs, you need job id and the specific recruiter's info
+// http://localhost:5000/api/v1/apply/job/${currJobId}
 const applyToJobs = async (req, res) => {
     //job info from params.
     const { currentJobId } = req.params;
@@ -104,7 +101,7 @@ const applyToJobs = async (req, res) => {
     //user info from body
     const { userInfo } = req.body;
     console.log("applied job user: ", userInfo);
-
+ 
 
     //now i need the full job info.
     //find the job by  id
@@ -131,6 +128,8 @@ const applyToJobs = async (req, res) => {
 
 }
 
+//getting all the jobs that posted by a specific recruiter
+//http://localhost:5000/api/v1/recruiter?recruiterId=${id}
 const getJobsByRecruiter = async (req, res) => {
     try {
         const { recruiterId } = req.query;
@@ -151,8 +150,6 @@ const getJobsByRecruiter = async (req, res) => {
         res.status(500).json({ message: "Internal server error", error: err.message });
     }
 };
-
-
 
 
 module.exports = { createActiveJobs, showActiveJobs, findActiveJobsById, applyToJobs, getJobsByRecruiter }
