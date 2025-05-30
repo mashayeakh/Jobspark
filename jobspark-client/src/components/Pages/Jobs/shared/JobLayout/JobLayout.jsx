@@ -79,7 +79,7 @@ const JobLayout = () => {
                                     </div>
                                     <div className='pt-8'>
                                         <p className="mb-5 text-base text-gray-500 sm:text-lg dark:text-gray-400">
-                                            Lorem ipsum dolor sit, amet consectetur adipisicing elit. Soluta, quaerat, saepe esse id qui obcaecati sapiente quia sequi expedita eos tempora aut in fugit libero placeat, iusto atque similique veniam?
+                                            {showJobs?.description}
                                         </p>
                                         <div>
                                             <div className="bg-white">

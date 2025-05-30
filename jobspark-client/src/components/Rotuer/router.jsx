@@ -46,7 +46,7 @@ const router = createBrowserRouter([
             {
                 path: "/job/:id",
                 element: <JobsDetails />,
-                loader: ({ params }) => fetch(`http://localhost:5000/api/v1/${params.id}`)
+                loader: ({ params }) => fetch(`http://localhost:5000/api/v1/job/${params.id}`)
             },
             {
                 path: "/companies",
@@ -94,7 +94,7 @@ const router = createBrowserRouter([
                             {
                                 path: "active-job/:id",
                                 element: <ActiveJobsDetails />,
-                                loader: ({ params }) => fetch(`http://localhost:5000/api/v1/${params.id}`)
+                                loader: ({ params }) => fetch(`http://localhost:5000/api/v1/job/${params.id}`)
 
                             },
 

@@ -1,52 +1,28 @@
 const ActiveJobsModel = require("../../Model/RecruiterModel/ActiveJobsModel");
 
-//!show recruiter posted jobs. 
+//!show recruiter posted jobs.
+// /http://localhost:5000/api/v1/job/recruiter
 const showRecuiterJobs = async (req, res) => {
-    //get the recruiter id
-
     try {
-        const recruiter_id = req.query.recruiterId;
-        console.log("Recruiter id ", recruiter_id);
-
-
-        if (!recruiter_id) {
-            return res.status(400).json({
-                status: "error",
-                message: "Please provide recruiter id",
-            });
+        const result = await ActiveJobsModel.find();
+        if (!result) {
+            res.status(404).json({
+                status: false,
+                message: "No jobs posted by recruiter",
+            })
         }
-
-
-        //get the job model
-        const activeJobs = await ActiveJobsModel.find({
-            recruiter: recruiter_id,
-        })
-
-        if (!activeJobs || activeJobs.length === 0) {
-            return res.status(404).json({
-                status: "error",
-                message: "No jobs found",
-            });
-        }
-
-
         res.status(200).json({
-            status: "success",
-            message: "Found",
-            data: activeJobs
-        })
-
-
+            status: true,
+            message: "Jobs posted by recruiter",
+            data: result,
+        });
     } catch (err) {
-        console.log("Err from backlend", err.message);
+        console.log("/n error from showRecuiterJobs : ", err.message);
         res.status(500).json({
-            status: "error",
+            status: false,
             message: "Internal server error",
         })
     }
-
-
-    // res.send(recruiter_id);
 }
 
 module.exports = { showRecuiterJobs }

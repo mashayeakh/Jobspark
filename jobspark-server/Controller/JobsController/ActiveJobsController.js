@@ -1,5 +1,7 @@
 const activeJobsModel = require("../../Model/RecruiterModel/ActiveJobsModel");
 
+//create active jobs
+//http://localhost:5000/api/v1/recruiter?recruiterId=${user._id}
 const createActiveJobs = async (req, res) => {
     try {
         const allJobsData = req.body; // coming including recuiter.
@@ -13,7 +15,7 @@ const createActiveJobs = async (req, res) => {
 
         res.status(201).json({
             message: "Job created successfully",
-            success: true,
+            status: true,
             data: result
         });
 
@@ -23,7 +25,8 @@ const createActiveJobs = async (req, res) => {
     }
 };
 
-
+//show all active jobs
+//http://localhost:5000/api/v1/
 const showActiveJobs = async (req, res) => {
 
     const jobs = await activeJobsModel.find().populate("recruiter",);
@@ -35,57 +38,27 @@ const showActiveJobs = async (req, res) => {
     if (!jobs || jobs.length === 0) {
         return res.status(404).json({
             message: "No jobs found",
-            success: false,
+            status: false,
         });
     }
 
     if (jobs.length > 0) {
         res.status(200).json({
             message: "Jobs are fetched successfully",
-            success: true,
+            status: true,
             data: jobs,
         })
     } else {
         res.status(404).json({
             message: "No jobs found",
-            success: false,
+            status: false,
         })
     }
 }
 
 
-// const showRecruiterJobs = async (req, res) => {
-//     const recruiterId = req.query.recruiterId; // this assumes you've set req.user during login
-
-//     try {
-//         const jobs = await activeJobsModel
-//             .find({ recruiter: recruiterId })
-//             .populate("recruiter", "name email");
-
-//         if (!jobs || jobs.length === 0) {
-//             return res.status(404).json({
-//                 message: "No jobs found for this recruiter",
-//                 success: false,
-//             });
-//         }
-
-//         res.status(200).json({
-//             message: "Jobs fetched successfully for this recruiter",
-//             success: true,
-//             data: jobs,
-//         });
-//     } catch (error) {
-//         console.error("Error fetching recruiter's jobs:", error);
-//         res.status(500).json({
-//             message: "Something went wrong",
-//             success: false,
-//             error: error.message
-//         });
-//     }
-// };
-
-
-
+//find active jobs by id or active job details
+// http://localhost:5000/api/v1/job/${id}
 const findActiveJobsById = async (req, res) => {
     const { id } = req.params;
     console.log("ID ", id);
@@ -122,4 +95,64 @@ const findActiveJobsById = async (req, res) => {
 };
 
 
-module.exports = { createActiveJobs, showActiveJobs, findActiveJobsById, }
+//apply to jobs
+const applyToJobs = async (req, res) => {
+    //job info from params.
+    const { currentJobId } = req.params;
+    console.log("Id from parameter --", currentJobId);
+
+    //user info from body
+    const { userInfo } = req.body;
+    console.log("applied job user: ", userInfo);
+
+
+    //now i need the full job info.
+    //find the job by  id
+    const jobInfo = await activeJobsModel.findById(currentJobId);
+    console.log("Job Info ", jobInfo);
+
+
+    if (!jobInfo) {
+        res.status(404).json({
+            message: `No job found with ID: ${currentJobId}`,
+            success: false,
+        })
+    }
+
+    jobInfo.applicantsCount += 1;
+    //now save into db
+    await jobInfo.save();
+
+    res.status(200).json({
+        message: "Applied successfully done",
+        success: true,
+        userInfo: jobInfo,
+    })
+
+}
+
+const getJobsByRecruiter = async (req, res) => {
+    try {
+        const { recruiterId } = req.query;
+
+        if (!recruiterId) {
+            return res.status(400).json({ message: "recruiterId is required" });
+        }
+
+        const jobs = await activeJobsModel.find({ recruiter: recruiterId });
+
+        res.status(200).json({
+            success: true,
+            data: jobs
+        });
+
+    } catch (err) {
+        console.error("Error fetching jobs by recruiter:", err);
+        res.status(500).json({ message: "Internal server error", error: err.message });
+    }
+};
+
+
+
+
+module.exports = { createActiveJobs, showActiveJobs, findActiveJobsById, applyToJobs, getJobsByRecruiter }

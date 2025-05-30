@@ -1,6 +1,6 @@
 
 const express = require("express");
-const { createActiveJobs, showActiveJobs, findActiveJobsById, showRecruiterJobs } = require("../../Controller/JobsController/ActiveJobsController");
+const { createActiveJobs, showActiveJobs, findActiveJobsById, showRecruiterJobs, applyToJobs, getJobsByRecruiter } = require("../../Controller/JobsController/ActiveJobsController");
 const { showRecuiterJobs } = require("../../Controller/RecruiterController/RecruiterJobsController");
 const router = express.Router();
 // const { createActiveJobs } = require("../../Controller/RecruiterController/ActiveJobsController");
@@ -10,7 +10,8 @@ const router = express.Router();
 router.post("/job", createActiveJobs);
 router.get("/", showActiveJobs);
 router.get("/job/:id", findActiveJobsById);
-// router.get("/job/recruiter", showRecuiterJobs);
-// router.get("/job/recruiter", showRecruiterJobs);
+router.post("/apply/job/:currentJobId", applyToJobs);
+router.get("/recruiter", getJobsByRecruiter);
+
 
 module.exports = router

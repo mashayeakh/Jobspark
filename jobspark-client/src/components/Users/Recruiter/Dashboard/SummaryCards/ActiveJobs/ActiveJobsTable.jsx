@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { IoMdAdd } from "react-icons/io";
-import { getMethod, postMethod } from '../../../../../Utils/Api';
+import { postMethod } from '../../../../../Utils/Api';
 import { Link } from 'react-router';
 import { ActiveJobsContext } from '../../../../../Context/ActiveJobsContextProvider';
 import { AuthContext } from '../../../../../Context/AuthContextProvider';
@@ -54,21 +54,19 @@ const ActiveJobsTable = () => {
 
     }
 
-
     console.log("user id", user?._id);
 
-    const { allActiveJobs, fetchRecruiterActiveJobs } = useContext(ActiveJobsContext);
+    const { fetchRecruiterAllActiveJobs } = useContext(ActiveJobsContext);
     const [actJobs, setActJobs] = useState([]);
 
     const fetchActiveJobs = async () => {
         try {
-            const url = `http://localhost:5000/api/v1/job/recruiter?recruiterId=${user._id}`;
+            const url = `http://localhost:5000/api/v1/recruiter?recruiterId=${user._id}`;
             console.log("Fetch URL: ", url);
-
-            const data = await fetchRecruiterActiveJobs(url);
+            const data = await fetchRecruiterAllActiveJobs(url);
             console.log("Returned Data: ", data);
 
-            if (data.status === "success") {
+            if (data.success) {
                 setActJobs(data.data);
             }
         } catch (err) {
@@ -76,24 +74,13 @@ const ActiveJobsTable = () => {
         }
     };
 
-
     useEffect(() => {
         if (user?._id) {
             fetchActiveJobs();
-
         }
     }, [user?._id]);
 
-    useEffect(() => {
-        console.log("actJobs ", actJobs);
-    }, [actJobs]);
-
-    // console.log("Act Jobssss ", actJobs);
-
-    // // Example: Access the companyName of the first job in the data array
-    // if (actJobs.data && Array.isArray(actJobs.data) && actJobs.data.length > 0) {
-    //     console.log("Active companyName --- ", actJobs.data[0].companyName);
-    // }
+    console.log("Act Jobssss ", actJobs); // ✅ fixed
 
 
     return (
@@ -308,6 +295,7 @@ const ActiveJobsTable = () => {
                                     <td>
                                         <div className="flex items-center gap-3">
                                             {job.jobTitle}
+                                            {job._id}
                                         </div>
                                     </td>
                                     <td>
@@ -324,7 +312,7 @@ const ActiveJobsTable = () => {
                                         {job.deadline}
                                     </th>
                                     <th>
-                                        <Link to={`/recruiter/dashboard/summary-cards/active-job/${job._id}`}>
+                                        <Link to={`/recruiter/dashboard/summary-cards/active-job/${job?._id}`}>
                                             <p className="link link-primary">View Details</p>
                                         </Link>
                                     </th>

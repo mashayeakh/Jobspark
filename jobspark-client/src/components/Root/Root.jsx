@@ -6,13 +6,13 @@ import freeP from "../../assets/imgs/freePalestian.jpg"
 const Root = () => {
     return (
         <>
-            <div>
+            {/* <div>
                 <img
                     src={freeP}
                     alt=""
                     style={{ width: "100vw", height: "80px", display: "block" }}
                 />
-            </div>
+            </div> */}
             <div className=''>
                 <Navbar />
                 <Outlet />

@@ -6,36 +6,39 @@ import { AuthContext } from '../../../../../Context/AuthContextProvider';
 
 const ActiveJobsDetails = () => {
 
-
     const data = useLoaderData();
-    console.log("data", data);
-    console.log("Data job title", data.data?.jobTitle);
-    console.log("ID", data.data._id);
+
     const id = data.data._id;
 
-    const { fetchRecruiterActiveJobs } = useContext(ActiveJobsContext);
+    const { fetchRecruiterAllActiveJobs } = useContext(ActiveJobsContext);
     const { user } = useContext(AuthContext);
-    // console.log("USER ID", user._id);
-    const [remainingActiveJobs, setRemainingActiveJobs] = useState({});
+    const [remainingActiveJobs, setRemainingActiveJobs] = useState([]);
+
+
+    // const allActiveJobs = async () => {
+    //     const url = "http://localhost:5000/api/v1/job/recruiter"
+    //     const response = await fetchRecruiterAllActiveJobs(url);
+    //     if (response.status === "true") {
+    //         console.log("Response frop active job detials", response.data);
+    //     }
+    // }
 
     useEffect(() => {
-        const restOfTheActiveJobs = async () => {
-            if (!user?._id) return;
-            const url = `http://localhost:5000/api/v1/job/recruiter?recruiterId=${user?._id}`;
-            const allActiveJobs = await fetchRecruiterActiveJobs(url);
-            const result = allActiveJobs.data.filter(jobId => jobId?._id !== id);
-            setRemainingActiveJobs(result);
-        };
-
-        restOfTheActiveJobs();
-    }, [fetchRecruiterActiveJobs, id, user?._id]);
-
+        const allActiveJobs = async () => {
+            const url = "http://localhost:5000/api/v1/job/recruiter"
+            const response = await fetchRecruiterAllActiveJobs(url);
+            if (response.status === true) {
+                console.log("Response frop active job detials", response.data);
+                const remJobs = response.data.filter(job => job?._id !== id)
+                setRemainingActiveJobs(remJobs);
+            }
+        }
+        allActiveJobs()
+    }, [remainingActiveJobs])
 
     return (
         <div>
-            {/* Lorem, ipsum dolor sit amet consectetur adipisicing elit. Iure at assumenda iusto natus vel explicabo debitis dignissimos minus alias? Libero atque qui, iure cumque nemo dolor omnis? Soluta, saepe commodi. */}
-            {/* {data.data?.jobTitle} */}
-
+            {data?.jobTitle}
             <div className='flex px-[8%]'>
                 <div className='w-2/3'>
 

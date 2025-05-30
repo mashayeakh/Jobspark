@@ -49,7 +49,7 @@ const AuthContextProvider = ({ children }) => {
                 setUser(null);
             }
             setLoading(false); // ✅ set to false after Firebase response
-            console.log("Current User:", currUser);
+            // console.log("Current User:", currUser);
         });
         return () => unsubscribe();
     }, []);

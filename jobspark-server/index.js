@@ -28,8 +28,8 @@ app.get("/test", async (req, res) => {
 
 // app.use('/api/v1', testRoutes);
 app.use('/api/v1', userRoutes);
+app.use("/api/v1", recruiterJobsRoutes); //changed the order
 app.use("/api/v1", activeJobsRoutes);
-app.use("/api/v1", recruiterJobsRoutes);
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);

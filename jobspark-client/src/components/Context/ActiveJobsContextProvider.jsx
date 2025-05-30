@@ -9,15 +9,15 @@ const ActiveJobsContextProvider = ({ children }) => {
     const [recruiterActiveJobs, setRecruiterActiveJobs] = useState([]);
 
     // only
-    // const fetchActiveJobsFromAPI = useCallback(async (url) => {
-    //     const data = await getMethod(url);
-    //     setAllActiveJobs(data);
-    //     return data;
-    // }, []);
+    const fetchActiveJobsFromAPI = useCallback(async (url) => {
+        const data = await getMethod(url);
+        setAllActiveJobs(data);
+        return data;
+    }, []);
 
 
     // only shows the jobs belog to specific recruiter
-    const fetchRecruiterActiveJobs = useCallback(async (url) => {
+    const fetchRecruiterAllActiveJobs = useCallback(async (url) => {
         const data = await getMethod(url);
         setRecruiterActiveJobs(data);
         return data;
@@ -31,22 +31,9 @@ const ActiveJobsContextProvider = ({ children }) => {
         return data;
     }, [])
 
-
-
-
-
-
-
-
-
-
-
-
-
-
     const addInfo = {
-        // fetchActiveJobsFromAPI,
-        fetchRecruiterActiveJobs,
+        fetchActiveJobsFromAPI,
+        fetchRecruiterAllActiveJobs,
         fetchAllActiveJobs,
         allActiveJobs,
         setAllActiveJobs,
