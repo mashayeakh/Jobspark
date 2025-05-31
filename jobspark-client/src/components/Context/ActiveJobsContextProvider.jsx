@@ -1,5 +1,5 @@
 import React, { createContext, useCallback, useState } from 'react'
-import { getMethod, postMethod } from '../Utils/Api';
+import { getMethod } from '../Utils/Api';
 
 export const ActiveJobsContext = createContext();
 
@@ -7,8 +7,9 @@ const ActiveJobsContextProvider = ({ children }) => {
 
     const [allActiveJobs, setAllActiveJobs] = useState([]);
     const [recruiterActiveJobs, setRecruiterActiveJobs] = useState([]);
-
     const [popularJob, setPopularJob] = useState({})
+    const [jobWithNoApplicaiton, setJobWithNoApplicaiton] = useState({})
+    const [recentjobs, setRecentjobs] = useState({})
 
     // only
     const fetchActiveJobsFromAPI = useCallback(async (url) => {
@@ -41,6 +42,18 @@ const ActiveJobsContextProvider = ({ children }) => {
         return data;
     }
 
+    const jobWithNoApplicationByARecruiter = async (url) => {
+        const data = await getMethod(url);
+        setJobWithNoApplicaiton(data);
+        return data;
+    }
+
+    const recentlyPublishedJobByARecruiter = async (url) => {
+        const data = await getMethod(url);
+        setRecentjobs(data);
+        return data;
+    }
+
 
 
     const addInfo = {
@@ -48,12 +61,18 @@ const ActiveJobsContextProvider = ({ children }) => {
         fetchRecruiterAllActiveJobs,
         fetchAllActiveJobs,
         getMostPopularJobByARecruiter,
+        jobWithNoApplicationByARecruiter,
+        recentlyPublishedJobByARecruiter,
         allActiveJobs,
         setAllActiveJobs,
         recruiterActiveJobs,
         setRecruiterActiveJobs,
         popularJob,
         setPopularJob,
+        jobWithNoApplicaiton,
+        setJobWithNoApplicaiton,
+        recentjobs,
+        setRecentjobs
     }
 
 
