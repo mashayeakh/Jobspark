@@ -111,7 +111,7 @@ const applyToJobs = async (req, res) => {
 
     //save info job applicaiton to track
     const newApplication = new JobApplicationModel({
-        user: userInfo._id,
+        user: userInfo,
         job: currentJobId
     });
     await newApplication.save();
@@ -139,7 +139,7 @@ const applyToJobs = async (req, res) => {
 
 //getting all the jobs that posted by a specific recruiter
 //http://localhost:5000/api/v1/recruiter?recruiterId=${id}
-const getJobsByRecruiter = async (req, res) => {
+const getJobsByRecruiterId = async (req, res) => {
     try {
         const { recruiterId } = req.query;
 
@@ -161,4 +161,4 @@ const getJobsByRecruiter = async (req, res) => {
 };
 
 
-module.exports = { createActiveJobs, showActiveJobs, findActiveJobsById, applyToJobs, getJobsByRecruiter }
+module.exports = { createActiveJobs, showActiveJobs, findActiveJobsById, applyToJobs, getJobsByRecruiterId }

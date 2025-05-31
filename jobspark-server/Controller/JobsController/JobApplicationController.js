@@ -4,6 +4,8 @@ const ActiveJobsModel = require("../../Model/RecruiterModel/ActiveJobsModel");
 
 const mongoose = require('mongoose');
 
+//has user applied to job
+//http://localhost:5000/api/v1/check-application?userId=${useId}&jobId=${jobId}
 const hasUserApplied = async (req, res) => {
     const { userId, jobId } = req.query;
 

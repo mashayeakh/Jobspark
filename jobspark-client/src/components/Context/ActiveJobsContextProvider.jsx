@@ -8,6 +8,8 @@ const ActiveJobsContextProvider = ({ children }) => {
     const [allActiveJobs, setAllActiveJobs] = useState([]);
     const [recruiterActiveJobs, setRecruiterActiveJobs] = useState([]);
 
+    const [popularJob, setPopularJob] = useState({})
+
     // only
     const fetchActiveJobsFromAPI = useCallback(async (url) => {
         const data = await getMethod(url);
@@ -31,14 +33,27 @@ const ActiveJobsContextProvider = ({ children }) => {
         return data;
     }, [])
 
+
+
+    const getMostPopularJobByARecruiter = async (url) => {
+        const data = await getMethod(url);
+        setPopularJob(data);
+        return data;
+    }
+
+
+
     const addInfo = {
         fetchActiveJobsFromAPI,
         fetchRecruiterAllActiveJobs,
         fetchAllActiveJobs,
+        getMostPopularJobByARecruiter,
         allActiveJobs,
         setAllActiveJobs,
         recruiterActiveJobs,
-        setRecruiterActiveJobs
+        setRecruiterActiveJobs,
+        popularJob,
+        setPopularJob,
     }
 
 
