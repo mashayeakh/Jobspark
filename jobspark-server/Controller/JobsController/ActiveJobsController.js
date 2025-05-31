@@ -1,3 +1,4 @@
+const JobApplicationModel = require("../../Model/JobApplicationModel/JobApplicationModel");
 const activeJobsModel = require("../../Model/RecruiterModel/ActiveJobsModel");
 
 //create active jobs
@@ -101,12 +102,20 @@ const applyToJobs = async (req, res) => {
     //user info from body
     const { userInfo } = req.body;
     console.log("applied job user: ", userInfo);
- 
+
 
     //now i need the full job info.
     //find the job by  id
     const jobInfo = await activeJobsModel.findById(currentJobId);
     console.log("Job Info ", jobInfo);
+
+    //save info job applicaiton to track
+    const newApplication = new JobApplicationModel({
+        user: userInfo._id,
+        job: currentJobId
+    });
+    await newApplication.save();
+    console.log("Saving new application for user:", newApplication.user, newApplication.job);
 
 
     if (!jobInfo) {

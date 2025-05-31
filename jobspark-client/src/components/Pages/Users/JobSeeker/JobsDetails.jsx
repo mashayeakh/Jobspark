@@ -3,28 +3,30 @@ import { AuthContext } from '../../../Context/AuthContextProvider';
 import { ActiveJobsContext } from '../../../Context/ActiveJobsContextProvider';
 import { Link, useLoaderData, useParams } from 'react-router';
 import { IoLocationOutline } from "react-icons/io5";
-import { postMethod } from '../../../Utils/Api';
+import { getMethod, postMethod } from '../../../Utils/Api';
 
 
 const JobsDetails = () => {
 
     const data = useLoaderData();
-    // console.log("DATA =", data.data?.jobTitle);
+    // console.log("DATA =", data.data);
+
     // console.log("DATA ID =", data.data?._id);
 
     const { fetchAllActiveJobs } = useContext(ActiveJobsContext);
     const [remJobs, setRemJobs] = useState([]);
 
-    console.log("USER ID ", data.data?._id);
+
+    // console.log("USER ID ", data.data?._id);
 
     useEffect(() => {
         const allActiveJobs = async () => {
             const url = "http://localhost:5000/api/v1";
             const response = await fetchAllActiveJobs(url);
             if (response.status === true) {
-                console.log("Response from  job detials", response.data);
+                // console.log("Response from  job detials", response.data);
                 const remJobs = response.data.filter(job => job?._id !== data.data?._id)
-                console.log("REM JOBS", remJobs);
+                // console.log("REM JOBS", remJobs);
                 setRemJobs(remJobs);
             }
         }
@@ -32,44 +34,58 @@ const JobsDetails = () => {
     }, [data.data?._id]); // run effect only when job id changes
 
 
-
     const { user } = useContext(AuthContext);
     const params = useParams();
+    const [isClicked, setIsClicked] = useState(false);
+    const [hasApplied, setHasApplied] = useState(false);
+    const [checkingStatus, setCheckingStatus] = useState(true); // ⬅️ loading state
 
-    //get the id from url
-    console.log("Params Id ", params.id);
+    useEffect(() => {
+        if (!user?._id || !params?.id) return;
 
-    // console.log("User Info ", user);
+        const checkIfApplied = async () => {
+            const url = `http://localhost:5000/api/v1/check-application?userId=${user?._id}&jobId=${params?.id}`;
+            try {
+                const response = await getMethod(url);
+                if (response.success === true && response.applied === true) {
+                    console.log("Resposse from check application", response);
+                    setHasApplied(true);
+                }
+            } catch (err) {
+                console.error("Error check sting applicationatus", err);
+            } finally {
+                setCheckingStatus(false); // ⬅️ allow button to render
+            }
+        };
+
+        checkIfApplied();
+    }, [user?._id, params?.id]);
 
     const handleApplyNowBtn = async (e) => {
         e.preventDefault();
-        console.log("apply now clicked");
+        setIsClicked(true);
 
-
-        //send job id and user info
         const userInfoForm = {
             userInfo: user,
             currentJobId: params?.id
-        }
-        console.log("UserForm ", userInfoForm);
+        };
 
-        const url = `http://localhost:5000/api/v1/apply/job/${userInfoForm.currentJobId}`
+        const url = `http://localhost:5000/api/v1/apply/job/${userInfoForm.currentJobId}`;
         try {
             const response = await postMethod(url, userInfoForm);
-            console.log("Response:", response);
-
             if (response.success) {
                 alert("Successfully applied!");
+                setHasApplied(true);
             } else {
                 alert("Application failed.");
+                setIsClicked(false); // allow retry
             }
         } catch (err) {
             console.error("Application error:", err);
             alert("Something went wrong while applying.");
+            setIsClicked(false); // allow retry
         }
-
-    }
-
+    };
 
 
     return (
@@ -81,10 +97,24 @@ const JobsDetails = () => {
                             <div className="data w-full max-w-2xl">
                                 <div className='flex items-center justify-between'>
                                     <h2 className="font-manrope font-bold text-3xl leading-10 text-gray-900 mb-2 capitalize">{data?.data.jobTitle}</h2>
-                                    <div>
-                                        <button onClick={handleApplyNowBtn} className='btn btn-primary btn-md'>
-                                            Apply Now
-                                        </button>
+                                    <div className=''>
+                                        <div className=''>
+                                            {!checkingStatus && (
+                                                <button
+                                                    className="bg-blue-500 text-white px-4 py-2 rounded"
+                                                    onClick={handleApplyNowBtn}
+                                                    disabled={isClicked || hasApplied}
+                                                >
+                                                    {hasApplied
+                                                        ? "Applied"
+                                                        : isClicked
+                                                            ? "Applying..."
+                                                            : "Apply Now"}
+                                                </button>
+                                            )}
+
+                                        </div>
+
                                     </div>
                                 </div>
 
@@ -95,10 +125,20 @@ const JobsDetails = () => {
                                         <p className=''>
                                             {data?.data.location}
                                         </p>
-                                        <span className="pl-2 font-normal leading-7 text-gray-500 text-sm ">
-                                            <h6 className='font-manrope font-semibold badge badge-md bg-base-300 text-sm text-[#6B7280]'>
+                                        <span className="pl-2 font-normal flex items-center leading-7 text-gray-500 text-sm ">
+                                            <h6 className='font-manrope font-semibold badge badge-md bg-base-300 text-sm text-[#6B7280] mr-4'>
                                                 {data?.data?.employeeType}
                                             </h6>
+                                            <div className=" badge badge-md bg-base-300 text-sm text-[#6B7280]">
+                                                {
+                                                    data?.data.applicantsCount > 0 ? <p className=''>
+                                                        over {data?.data.applicantsCount} applicants
+                                                    </p> : <p className=''>
+                                                        {data?.data.applicantsCount} applicants
+                                                    </p>
+                                                }
+
+                                            </div>
                                         </span>
                                     </div>
                                 </div>

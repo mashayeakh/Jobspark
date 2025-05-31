@@ -8,6 +8,7 @@ const port = process.env.Port || 5000;
 const userRoutes = require('./Routes/UserRouter/UserRoutes');
 const activeJobsRoutes = require("./Routes/ActiveJobsRecruiter/ActiveJobsRouter");
 const recruiterJobsRoutes = require("./Routes/RecruiterJobsRouter/RecruiterJobsRouter");
+const jobApplicationRoutes = require("./Routes/JobApplicationRecruiter/JobApplicationRecruiter");
 const { default: mongoose } = require("mongoose");
 
 
@@ -30,6 +31,7 @@ app.get("/test", async (req, res) => {
 app.use('/api/v1', userRoutes);
 app.use("/api/v1", recruiterJobsRoutes); //changed the order
 app.use("/api/v1", activeJobsRoutes);
+app.use("/api/v1", jobApplicationRoutes);
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);

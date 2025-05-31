@@ -88,7 +88,7 @@ const ActiveJobsTable = () => {
             <div className="overflow-x-auto shadow-2xl rounded-4xl bg-white ">
                 <div className='flex items-center justify-between mb-4 px-12 pt-4 '>
                     <p className='text-2xl text-green-800 font-bold'>Active Jobs
-                        <span className='text-sm text-gray-500 badge-accent ml-2'> (Total: 100)</span>
+                        <span className='text-sm text-gray-500 badge-accent ml-2'> (Total: {actJobs.length})</span>
                     </p>
 
                     {/* Open the modal using document.getElementById('ID').showModal() method */}
@@ -295,7 +295,7 @@ const ActiveJobsTable = () => {
                                     <td>
                                         <div className="flex items-center gap-3">
                                             {job.jobTitle}
-                                            {job._id}
+                                            {/* {job._id} */}
                                         </div>
                                     </td>
                                     <td>
