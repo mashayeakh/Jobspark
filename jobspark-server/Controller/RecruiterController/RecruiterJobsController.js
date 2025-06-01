@@ -142,6 +142,7 @@ const getJobsWithNoApplicantsByARecuiter = async (req, res) => {
 }
 
 // get recently published job by a specific recruiter.
+// http://localhost:5000/api/v1/recruiter/${recruiterId}/recent-jobs
 const recentlyPublishedJobs = async (req, res) => {
 
     try {
@@ -248,4 +249,70 @@ const closingJobByARecruiter = async (req, res) => {
 }
 
 
-module.exports = { showRecuiterJobs, getMostPopularJobsByARecruiter, getJobsWithNoApplicantsByARecuiter, recentlyPublishedJobs, closingJobByARecruiter }
+//send all the application info to recruiter
+// http://localhost:5000/api/v1/recruiter/${recruiterId}/all-applications
+const applicationsInfoToRecruiter = async (req, res) => {
+
+    const { recruiterId } = req.params;
+    console.log("\nRecruiter ID", recruiterId);
+
+
+    const recruiterJobInfo = await ActiveJobsModel.find({ recruiter: recruiterId });
+
+    console.log("recruiterJobInfo", recruiterJobInfo);
+    console.log("recruiterJobInfo length", recruiterJobInfo.length);
+
+    const result = recruiterJobInfo.filter(job => (job.applicantsCount || 0) > 0);
+
+    console.log("Result ", result);
+    console.log("Result length", result.length);
+
+    const applicantsNum = result.map(re => re.applicantsCount)
+    console.log("Applicants ", applicantsNum);
+    res.status(200).json({
+        status: true,
+        message: "Jobs with applicants",
+        data: {
+            jobs: result,
+            numOfApplicants: applicantsNum
+        }
+    })
+
+}
+//find user info who applied to the job posted by a specific recruiter.
+
+const findApplicantsInfoByARecruiterJob = async (req, res) => {
+
+    const { recruiterId, userId } = req.params;
+    console.log("Recruiter Id, User Id ", recruiterId, userId);
+
+    //get the jobs posted by the recruiter.
+    const jobs = await ActiveJobsModel.find({ recruiter: recruiterId });
+    console.log("Jobs == ", jobs);
+    console.log("Jobs length == ", jobs.length);
+
+    //jobs id from these jobs
+    const jobsId = jobs.map(jobId => jobId._id)
+    console.log("Jobs ID", jobsId);
+    console.log("Jobs ID", jobsId.toString());
+
+
+    //check if these jobIds are avaiable in job application of not
+    const hasApplied = await JobApplicationModel.findOne({
+        user: userId,
+        job: { $in: jobsId }
+    })
+
+    console.log("Has Applied", hasApplied);
+
+
+
+    res.send("testing..");
+
+}
+
+
+
+
+
+module.exports = { showRecuiterJobs, getMostPopularJobsByARecruiter, getJobsWithNoApplicantsByARecuiter, recentlyPublishedJobs, closingJobByARecruiter, applicationsInfoToRecruiter, findApplicantsInfoByARecruiterJob }

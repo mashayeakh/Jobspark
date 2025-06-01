@@ -2,11 +2,6 @@ const { default: mongoose } = require("mongoose");
 
 const JobApplicationSchema = mongoose.Schema({
 
-    appliedAt: {
-        type: Date,
-        default: Date.now
-    },
-
     job: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "ActiveJob",
@@ -16,6 +11,10 @@ const JobApplicationSchema = mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
         require: true,
+    },
+    appliedAt: {
+        type: Date,
+        default: Date.now,
     }
 
 }, { timestamps: true });
