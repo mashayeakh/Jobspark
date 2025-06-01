@@ -17,13 +17,13 @@ const ActiveJobs = () => {
     console.log("USEr ", user);
     console.log("USEr ID", user?._id);
 
-    const { getMostPopularJobByARecruiter, jobWithNoApplicationByARecruiter, fetchRecruiterAllActiveJobs, recentlyPublishedJobByARecruiter } = useContext(ActiveJobsContext);
+    const { getMostPopularJobByARecruiter, jobWithNoApplicationByARecruiter, fetchRecruiterAllActiveJobs, recentlyPublishedJobByARecruiter, closingSoonJobByARecruiter } = useContext(ActiveJobsContext);
     const [showPopularJob, setShowPopularJob] = useState({})
     const [daysLeft, setDaysLeft] = useState(null);
     const [jobWithNoAppli, setJobWithNoAppli] = useState({})
     const [recentJobs, setRecentJobs] = useState({})
 
-    const populatJob = async () => {
+    const popularJob = async () => {
         const url = `http://localhost:5000/api/v1/recruiter/${user?._id}/popular-jobs`
         const data = await getMostPopularJobByARecruiter(url);
         if (data.status === true) {
@@ -37,7 +37,7 @@ const ActiveJobs = () => {
 
     useEffect(() => {
         if (!user?._id) return;
-        populatJob();
+        popularJob();
     }, [user?._id]);
 
 
@@ -164,6 +164,78 @@ const ActiveJobs = () => {
         recentlyPublishedJobs();
     }, [user?._id])
 
+    const MAX_DIFF_MS = 7 * 24 * 60 * 60 * 1000; // 7 days in ms
+
+    const getFreshnessPercent = (date) => {
+        const now = new Date();
+        const diff = now - new Date(date);
+        const freshness = Math.max(0, 100 - Math.floor((diff / MAX_DIFF_MS) * 100));
+        return freshness;
+    };
+
+    // Calculate average freshness
+    const averageFreshness = Array.isArray(recentJobs.data?.recentlyPublishedJobs)
+        ? recentJobs.data.recentlyPublishedJobs.reduce((acc, job) => {
+            return acc + getFreshnessPercent(job.createdAt);
+        }, 0) / recentJobs.data.recentlyPublishedJobs.length
+        : 0;
+
+    //-------------------------------------------------------------------------------------------
+
+    //closing job
+    const [closingVal, setClosingVal] = useState([]);
+    const closingTime = async () => {
+        const url = `http://localhost:5000/api/v1/recruiter/${user?._id}/closing-jobs`;
+        const data = await closingSoonJobByARecruiter(url);
+        if (data.status === true) {
+            setClosingVal(data);
+            console.log("DATA from closing time", data);
+        }
+
+    }
+
+    useEffect(() => {
+        if (!user?._id) return;
+        closingTime();
+    }, [user?._id])
+
+    console.log("Value from closing val = ", closingVal);
+    console.log("DATA from closing val = ", closingVal.data);
+
+    const closingInfoObj = closingVal.data?.closingInfo
+    console.log("object == ", closingInfoObj);
+
+    const closingJobTitle = closingInfoObj?.map(j => j.jobTitle)
+    console.log("closingJobTitle = ", closingJobTitle);
+
+    const deadline = closingInfoObj?.map(j => j.deadline)
+    console.log("Deadline = ", deadline); 1
+
+    // Convert each deadline to a readable date string
+    const readableDeadlines = Array.isArray(deadline)
+        ? deadline.map(d => d ? new Date(d).toLocaleString() : "")
+        : [];
+
+    // Calculate days and hours left from now for each deadline
+    const daysAndHoursLeft = Array.isArray(deadline)
+        ? deadline.map(d => {
+            if (!d) return "";
+            const now = new Date();
+            const end = new Date(d);
+            const diffMs = end - now;
+            if (diffMs <= 0) return "Deadline passed";
+            const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+            const diffHrs = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            return `${diffDays}d ${diffHrs}h left`;
+        })
+        : [];
+
+    console.log("Days and hours left for each deadline:", daysAndHoursLeft);
+
+    const currDate = readableDeadlines;
+    console.log("Cloing Date", currDate);
+
+    const percentageClosingSoon = Math.round((closingInfoObj?.length / jobLength) * 100);
 
 
 
@@ -227,17 +299,16 @@ const ActiveJobs = () => {
                                                     {Array.isArray(recentJobs.data?.recentlyPublishedJobs) &&
                                                         recentJobs.data.recentlyPublishedJobs.map((job, idx) => (
                                                             <li key={job._id}>
-                                                                {job.jobTitle} {recentJobsWithTimeAgo[idx]}
+                                                                <strong>{job.jobTitle}</strong> {recentJobsWithTimeAgo[idx]}
                                                             </li>
                                                         ))
                                                     }
                                                 </ul>
                                             </p>
                                         </div>
-
                                         {/* Chart */}
                                         <div className="flex-shrink-0 mt-4 md:mt-0">
-                                            <Gauge width={100} height={100} value={60} />
+                                            <Gauge width={100} height={100} value={averageFreshness} />
                                         </div>
                                     </div>
 
@@ -251,17 +322,23 @@ const ActiveJobs = () => {
                                     <div className="flex justify-between items-center w-full flex-wrap md:flex-nowrap">
                                         <div className="flex-1">
                                             <p className="text-sm font-medium">
-                                                UX/UI Designer<br />
-                                                25 Applicants • Deadline in 4 days
+                                                <ul>
+                                                    {Array.isArray(closingInfoObj) &&
+                                                        closingInfoObj.map((job, idx) => (
+                                                            <li key={job._id}>
+                                                                <strong>{job.jobTitle}</strong> — {daysAndHoursLeft[idx]}
+                                                            </li>
+                                                        ))
+                                                    }
+                                                </ul>
                                             </p>
                                         </div>
 
                                         {/* Chart */}
                                         <div className="flex-shrink-0 mt-4 md:mt-0">
-                                            <Gauge width={100} height={100} value={60} />
+                                            <Gauge width={100} height={100} value={percentageClosingSoon} />
                                         </div>
                                     </div>
-
                                 </div>
                             </div>
                         </div>

@@ -192,5 +192,60 @@ const recentlyPublishedJobs = async (req, res) => {
     }
 }
 
+//clsoing job by a recruiter.
+//http://localhost:5000/api/v1/recruiter/${recruiterId}/closing-jobs
+const closingJobByARecruiter = async (req, res) => {
 
-module.exports = { showRecuiterJobs, getMostPopularJobsByARecruiter, getJobsWithNoApplicantsByARecuiter, recentlyPublishedJobs }
+    try {
+        const { recruiterId } = req.params;
+        console.log("Recruiter ID ", recruiterId);
+
+        const gettingRecuiterJob = await ActiveJobsModel.find({ recruiter: recruiterId });
+
+
+        if (!gettingRecuiterJob || gettingRecuiterJob.length === 0) {
+            return res.status(400).json({
+                status: false,
+                message: "No jobs posted by recruiter",
+            });
+        }
+
+        // Get both deadline and jobTitle for each job
+        const deadline = gettingRecuiterJob.map(g => ({
+            deadline: g.deadline,
+            jobTitle: g.jobTitle,
+        }));
+
+
+        // Find the soonest (earliest) deadline
+        // Find the 3 soonest (earliest) deadlines
+
+        const now = new Date();
+
+        // Filter deadlines in the future and sort by deadline ascending
+        const sortedDeadlines = deadline
+            .filter(d => new Date(d.deadline) > now)
+            .sort((a, b) => new Date(a.deadline) - new Date(b.deadline))
+            .slice(0, 3); // Take the 3 earliest
+
+        // Each item contains both deadline and jobTitle
+        const closingSoon = sortedDeadlines.length > 0 ? sortedDeadlines : [];
+
+        if (closingSoon && closingSoon.length > 0) {
+            res.status(200).json({
+                status: true,
+                message: "Jobs closing soon",
+                data: {
+                    closingInfo: closingSoon,
+                    count: closingSoon.length,
+                }
+            })
+        }
+    } catch (err) {
+        console.log("Err from closing job", err.message);
+    }
+
+}
+
+
+module.exports = { showRecuiterJobs, getMostPopularJobsByARecruiter, getJobsWithNoApplicantsByARecuiter, recentlyPublishedJobs, closingJobByARecruiter }

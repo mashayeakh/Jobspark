@@ -2,7 +2,36 @@ import { BarChart } from '@mui/x-charts'
 import React from 'react'
 
 const ActiveJobs_FullTime = () => {
+
+
+
+    // const categories = [
+    //     "Most Popular",
+    //     "No Applicants",
+    //     "Recently Published",
+    //     "Closing Soon"
+    // ];
+
+    // // Assuming you have the arrays or counts for each
+    // const mostPopularCount = mostPopularJobs.length;
+    // const noApplicantsCount = jobsWithNoApplicants.length;
+    // const recentlyPublishedCount = recentJobs.data?.length || 0;
+    // const closingSoonCount = closingVal.data?.closingInfo?.length || 0;
+
+    // const counts = [
+    //     mostPopularCount,
+    //     noApplicantsCount,
+    //     recentlyPublishedCount,
+    //     closingSoonCount
+    // ];
+
+
+
+
     return (
+
+
+
         <>
             <div className="w-full flex items-center overflow-x-auto py-5">
                 <div className=" bg-white rounded-4xl shadow-lg p-6">

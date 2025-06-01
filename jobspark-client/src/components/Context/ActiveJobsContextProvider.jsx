@@ -10,6 +10,7 @@ const ActiveJobsContextProvider = ({ children }) => {
     const [popularJob, setPopularJob] = useState({})
     const [jobWithNoApplicaiton, setJobWithNoApplicaiton] = useState({})
     const [recentjobs, setRecentjobs] = useState({})
+    const [closingSoon, setClosingSoon] = useState({})
 
     // only
     const fetchActiveJobsFromAPI = useCallback(async (url) => {
@@ -55,6 +56,12 @@ const ActiveJobsContextProvider = ({ children }) => {
     }
 
 
+    //clsoing soon job by a specific recruiter
+    const closingSoonJobByARecruiter = async (url) => {
+        const data = await getMethod(url);
+        setClosingSoon(data);
+        return data;
+    }
 
     const addInfo = {
         fetchActiveJobsFromAPI,
@@ -63,6 +70,7 @@ const ActiveJobsContextProvider = ({ children }) => {
         getMostPopularJobByARecruiter,
         jobWithNoApplicationByARecruiter,
         recentlyPublishedJobByARecruiter,
+        closingSoonJobByARecruiter,
         allActiveJobs,
         setAllActiveJobs,
         recruiterActiveJobs,
@@ -72,7 +80,9 @@ const ActiveJobsContextProvider = ({ children }) => {
         jobWithNoApplicaiton,
         setJobWithNoApplicaiton,
         recentjobs,
-        setRecentjobs
+        setRecentjobs,
+        closingSoon,
+        setClosingSoon,
     }
 
 
