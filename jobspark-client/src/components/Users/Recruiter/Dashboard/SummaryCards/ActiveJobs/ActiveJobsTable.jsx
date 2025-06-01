@@ -1,11 +1,11 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { IoMdAdd } from "react-icons/io";
-import { postMethod } from '../../../../../Utils/Api';
+import { postMethod } from "../../../../../Utils/Api"
 import { Link } from 'react-router';
 import { ActiveJobsContext } from '../../../../../Context/ActiveJobsContextProvider';
 import { AuthContext } from '../../../../../Context/AuthContextProvider';
 
-const ActiveJobsTable = () => {
+const ActiveJobsTable = ({ sendJobsToParent }) => {
 
     const { user } = useContext(AuthContext);
 
@@ -68,6 +68,7 @@ const ActiveJobsTable = () => {
 
             if (data.success) {
                 setActJobs(data.data);
+                sendJobsToParent && sendJobsToParent(data.data); 
             }
         } catch (err) {
             console.log("Err from Client - ", err.message);

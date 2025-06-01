@@ -233,6 +233,8 @@ const ParentActiveJob = ({ user }) => {
     return (
         <ActiveJobs
 
+            user={user}    
+            
             //* popular job
             showPopularJob={showPopularJob}
             daysLeft={daysLeft}

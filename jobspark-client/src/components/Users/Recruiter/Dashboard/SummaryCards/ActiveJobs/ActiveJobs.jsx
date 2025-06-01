@@ -11,18 +11,16 @@ import ActiveJobs_FullTime from './ActiveJobs_FullTime';
 import ActiveJobsTable from './ActiveJobsTable';
 import { ActiveJobsContext } from '../../../../../Context/ActiveJobsContextProvider';
 import { AuthContext } from '../../../../../Context/AuthContextProvider';
+import { BarChart } from '@mui/x-charts'
+
 const ActiveJobs = () => {
 
     const { user } = useContext(AuthContext);
-    console.log("USEr ", user);
-    console.log("USEr ID", user?._id);
 
     const { getMostPopularJobByARecruiter, jobWithNoApplicationByARecruiter, fetchRecruiterAllActiveJobs, recentlyPublishedJobByARecruiter, closingSoonJobByARecruiter } = useContext(ActiveJobsContext);
-    const [showPopularJob, setShowPopularJob] = useState({})
-    const [daysLeft, setDaysLeft] = useState(null);
-    const [jobWithNoAppli, setJobWithNoAppli] = useState({})
-    const [recentJobs, setRecentJobs] = useState({})
 
+    //* 1.most popular job by recruiter
+    const [showPopularJob, setShowPopularJob] = useState({})
     const popularJob = async () => {
         const url = `http://localhost:5000/api/v1/recruiter/${user?._id}/popular-jobs`
         const data = await getMostPopularJobByARecruiter(url);
@@ -41,7 +39,7 @@ const ActiveJobs = () => {
     }, [user?._id]);
 
 
-    // most popular jobs
+    const [daysLeft, setDaysLeft] = useState(null);
     useEffect(() => {
         if (!showPopularJob?.data?.deadline) return;
 
@@ -61,9 +59,10 @@ const ActiveJobs = () => {
     const targetApplicants = 100;
     const currentApplicants = showPopularJob.data?.applicantsCount || 0;
     const progress = Math.min((currentApplicants / targetApplicants) * 100, 100);
+    //?-----------------------------------------------------------------------------------
 
-
-    //job with no applications
+    //* 2. job with no applications
+    const [jobWithNoAppli, setJobWithNoAppli] = useState({})
     const withoutJobApplication = async () => {
 
         const url = `http://localhost:5000/api/v1/recruiter/${user?._id}/no-jobs`
@@ -100,11 +99,12 @@ const ActiveJobs = () => {
     const percentageNoApplicaition = jobLength && jobLength > 0
         ? Math.floor(Math.min((jobWithNoAppli?.data?.count / jobLength) * 100, 100))
         : 0;
-    // console.log("Percen", percentageNoApplicaition);
+    //?-----------------------------------------------------------------------------------
 
 
 
-    //3 recent most published jobs
+    //* 3 recent most published jobs
+    const [recentJobs, setRecentJobs] = useState({})
     const recentlyPublishedJobs = async () => {
 
         const url = `http://localhost:5000/api/v1/recruiter/${user?._id}/recent-jobs`
@@ -180,9 +180,11 @@ const ActiveJobs = () => {
         }, 0) / recentJobs.data.recentlyPublishedJobs.length
         : 0;
 
-    //-------------------------------------------------------------------------------------------
+    //?-------------------------------------------------------------------------------------------
 
-    //closing job
+
+
+    //* 4. closing job
     const [closingVal, setClosingVal] = useState([]);
     const closingTime = async () => {
         const url = `http://localhost:5000/api/v1/recruiter/${user?._id}/closing-jobs`;
@@ -234,15 +236,82 @@ const ActiveJobs = () => {
 
     const currDate = readableDeadlines;
     console.log("Cloing Date", currDate);
-
     const percentageClosingSoon = Math.round((closingInfoObj?.length / jobLength) * 100);
 
+    //?------------------------------------------------------------------------------------------------------
 
+    // * 1. most popular job
+    console.log("Poput job length", showPopularJob);
+    console.log("Applicatoin Count", showPopularJob.data?.applicantsCount);
+    console.log("Job Title", showPopularJob.data?.jobTitle);
+
+
+    //* 2. job with no applicants. 
+    console.log("job With No Appli", jobWithNoAppli);
+    console.log("job With No Appli Count ", jobWithNoAppli.data?.count);
+    console.log("job With No Appli Count ", jobWithNoAppli.data?.count);
+
+    const jobTitlesWithNoApplicants = Array.isArray(jobWithNoAppli.data?.jobsWithNoApplicans)
+        ? jobWithNoAppli.data.jobsWithNoApplicans.map(job => job.jobTitle)
+        : [];
+
+    console.log("Job Titles with No Applicants:", jobTitlesWithNoApplicants);
+
+    //* 3. recent published jobs
+    console.log("Recent published jobs ", recentJobs);
+    console.log("Recent published jobs length", recentJobs.data?.recentlyPublishedJobs?.length);
+
+    const result = Array.isArray(recentJobs.data?.recentlyPublishedJobs) ? recentJobs.data.recentlyPublishedJobs.map(job => job.jobTitle) : []
+
+    console.log("Recent published jobs length", recentJobs.data?.recentlyPublishedJobs?.length);
+    console.log("Result ", result);
+    console.log("Result length", result.length);
+
+
+    //* 4. closing soon
+    console.log("Clossing Soon ", closingVal);
+    console.log("Clossing Soon length", closingVal.data?.count);
+
+    const closingSoonTitle = Array.isArray(closingVal.data?.closingInfo) ? closingVal.data.closingInfo.map(job => job.jobTitle) : []
+    console.log("Clossing Soon job Titles", closingSoonTitle);
+
+    //? Data coming from active job table to render barchart ---------------------------------------------------------------
+    const [receivedJobs, setReceivedJobs] = useState([]);
+    const handleReceivedJobs = (jobs) => {
+        console.log("Jobs received from ActiveJobsTable:", jobs);
+        setReceivedJobs(jobs);
+    };
+    console.log("Coming from table ", receivedJobs);
+    const re = receivedJobs.map(re => re.employeeType)
+    console.log("Re ", re);
+
+    const applicansTypeCounts = {
+        'Full time': 0,
+        'Part time': 0,
+        'Internship': 0,
+    }
+
+    receivedJobs.forEach(job => {
+        if (applicansTypeCounts[job.employeeType] !== undefined) {
+            applicansTypeCounts[job.employeeType]++;
+        }
+    }
+    )
+
+
+    const applicantsTypeLabels = ['Full Time', 'Part Time', 'Internship'];
+
+    const applicansTypeData = [
+        applicansTypeCounts['Full Time'],
+        applicansTypeCounts['Part Time'],
+        applicansTypeCounts['Internship']
+    ];
 
     return (
         < >
             <div className="bg-[#f5efff] w-full overflow-hidden">
                 <div className="max-w-7xl mx-auto px-4 py-6">
+                    {/* card section */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 w-full max-w-7xl">
                         <div className="bg-white rounded-4xl w-full">
                             <div className=" card-lg ">
@@ -343,8 +412,52 @@ const ActiveJobs = () => {
                             </div>
                         </div>
                     </div>
-                    <ActiveJobs_FullTime />
-                    <ActiveJobsTable />
+                    {/* Bar Chart   */}
+
+                    <div className="w-full flex items-center overflow-x-auto py-5">
+                        <div className=" bg-white rounded-4xl shadow-lg p-6">
+                            <BarChart
+                                xAxis={[
+                                    {
+                                        scaleType: 'band',
+                                        data: applicantsTypeLabels,
+                                        categoryGapRatio: 0.3,
+                                        barGapRatio: 0.2,
+                                        label: 'Employee Type',
+                                    },
+                                ]}
+                                yAxis={[
+                                    {
+                                        label: 'Job Count',
+                                    },
+                                ]}
+                                series={[
+                                    {
+                                        data: applicansTypeData,
+                                        label: 'Number of jobs',
+                                        color: '#6366f1', // Indigo-500
+                                    },
+                                    {
+                                        data: [1, 6, 3],
+                                        label: 'Part-Time',
+                                        color: '#10b981', // Emerald-500
+                                    },
+                                ]}
+                                height={320}
+                                width={500}
+                                legend={{
+                                    direction: 'row',
+                                    position: {
+                                        vertical: 'top',
+                                        horizontal: 'middle',
+                                    },
+                                }}
+                                margin={{ top: 40, bottom: 50, right: 20 }}
+                                grid={{ horizontal: true }}
+                            />
+                        </div>
+                    </div>
+                    <ActiveJobsTable sendJobsToParent={handleReceivedJobs} />
                 </div>
             </div>
         </>

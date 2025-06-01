@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { Link, useLoaderData } from 'react-router'
 import { IoLocationOutline } from "react-icons/io5";
-import { ActiveJobsContext } from '../../../../../Context/ActiveJobsContextProvider';
+import { ActiveJobsContext } from "../../../../../Context/ActiveJobsContextProvider";
 import { AuthContext } from '../../../../../Context/AuthContextProvider';
 
 const ActiveJobsDetails = () => {
@@ -11,7 +11,7 @@ const ActiveJobsDetails = () => {
     const id = data.data._id;
 
     const { fetchRecruiterAllActiveJobs } = useContext(ActiveJobsContext);
-    const { user } = useContext(AuthContext);
+    // const { user } = useContext(AuthContext);
     const [remainingActiveJobs, setRemainingActiveJobs] = useState([]);
 
 
