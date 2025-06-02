@@ -75,6 +75,17 @@ const userSchema = mongoose.Schema({
         },
         trim: true,
     },
+    appliedApplicationCount: {
+        type: Number,
+        default: 0, 
+        select:false , //hides for normal find()
+    },
+    appliedJobIds: {
+        type: [mongoose.Schema.Types.ObjectId],
+        ref:"ActiveJob",
+        default: [], 
+        select:false , //hides for normal find()
+    },
     lastSignInTime: {
         type: Date,
         default: null,

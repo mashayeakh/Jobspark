@@ -37,34 +37,68 @@ async function createUser(req, res) {
 //! Patch method to insert a specific col in the existing user while logging.
 
 async function patchUser(req, res) {
-    //grab the exisitng email
-    const existingEmail = req?.body?.email;
-    console.log("Existing email.", existingEmail);
+    try {
+        const exaistingEmail = req?.body?.email;
+        const currDate = req?.body?.currDate;
+        const jobId = req?.body?.jobId; // this should be sent from frontend only when applying
+        const isApplying = !!jobId;
 
-    //if not existed
-    if (!existingEmail) {
-        res.status(404).json({
-            error: "email not found",
-        })
-    }
-
-    //if existed - mathing the exiting email
-    const filter = { email: existingEmail };
-
-    //add a specific col 
-    const updateInfo = {
-        $set: {
-            lastSignInTime: req?.body?.currDate,
+        if (!exaistingEmail) {
+            return res.status(404).json({
+                error: "Email not found",
+                success: false
+            });
         }
-    };
 
-    const result = await UserModel.findOneAndUpdate(filter, updateInfo, { new: true });
+        const filter = { email: exaistingEmail };
+        const user = await UserModel.findOne(filter).select("+appliedJobIds +applicationAppliedCount");
 
-    res.status(200).json({
-        message: "User updated successfully",
-        success: true,
-        data: result,
-    });
+        if (!user) {
+            return res.status(404).json({
+                error: "User not found",
+                success: false
+            });
+        }
+
+        // Build the update payload
+        const updateInfo = {
+            $set: {
+                lastSignInTime: currDate,
+            }
+        };
+
+        // If user is job_seeker and applying to a job
+        if (isApplying && user.role === "job_seeker") {
+            if (!user.appliedJobIds.includes(jobId)) {
+                updateInfo.$addToSet = { appliedJobIds: jobId };
+                updateInfo.$inc = { applicationAppliedCount: 1 };
+            } else {
+                return res.status(409).json({
+                    message: "User has already applied to this job",
+                    success: false
+                });
+            }
+        }
+
+        // Final update
+        const updatedUser = await UserModel.findOneAndUpdate(filter, updateInfo, {
+            new: true,
+            select: "-appliedJobIds -applicationAppliedCount" // hide from response
+        });
+
+        return res.status(200).json({
+            message: "User updated successfully",
+            success: true,
+            data: updatedUser,
+        });
+
+    } catch (error) {
+        console.error("Error in patchUser:", error);
+        return res.status(500).json({
+            message: "Internal Server Error",
+            success: false,
+        });
+    }
 }
 
 

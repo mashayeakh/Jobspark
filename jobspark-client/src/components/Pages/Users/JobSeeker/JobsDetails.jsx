@@ -67,7 +67,8 @@ const JobsDetails = () => {
 
         const userInfoForm = {
             userInfo: user,
-            currentJobId: params?.id
+            currentJobId: params?.id,
+            
         };
 
         const url = `http://localhost:5000/api/v1/apply/job/${userInfoForm.currentJobId}`;

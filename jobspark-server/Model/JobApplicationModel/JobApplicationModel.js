@@ -1,3 +1,4 @@
+const { application } = require("express");
 const { default: mongoose } = require("mongoose");
 
 const JobApplicationSchema = mongoose.Schema({
@@ -15,7 +16,11 @@ const JobApplicationSchema = mongoose.Schema({
     appliedAt: {
         type: Date,
         default: Date.now,
-    }
+    },
+    // applicationAppliedTo: {
+    //     type: Number,
+    //     default: 0,
+    // }
 
 }, { timestamps: true });
 

@@ -1,3 +1,4 @@
+const UserModel = require("../../Model/AccountModel/UserModel");
 const JobApplicationModel = require("../../Model/JobApplicationModel/JobApplicationModel");
 const activeJobsModel = require("../../Model/RecruiterModel/ActiveJobsModel");
 
@@ -95,47 +96,47 @@ const findActiveJobsById = async (req, res) => {
 //apply to jobs, you need job id and the specific recruiter's info
 // http://localhost:5000/api/v1/apply/job/${currJobId}
 const applyToJobs = async (req, res) => {
-    //job info from params.
     const { currentJobId } = req.params;
-    console.log("Id from parameter --", currentJobId);
-
-    //user info from body
     const { userInfo } = req.body;
+
+    console.log("Id from parameter --", currentJobId);
     console.log("applied job user: ", userInfo);
 
-
-    //now i need the full job info.
-    //find the job by  id
     const jobInfo = await activeJobsModel.findById(currentJobId);
-    console.log("Job Info ", jobInfo);
-
-    //save info job applicaiton to track
-    const newApplication = new JobApplicationModel({
-        user: userInfo,
-        job: currentJobId
-    });
-    await newApplication.save();
-    console.log("Saving new application for user:", newApplication.user, newApplication.job);
-
-
     if (!jobInfo) {
-        res.status(404).json({
+        return res.status(404).json({
             message: `No job found with ID: ${currentJobId}`,
             success: false,
-        })
+        });
     }
 
+    // Save new job application
+    const newApplication = new JobApplicationModel({
+        user: userInfo._id,
+        job: currentJobId,
+    });
+    await newApplication.save();
+
+    // Increment job applicant count
     jobInfo.applicantsCount += 1;
-    //now save into db
     await jobInfo.save();
 
-    res.status(200).json({
+    // ✅ Update user with job application info
+    const user = await UserModel.findById(userInfo._id).select("+appliedJobIds +appliedApplicationCount");
+
+    if (!user.appliedJobIds.includes(currentJobId)) {
+        user.appliedJobIds.push(currentJobId);
+        user.appliedApplicationCount += 1;
+        await user.save();
+    }
+
+    return res.status(200).json({
         message: "Applied successfully done",
         success: true,
         userInfo: jobInfo,
-    })
+    });
+};
 
-}
 
 //getting all the jobs that posted by a specific recruiter
 //http://localhost:5000/api/v1/recruiter?recruiterId=${id}

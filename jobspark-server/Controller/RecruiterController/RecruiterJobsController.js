@@ -280,34 +280,47 @@ const applicationsInfoToRecruiter = async (req, res) => {
 
 }
 //find user info who applied to the job posted by a specific recruiter.
-
 const findApplicantsInfoByARecruiterJob = async (req, res) => {
 
+    //recruiter id and user id
     const { recruiterId, userId } = req.params;
-    console.log("Recruiter Id, User Id ", recruiterId, userId);
-
-    //get the jobs posted by the recruiter.
-    const jobs = await ActiveJobsModel.find({ recruiter: recruiterId });
-    console.log("Jobs == ", jobs);
-    console.log("Jobs length == ", jobs.length);
-
-    //jobs id from these jobs
-    const jobsId = jobs.map(jobId => jobId._id)
-    console.log("Jobs ID", jobsId);
-    console.log("Jobs ID", jobsId.toString());
+    console.log("\nRecruiter and user id ", recruiterId, userId);
 
 
-    //check if these jobIds are avaiable in job application of not
-    const hasApplied = await JobApplicationModel.findOne({
+    //find all the jobs posted by this recruiter through his id. 
+    const recruiterJobs = await ActiveJobsModel.find({ recruiter: recruiterId })
+    console.log("Recruiter Jobs", recruiterJobs);
+    console.log("Recruiter Jobs length", recruiterJobs.length);
+
+
+    //find the job id from recruiter jobs
+    const jobIdPostedByRecruiter = await recruiterJobs.map(job => job._id)
+    console.log("Job Ids posted by recruiter", jobIdPostedByRecruiter);
+
+
+    const userAppliedAllJobs = await JobApplicationModel.find({ user: userId })
+    console.log("User Applied all jobs ", userAppliedAllJobs);
+    console.log("User Applied all jobs length", userAppliedAllJobs.length);
+
+
+    // now match user id with this job id if user applied to this job or not.
+    const isApplied = await JobApplicationModel.findOne({
         user: userId,
-        job: { $in: jobsId }
+        job: { $in: jobIdPostedByRecruiter }
     })
 
-    console.log("Has Applied", hasApplied);
+    console.log(`${userId} user applied to re cruiter ${recruiterId} job`, isApplied);
 
 
+    if (isApplied) {
+        console.log("User has applied to", 1, "job(s)");
+    } else {
+        console.log("User has applied to", 0, "job(s)");
+    }
 
-    res.send("testing..");
+
+    //user id
+    res.send("Testing..")
 
 }
 
