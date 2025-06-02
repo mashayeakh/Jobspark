@@ -350,89 +350,125 @@ const findApplicantInfoByARecruiterJob = async (req, res) => {
  * 
  */
 //http://localhost:5000/api/v1/recruiter/${recruiterId}/applicants
+// const findAllUserAppliedToRecruiterJobs = async (req, res) => {
+//     const { recruiterId } = req.params;
+
+//     console.log("\n\nRecruiterId ", recruiterId);
+
+//     //find the all jobs
+//     const recruiterJobs = await ActiveJobsModel.find({ recruiter: recruiterId })
+
+//     console.log("\n\nRecruiter JOBS ", recruiterJobs);
+//     console.log("\n\nRecruiter JOBS length", recruiterJobs.length);
+
+//     const jobId = recruiterJobs.map(re => re._id)
+//     console.log("Job Id s ", jobId);
+
+
+//     //now find all users who applied to these jobs
+//     const allAppliedJobs = await JobApplicationModel.find({
+//         job: { $in: jobId },
+//     })
+
+//     console.log("\n\allAppliedJobs ", allAppliedJobs);
+
+
+//     const userId = allAppliedJobs.map(u => u.user)
+//     // console.log("User id ", userId);
+
+//     //Find all the user
+//     const allUsers = await UserModel.find(
+//         { _id: { $in: userId } }
+//     ).select("+appliedJobIds +appliedApplicationCount");
+
+//     console.log("All User ", allUsers);
+
+
+//     // get the applied job ids
+//     const appliedJobIds = allUsers.map(ids => ids.appliedJobIds).flat();
+//     console.log("appliedJobIds ", appliedJobIds);
+
+//     const matched_ids = await ActiveJobsModel.find({
+//         _id: { $in: appliedJobIds }
+//     })
+
+//     console.log("Matched Ids ", matched_ids);
+//     console.log("Matched Ids length", matched_ids.length);
+
+
+
+
+//     // all user i can fetch the ids
+//     const appliedJobsId = allUsers.map(jobs => jobs.appliedJobIds).flat()
+
+//     // console.log("appliedJobsId", appliedJobsId);
+
+//     //now i can fetch the job infor
+//     const info = await ActiveJobsModel.find({ _id: appliedJobsId })
+//     // console.log("Job info ", info);
+//     // console.log("Job info length", info.length);
+
+
+//     //extract the jobTitle, status, jobType
+//     const result = info.map(job => ({
+//         jobTitle: job.jobTitle,
+//         status: job.status,
+//         jobType: job.jobCategory
+//     }))
+
+
+//     // console.log("\nFinal result ", result);
+//     // console.log("\nFinal result length ", result.length);
+
+
+//     res.status(200).json({
+//         status: true,
+//         message: "All user applied to recruiter jobs",
+//         data: {
+//             userInfo: allUsers,
+//             jobInfo: result,
+//             matchedJobs: matched_ids,
+//         }
+//     })
+
+//     // res.send("Done");
+// }
+
 const findAllUserAppliedToRecruiterJobs = async (req, res) => {
     const { recruiterId } = req.params;
 
-    console.log("\n\nRecruiterId ", recruiterId);
+    try {
+        // Step 1: Get all job IDs posted by this recruiter
+        const recruiterJobs = await ActiveJobsModel.find({ recruiter: recruiterId });
 
-    //find the all jobs
-    const recruiterJobs = await ActiveJobsModel.find({ recruiter: recruiterId })
+        const recruiterJobIds = recruiterJobs.map(job => job._id);
 
-    console.log("\n\nRecruiter JOBS ", recruiterJobs);
-    console.log("\n\nRecruiter JOBS length", recruiterJobs.length);
+        // Step 2: Get all applications to these jobs
+        const allApplications = await JobApplicationModel.find({
+            job: { $in: recruiterJobIds },
+        }).populate("user").populate("job");
 
-    const jobId = recruiterJobs.map(re => re._id)
-    console.log("Job Id s ", jobId);
+        // Step 3: Map result
+        const result = allApplications.map(app => ({
+            userId: app.user._id,
+            userName: app.user.name,
+            jobId: app.job._id,
+            jobTitle: app.job.jobTitle,
+            jobType: app.job.jobCategory,
+            status: app.job.status,
+        }));
 
+        res.status(200).json({
+            status: true,
+            message: "All users who applied to this recruiter's jobs",
+            data: result
+        });
 
-    //now find all users who applied to these jobs
-    const allAppliedJobs = await JobApplicationModel.find({
-        job: { $in: jobId },
-    })
-
-    console.log("\n\allAppliedJobs ", allAppliedJobs);
-
-
-    const userId = allAppliedJobs.map(u => u.user)
-    // console.log("User id ", userId);
-
-    //Find all the user
-    const allUsers = await UserModel.find(
-        { _id: { $in: userId } }
-    ).select("+appliedJobIds +appliedApplicationCount");
-
-    console.log("All User ", allUsers);
-
-
-    // get the applied job ids
-    const appliedJobIds = allUsers.map(ids => ids.appliedJobIds).flat();
-    console.log("appliedJobIds ", appliedJobIds);
-
-    const matched_ids = await ActiveJobsModel.find({
-        _id: { $in: appliedJobIds }
-    })
-
-    console.log("Matched Ids ", matched_ids);
-    console.log("Matched Ids length", matched_ids.length);
-
-
-
-
-    // all user i can fetch the ids
-    const appliedJobsId = allUsers.map(jobs => jobs.appliedJobIds).flat()
-
-    // console.log("appliedJobsId", appliedJobsId);
-
-    //now i can fetch the job infor
-    const info = await ActiveJobsModel.find({ _id: appliedJobsId })
-    // console.log("Job info ", info);
-    // console.log("Job info length", info.length);
-
-
-    //extract the jobTitle, status, jobType
-    const result = info.map(job => ({
-        jobTitle: job.jobTitle,
-        status: job.status,
-        jobType: job.jobCategory
-    }))
-
-
-    // console.log("\nFinal result ", result);
-    // console.log("\nFinal result length ", result.length);
-
-
-    res.status(200).json({
-        status: true,
-        message: "All user applied to recruiter jobs",
-        data: {
-            userInfo: allUsers,
-            jobInfo: result,
-            matchedJobs: matched_ids,
-        }
-    })
-
-    // res.send("Done");
-}
+    } catch (error) {
+        console.error("Error fetching data:", error);
+        res.status(500).json({ status: false, message: "Server error" });
+    }
+};
 
 
 

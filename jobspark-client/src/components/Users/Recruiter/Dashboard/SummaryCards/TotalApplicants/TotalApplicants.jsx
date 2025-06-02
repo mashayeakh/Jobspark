@@ -45,7 +45,6 @@ const TotalApplicants = () => {
 
 
     //?  get all the all user to show in table.
-
     const showAllInfo = async () => {
         const url = `http://localhost:5000/api/v1/recruiter/${user?._id}/all-applicants-info`
         try {
