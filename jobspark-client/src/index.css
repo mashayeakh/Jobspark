@@ -13,6 +13,8 @@
 @plugin "flowbite/plugin";
 @source "../node_modules/flowbite";
 
+@plugin "tailwindcss-animate";
+
 
 
 /* FONT OVERRIDE */
@@ -84,5 +86,46 @@ html, .lato-bold {
   .animate-slideUp {
     display: inline-block;
     animation: slideUp 20s linear infinite;
+  }
+}@layer utilities {
+  .animate-border {
+    --border-size: 2px;
+    --border-angle: 0turn;
+    background:
+      linear-gradient(#172033, #172033) padding-box,
+      conic-gradient(from var(--border-angle),
+        theme('colors.slate.600') 0deg,
+        theme('colors.indigo.500') 90deg,
+        theme('colors.indigo.300') 180deg,
+        theme('colors.indigo.500') 270deg,
+        theme('colors.slate.600') 360deg
+      ) border-box;
+    border: var(--border-size) solid transparent;
+    animation: rotate-border 4s linear infinite;
+  }
+
+  @keyframes rotate-border {
+    0% {
+      --border-angle: 0turn;
+    }
+    100% {
+      --border-angle: 1turn;
+    }
+  }
+}
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@layer utilities {
+  .animate-fadeIn {
+    animation: fadeIn 1s ease-out forwards;
   }
 }

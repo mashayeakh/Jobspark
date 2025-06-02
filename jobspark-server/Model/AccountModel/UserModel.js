@@ -29,6 +29,14 @@ const userSchema = mongoose.Schema({
             return this.role === 'job_seeker';
         },
     },
+    roles: {
+        type: String,
+        required: true,
+        trim: true,
+        required: function () {
+            return this.role === 'job_seeker';
+        },
+    },
     skills: {
         type: [String],
         required: function () {
@@ -77,14 +85,14 @@ const userSchema = mongoose.Schema({
     },
     appliedApplicationCount: {
         type: Number,
-        default: 0, 
-        select:false , //hides for normal find()
+        default: 0,
+        select: false, //hides for normal find()
     },
     appliedJobIds: {
         type: [mongoose.Schema.Types.ObjectId],
-        ref:"ActiveJob",
-        default: [], 
-        select:false , //hides for normal find()
+        ref: "ActiveJob",
+        default: [],
+        select: false, //hides for normal find()
     },
     lastSignInTime: {
         type: Date,

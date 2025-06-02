@@ -374,7 +374,7 @@ const findAllUserAppliedToRecruiterJobs = async (req, res) => {
 
 
     const userId = allAppliedJobs.map(u => u.user)
-    console.log("User id ", userId);
+    // console.log("User id ", userId);
 
     //Find all the user
     const allUsers = await UserModel.find(
@@ -383,15 +383,30 @@ const findAllUserAppliedToRecruiterJobs = async (req, res) => {
 
     console.log("All User ", allUsers);
 
+
+    // get the applied job ids
+    const appliedJobIds = allUsers.map(ids => ids.appliedJobIds).flat();
+    console.log("appliedJobIds ", appliedJobIds);
+
+    const matched_ids = await ActiveJobsModel.find({
+        _id: { $in: appliedJobIds }
+    })
+
+    console.log("Matched Ids ", matched_ids);
+    console.log("Matched Ids length", matched_ids.length);
+
+
+
+
     // all user i can fetch the ids
     const appliedJobsId = allUsers.map(jobs => jobs.appliedJobIds).flat()
 
-    console.log("appliedJobsId", appliedJobsId);
+    // console.log("appliedJobsId", appliedJobsId);
 
     //now i can fetch the job infor
     const info = await ActiveJobsModel.find({ _id: appliedJobsId })
-    console.log("Job info ", info);
-    console.log("Job info length", info.length);
+    // console.log("Job info ", info);
+    // console.log("Job info length", info.length);
 
 
     //extract the jobTitle, status, jobType
@@ -402,8 +417,8 @@ const findAllUserAppliedToRecruiterJobs = async (req, res) => {
     }))
 
 
-    console.log("\nFinal result ", result);
-    console.log("\nFinal result length ", result.length);
+    // console.log("\nFinal result ", result);
+    // console.log("\nFinal result length ", result.length);
 
 
     res.status(200).json({
@@ -412,6 +427,7 @@ const findAllUserAppliedToRecruiterJobs = async (req, res) => {
         data: {
             userInfo: allUsers,
             jobInfo: result,
+            matchedJobs: matched_ids,
         }
     })
 

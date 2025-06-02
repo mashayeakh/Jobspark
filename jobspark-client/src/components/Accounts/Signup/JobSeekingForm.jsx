@@ -43,6 +43,7 @@ const JobSeekingForm = () => {
             location: e.target.location.value,
             university: e.target.university.value,
             skills: e.target.skills.value,
+            roles: e.target.roles.value,
             experienceLevel: e.target.experienceLevel.value,
             role,
         }
