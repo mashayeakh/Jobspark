@@ -2,6 +2,7 @@ const ActiveJobsModel = require("../../Model/RecruiterModel/ActiveJobsModel");
 const JobApplicationModel = require("../../Model/JobApplicationModel/JobApplicationModel");
 const userModel = require("../../Model/AccountModel/UserModel");
 const { application } = require("express");
+const UserModel = require("../../Model/AccountModel/UserModel");
 
 
 
@@ -279,8 +280,9 @@ const applicationsInfoToRecruiter = async (req, res) => {
     })
 
 }
-//find user info who applied to the job posted by a specific recruiter.
-const findApplicantsInfoByARecruiterJob = async (req, res) => {
+//find  a  user info who applied to the job posted by a specific recruiter.
+// http://localhost:5000/api/v1/recruiter/${recuiterId}/user/${userId}
+const findApplicantInfoByARecruiterJob = async (req, res) => {
 
     //recruiter id and user id
     const { recruiterId, userId } = req.params;
@@ -301,31 +303,122 @@ const findApplicantsInfoByARecruiterJob = async (req, res) => {
     const userAppliedAllJobs = await JobApplicationModel.find({ user: userId })
     console.log("User Applied all jobs ", userAppliedAllJobs);
     console.log("User Applied all jobs length", userAppliedAllJobs.length);
+    console.log(`User ${userId} applied to job -  ${jobIdPostedByRecruiter}`);
+
+    //userInformation 
+    const userInfor = await userModel.findById(userId, {})
+    console.log("\nUer who applied to jobs ", userInfor);
 
 
-    // now match user id with this job id if user applied to this job or not.
-    const isApplied = await JobApplicationModel.findOne({
-        user: userId,
-        job: { $in: jobIdPostedByRecruiter }
-    })
-
-    console.log(`${userId} user applied to re cruiter ${recruiterId} job`, isApplied);
 
 
-    if (isApplied) {
-        console.log("User has applied to", 1, "job(s)");
-    } else {
-        console.log("User has applied to", 0, "job(s)");
-    }
+    // // now match user id with this job id if user applied to this job or not.
+    // const isApplied = await JobApplicationModel.findOne({
+    //     user: userId,
+    //     job: { $in: jobIdPostedByRecruiter }
+    // })
+
+    // console.log(`${userId} user applied to re cruiter ${recruiterId} job`, isApplied);
 
 
+    // if (isApplied) {
+    //     console.log("User has applied to", 1, "job(s)");
+    // } else {
+    //     console.log("User has applied to", 0, "job(s)");
+    // }
+
+    // // //getting the user information who applied
+    // // // const id = await userModel.find({ id: userId })
+    // // console.log("user id", userId);
+
+    // // const id = await userModel.findById(userId, {})
+    // // console.log("ID ", id);
     //user id
     res.send("Testing..")
 
 }
 
 
+//find all the users who applied to recruiter jobs
+/**
+ *  suppose receruitert Id is abc posted 3 jobs [1,2,3] and 
+ *  2 users appoied to job 1. 
+ *  now find all the users who applied to recruiter jobs it means
+ *  you need to find that 2 users info
+ * 
+ * for that you need recruiter id and job posted id. 
+ * 
+ */
+//http://localhost:5000/api/v1/recruiter/${recruiterId}/applicants
+const findAllUserAppliedToRecruiterJobs = async (req, res) => {
+    const { recruiterId } = req.params;
+
+    console.log("\n\nRecruiterId ", recruiterId);
+
+    //find the all jobs
+    const recruiterJobs = await ActiveJobsModel.find({ recruiter: recruiterId })
+
+    console.log("\n\nRecruiter JOBS ", recruiterJobs);
+    console.log("\n\nRecruiter JOBS length", recruiterJobs.length);
+
+    const jobId = recruiterJobs.map(re => re._id)
+    console.log("Job Id s ", jobId);
+
+
+    //now find all users who applied to these jobs
+    const allAppliedJobs = await JobApplicationModel.find({
+        job: { $in: jobId },
+    })
+
+    console.log("\n\allAppliedJobs ", allAppliedJobs);
+
+
+    const userId = allAppliedJobs.map(u => u.user)
+    console.log("User id ", userId);
+
+    //Find all the user
+    const allUsers = await UserModel.find(
+        { _id: { $in: userId } }
+    ).select("+appliedJobIds +appliedApplicationCount");
+
+    console.log("All User ", allUsers);
+
+    // all user i can fetch the ids
+    const appliedJobsId = allUsers.map(jobs => jobs.appliedJobIds).flat()
+
+    console.log("appliedJobsId", appliedJobsId);
+
+    //now i can fetch the job infor
+    const info = await ActiveJobsModel.find({ _id: appliedJobsId })
+    console.log("Job info ", info);
+    console.log("Job info length", info.length);
+
+
+    //extract the jobTitle, status, jobType
+    const result = info.map(job => ({
+        jobTitle: job.jobTitle,
+        status: job.status,
+        jobType: job.jobCategory
+    }))
+
+
+    console.log("\nFinal result ", result);
+    console.log("\nFinal result length ", result.length);
+
+
+    res.status(200).json({
+        status: true,
+        message: "All user applied to recruiter jobs",
+        data: {
+            userInfo: allUsers,
+            jobInfo: result,
+        }
+    })
+
+    // res.send("Done");
+}
 
 
 
-module.exports = { showRecuiterJobs, getMostPopularJobsByARecruiter, getJobsWithNoApplicantsByARecuiter, recentlyPublishedJobs, closingJobByARecruiter, applicationsInfoToRecruiter, findApplicantsInfoByARecruiterJob }
+
+module.exports = { showRecuiterJobs, getMostPopularJobsByARecruiter, getJobsWithNoApplicantsByARecuiter, recentlyPublishedJobs, closingJobByARecruiter, applicationsInfoToRecruiter, findApplicantInfoByARecruiterJob, findAllUserAppliedToRecruiterJobs }

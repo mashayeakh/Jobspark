@@ -6,6 +6,8 @@ export const TotalApplicationContext = createContext();
 const TotalApplicationProvider = ({ children }) => {
 
     const [showAppliedInfo, setShowAppliedInfo] = useState();
+    const [showAllApplicantsInfo, setShowAllApplicantsInfo] = useState();
+
 
     const appliedInfo = async (url) => {
         const response = await getMethod(url);
@@ -14,10 +16,21 @@ const TotalApplicationProvider = ({ children }) => {
     }
 
 
+    const allApplicantsInfo = async (url) => {
+        const response = await getMethod(url);
+        setShowAllApplicantsInfo(response);
+        return response;
+    }
+
+
+
     const addInfo = {
         appliedInfo,
+        allApplicantsInfo,
         showAppliedInfo,
         setShowAppliedInfo,
+        showAllApplicantsInfo,
+        setShowAllApplicantsInfo,
     }
 
     return (
