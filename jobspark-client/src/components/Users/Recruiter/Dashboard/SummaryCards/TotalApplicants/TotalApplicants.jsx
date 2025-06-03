@@ -7,6 +7,7 @@ import { MdGridView } from "react-icons/md";
 import { MdOutlineTableChart } from "react-icons/md";
 import { MdOutlineEmail } from "react-icons/md";
 import { BsBriefcase } from "react-icons/bs";
+import { Link } from 'react-router';
 
 
 
@@ -19,7 +20,7 @@ const TotalApplicants = () => {
 
     const [view, setView] = useState(true);
 
-    console.log("Uer id ", user?._id);
+    console.log("Uer id --------", user?._id);
 
 
     const showInfo = async () => {
@@ -239,6 +240,7 @@ const TotalApplicants = () => {
                                         <tr key={applicant.userId}>
                                             <td className=" px-4 py-2">{idx + 1}</td>
                                             <td className=" px-4 py-2">{applicant.userName}</td>
+                                            <td className=" px-4 py-2">{applicant.userId}</td>
                                             <td className=" px-4 py-2 font-bold">
                                                 {applicant.jobTitles?.map((title, i) => (
                                                     <div key={i}>{title}</div>
@@ -254,7 +256,13 @@ const TotalApplicants = () => {
                                                     <div key={i}>{status}</div>
                                                 ))}
                                             </td>
-                                            <td>View</td>
+                                            <td>
+                                                <th>
+                                                    <Link to={`/recruiter/dashboard/summary-cards/applicant-details/${user?._id}/applicant/${applicant.userId}`}>
+                                                        <p className="link link-primary">View</p>
+                                                    </Link>
+                                                </th>
+                                            </td>
                                         </tr>
                                     ))}
                                 </tbody>

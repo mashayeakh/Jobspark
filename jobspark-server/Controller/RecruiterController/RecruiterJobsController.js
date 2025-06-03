@@ -434,6 +434,14 @@ const findApplicantInfoByARecruiterJob = async (req, res) => {
 //     // res.send("Done");
 // }
 
+
+/**
+ *  suppose receruitert Id is abc posted 3 jobs [1,2,3] and 
+ *  2 users appoied to job 1. 
+ *  now find all the users who applied to recruiter jobs it means
+ *  you need to find that 2 users info
+ *   
+ */
 const findAllUserAppliedToRecruiterJobs = async (req, res) => {
     const { recruiterId } = req.params;
 
@@ -495,7 +503,7 @@ const findAllUserAppliedToRecruiterJobs = async (req, res) => {
             if (!userJobMap.has(userId)) {
                 userJobMap.set(userId, {
                     userId: userId,
-                    userName: app.user.name, 
+                    userName: app.user.name,
                     jobIds: new Set(),
                     jobTitles: new Set(),
                     jobTypes: new Set(),
@@ -538,7 +546,81 @@ const findAllUserAppliedToRecruiterJobs = async (req, res) => {
     }
 };
 
+/**
+ * fetch the applicant detiails to Recruiter jobs
+ * 
+ * You need recruiter id and applicant's id. 
+ */
+//http://localhost:5000/api/v1/recruiter/6839c86523d93cb0daa3de99/applicant/683d67fdc5c43a2f8a2ad298
+const findApplicantDetailsInfoToRecruiterJob = async (req, res) => {
+    try {
+        const { recruiterId, applicantId } = req.params;
+        console.log("Recruiter id and applicant id", recruiterId, applicantId);
+
+        // Step 1: Find all job applications by this applicant
+        const jobsApplied = await JobApplicationModel.find({ user: applicantId });
+
+        if (!jobsApplied.length) {
+            return res.status(404).json({
+                success: false,
+                message: "No job applications found for this applicant."
+            });
+        }
+
+        // Step 2: Get applicant info
+        const userInfo = await userModel.findById(applicantId).lean();
+        if (!userInfo) {
+            return res.status(404).json({
+                success: false,
+                message: "Applicant not found."
+            });
+        }
+
+        // Step 3: Extract job IDs from job applications
+        const appliedJobIds = jobsApplied.map(app => app.job.toString());
+
+        // Step 4: Find job info for jobs posted by this recruiter
+        const jobInfo = await ActiveJobsModel.find({
+            _id: { $in: appliedJobIds },
+            recruiter: recruiterId
+        }).lean();
+
+        if (!jobInfo.length) {
+            return res.status(200).json({
+                success: true,
+                message: "No jobs matched for this applicant under this recruiter.",
+                data: []
+            });
+        }
+
+        // Step 5: Build the nested response structure
+        const responseData = {
+            userId: userInfo._id,
+            userName: userInfo.name,
+            jobIds: jobInfo.map(job => job._id),
+            jobTitles: jobInfo.map(job => job.jobTitle),
+            jobTypes: jobInfo.map(job => job.jobCategory)
+        };
+
+        return res.status(200).json({
+            success: true,
+            message: "Applicant job info fetched successfully.",
+            data: responseData
+        });
+
+    } catch (err) {
+        console.error("Error fetching applicant details:", err);
+        return res.status(500).json({
+            success: false,
+            message: "Internal Server Error",
+            error: err.message
+        });
+    }
+};
 
 
 
-module.exports = { showRecuiterJobs, getMostPopularJobsByARecruiter, getJobsWithNoApplicantsByARecuiter, recentlyPublishedJobs, closingJobByARecruiter, applicationsInfoToRecruiter, findApplicantInfoByARecruiterJob, findAllUserAppliedToRecruiterJobs }
+
+
+
+module.exports = { showRecuiterJobs, getMostPopularJobsByARecruiter, getJobsWithNoApplicantsByARecuiter, recentlyPublishedJobs, closingJobByARecruiter, applicationsInfoToRecruiter, findApplicantInfoByARecruiterJob, findAllUserAppliedToRecruiterJobs, findApplicantDetailsInfoToRecruiterJob }

@@ -21,6 +21,7 @@ import InterviewScheduled from "../Users/Recruiter/Dashboard/SummaryCards/Interv
 import ActiveJobsDetails from "../Users/Recruiter/Dashboard/SummaryCards/ActiveJobs/ActiveJobsDetails"
 import Job from './../Pages/Jobs/Jobs';
 import JobsDetails from "../Pages/Users/JobSeeker/JobsDetails"
+import ApplicantsDetails from "../Users/Recruiter/Dashboard/SummaryCards/TotalApplicants/ApplicantsDetails"
 
 
 const router = createBrowserRouter([
@@ -97,10 +98,14 @@ const router = createBrowserRouter([
                                 loader: ({ params }) => fetch(`http://localhost:5000/api/v1/job/${params.id}`)
 
                             },
-
                             {
                                 path: "total-applications",
                                 element: <TotalApplicants />
+                            },
+                            {
+                                path: "applicant-details/:recruiterId/applicant/:applicantId",
+                                element: <ApplicantsDetails />,
+                                loader: ({ params }) => fetch(`http://localhost:5000/api/v1/recruiter/${params.recruiterId}/applicant/${params.applicantId}`)
                             },
                             {
                                 path: "shortlisted",
