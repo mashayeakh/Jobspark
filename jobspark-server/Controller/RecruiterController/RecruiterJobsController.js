@@ -443,20 +443,88 @@ const findAllUserAppliedToRecruiterJobs = async (req, res) => {
 
         const recruiterJobIds = recruiterJobs.map(job => job._id);
 
+        console.log("\n\n-----Recruiter Jobs ", recruiterJobIds);
+
         // Step 2: Get all applications to these jobs
         const allApplications = await JobApplicationModel.find({
             job: { $in: recruiterJobIds },
         }).populate("user").populate("job");
 
-        // Step 3: Map result
-        const result = allApplications.map(app => ({
-            userId: app.user._id,
-            userName: app.user.name,
-            jobId: app.job._id,
-            jobTitle: app.job.jobTitle,
-            jobType: app.job.jobCategory,
-            status: app.job.status,
+        console.log("--------All applications ", allApplications);
+        console.log("--------All applications length", allApplications.length);
+
+
+        const test = await JobApplicationModel.find({
+            job: { $in: recruiterJobIds },
+        })
+
+        console.log("\n\n\n----------Test -   ", test);
+        console.log("\n\n\n----------Test length ", test.length);
+
+
+        const fullyPopulated = await JobApplicationModel.find({
+            job: { $in: recruiterJobIds },
+        }).populate("user");
+
+        console.log("\n\n\n----------user populate -   ", fullyPopulated);
+        console.log("\n\n\n----------user populate length ", fullyPopulated.length);
+
+
+        //extracting users and removing the duplication. 
+        const uniqueUsersIds = [... new Set(fullyPopulated.map(id => id.user._id.toString()))]
+        console.log("Uniqu ids", uniqueUsersIds);
+
+
+        //now get the user info from unique ids
+        const uniqueUsers = await UserModel.find({ _id: { $in: uniqueUsersIds } });
+        console.log("Users ", uniqueUsers);
+        console.log("Users length", uniqueUsers.length);
+
+        //1st val
+        const name = uniqueUsers.map(name => name.name)
+        console.log("Name ", name);
+
+
+        // find me list of unique job ids and their names
+        // Find unique job ids and their names, types, and status
+        const userJobMap = new Map();
+
+        allApplications.forEach(app => {
+            const userId = app.user._id.toString();
+
+            if (!userJobMap.has(userId)) {
+                userJobMap.set(userId, {
+                    userId: userId,
+                    userName: app.user.name, 
+                    jobIds: new Set(),
+                    jobTitles: new Set(),
+                    jobTypes: new Set(),
+                    statuses: new Set(),
+                });
+            }
+
+            const userData = userJobMap.get(userId);
+
+            if (app.job) {
+                userData.jobIds.add(app.job._id.toString());
+                userData.jobTitles.add(app.job.jobTitle);
+                userData.jobTypes.add(app.job.jobCategory);
+                userData.statuses.add(app.job.status);
+            }
+        });
+
+        // Convert Sets to arrays and final output format
+        const result = Array.from(userJobMap.values()).map(user => ({
+            userId: user.userId,
+            userName: user.userName,
+            jobIds: Array.from(user.jobIds),
+            jobTitles: Array.from(user.jobTitles),
+            jobTypes: Array.from(user.jobTypes),
+            statuses: Array.from(user.statuses)
         }));
+
+        console.log(JSON.stringify(result, null, 2));
+
 
         res.status(200).json({
             status: true,

@@ -37,7 +37,6 @@ const TotalApplicants = () => {
         }
     }
 
-
     console.log("Sow Data Info", showDataInfo);
     const totalApplicants = showDataInfo.data?.jobs.map(j => j?.applicantsCount || 0).reduce((acc, crrVal) => acc + crrVal, 0)
     // console.log("Sow Data Info000000000", showDataInfo.data?.jobs.map(j => j?.applicantsCount).reduce((acc, crrVal) => acc + crrVal, 0));
@@ -66,15 +65,19 @@ const TotalApplicants = () => {
         showAllInfo();
     }, [user?._id])
 
-    console.log("Show all Applicants Info", showAllApplicantsInfo);
-
     console.log("Result ", showAllApplicantsInfo.data?.jobInfo);
     console.log("Result2 ", showAllApplicantsInfo.data?.userInfo);
-
     const jobInfo = showAllApplicantsInfo.data?.jobInfo;
     const userInfo = showAllApplicantsInfo.data?.userInfo;
-
     console.log("User Info", userInfo);
+
+
+    console.log("Show all Applicants Info", showAllApplicantsInfo);
+    console.log("Show all Applicants Info 2", showAllApplicantsInfo?.data?.map(uname => uname.userName));
+    // console.log("Show all Applicants Info", showAllApplicantsInfo);
+    const namesArr = showAllApplicantsInfo?.data?.map(uname => uname.userName)
+    console.log(namesArr);
+
 
 
     return (
@@ -173,14 +176,13 @@ const TotalApplicants = () => {
                     {view ? (
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
                             {/* Example applicant card with action button on the right */}
-                            {userInfo?.map((uInfo, idx) => (
-                                <div key={uInfo?._id || idx} className="w-full max-w-xs bg-gradient-to-br from-blue-100 to-white border border-gray-200 rounded-xl shadow transition-transform duration-300 hover:scale-105 hover:shadow-xl hover:border-blue-400 group">
+                            {showAllApplicantsInfo?.data?.map((applicant, idx) => (
+                                <div key={applicant.userId || idx} className="w-full max-w-xs bg-gradient-to-br from-blue-100 to-white border border-gray-200 rounded-xl shadow transition-transform duration-300 hover:scale-105 hover:shadow-xl hover:border-blue-400 group">
                                     <div className="flex flex-col">
-                                        <div className="flex justify-end px-4 ">
+                                        <div className="flex justify-end px-4">
                                             <div className="dropdown dropdown-end">
                                                 <div tabIndex={0} role="button" className="inline-block text-gray-500 hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg text-sm p-1.5">
-                                                    <span className="sr-only">Open dropdown</span>
-                                                    <svg className="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 3">
+                                                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 16 3">
                                                         <path d="M2 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm6.041 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM14 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Z" />
                                                     </svg>
                                                 </div>
@@ -191,32 +193,74 @@ const TotalApplicants = () => {
                                                 </ul>
                                             </div>
                                         </div>
+
                                         <div className="flex flex-col items-center p-5 pt-2">
-                                            <img className="w-16 h-16 rounded-full shadow-lg ring-2 ring-blue-500 mb-2" src="https://randomuser.me/api/portraits/women/79.jpg" alt={uInfo?.name || "Applicant"} />
-                                            <p className="text-lg font-semibold text-gray-900 group-hover:text-blue-700 transition-colors duration-200">{uInfo?.name}</p>
-                                            <p className="text-xs text-gray-500 group-hover:text-blue-500 transition-colors duration-200 mb-2">Visual Designer</p>
-                                            <div className="flex flex-wrap gap-2 mb-2">
-                                                {/* Render skills as separate badges */}
-                                                {Array.isArray(uInfo?.skills) && uInfo.skills.length > 0 && uInfo.skills[0]
-                                                    ? uInfo.skills[0].split(',').map((skill, i) => (
-                                                        <span key={i} className="badge badge-neutral badge-outline badge-sm">{skill.trim()}</span>
-                                                    ))
-                                                    : null
-                                                }
+                                            <img className="w-16 h-16 rounded-full shadow-lg ring-2 ring-blue-500 mb-2" src="https://randomuser.me/api/portraits/women/79.jpg" alt={applicant.userName} />
+
+                                            <p className="text-lg font-semibold text-gray-900 group-hover:text-blue-700 transition-colors duration-200">
+                                                {applicant.userName}
+                                            </p>
+
+                                            <p className="text-xs text-gray-500 group-hover:text-blue-500 transition-colors duration-200 mb-2">
+                                                Applied Jobs:
+                                            </p>
+
+                                            <div className="text-xs text-gray-700 text-center mb-1">
+                                                {applicant.jobTitles?.join(", ")}
                                             </div>
-                                            <div className="text-xs text-gray-600 text-center">
-                                                Applied to - {
-                                                    jobInfo?.map(job => (
-                                                        job?.jobTitle
-                                                    ))
-                                                }
+
+                                            {/* <div className="text-xs text-gray-600 mb-1">
+                                                Job Types: {applicant.jobTypes?.join(", ")}
                                             </div>
+
+                                            <div className="text-xs text-gray-600 mb-1">
+                                                Status: {applicant.statuses?.join(", ")}
+                                            </div> */}
                                         </div>
                                     </div>
                                 </div>
                             ))}
+
                         </div>
-                    ) : ""
+                    ) : <div>
+                        <div className="overflow-x-auto">
+                            <table className="table table-xs">
+                                <thead>
+                                    <tr>
+                                        <th className=" px-4 py-2">#</th>
+                                        <th className=" px-4 py-2">User Name</th>
+                                        <th className=" px-4 py-2">Job Titles</th>
+                                        <th className=" px-4 py-2">Job Types</th>
+                                        <th className=" px-4 py-2">Statuses</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {showAllApplicantsInfo?.data?.map((applicant, idx) => (
+                                        <tr key={applicant.userId}>
+                                            <td className=" px-4 py-2">{idx + 1}</td>
+                                            <td className=" px-4 py-2">{applicant.userName}</td>
+                                            <td className=" px-4 py-2 font-bold">
+                                                {applicant.jobTitles?.map((title, i) => (
+                                                    <div key={i}>{title}</div>
+                                                ))}
+                                            </td>
+                                            <td className=" px-4 py-2">
+                                                {applicant.jobTypes?.map((type, i) => (
+                                                    <div key={i}>{type}</div>
+                                                ))}
+                                            </td>
+                                            <td className=" px-4 py-2">
+                                                {applicant.statuses?.map((status, i) => (
+                                                    <div key={i}>{status}</div>
+                                                ))}
+                                            </td>
+                                            <td>View</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                     }
                 </div>
             </div>
