@@ -1,6 +1,6 @@
 
 const express = require("express");
-const { showRecuiterJobs, getMostPopularJobsByARecruiter, getJobsWithNoApplicantsByARecuiter, recentlyPublishedJobs, closingJobByARecruiter, applicationsInfoToRecruiter, findApplicantInfoByARecruiterJob, findAllUserAppliedToRecruiterJobs, findApplicantDetailsInfoToRecruiterJob } = require("../../Controller/RecruiterController/RecruiterJobsController");
+const { showRecuiterJobs, getMostPopularJobsByARecruiter, getJobsWithNoApplicantsByARecuiter, recentlyPublishedJobs, closingJobByARecruiter, applicationsInfoToRecruiter, findApplicantInfoByARecruiterJob, findAllUserAppliedToRecruiterJobs, findApplicantDetailsInfoToRecruiterJob, todaysNewApplication } = require("../../Controller/RecruiterController/RecruiterJobsController");
 
 const router = express.Router();
 
@@ -14,6 +14,7 @@ router.get("/recruiter/:recruiterId/all-applications", applicationsInfoToRecruit
 router.get("/recruiter/:recruiterId/user/:userId", findApplicantInfoByARecruiterJob);
 router.get("/recruiter/:recruiterId/all-applicants-info", findAllUserAppliedToRecruiterJobs);
 router.get("/recruiter/:recruiterId/applicant/:applicantId", findApplicantDetailsInfoToRecruiterJob);
+router.get("/today/recruiter/:recruiterId", todaysNewApplication);
 
 // router.get("/job/recruiter", showRecruiterJobs);
 

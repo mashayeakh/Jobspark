@@ -620,7 +620,98 @@ const findApplicantDetailsInfoToRecruiterJob = async (req, res) => {
 
 
 
+/**
+ *  suppose today is 3rd of June, 2025. how many applications have been submitted to day?
+ * 
+ * input - recruiter id, 
+ * 
+ * http://localhost:5000/api/v1/today/recruiter/{$recuiterId}
+ */
+
+const todaysNewApplication = async (req, res) => {
+    try {
+        const { recruiterId } = req.params;
+
+        console.log("\n\n\n\n--------Recruiter Id ", recruiterId);
+
+        // Get all the job IDs corresponding to the recruiter ID
+        const jobIds = await ActiveJobsModel.find({ recruiter: recruiterId }).select("_id");
+        console.log("Job Ids =>", jobIds);
+        console.log("Job Ids length =>", jobIds.length);
+
+        // Get all the job applications corresponding to these job IDs
+        const jobApplications = await JobApplicationModel.find({
+            job: { $in: jobIds }
+        });
+
+        console.log("Job Applications :", jobApplications);
+        console.log("Job Applications length:", jobApplications.length);
+
+        // Extract unique job IDs from job applications
+        const uniqueJobIds = [...new Set(jobApplications.map(id => id.job.toString()))];
+        console.log("Unique Job IDs", uniqueJobIds);
+
+        // Organize appliedAt dates for each job ID
+        const appliedAtJobIds = uniqueJobIds.map(jobId => {
+            const appliedAtDates = jobApplications
+                .filter(app => app.job.toString() === jobId)
+                .map(app => app.appliedAt);
+
+            return {
+                appliedAt: appliedAtDates
+            };
+        });
+
+        console.log("AppliedAt by JobId (Full Data):", jobApplications, appliedAtJobIds);
+        console.log("AppliedAt by JobId:", appliedAtJobIds);
+
+        // Flatten all appliedAt timestamps
+        const extractingAppliedJobTime = appliedAtJobIds.map(appDate => appDate.appliedAt).flat();
+        console.log("Extracting Applied job Time", extractingAppliedJobTime);
+
+        // Just converting for curiosity (not used later)
+        const converstion = extractingAppliedJobTime.toString();
+
+        // Define today's start and end time
+        const startingTime = new Date();
+        startingTime.setHours(0, 0, 0, 0);
+
+        const endingTime = new Date();
+        endingTime.setHours(23, 59, 59, 999);
+
+        // Find applications submitted today
+        const todaysApplications = await JobApplicationModel.find({
+            job: { $in: uniqueJobIds },
+            appliedAt: { $gte: startingTime, $lte: endingTime }
+        });
+
+        console.log("Today's applications:", todaysApplications);
+        console.log("Today's applications length:", todaysApplications.length);
+
+        // Send response
+        res.status(200).json({
+            status: true,
+            message: "Today's applications fetched successfully",
+            count: todaysApplications.length,
+            data: todaysApplications
+        });
+
+        // If you want to replace the above with a generic done message
+        // res.send("Done");
+
+    } catch (error) {
+        console.error("Error fetching today's applications from sever -  todaysNewApplication:", error);
+        res.status(500).json({
+            status: false,
+            message: "Internal server error. Could not fetch today's applications.",
+            error: error.message
+        });
+    }
+};
 
 
 
-module.exports = { showRecuiterJobs, getMostPopularJobsByARecruiter, getJobsWithNoApplicantsByARecuiter, recentlyPublishedJobs, closingJobByARecruiter, applicationsInfoToRecruiter, findApplicantInfoByARecruiterJob, findAllUserAppliedToRecruiterJobs, findApplicantDetailsInfoToRecruiterJob }
+
+
+
+module.exports = { showRecuiterJobs, getMostPopularJobsByARecruiter, getJobsWithNoApplicantsByARecuiter, recentlyPublishedJobs, closingJobByARecruiter, applicationsInfoToRecruiter, findApplicantInfoByARecruiterJob, findAllUserAppliedToRecruiterJobs, findApplicantDetailsInfoToRecruiterJob, todaysNewApplication }

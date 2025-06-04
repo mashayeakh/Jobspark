@@ -3,17 +3,17 @@ import { AuthContext } from '../../../../../Context/AuthContextProvider';
 import { TotalApplicationContext } from '../../../../../Context/TotalApplicationProvider';
 import Google from '../../../../../../assets/imgs/companyLogo/google.png';
 import { FaCode, FaSort } from 'react-icons/fa';
-import { MdGridView } from "react-icons/md";
+import { MdCleaningServices, MdGridView } from "react-icons/md";
 import { MdOutlineTableChart } from "react-icons/md";
 import { MdOutlineEmail } from "react-icons/md";
-import { BsBriefcase } from "react-icons/bs";
+import { BsBriefcase, BsCheckLg } from "react-icons/bs";
 import { Link } from 'react-router';
 
 
 
 const TotalApplicants = () => {
 
-    const { appliedInfo, allApplicantsInfo } = useContext(TotalApplicationContext);
+    const { appliedInfo, allApplicantsInfo, newApplicantsToday } = useContext(TotalApplicationContext);
     const { user } = useContext(AuthContext);
     const [showDataInfo, setShowDataInfo] = useState({});
     const [showAllApplicantsInfo, setShowAllApplicantsInfo] = useState({});
@@ -80,6 +80,32 @@ const TotalApplicants = () => {
     console.log(namesArr);
 
 
+    //!Today's applications
+    const [newAppli, setNewAppli] = useState(null);
+
+
+    const newApplication = async () => {
+
+        try {
+            const url = `http://localhost:5000/api/v1/today/recruiter/${user?._id}`;
+            const hasNewApplicationSubmitted = await newApplicantsToday(url);
+            if (hasNewApplicationSubmitted.status === true) {
+                setNewAppli(hasNewApplicationSubmitted);
+                console.log("num of apliacation applied today ", hasNewApplicationSubmitted);
+            }
+        } catch (err) {
+            console.error("Error fetching today's applications from sever -  todaysNewApplication:", err.message);
+        }
+    }
+
+
+    useEffect(() => {
+        if (!user?._id) return;
+        newApplication();
+    }, [user?._id])
+
+    console.log("Num of application applied today :", newAppli?.count);
+
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white py-8 px-2 md:px-8">
@@ -100,7 +126,7 @@ const TotalApplicants = () => {
                     <div className="bg-white rounded-2xl shadow-lg p-5 flex flex-col items-center border-t-4 border-green-500 hover:shadow-xl transition">
                         <img src={Google} alt="Company Logo" className="w-10 mb-3 rounded-full shadow mx-auto" />
                         <h3 className="text-xs font-semibold mb-1 text-gray-600 uppercase tracking-wide">New Today</h3>
-                        <span className="text-2xl font-bold text-green-600">7</span>
+                        <span className="text-2xl font-bold text-green-600">{newAppli?.count}</span>
                     </div>
                     <div className="bg-white rounded-2xl shadow-lg p-5 flex flex-col items-center border-t-4 border-yellow-400 hover:shadow-xl transition">
                         <img src={Google} alt="Company Logo" className="w-10 mb-3 rounded-full shadow mx-auto" />
