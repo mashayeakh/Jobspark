@@ -266,16 +266,14 @@ const TotalApplicants = () => {
                                         <tr key={applicant.userId}>
                                             <td className=" px-4 py-2">{idx + 1}</td>
                                             <td className=" px-4 py-2">{applicant.userName}</td>
-                                            <td className=" px-4 py-2">{applicant.userId}</td>
+                                            <td className=" px-4 py-2">{applicant.jobTitle}</td>
                                             <td className=" px-4 py-2 font-bold">
-                                                {applicant.jobTitles?.map((title, i) => (
-                                                    <div key={i}>{title}</div>
-                                                ))}
+                                                <div>{applicant.jobType}</div>
                                             </td>
                                             <td className=" px-4 py-2">
-                                                {applicant.jobTypes?.map((type, i) => (
-                                                    <div key={i}>{type}</div>
-                                                ))}
+
+                                                <div>{applicant.jobType}</div>
+
                                             </td>
                                             <td className=" px-4 py-2">
                                                 {applicant.statuses?.map((status, i) => (

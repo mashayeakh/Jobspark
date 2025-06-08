@@ -440,7 +440,7 @@ const findApplicantInfoByARecruiterJob = async (req, res) => {
  *  2 users appoied to job 1. 
  *  now find all the users who applied to recruiter jobs it means
  *  you need to find that 2 users info
- *   
+ *   input - http://localhost:5000/api/v1/recruiter/${user?._id}/all-applicants-info
  */
 const findAllUserAppliedToRecruiterJobs = async (req, res) => {
     const { recruiterId } = req.params;
@@ -448,96 +448,34 @@ const findAllUserAppliedToRecruiterJobs = async (req, res) => {
     try {
         // Step 1: Get all job IDs posted by this recruiter
         const recruiterJobs = await ActiveJobsModel.find({ recruiter: recruiterId });
-
         const recruiterJobIds = recruiterJobs.map(job => job._id);
 
-        console.log("\n\n-----Recruiter Jobs ", recruiterJobIds);
-
-        // Step 2: Get all applications to these jobs
+        // Step 2: Get all applications to these jobs with user and job populated
         const allApplications = await JobApplicationModel.find({
             job: { $in: recruiterJobIds },
-        }).populate("user").populate("job");
-
-        console.log("--------All applications ", allApplications);
-        console.log("--------All applications length", allApplications.length);
-
-
-        const test = await JobApplicationModel.find({
-            job: { $in: recruiterJobIds },
         })
+            .populate("user")
+            .populate("job");
 
-        console.log("\n\n\n----------Test -   ", test);
-        console.log("\n\n\n----------Test length ", test.length);
-
-
-        const fullyPopulated = await JobApplicationModel.find({
-            job: { $in: recruiterJobIds },
-        }).populate("user");
-
-        console.log("\n\n\n----------user populate -   ", fullyPopulated);
-        console.log("\n\n\n----------user populate length ", fullyPopulated.length);
-
-
-        //extracting users and removing the duplication. 
-        const uniqueUsersIds = [... new Set(fullyPopulated.map(id => id.user._id.toString()))]
-        console.log("Uniqu ids", uniqueUsersIds);
-
-
-        //now get the user info from unique ids
-        const uniqueUsers = await UserModel.find({ _id: { $in: uniqueUsersIds } });
-        console.log("Users ", uniqueUsers);
-        console.log("Users length", uniqueUsers.length);
-
-        //1st val
-        const name = uniqueUsers.map(name => name.name)
-        console.log("Name ", name);
-
-
-        // find me list of unique job ids and their names
-        // Find unique job ids and their names, types, and status
-        const userJobMap = new Map();
-
-        allApplications.forEach(app => {
-            const userId = app.user._id.toString();
-
-            if (!userJobMap.has(userId)) {
-                userJobMap.set(userId, {
-                    userId: userId,
-                    userName: app.user.name,
-                    jobIds: new Set(),
-                    jobTitles: new Set(),
-                    jobTypes: new Set(),
-                    statuses: new Set(),
-                });
-            }
-
-            const userData = userJobMap.get(userId);
-
-            if (app.job) {
-                userData.jobIds.add(app.job._id.toString());
-                userData.jobTitles.add(app.job.jobTitle);
-                userData.jobTypes.add(app.job.jobCategory);
-                userData.statuses.add(app.job.status);
-            }
-        });
-
-        // Convert Sets to arrays and final output format
-        const result = Array.from(userJobMap.values()).map(user => ({
-            userId: user.userId,
-            userName: user.userName,
-            jobIds: Array.from(user.jobIds),
-            jobTitles: Array.from(user.jobTitles),
-            jobTypes: Array.from(user.jobTypes),
-            statuses: Array.from(user.statuses)
+        // Step 3: Create flat list (each application is one record)
+        const flatResult = allApplications.map(app => ({
+            userId: app.user._id.toString(),
+            userName: app.user.name,
+            jobId: app.job._id.toString(),
+            jobTitle: app.job.jobTitle,
+            jobType: app.job.jobCategory,
+            status: app.job.status
         }));
 
-        console.log(JSON.stringify(result, null, 2));
+        // Step 4: Optional sort by userName
+        flatResult.sort((a, b) => a.userName.localeCompare(b.userName));
+        console.log("Flat result", flatResult);
 
-
+        // Step 5: Send response
         res.status(200).json({
             status: true,
             message: "All users who applied to this recruiter's jobs",
-            data: result
+            data: flatResult
         });
 
     } catch (error) {
@@ -557,50 +495,54 @@ const findApplicantDetailsInfoToRecruiterJob = async (req, res) => {
         const { recruiterId, applicantId } = req.params;
         console.log("Recruiter id and applicant id", recruiterId, applicantId);
 
-        // Step 1: Find all job applications by this applicant
-        const jobsApplied = await JobApplicationModel.find({ user: applicantId });
+        // Step 1: Get all job applications by this applicant
+        const applicantApplications = await JobApplicationModel.find({ user: applicantId })
+            .populate("job")
+            .lean();
 
-        if (!jobsApplied.length) {
+        if (!applicantApplications.length) {
             return res.status(404).json({
                 success: false,
-                message: "No job applications found for this applicant."
+                message: "No job applications found for this applicant.",
             });
         }
 
-        // Step 2: Get applicant info
+        // Step 2: Filter applications where the job's recruiter matches
+        const matchingApp = applicantApplications.find(app =>
+            app.job.recruiter.toString() === recruiterId
+        );
+
+        if (!matchingApp) {
+            return res.status(200).json({
+                success: true,
+                message: "No jobs found for this applicant under this recruiter.",
+                data: null
+            });
+        }
+
+        // Step 3: Get applicant info
         const userInfo = await userModel.findById(applicantId).lean();
         if (!userInfo) {
             return res.status(404).json({
                 success: false,
-                message: "Applicant not found."
+                message: "Applicant not found.",
             });
         }
 
-        // Step 3: Extract job IDs from job applications
-        const appliedJobIds = jobsApplied.map(app => app.job.toString());
-
-        // Step 4: Find job info for jobs posted by this recruiter
-        const jobInfo = await ActiveJobsModel.find({
-            _id: { $in: appliedJobIds },
-            recruiter: recruiterId
-        }).lean();
-
-        if (!jobInfo.length) {
-            return res.status(200).json({
-                success: true,
-                message: "No jobs matched for this applicant under this recruiter.",
-                data: []
-            });
-        }
-
-        // Step 5: Build the nested response structure
+        // Step 4: Build and send response for one job
         const responseData = {
             userId: userInfo._id,
             userName: userInfo.name,
-            jobIds: jobInfo.map(job => job._id),
-            jobTitles: jobInfo.map(job => job.jobTitle),
-            jobTypes: jobInfo.map(job => job.jobCategory)
+                userEmail: userInfo.email,
+                userMobile: userInfo.mobile,
+            jobId: matchingApp.job._id,
+            jobTitle: matchingApp.job.jobTitle,
+            jobType: matchingApp.job.jobCategory,
+            jobStatus: matchingApp.job.status,
+            applicationDate: matchingApp.createdAt,
         };
+
+        console.log("Response DATA ", responseData);
 
         return res.status(200).json({
             success: true,
@@ -617,6 +559,7 @@ const findApplicantDetailsInfoToRecruiterJob = async (req, res) => {
         });
     }
 };
+
 
 
 

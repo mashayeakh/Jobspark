@@ -32,6 +32,11 @@ const TotalApplicationProvider = ({ children }) => {
         return response;
     }
 
+    //show the status like rejected and shortlisted
+    // const [status, setStatus] = useState(null);
+    // const showStatus = (url) => {
+    //     const response = await 
+    // }
 
 
 

@@ -1,7 +1,7 @@
 
 const express = require("express");
 const { showRecuiterJobs, getMostPopularJobsByARecruiter, getJobsWithNoApplicantsByARecuiter, recentlyPublishedJobs, closingJobByARecruiter, applicationsInfoToRecruiter, findApplicantInfoByARecruiterJob, findAllUserAppliedToRecruiterJobs, findApplicantDetailsInfoToRecruiterJob, todaysNewApplication } = require("../../Controller/RecruiterController/RecruiterJobsController");
-
+findApplicantDetailsInfoToRecruiterJob
 const router = express.Router();
 
 
