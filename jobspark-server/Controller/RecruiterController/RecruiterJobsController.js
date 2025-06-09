@@ -533,8 +533,8 @@ const findApplicantDetailsInfoToRecruiterJob = async (req, res) => {
         const responseData = {
             userId: userInfo._id,
             userName: userInfo.name,
-                userEmail: userInfo.email,
-                userMobile: userInfo.mobile,
+            userEmail: userInfo.email,
+            userMobile: userInfo.mobile,
             jobId: matchingApp.job._id,
             jobTitle: matchingApp.job.jobTitle,
             jobType: matchingApp.job.jobCategory,
