@@ -512,6 +512,8 @@ const findApplicantDetailsInfoToRecruiterJob = async (req, res) => {
             app.job.recruiter.toString() === recruiterId
         );
 
+        console.log("MATCCC", matchingApp);
+
         if (!matchingApp) {
             return res.status(200).json({
                 success: true,
@@ -529,25 +531,19 @@ const findApplicantDetailsInfoToRecruiterJob = async (req, res) => {
             });
         }
 
-        // Step 4: Build and send response for one job
-        const responseData = {
-            userId: userInfo._id,
-            userName: userInfo.name,
-            userEmail: userInfo.email,
-            userMobile: userInfo.mobile,
-            jobId: matchingApp.job._id,
-            jobTitle: matchingApp.job.jobTitle,
-            jobType: matchingApp.job.jobCategory,
-            jobStatus: matchingApp.job.status,
-            applicationDate: matchingApp.createdAt,
-        };
+        // //step 4: get job applicantion info
+        // const jobAppliedInfo = await JobApplicationModel.find({ user: applicantId, })
+        // console.log("Job Application Info ", jobAppliedInfo);
 
-        console.log("Response DATA ", responseData);
-
+        // Step 4: Send all job info as requested
         return res.status(200).json({
             success: true,
             message: "Applicant job info fetched successfully.",
-            data: responseData
+            data: {
+                jobAppliedInfo: matchingApp,
+                applicant: userInfo,
+                // jobApplication: matchingApp,
+            }
         });
 
     } catch (err) {
