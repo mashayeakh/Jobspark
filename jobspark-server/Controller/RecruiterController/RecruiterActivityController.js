@@ -55,42 +55,78 @@ const shortListing = async (req, res) => {
 /**
  *  goal - to get the status of recruiter activite model like
  * 
- *input url -  http://localhost:5000/api/v1/recruiter/${recruiterId}/applicant/${applicantId}/status
+ *input url -  http://localhost:5000/api/v1/recruiter/${recruiterId}/applicant/${applicantId}/job/${:jobID}/status
  *  method - get
  */
 
 const getRecruiterStatus = async (req, res) => {
-    const { recruiterId, applicantId } = req.params;
+    const { recruiterId, applicantId, jobId } = req.params;
 
-    console.log("\n\n-----Recruiter ID , Applicant ID", recruiterId, applicantId);
-
+    console.log("\n\n-----Recruiter ID , Applicant ID, Job ID", recruiterId, applicantId, jobId);
 
     // const fullRecord = await RecruiterActivityModel.find({ recruiter: recruiterId }, {});
 
     // console.log("RECORD -> ", fullRecord);
 
-
     const record = await RecruiterActivityModel.findOne(
-        { recruiter: recruiterId, applicant: applicantId }
+        { recruiter: recruiterId, applicant: applicantId, job: jobId },
     )
-
 
     if (!record) {
         return res.status(200).json({ status: null }); // No action yet
     }
+    // Count the number of shortlisted and rejected applicants for this recruiter
+    // const numOfShortListing = await RecruiterActivityModel.countDocuments({
+    //     recruiter: recruiterId,
+    //     status: "shortlisted",
+    // })
+    // console.log("Num of ShortListed ", numOfShortListing);
+    // const numOfRejection = await RecruiterActivityModel.countDocuments({
+    //     recruiter: recruiterId,
+    //     status: "rejected",
+    // })
+    // console.log("Num of Rejected ", numOfRejection);
+
+
+    // You can include these counts in the response if needed
+    // Example: res.status(200).json({ status: record.status, shortlistedCount, rejectedCount });
 
 
     return res.status(200).json({
         status: record.status,
+        // shortlistedCount: numOfShortListing,
+        // rejectedCount: numOfRejection
     })
-
-
-    // res.send("Done");
 }
 
+/**
+ * goal - find the num of short listed and rejected candidates. 
+ * input - http://localhost:5000/api/v1/recruiter/6839c86523d93cb0daa3de99/numOfStatus
+ */
+const getNumOfStatus = async (req, res) => {
+    const { recruiterId } = req.params;
 
+    try {
+        const numOfShortListing = await RecruiterActivityModel.countDocuments({
+            recruiter: recruiterId,
+            status: "shortlisted",
+        });
+        const numOfRejection = await RecruiterActivityModel.countDocuments({
+            recruiter: recruiterId,
+            status: "rejected",
+        });
 
+        return res.status(200).json({
+            shortlistedCount: numOfShortListing,
+            rejectedCount: numOfRejection,
+        });
+    } catch (error) {
+        return res.status(500).json({
+            status: false,
+            message: "Error fetching status counts",
+            error: error.message,
+        });
+    }
+};
 
-
-
-module.exports = { test, shortListing, getRecruiterStatus }
+module.exports = { test, shortListing, getRecruiterStatus, getNumOfStatus, getNumOfStatus }

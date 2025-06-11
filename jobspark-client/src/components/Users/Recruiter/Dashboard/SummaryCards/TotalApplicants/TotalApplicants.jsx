@@ -113,6 +113,45 @@ const TotalApplicants = () => {
     console.log("Num of application applied today :", newAppli?.count);
 
 
+    //getting num of shortlised and recjted
+    const [counts, setCounts] = useState({
+        shortlistedCount: 0,
+        rejectedCount: 0,
+    });
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+
+    useEffect(() => {
+        const fetchCounts = async () => {
+            try {
+                setLoading(true);
+                const response = await fetch(
+                    `http://localhost:5000/api/v1/recruiter/${user?._id}/numOfStatus`
+                );
+                if (!response.ok) {
+                    throw new Error("Network response was not ok");
+                }
+                const data = await response.json();
+                setCounts({
+                    shortlistedCount: data.shortlistedCount,
+                    rejectedCount: data.rejectedCount,
+                });
+                setLoading(false);
+            } catch (err) {
+                setError("Failed to fetch counts");
+                setLoading(false);
+            }
+        };
+
+        if (user?._id) {
+            fetchCounts();
+        }
+    }, [user?._id]);
+
+
+    console.log("nummmmmjm  =>>", counts.rejectedCount);
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white py-8 px-2 md:px-8">
             <div className="max-w-7xl mx-auto">
@@ -137,12 +176,12 @@ const TotalApplicants = () => {
                     <div className="bg-white rounded-2xl shadow-lg p-5 flex flex-col items-center border-t-4 border-yellow-400 hover:shadow-xl transition">
                         <img src={Google} alt="Company Logo" className="w-10 mb-3 rounded-full shadow mx-auto" />
                         <h3 className="text-xs font-semibold mb-1 text-gray-600 uppercase tracking-wide">Shortlisted</h3>
-                        <span className="text-2xl font-bold text-yellow-500">123</span>
+                        <span className="text-2xl font-bold text-yellow-500">{counts.shortlistedCount}</span>
                     </div>
                     <div className="bg-white rounded-2xl shadow-lg p-5 flex flex-col items-center border-t-4 border-red-500 hover:shadow-xl transition">
                         <img src={Google} alt="Company Logo" className="w-10 mb-3 rounded-full shadow mx-auto" />
                         <h3 className="text-xs font-semibold mb-1 text-gray-600 uppercase tracking-wide">Rejected</h3>
-                        <span className="text-2xl font-bold text-red-500">123</span>
+                        <span className="text-2xl font-bold text-red-500">{counts.rejectedCount}</span>
                     </div>
                 </div>
                 {/* Filters */}

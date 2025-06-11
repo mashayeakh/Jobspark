@@ -18,8 +18,6 @@ import { TotalApplicationContext } from '../../../../../Context/TotalApplication
 
 
 
-
-
 const ApplicantsDetails = () => {
 
     const data = useLoaderData();
@@ -64,8 +62,21 @@ const ApplicantsDetails = () => {
     }
 
     useEffect(() => {
-        handleRecruiterAction();
-    }, [])
+        const fetchStatus = async () => {
+            try {
+                const response = await fetch(`http://localhost:5000/api/v1/recruiter/${recruiteId}/applicant/${applicantId}/job/${jobId}/status`);
+                const result = await response.json();
+                if (result.status) {
+                    setStatus(result.status); // e.g., 'shortlisted' or 'rejected'
+                }
+            } catch (err) {
+                console.error("Error fetching status", err);
+            }
+        };
+
+        fetchStatus();
+    }, []);
+
 
 
     const candidate = data.data?.applicant;
