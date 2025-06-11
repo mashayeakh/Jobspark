@@ -489,65 +489,48 @@ const findAllUserAppliedToRecruiterJobs = async (req, res) => {
  * 
  * You need recruiter id and applicant's id. 
  */
-//http://localhost:5000/api/v1/recruiter/6839c86523d93cb0daa3de99/applicant/683d67fdc5c43a2f8a2ad298
+//http://localhost:5000/api/v1/recruiter/6839c86523d93cb0daa3de99/applicant/683d67fdc5c43a2f8a2ad298/job/:jobId
 const findApplicantDetailsInfoToRecruiterJob = async (req, res) => {
     try {
-        const { recruiterId, applicantId } = req.params;
-        console.log("Recruiter id and applicant id", recruiterId, applicantId);
+        const { recruiterId, applicantId, jobId } = req.params;
 
-        // Step 1: Get all job applications by this applicant
-        const applicantApplications = await JobApplicationModel.find({ user: applicantId })
-            .populate("job")
-            .lean();
+        console.log("Recruiter:", recruiterId, "Applicant:", applicantId, "Job:", jobId);
 
-        if (!applicantApplications.length) {
-            return res.status(404).json({
-                success: false,
-                message: "No job applications found for this applicant.",
-            });
-        }
-
-        // Step 2: Filter applications where the job's recruiter matches
-        const matchingApp = applicantApplications.find(app =>
-            app.job.recruiter.toString() === recruiterId
-        );
-
-        console.log("MATCCC", matchingApp);
+        // Find specific job application
+        const matchingApp = await JobApplicationModel.findOne({
+            user: applicantId,
+            job: jobId
+        }).populate("job").lean();
 
         if (!matchingApp) {
-            return res.status(200).json({
-                success: true,
-                message: "No jobs found for this applicant under this recruiter.",
-                data: null
-            });
-        }
-
-        // Step 3: Get applicant info
-        const userInfo = await userModel.findById(applicantId).lean();
-        if (!userInfo) {
             return res.status(404).json({
                 success: false,
-                message: "Applicant not found.",
+                message: "No matching job application found for this applicant under this recruiter."
             });
         }
 
-        // //step 4: get job applicantion info
-        // const jobAppliedInfo = await JobApplicationModel.find({ user: applicantId, })
-        // console.log("Job Application Info ", jobAppliedInfo);
+        // Optional: Validate recruiter ownership
+        if (matchingApp.job.recruiter.toString() !== recruiterId) {
+            return res.status(403).json({
+                success: false,
+                message: "Unauthorized: Recruiter does not own this job."
+            });
+        }
 
-        // Step 4: Send all job info as requested
+        // Get applicant info
+        const userInfo = await userModel.findById(applicantId).lean();
+
         return res.status(200).json({
             success: true,
             message: "Applicant job info fetched successfully.",
             data: {
                 jobAppliedInfo: matchingApp,
-                applicant: userInfo,
-                // jobApplication: matchingApp,
+                applicant: userInfo
             }
         });
 
     } catch (err) {
-        console.error("Error fetching applicant details:", err);
+        console.error("Error:", err);
         return res.status(500).json({
             success: false,
             message: "Internal Server Error",

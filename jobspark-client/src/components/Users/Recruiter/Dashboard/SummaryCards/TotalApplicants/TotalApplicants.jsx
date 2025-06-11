@@ -73,12 +73,18 @@ const TotalApplicants = () => {
     console.log("User Info", userInfo);
 
 
-    console.log("Show all Applicants Info", showAllApplicantsInfo);
+    console.log("Show all Applicants Info-->>.", showAllApplicantsInfo);
+
+
+
+
     console.log("Show all Applicants Info 2", showAllApplicantsInfo?.data?.map(uname => uname.userName));
     // console.log("Show all Applicants Info", showAllApplicantsInfo);
     const namesArr = showAllApplicantsInfo?.data?.map(uname => uname.userName)
     console.log(namesArr);
 
+    console.log("Show all job id", showAllApplicantsInfo?.data?.map(id => id?.jobId));
+    const allJobIds = showAllApplicantsInfo?.data?.map(id => id?.jobId);
 
     //!Today's applications
     const [newAppli, setNewAppli] = useState(null);
@@ -282,7 +288,7 @@ const TotalApplicants = () => {
                                             </td>
                                             <td>
                                                 <th>
-                                                    <Link to={`/recruiter/dashboard/summary-cards/applicant-details/${user?._id}/applicant/${applicant.userId}`}>
+                                                    <Link to={`/recruiter/dashboard/summary-cards/applicant-details/recruiter/${user?._id}/applicant/${applicant.userId}/job/${applicant.jobId}`}>
                                                         <p className="link link-primary">View</p>
                                                     </Link>
                                                 </th>

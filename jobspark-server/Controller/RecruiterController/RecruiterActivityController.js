@@ -40,7 +40,6 @@ const shortListing = async (req, res) => {
     allInfo.recruiter = recruiterId;
     allInfo.appliant = applicantId;
 
-
     const newInfo = new RecruiterActivityModel(allInfo);
     const response = await newInfo.save();
 
@@ -53,13 +52,45 @@ const shortListing = async (req, res) => {
 }
 
 
+/**
+ *  goal - to get the status of recruiter activite model like
+ * 
+ *input url -  http://localhost:5000/api/v1/recruiter/${recruiterId}/applicant/${applicantId}/status
+ *  method - get
+ */
+
+const getRecruiterStatus = async (req, res) => {
+    const { recruiterId, applicantId } = req.params;
+
+    console.log("\n\n-----Recruiter ID , Applicant ID", recruiterId, applicantId);
+
+
+    // const fullRecord = await RecruiterActivityModel.find({ recruiter: recruiterId }, {});
+
+    // console.log("RECORD -> ", fullRecord);
+
+
+    const record = await RecruiterActivityModel.findOne(
+        { recruiter: recruiterId, applicant: applicantId }
+    )
+
+
+    if (!record) {
+        return res.status(200).json({ status: null }); // No action yet
+    }
+
+
+    return res.status(200).json({
+        status: record.status,
+    })
+
+
+    // res.send("Done");
+}
 
 
 
 
 
 
-
-
-
-module.exports = { test, shortListing }
+module.exports = { test, shortListing, getRecruiterStatus }

@@ -103,9 +103,9 @@ const router = createBrowserRouter([
                                 element: <TotalApplicants />
                             },
                             {
-                                path: "applicant-details/:recruiterId/applicant/:applicantId",
+                                path: "applicant-details/recruiter/:recruiterId/applicant/:applicantId/job/:jobId",
                                 element: <ApplicantsDetails />,
-                                loader: ({ params }) => fetch(`http://localhost:5000/api/v1/recruiter/${params.recruiterId}/applicant/${params.applicantId}`)
+                                loader: ({ params }) => fetch(`http://localhost:5000/api/v1/recruiter/${params.recruiterId}/applicant/${params.applicantId}/job/${params.jobId}`)
                             },
                             {
                                 path: "shortlisted",

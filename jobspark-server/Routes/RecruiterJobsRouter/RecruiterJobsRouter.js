@@ -13,7 +13,7 @@ router.get("/recruiter/:recruiterId/closing-jobs", closingJobByARecruiter);
 router.get("/recruiter/:recruiterId/all-applications", applicationsInfoToRecruiter);
 router.get("/recruiter/:recruiterId/user/:userId", findApplicantInfoByARecruiterJob);
 router.get("/recruiter/:recruiterId/all-applicants-info", findAllUserAppliedToRecruiterJobs);
-router.get("/recruiter/:recruiterId/applicant/:applicantId", findApplicantDetailsInfoToRecruiterJob);
+router.get("/recruiter/:recruiterId/applicant/:applicantId/job/:jobId", findApplicantDetailsInfoToRecruiterJob);
 router.get("/today/recruiter/:recruiterId", todaysNewApplication);
 
 // router.get("/job/recruiter", showRecruiterJobs);

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { AiFillSchedule } from 'react-icons/ai';
 import { useLoaderData, useLocation, useParams } from 'react-router'
 import { getMethod } from '../../../../../Utils/Api';
@@ -12,6 +12,9 @@ import { MdAttachMoney } from "react-icons/md";
 import { MdEmail } from "react-icons/md";
 // import { LuPuzzle } from "react-icons/lu";
 import { IoExtensionPuzzle } from "react-icons/io5";
+import { FaUserClock } from "react-icons/fa";
+import TotalApplicants from './TotalApplicants';
+import { TotalApplicationContext } from '../../../../../Context/TotalApplicationProvider';
 
 
 
@@ -21,28 +24,54 @@ const ApplicantsDetails = () => {
 
     const data = useLoaderData();
     console.log("Data =====", data);
+    const jobId = data.data.jobAppliedInfo.job._id;
+
+    // const { recruiterAction } = useContext(TotalApplicants);
+    // const { appliedInfo, allApplicantsInfo, newApplicantsToday } = useContext(TotalApplicationContext);
+
+    const { recruiterAction } = useContext(TotalApplicationContext);
 
     const urlId = useParams();
-    // console.log("Url id=== ", urlId);
-    // console.log("Applicantq id=== ", urlId.applicantId);
+    const recruiteId = urlId.recruiterId;
+    const applicantId = urlId.applicantId;
+
 
     const [status, setStatus] = useState("");
-
-    const handleRecruiterAction = (actionType) => {
+    const handleRecruiterAction = async (actionType) => {
         console.log("Action Type : ", actionType);
         if (status) return;
 
-        const sendingData = {
-            job: "",
-            // applicant: urlId.applicantId,
-            // recruiter: urlId.recruiterId,
+        const url = `http://localhost:5000/api/v1/recruiter/${recruiteId}/applicant/${applicantId}`
+
+        const payloadData = {
+            recruiter: recruiteId,
+            job: jobId,
+            applicant: applicantId,
             status: actionType,
-            message: actionType === "shortlisted" ? "Candidate shows great potential" : "Candidate doesn't match"
+            message: actionType === "shortlisted" ? "Candidate Shows Potential" : 'Candidate not suitable for this role',
+        }
+
+        const response = await recruiterAction(url, payloadData);
+        if (response.status === true) {
+            console.log("Response ===", response);
+            alert(actionType);
+            setStatus(actionType);
+        } else {
+            console.log("Error ===", response);
+            alert("Error");
         }
 
     }
 
+    useEffect(() => {
+        handleRecruiterAction();
+    }, [])
+
+
     const candidate = data.data?.applicant;
+    const jobAppliedInfo = data.data?.jobAppliedInfo;
+    const jobInfo = data.data?.jobAppliedInfo?.job;
+
 
     const [activeTab, setActiveTab] = useState("application");
     const handleApplication = (e) => {
@@ -86,11 +115,42 @@ const ApplicantsDetails = () => {
                         </div>
                     </div>
                 </div>
-                {/* Actions */}
                 <div className="flex items-center gap-12">
-                    <button className="bg-white shadow rounded-full p-2 flex items-center justify-center hover:bg-gray-100">
-                        <BsThreeDotsVertical />
-                    </button>
+
+                    {status ? (
+                        <span
+                            className={`inline-block px-3 py-1 rounded-full text-white text-sm ${status === "shortlisted" ? "bg-green-500" : "bg-red-500"
+                                }`}
+                        >
+                            {status === "shortlisted" ? "Already Shortlisted" : "Already Rejected"}
+                        </span>
+                    ) : (
+                        <div className="dropdown dropdown-start">
+                            <button
+                                tabIndex={0}
+                                className="bg-white shadow rounded-full p-4 flex items-center justify-center cursor-pointer hover:bg-gray-100"
+                            >
+                                <BsThreeDotsVertical size={18} />
+                            </button>
+                            <ul
+                                tabIndex={0}
+                                className="dropdown-content menu bg-base-100 rounded-box w-36 p-2 shadow"
+                            >
+                                <li>
+                                    <button onClick={() => handleRecruiterAction("shortlisted")}>
+                                        Shortlist
+                                    </button>
+                                </li>
+                                <li>
+                                    <button onClick={() => handleRecruiterAction("rejected")}>
+                                        Reject
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    )}
+
+
                     <button className="btn btn-primary ml-2">
                         Send Email
                     </button>
@@ -100,7 +160,7 @@ const ApplicantsDetails = () => {
             {/* Main Content */}
             <div className="flex gap-6">
                 {/* Left: Application Details */}
-                <div className="flex-[3] bg-white rounded-2xl  shadow-lg p-8">
+                <div className="flex-[2] bg-white rounded-2xl  shadow-lg p-8">
                     {/* Tab Navigation */}
                     <div className="flex gap-4 mb-6">
                         <div className="flex gap-4 mb-6">
@@ -144,24 +204,28 @@ const ApplicantsDetails = () => {
 
                             <div>
                                 <div className="flex items-center justify-between mb-4">
-                                    <h2 className="font-bold text-2xl text-gray-800">{data.data?.jobTitle || "Software Developer"}</h2>
-                                    <span className="badge badge-neutral badge-outline">
-                                        {data.data?.jobType || "FullTime"}
-                                    </span>
+                                    <h2 className="font-bold text-2xl text-gray-800">{data.data?.jobAppliedInfo?.job?.jobTitle || "Software Developer"}</h2>
+                                    {/* <span className="badge badge-neutral badge-outline">
+                                        {jobInfo.employeeType || "FullTime"}
+                                    </span> */}
                                 </div>
                                 <div className="flex flex-wrap gap-6 mb-4 text-gray-600 text-sm">
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex items-center gap-1">
                                         <IoLocationSharp className="text-blue-500" />
-                                        <span>{data.data?.jobLocation || "BD"}</span>
+                                        <span>{jobInfo?.location || "BD"}</span>
                                     </div>
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex items-center gap-1">
                                         <MdAttachMoney className="text-green-600" />
-                                        <span>{data.data?.salary || "N/A"}</span>
+                                        <span>{jobInfo?.salary || "N/A"}</span>
                                     </div>
-                                    <div className="flex items-center gap-2">
+                                    {/* <div className="flex items-center gap-2">
                                         <AiFillSchedule className="text-purple-500" />
                                         <span>Applied: {data.data?.appliedAt ? new Date(data.data.appliedAt).toLocaleDateString() : "N/A"}</span>
-                                    </div>
+                                    </div> */}
+                                    <span className="flex items-center gap-1">
+                                        <FaUserClock />
+                                        {jobInfo.employeeType || "FullTime"}
+                                    </span>
                                 </div>
                                 <div className="mb-2">
                                     <span className="font-semibold text-gray-700">You must know this: </span>
@@ -246,7 +310,7 @@ const ApplicantsDetails = () => {
                                 </div>
                             </div>
                             <div>
-                                <div className="space-y-3 ml-4">
+                                <div className="space-y-3 ml-10">
                                     {/* Email */}
                                     <div className='mb-4'>
                                         <span className="badge badge-neutral badge-outline text-sm">
@@ -304,22 +368,12 @@ const ApplicantsDetails = () => {
                 </div>
             </div >
             <div className="mt-8 flex">
-                <div className="dropdown dropdown-start">
-                    <button tabIndex={0} className="btn btn-secondary">Action</button>
-                    <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box w-52 p-2 shadow">
-                        <li>
-                            <button onClick={() => handleRecruiterAction('shortlisted')}>Shortlist</button>
-                        </li>
-                        <li>
-                            <button onClick={() => handleRecruiterAction('rejected')}>Reject</button>
-                        </li>
-                    </ul>
-                </div>
-                {status && (
+
+                {/* {status && (
                     <span className="ml-4 badge badge-success badge-outline text-green-600 font-medium">
                         Status: {status.charAt(0).toUpperCase() + status.slice(1)}
                     </span>
-                )}
+                )} */}
             </div>
         </div>
     )

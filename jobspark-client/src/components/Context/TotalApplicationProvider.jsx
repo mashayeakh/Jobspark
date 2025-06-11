@@ -1,16 +1,13 @@
 import React, { createContext, useState } from 'react'
-import { getMethod } from '../Utils/Api';
+import { getMethod, postMethod } from '../Utils/Api';
 
 export const TotalApplicationContext = createContext();
 
 const TotalApplicationProvider = ({ children }) => {
 
-    const [showAppliedInfo, setShowAppliedInfo] = useState();
-    const [showAllApplicantsInfo, setShowAllApplicantsInfo] = useState();
-    const [newAppli, setNewAppli] = useState(null);
-
 
     //info who applied
+    const [showAppliedInfo, setShowAppliedInfo] = useState();
     const appliedInfo = async (url) => {
         const response = await getMethod(url);
         setShowAppliedInfo(response);
@@ -19,6 +16,7 @@ const TotalApplicationProvider = ({ children }) => {
 
 
     // information about applicants
+    const [showAllApplicantsInfo, setShowAllApplicantsInfo] = useState();
     const allApplicantsInfo = async (url) => {
         const response = await getMethod(url);
         setShowAllApplicantsInfo(response);
@@ -26,9 +24,18 @@ const TotalApplicationProvider = ({ children }) => {
     }
 
     //num of today's new applications
+    const [newAppli, setNewAppli] = useState(null);
     const newApplicantsToday = async (url) => {
         const response = await getMethod(url);
         setNewAppli(response);
+        return response;
+    }
+
+    //operation of shortlisting/rejecting
+    const [action, setAction] = useState({});
+    const recruiterAction = async (url, data) => {
+        const response = await postMethod(url, data);
+        setAction(response);
         return response;
     }
 
@@ -44,12 +51,16 @@ const TotalApplicationProvider = ({ children }) => {
         appliedInfo,
         allApplicantsInfo,
         newApplicantsToday,
+        recruiterAction,
+
         showAppliedInfo,
         setShowAppliedInfo,
         showAllApplicantsInfo,
         setShowAllApplicantsInfo,
         newAppli,
         setNewAppli,
+        action,
+        setAction,
     }
 
     return (
