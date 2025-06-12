@@ -95,7 +95,7 @@ const ShortListed = () => {
                 {/* table contents */}
                 <div className="overflow-x-auto  bg-white rounded-2xl shadow-lg p-4">
                     {shortlistedApplicant?.data?.length > 0 ? (
-                        <div className="overflow-x-auto shadow rounded ">
+                        <div className="overflow-x-auto shadow rounded border">
                             <table className="table w-full">
                                 <thead className="bg-gray-100">
                                     <tr>

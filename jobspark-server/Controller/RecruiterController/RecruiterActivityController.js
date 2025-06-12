@@ -168,6 +168,9 @@ const getShortlistedCandidates = async (req, res) => {
             };
         });
 
+        console.log(responseData);
+
+
         res.status(200).json({
             status: true,
             message: "Shortlisted Candidates List",
