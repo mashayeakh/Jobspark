@@ -35,6 +35,8 @@ const ApplicantsDetails = () => {
 
 
     const [status, setStatus] = useState("");
+    const [recruiterMsg, setRecruiterMsg] = useState("");
+
     const handleRecruiterAction = async (actionType) => {
         console.log("Action Type : ", actionType);
         if (status) return;
@@ -46,7 +48,11 @@ const ApplicantsDetails = () => {
             job: jobId,
             applicant: applicantId,
             status: actionType,
-            message: actionType === "shortlisted" ? "Candidate Shows Potential" : 'Candidate not suitable for this role',
+            message: recruiterMsg || (
+                actionType === "shortlisted"
+                    ? "Candidate Shows Potential"
+                    : "Candidate not suitable for this role"
+            ),
         }
 
         const response = await recruiterAction(url, payloadData);
@@ -54,6 +60,7 @@ const ApplicantsDetails = () => {
             console.log("Response ===", response);
             alert(actionType);
             setStatus(actionType);
+            setRecruiterMsg("");
         } else {
             console.log("Error ===", response);
             alert("Error");
@@ -296,98 +303,112 @@ const ApplicantsDetails = () => {
                     </div> */}
                 </div>
 
-                <div className="flex-1 bg-white rounded-2xl h-full shadow px-6 py-4">
+                <div className="flex-1 ">
+                    <div className='rounded-2xl shadow px-6 py-4 bg-white'>
+                        <h3 className="font-semibold text-lg mb-2">About Applicant</h3>
+                        {data.data?.applicant ? (
+                            <div className='flex'>
 
-                    <h3 className="font-semibold text-lg mb-2">About Applicant</h3>
-                    {data.data?.applicant ? (
-                        <div className='flex'>
-
-                            <div className="">
-                                <div className="flex items-center justify-between mb-4">
-                                    <p className="flex items-center gap-1"><MdEmail /> Email </p>
-                                </div>
-                                <div className="flex items-center justify-between mb-4">
-                                    <p className="flex items-center gap-1"><FaClipboardUser /> Role</p>
-                                </div>
-                                <div className="flex items-center justify-between mb-4">
-                                    <p className="flex items-center gap-1"><IoTimerSharp /> Experience</p>
-                                </div>
-                                <div className="flex items-center justify-between mb-4">
-                                    <p className="flex items-center gap-1"><IoDocument /> University</p>
-                                </div>
-                                <div className="flex items-center justify-between mb-4">
-                                    <p className="flex items-center gap-1"><IoExtensionPuzzle />
-                                        Skills</p>
-                                </div>
-                            </div>
-                            <div>
-                                <div className="space-y-3 ml-10">
-                                    {/* Email */}
-                                    <div className='mb-4'>
-                                        <span className="badge badge-neutral badge-outline text-sm">
-                                            {candidate?.email || "N/A"}
-                                        </span>
+                                <div className="">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <p className="flex items-center gap-1"><MdEmail /> Email </p>
                                     </div>
-
-                                    {/* Role */}
-                                    <div className='mb-4'>
-                                        <span className="badge badge-primary badge-outline text-sm">
-                                            {candidate?.role || "N/A"}
-                                        </span>
+                                    <div className="flex items-center justify-between mb-4">
+                                        <p className="flex items-center gap-1"><FaClipboardUser /> Role</p>
                                     </div>
-
-                                    {/* Experience Level */}
-                                    <div className='mb-4'>
-                                        <span className="badge badge-info badge-outline text-sm">
-                                            {candidate?.experienceLevel || "N/A"}
-                                        </span>
+                                    <div className="flex items-center justify-between mb-4">
+                                        <p className="flex items-center gap-1"><IoTimerSharp /> Experience</p>
                                     </div>
-
-                                    {/* University */}
-                                    <div className='mb-4'>
-                                        <span className="badge badge-accent badge-outline text-sm">
-                                            {candidate?.university || "N/A"}
-                                        </span>
+                                    <div className="flex items-center justify-between mb-4">
+                                        <p className="flex items-center gap-1"><IoDocument /> University</p>
                                     </div>
-
-                                    {/* Skills */}
-                                    <div className='mb-4'>
-                                        {Array.isArray(candidate?.skills) ? (
-                                            <div className="flex flex-wrap gap-1">
-                                                {candidate.skills.map((skill, index) => (
-                                                    <span key={index} className=" text-sm">
-                                                        {skill}
-                                                    </span>
-                                                ))}
-                                            </div>
-                                        ) : (
-                                            <span className="badge badge-outline text-sm">
-                                                {candidate?.skills || "N/A"}
+                                    <div className="flex items-center justify-between mb-4">
+                                        <p className="flex items-center gap-1"><IoExtensionPuzzle />
+                                            Skills</p>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div className="space-y-3 ml-10">
+                                        {/* Email */}
+                                        <div className='mb-4'>
+                                            <span className="badge badge-neutral badge-outline text-sm">
+                                                {candidate?.email || "N/A"}
                                             </span>
-                                        )}
-                                    </div>
-                                </div>
+                                        </div>
 
+                                        {/* Role */}
+                                        <div className='mb-4'>
+                                            <span className="badge badge-primary badge-outline text-sm">
+                                                {candidate?.role || "N/A"}
+                                            </span>
+                                        </div>
+
+                                        {/* Experience Level */}
+                                        <div className='mb-4'>
+                                            <span className="badge badge-info badge-outline text-sm">
+                                                {candidate?.experienceLevel || "N/A"}
+                                            </span>
+                                        </div>
+
+                                        {/* University */}
+                                        <div className='mb-4'>
+                                            <span className="badge badge-accent badge-outline text-sm">
+                                                {candidate?.university || "N/A"}
+                                            </span>
+                                        </div>
+
+                                        {/* Skills */}
+                                        <div className='mb-4'>
+                                            {Array.isArray(candidate?.skills) ? (
+                                                <div className="flex flex-wrap gap-1">
+                                                    {candidate.skills.map((skill, index) => (
+                                                        <span key={index} className=" text-sm">
+                                                            {skill}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <span className="badge badge-outline text-sm">
+                                                    {candidate?.skills || "N/A"}
+                                                </span>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                </div>
                             </div>
-                        </div>
-                    ) : (
-                        <p className="text-gray-700 text-sm">
-                            No additional information provided by the applicant.
-                        </p>
-                    )}
+                        ) : (
+                            <p className="text-gray-700 text-sm">
+                                No additional information provided by the applicant.
+                            </p>
+                        )}
+                    </div>
+                    {/* Recruiter Comments */}
+                    <div className='rounded-2xl shadow-lg px-6 py-4 mt-6 bg-white'>
+                        <label className="block mb-2 font-semibold text-lg" htmlFor="recruiter-comments">
+                            Recruiter Comments
+                        </label>
+                        <textarea
+                            name='comments'
+                            id="recruiter-comments"
+                            className="w-full rounded-xl p-4 mb-4 border-none resize-none"
+                            rows={5}
+                            value={recruiterMsg}
+                            onChange={(e) => setRecruiterMsg(e.target.value)}
+                        />
+                        {/* <button
+                            type="button"
+                            className="bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg  transition"
+                        >
+                            Submit
+                        </button> */}
+                    </div>
 
                 </div>
-            </div >
-            <div className="mt-8 flex">
-
-                {/* {status && (
-                    <span className="ml-4 badge badge-success badge-outline text-green-600 font-medium">
-                        Status: {status.charAt(0).toUpperCase() + status.slice(1)}
-                    </span>
-                )} */}
             </div>
         </div>
     )
+
 }
 
 export default ApplicantsDetails

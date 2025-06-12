@@ -1,3 +1,6 @@
+const UserModel = require("../../Model/AccountModel/UserModel");
+const JobApplicationModel = require("../../Model/JobApplicationModel/JobApplicationModel");
+const ActiveJobsModel = require("../../Model/RecruiterModel/ActiveJobsModel");
 const RecruiterActivityModel = require("../../Model/RecruiterModel/RecruiterActivityModel");
 
 const test = async (req, res) => {
@@ -129,4 +132,66 @@ const getNumOfStatus = async (req, res) => {
     }
 };
 
-module.exports = { test, shortListing, getRecruiterStatus, getNumOfStatus, getNumOfStatus }
+/**
+ * 
+ *  goal - find the list of shortlisted candidates information 
+ *  input url - http://localhost:5000/api/v1/recruiter/${recruiterId}/shortlisted-Candidates
+ *  
+ *  Req - get
+ *
+ */
+const getShortlistedCandidates = async (req, res) => {
+    try {
+        const { recruiterId } = req.params;
+
+        const activities = await RecruiterActivityModel.find({
+            recruiter: recruiterId,
+            status: "shortlisted"
+        }).populate("job").populate("applicant");
+
+        const jobMap = new Map();
+
+        activities.forEach(activity => {
+            const jobId = activity.job._id.toString();
+            const applicantId = activity.applicant._id.toString();
+
+            if (!jobMap.has(jobId)) {
+                jobMap.set(jobId, {
+                    job: activity.job,
+                    shortlistedApplicants: []
+                });
+            }
+
+            const jobEntry = jobMap.get(jobId);
+
+            // ✅ Check if this applicant already added
+            const alreadyAdded = jobEntry.shortlistedApplicants.some(app => app._id.toString() === applicantId);
+            if (!alreadyAdded) {
+                jobEntry.shortlistedApplicants.push(activity.applicant);
+            }
+        });
+
+        const responseData = Array.from(jobMap.values());
+
+        return res.status(200).json({
+            status: true,
+            message: "Shortlisted Candidates List",
+            data: responseData
+        });
+
+    } catch (error) {
+        console.error("❌ Error:", error);
+        return res.status(500).json({
+            status: false,
+            message: "Failed to fetch shortlisted candidates",
+            error: error.message
+        });
+    }
+};
+
+
+
+
+
+
+module.exports = { test, shortListing, getRecruiterStatus, getNumOfStatus, getNumOfStatus, getShortlistedCandidates }
