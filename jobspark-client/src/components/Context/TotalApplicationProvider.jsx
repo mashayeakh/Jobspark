@@ -39,11 +39,14 @@ const TotalApplicationProvider = ({ children }) => {
         return response;
     }
 
-    //show the status like rejected and shortlisted
-    // const [status, setStatus] = useState(null);
-    // const showStatus = (url) => {
-    //     const response = await 
-    // }
+    //show list of shortlisted applicants
+    const [showShortlisted, setShowShortlisted] = useState({});
+    const getShortlistedApplicants = async (url) => {
+        const response = await getMethod(url);
+        setShowShortlisted(response);
+        return response;
+    }
+
 
 
 
@@ -52,6 +55,7 @@ const TotalApplicationProvider = ({ children }) => {
         allApplicantsInfo,
         newApplicantsToday,
         recruiterAction,
+        getShortlistedApplicants,
 
         showAppliedInfo,
         setShowAppliedInfo,
@@ -61,6 +65,8 @@ const TotalApplicationProvider = ({ children }) => {
         setNewAppli,
         action,
         setAction,
+        showShortlisted,
+        setShowShortlisted
     }
 
     return (

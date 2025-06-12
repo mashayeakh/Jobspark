@@ -109,7 +109,8 @@ const router = createBrowserRouter([
                             },
                             {
                                 path: "shortlisted",
-                                element: <ShortListed />
+                                element: <ShortListed />,
+                                // loader: ({ params }) => fetch(`http://localhost:5000/api/v1/recruiter/6839c86523d93cb0daa3de99/shortlisted-Candidates`)
                             },
                             {
                                 path: "interviews-scheduled",

@@ -146,48 +146,45 @@ const getShortlistedCandidates = async (req, res) => {
 
         const activities = await RecruiterActivityModel.find({
             recruiter: recruiterId,
-            status: "shortlisted"
-        }).populate("job").populate("applicant");
+            status: "shortlisted"  // ✅ Only fetch shortlisted candidates
+        })
+            .populate("job")
+            .populate("applicant")
+            .exec();
 
-        const jobMap = new Map();
+        const responseData = activities.map((activity) => {
+            const applicant = activity.applicant;
+            const job = activity.job;
 
-        activities.forEach(activity => {
-            const jobId = activity.job._id.toString();
-            const applicantId = activity.applicant._id.toString();
-
-            if (!jobMap.has(jobId)) {
-                jobMap.set(jobId, {
-                    job: activity.job,
-                    shortlistedApplicants: []
-                });
-            }
-
-            const jobEntry = jobMap.get(jobId);
-
-            // ✅ Check if this applicant already added
-            const alreadyAdded = jobEntry.shortlistedApplicants.some(app => app._id.toString() === applicantId);
-            if (!alreadyAdded) {
-                jobEntry.shortlistedApplicants.push(activity.applicant);
-            }
+            return {
+                name: applicant.name,
+                email: applicant.email,
+                university: applicant.university,
+                skills: Array.isArray(applicant.skills)
+                    ? applicant.skills.join(", ")
+                    : applicant.skills,
+                experienceLevel: applicant.experienceLevel,
+                jobTitle: job.jobTitle
+            };
         });
 
-        const responseData = Array.from(jobMap.values());
-
-        return res.status(200).json({
+        res.status(200).json({
             status: true,
             message: "Shortlisted Candidates List",
             data: responseData
         });
 
     } catch (error) {
-        console.error("❌ Error:", error);
-        return res.status(500).json({
+        console.error("Error in fetching shortlisted candidates:", error);
+        res.status(500).json({
             status: false,
-            message: "Failed to fetch shortlisted candidates",
+            message: "Something went wrong",
             error: error.message
         });
     }
 };
+
+
 
 
 
