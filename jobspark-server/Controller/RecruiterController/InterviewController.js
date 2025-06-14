@@ -7,50 +7,26 @@
  *  req - post
  */
 
-const UserModel = require("../../Model/AccountModel/UserModel");
+const { calendar } = require("../../Utils/google");
 const ScheduledInterviewModel = require("../../Model/RecruiterModel/ScheduledInterviewModel");
-const sendEmail = require("../../Utils/SendEmail");
+const UserModel = require("../../Model/AccountModel/UserModel");
+const sendEmail = require("../../Utils/sendEmail");
 
 const ScheduledInterview = async (req, res) => {
-
     try {
-
-
         const { recruiterId } = req.params;
         const allInfo = req.body;
 
-        //attach the recruiterId here with the model
         allInfo.recruiter = recruiterId;
 
-
-        //generate links
         let interviewLink = "";
-        let value = "";
 
-        if (allInfo.interviewType === "Google Meet") {
-
-            value = Math.random().toString(36).substr(2, 10);
-            console.log("Google Value ", value);
-            interviewLink = `http://meet.google.com/${value}`;
-            console.log("Goolge link", interviewLink);
-
-
-        } else if (allInfo.interviewType === "Zoom") {
-            value = Math.floor(Math.random() * 1000000000);
-            console.log("Zoom value ", value);
-            interviewLink = `http://zoom.us/${value}`;
-            console.log("Zoom link", interviewLink);
-        }
-
-
-        //check if the applicant is already scheduled for interview 
-        const alreadyScheduled = await ScheduledInterviewModel.findOne(
-            {
-                applicant: allInfo.applicant,
-                job: allInfo.job,
-                recruiter: allInfo.recruiter
-            }
-        )
+        // Check if already scheduled
+        const alreadyScheduled = await ScheduledInterviewModel.findOne({
+            applicant: allInfo.applicant,
+            job: allInfo.job,
+            recruiter: allInfo.recruiter,
+        });
 
         if (alreadyScheduled) {
             return res.status(409).json({
@@ -59,45 +35,82 @@ const ScheduledInterview = async (req, res) => {
             });
         }
 
-        //save into db
-        const newScheduledInterview = new ScheduledInterviewModel(allInfo);
-
-        const result = await newScheduledInterview.save();
-        console.log("------\n\nResult ", result);
-
-        //fetch the email
+        // Fetch applicant info
         const applicantInfo = await UserModel.findById(allInfo.applicant);
-        // console.log("ApplicantInfo ", applicantInfo.email);
-
         const applicantEmail = applicantInfo.email;
 
-        //email content
+        // Generate real Google Meet link if selected
+        if (allInfo.interviewType === "Google Meet") {
+            const event = {
+                summary: `Interview with ${applicantInfo.name}`,
+                description: allInfo.notes || "",
+                start: {
+                    dateTime: allInfo.dateTime,
+                    timeZone: "Asia/Dhaka",
+                },
+                end: {
+                    dateTime: new Date(new Date(allInfo.dateTime).getTime() + 30 * 60000).toISOString(),
+                    timeZone: "Asia/Dhaka",
+                },
+                attendees: [{ email: applicantEmail }],
+                conferenceData: {
+                    createRequest: {
+                        requestId: `${Date.now()}-${Math.random()}`,
+                        conferenceSolutionKey: { type: "hangoutsMeet" },
+                    },
+                },
+            };
+
+            const calendarResponse = await calendar.events.insert({
+                calendarId: "primary",
+                resource: event,
+                conferenceDataVersion: 1,
+            });
+            console.log("Google Calendar event created:", calendarResponse.data);
+
+            interviewLink = calendarResponse.data.hangoutLink;
+        }
+
+        // Dummy Zoom (or generate real Zoom if you integrate)
+        if (allInfo.interviewType === "Zoom") {
+            const value = Math.floor(Math.random() * 1000000000);
+            interviewLink = `http://zoom.us/${value}`;
+        }
+
+        // Attach link to interview info
+        allInfo.interviewLink = interviewLink;
+
+        // Save to DB
+        const newScheduledInterview = new ScheduledInterviewModel(allInfo);
+        const result = await newScheduledInterview.save();
+
+        // Email content
         const emailSubject = "Interview Scheduled";
-        const emailBody = `Dear ${applicantInfo.name},\n\n
-        <h3>Your interview has been scheduled!</h3>
+        const emailBody = `
+      <h3>Dear ${applicantInfo.name},</h3>
+      <p>Your interview has been scheduled!</p>
       <p><strong>Date & Time:</strong> ${new Date(allInfo.dateTime).toLocaleString()}</p>
       <p><strong>Interview Type:</strong> ${allInfo.interviewType}</p>
       <p><strong>Link:</strong> <a href="${interviewLink}">${interviewLink}</a></p>
-      <p><strong>Notes:</strong> ${allInfo.notes || "None"}</p>`
+      <p><strong>Notes:</strong> ${allInfo.notes || "None"}</p>
+    `;
 
-        //send the email
-        await sendEmail(applicantEmail, emailSubject, emailBody)
+        await sendEmail(applicantEmail, emailSubject, emailBody);
 
         res.status(200).json({
+            status: true,
             message: "Interview Scheduled Successfully",
             data: result,
-        })
-
-
+            meetLink: interviewLink || null,
+        });
     } catch (error) {
-        console.log(" error in ScheduledInterview", error);
+        console.error("Error in ScheduledInterview:", error);
         res.status(500).json({
             status: false,
             message: "Failed to schedule interview.",
             error: error.message,
         });
     }
+};
 
-}
-
-module.exports = { ScheduledInterview }
+module.exports = { ScheduledInterview };
