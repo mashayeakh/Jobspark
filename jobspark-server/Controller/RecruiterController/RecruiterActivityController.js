@@ -158,13 +158,15 @@ const getShortlistedCandidates = async (req, res) => {
 
             return {
                 name: applicant.name,
+                applicantId: applicant._id,
                 email: applicant.email,
                 university: applicant.university,
                 skills: Array.isArray(applicant.skills)
                     ? applicant.skills.join(", ")
                     : applicant.skills,
                 experienceLevel: applicant.experienceLevel,
-                jobTitle: job.jobTitle
+                jobTitle: job.jobTitle,
+                jobId: job._id
             };
         });
 

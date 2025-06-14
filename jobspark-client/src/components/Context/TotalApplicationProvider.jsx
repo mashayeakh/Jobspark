@@ -47,6 +47,13 @@ const TotalApplicationProvider = ({ children }) => {
         return response;
     }
 
+    //send email to shortlisted applicants about his schedule 
+    const [schedule, setSchedule] = useState({});
+    const sendSchedule = async (url, data) => {
+        const response = await postMethod(url, data);
+        setSchedule(response);
+        return response;
+    }
 
 
 
@@ -56,6 +63,7 @@ const TotalApplicationProvider = ({ children }) => {
         newApplicantsToday,
         recruiterAction,
         getShortlistedApplicants,
+        sendSchedule,
 
         showAppliedInfo,
         setShowAppliedInfo,
@@ -66,7 +74,9 @@ const TotalApplicationProvider = ({ children }) => {
         action,
         setAction,
         showShortlisted,
-        setShowShortlisted
+        setShowShortlisted,
+        schedule,
+        setSchedule,
     }
 
     return (

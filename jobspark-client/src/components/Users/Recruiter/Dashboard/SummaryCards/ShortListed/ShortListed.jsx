@@ -6,7 +6,7 @@ import { AuthContext } from '../../../../../Context/AuthContextProvider';
 const ShortListed = () => {
 
 
-    const { getShortlistedApplicants } = useContext(TotalApplicationContext);
+    const { getShortlistedApplicants, sendSchedule } = useContext(TotalApplicationContext);
     const { user } = useContext(AuthContext);
 
     console.log("User === ", user);
@@ -15,6 +15,8 @@ const ShortListed = () => {
 
 
     const [shortlistedApplicant, setShortlistedApplicant] = useState({});
+    const [selectedApplicant, setSelectedApplicant] = useState(null);
+
 
     const showShortlistedApplicants = async () => {
 
@@ -35,13 +37,49 @@ const ShortListed = () => {
         if (!recruiterId) return;
         showShortlistedApplicants()
     }, [recruiterId])
-
-
-
-
-
     console.log("Short liste ", shortlistedApplicant);
-    console.log("Short liste ", shortlistedApplicant);
+    console.log("Short liste ", shortlistedApplicant.data?.applicantId);
+
+
+    // //!sending scheduling to applicant through email
+    const [disabledApplicantIds, setDisabledApplicantIds] = useState([]);
+
+    const sendingSchedule = async (e) => {
+        e.preventDefault();
+
+        const data = {
+            recruiter: e.target.recruiter_id.value.trim(),
+            applicant: e.target.applicantId.value.trim(),
+            job: e.target.jobId.value.trim(),
+            dateTime: e.target.dateTime.value.trim(),
+            interviewType: e.target.interviewType.value.trim(),
+            notes: e.target.notes.value.trim(),
+        };
+
+        console.log("Data =", data);
+        const url = `http://localhost:5000/api/v1/recruiter/${recruiterId}/interviews/schedule`;
+
+        try {
+            const response = await sendSchedule(url, data);
+
+            if (response.status === true || response.message === "Interview Scheduled Successfully") {
+                alert("Interview scheduled successfully");
+                setDisabledApplicantIds(prev => [...prev, data.applicant.trim()]);
+                e.target.reset();
+                document.getElementById('my_modal_5').close();
+            } else if (response.status === false) {
+                alert(response.message || "Failed to schedule interview");
+            } else {
+                alert("Unexpected response from server");
+            }
+        } catch (error) {
+            console.error("Error scheduling interview:", error);
+            alert(`Interview already scheduled for this applicant and job.`);
+        }
+    };
+
+
+
 
     return (
         <>
@@ -92,7 +130,89 @@ const ShortListed = () => {
                 <div className='my-4'>
                     <p className='text-3xl'>Shortlisted Applicants</p>
                 </div>
-                {/* table contents */}
+
+
+                <dialog id="my_modal_5" className="modal modal-bottom sm:modal-middle">
+                    <div className="modal-box">
+                        <h3 className="font-bold text-lg mb-2">Schedule Interview</h3>
+                        <form onSubmit={sendingSchedule} className="space-y-4">
+                            <div>
+                                <label className="label font-medium">Recruiter Id</label>
+                                <input
+                                    name="recruiter_id"
+                                    type="text"
+                                    className="input input-bordered w-full"
+                                    placeholder='0000000000'
+                                    defaultValue={recruiterId}
+                                    required
+                                    readOnly
+                                />
+
+                            </div>
+                            <div>
+                                <label className="label font-medium">Job Id</label>
+                                <input
+                                    name="jobId"
+                                    defaultValue={selectedApplicant?.jobId}
+                                    type="text"
+                                    className="input input-bordered w-full"
+                                    placeholder='0000000000'
+                                    required
+                                    readOnly
+                                />
+
+                            </div>
+                            <div>
+                                <label className="label font-medium">Applicant Id</label>
+                                <input
+                                    name="applicantId"
+                                    defaultValue={selectedApplicant?.applicantId}
+                                    type="text"
+                                    className="input input-bordered w-full"
+                                    placeholder='0000000000'
+                                    required
+                                    readOnly
+                                />
+
+                            </div>
+                            <div>
+                                <label className="label font-medium">Date &amp; Time</label>
+                                <input
+                                    name="dateTime"
+                                    type="datetime-local"
+                                    className="input input-bordered w-full"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="label font-medium">Interview Type</label>
+                                <select name="interviewType" className="select select-bordered w-full" required>
+                                    <option value="">Select type</option>
+                                    <option value="Google Meet">Google Meet (Online) </option>
+                                    <option value="Zoom">Zoom (Online)</option>
+                                    {/* <option value="phone">Phone</option> */}
+                                </select>
+                            </div>
+                            <div>
+                                <label className="label font-medium">Notes (optional)</label>
+                                <textarea
+                                    name='notes'
+                                    className="textarea textarea-bordered w-full"
+                                    placeholder="Add any notes for the candidate..."
+                                    rows={3}
+                                />
+                            </div>
+                            <div className="flex justify-end gap-2 pt-2">
+                                <button type="submit" className="btn btn-primary">
+                                    Send Schedule
+                                </button>
+                                <form method="dialog">
+                                    <button className="btn">Close</button>
+                                </form>
+                            </div>
+                        </form>
+                    </div>
+                </dialog>
                 <div className="overflow-x-auto  bg-white rounded-2xl shadow-lg p-4">
                     {shortlistedApplicant?.data?.length > 0 ? (
                         <div className="overflow-x-auto shadow rounded border">
@@ -120,7 +240,15 @@ const ShortListed = () => {
                                             <td>{applicant.experienceLevel}</td>
                                             <td>{applicant.jobTitle}</td>
                                             <td>
-                                                <button className="btn btn-primary btn-sm">
+
+                                                <button
+                                                    className="btn btn-primary btn-sm"
+                                                    onClick={() => {
+                                                        setSelectedApplicant(applicant);
+                                                        document.getElementById('my_modal_5').showModal();
+                                                    }}
+                                                    disabled={disabledApplicantIds.includes((applicant._id || "").toString().trim())}
+                                                >
                                                     Schedule Interview
                                                 </button>
                                             </td>

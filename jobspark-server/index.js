@@ -11,6 +11,10 @@ const recruiterJobsRoutes = require("./Routes/RecruiterJobsRouter/RecruiterJobsR
 const jobApplicationRoutes = require("./Routes/JobApplicationRecruiter/JobApplicationRecruiter");
 
 const recruiterActivityRoutes = require("./Routes/RecruiterJobsRouter/RecruiterActivityRouter");
+
+const interviewRoutes = require("./Routes/RecruiterJobsRouter/InterviewRoute")
+
+
 const { default: mongoose } = require("mongoose");
 
 
@@ -35,6 +39,7 @@ app.use("/api/v1", recruiterJobsRoutes); //changed the order
 app.use("/api/v1", activeJobsRoutes);
 app.use("/api/v1", jobApplicationRoutes);
 app.use("/api/v1", recruiterActivityRoutes);
+app.use("/api/v1", interviewRoutes);
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
