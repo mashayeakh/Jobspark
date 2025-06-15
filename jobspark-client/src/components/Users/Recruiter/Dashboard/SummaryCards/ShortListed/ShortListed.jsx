@@ -42,7 +42,10 @@ const ShortListed = () => {
 
 
     // //!sending scheduling to applicant through email
-    const [disabledApplicantIds, setDisabledApplicantIds] = useState([]);
+    // const [disabledApplicantIds, setDisabledApplicantIds] = useState(false);
+    // const [isInterviewScheduled, setIsInterviewScheduled] = useState(false);
+    const [disabledApplicantIds, setDisabledApplicantIds] = useState([]); // ✅ Must be an array
+
 
     const sendingSchedule = async (e) => {
         e.preventDefault();
@@ -64,10 +67,14 @@ const ShortListed = () => {
 
             if (response.status === true || response.message === "Interview Scheduled Successfully") {
                 alert("Interview scheduled successfully");
-                setDisabledApplicantIds(prev => [...prev, data.applicant.trim()]);
+                setDisabledApplicantIds(prev => {
+                    console.log("prev value: ", prev, typeof prev); // Should be array
+                    return [...prev, data.applicant.trim()];
+                });
                 e.target.reset();
                 document.getElementById('my_modal_5').close();
-            } else if (response.status === false) {
+            }
+            else if (response.status === false) {
                 alert(response.message || "Failed to schedule interview");
             } else {
                 alert("Unexpected response from server");
@@ -77,6 +84,23 @@ const ShortListed = () => {
             alert(`Interview already scheduled for this applicant and job.`);
         }
     };
+
+    useEffect(() => {
+        const fetchScheduledApplicants = async () => {
+            try {
+                const res = await fetch(`http://localhost:5000/api/v1/recruiter/${recruiterId}/interviews/scheduled-applicants`);
+                const data = await res.json();
+
+                if (data.status) {
+                    setDisabledApplicantIds(data.applicantIds); // ✅ applicantIds not applicantInfo
+                }
+            } catch (err) {
+                console.error("Error fetching scheduled applicants", err);
+            }
+        };
+
+        fetchScheduledApplicants();
+    }, [recruiterId]);
 
 
 
@@ -97,7 +121,7 @@ const ShortListed = () => {
                     </label>
                     <div className="flex flex-row items-center gap-2 w-full md:w-1/4">
                         <label htmlFor="filter" className="text-gray-600 font-medium text-sm">Filter by</label>
-                        <select className="select select-bordered w-full text-sm py-1">
+                        <select className="select select-borderd  w-full text-sm py-1">
                             <option>All</option>
                             <option>Chrome</option>
                             <option>FireFox</option>
@@ -215,7 +239,7 @@ const ShortListed = () => {
                 </dialog>
                 <div className="overflow-x-auto  bg-white rounded-2xl shadow-lg p-4">
                     {shortlistedApplicant?.data?.length > 0 ? (
-                        <div className="overflow-x-auto shadow rounded border">
+                        <div className="overflow-x-auto  rounded ">
                             <table className="table w-full">
                                 <thead className="bg-gray-100">
                                     <tr>
@@ -240,17 +264,20 @@ const ShortListed = () => {
                                             <td>{applicant.experienceLevel}</td>
                                             <td>{applicant.jobTitle}</td>
                                             <td>
-
                                                 <button
-                                                    className="btn btn-primary btn-sm"
+                                                    className={`btn btn-sm ${disabledApplicantIds?.includes(applicant.applicantId?.toString().trim()) ? 'btn-disabled bg-gray-400 cursor-not-allowed' : 'btn-primary'}`}
+                                                    disabled={disabledApplicantIds?.includes(applicant.applicantId?.toString().trim())}
                                                     onClick={() => {
+                                                        if (disabledApplicantIds?.includes(applicant.applicantId?.toString().trim())) return;
                                                         setSelectedApplicant(applicant);
                                                         document.getElementById('my_modal_5').showModal();
                                                     }}
-                                                    disabled={disabledApplicantIds.includes((applicant._id || "").toString().trim())}
                                                 >
                                                     Schedule Interview
                                                 </button>
+
+
+
                                             </td>
                                         </tr>
                                     ))}

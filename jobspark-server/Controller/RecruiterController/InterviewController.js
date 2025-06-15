@@ -40,25 +40,6 @@ const ScheduledInterview = async (req, res) => {
 
         // Generate real Google Meet link if selected
         if (allInfo.interviewType === "Google Meet") {
-            // const event = {
-            //     summary: `Interview with ${applicantInfo.name}`,
-            //     description: allInfo.notes || "",
-            //     start: {
-            //         dateTime: allInfo.dateTime,
-            //         timeZone: "Asia/Dhaka",
-            //     },
-            //     end: {
-            //         dateTime: new Date(new Date(allInfo.dateTime).getTime() + 30 * 60000).toISOString(),
-            //         timeZone: "Asia/Dhaka",
-            //     },
-            //     attendees: [{ email: applicantEmail }],
-            //     conferenceData: {
-            //         createRequest: {
-            //             requestId: `${Date.now()}-${Math.random()}`,
-            //             conferenceSolutionKey: { type: "hangoutsMeet" },
-            //         },
-            //     },
-            // };
             const startDate = new Date(allInfo.dateTime);
             if (isNaN(startDate.getTime())) {
                 throw new Error("Invalid dateTime format");
@@ -138,4 +119,31 @@ const ScheduledInterview = async (req, res) => {
     }
 };
 
-module.exports = { ScheduledInterview };
+/**
+ *  Goal - get all the applicants info who have been sent interview invites
+ *  
+ *  input url -  /api/v1/recruiter/:recruiterId/interviews/scheduled-applicants
+ *   Req - Get
+ */
+const getScheduledApplicanIds = async (req, res) => {
+    const { recruiterId } = req.params;
+
+    console.log("--Id", recruiterId);
+
+
+    const info = await ScheduledInterviewModel.find({ recruiter: recruiterId })
+    console.log("Info", info);
+    console.log("Length", info.length);
+
+    const applicantInfo = info.map(item => item.applicant.toString());
+    console.log("Applicant Info ", applicantInfo);
+    res.status(200).json({
+        status: true,
+        applicantIds: applicantInfo  // 🔁 MUST be `applicantIds`
+    });
+
+}
+
+
+
+module.exports = { ScheduledInterview, getScheduledApplicanIds };

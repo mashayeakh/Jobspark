@@ -1,8 +1,15 @@
 import React from 'react'
+import InterviewCalendarLayout from './InterviewCalendarLayout'
 
 const InterviewScheduled = () => {
     return (
-        <div>InterviewScheduled</div>
+        <>
+
+
+            <InterviewCalendarLayout />
+
+        </>
+
     )
 }
 
