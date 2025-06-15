@@ -18,7 +18,6 @@ const ScheduledInterview = async (req, res) => {
         const allInfo = req.body;
 
         allInfo.recruiter = recruiterId;
-
         let interviewLink = "";
 
         // Check if already scheduled
@@ -41,15 +40,40 @@ const ScheduledInterview = async (req, res) => {
 
         // Generate real Google Meet link if selected
         if (allInfo.interviewType === "Google Meet") {
+            // const event = {
+            //     summary: `Interview with ${applicantInfo.name}`,
+            //     description: allInfo.notes || "",
+            //     start: {
+            //         dateTime: allInfo.dateTime,
+            //         timeZone: "Asia/Dhaka",
+            //     },
+            //     end: {
+            //         dateTime: new Date(new Date(allInfo.dateTime).getTime() + 30 * 60000).toISOString(),
+            //         timeZone: "Asia/Dhaka",
+            //     },
+            //     attendees: [{ email: applicantEmail }],
+            //     conferenceData: {
+            //         createRequest: {
+            //             requestId: `${Date.now()}-${Math.random()}`,
+            //             conferenceSolutionKey: { type: "hangoutsMeet" },
+            //         },
+            //     },
+            // };
+            const startDate = new Date(allInfo.dateTime);
+            if (isNaN(startDate.getTime())) {
+                throw new Error("Invalid dateTime format");
+            }
+            const endDate = new Date(startDate.getTime() + 30 * 60000); // 30 minutes later
+
             const event = {
                 summary: `Interview with ${applicantInfo.name}`,
                 description: allInfo.notes || "",
                 start: {
-                    dateTime: allInfo.dateTime,
+                    dateTime: startDate.toISOString(),
                     timeZone: "Asia/Dhaka",
                 },
                 end: {
-                    dateTime: new Date(new Date(allInfo.dateTime).getTime() + 30 * 60000).toISOString(),
+                    dateTime: endDate.toISOString(),
                     timeZone: "Asia/Dhaka",
                 },
                 attendees: [{ email: applicantEmail }],
@@ -60,6 +84,7 @@ const ScheduledInterview = async (req, res) => {
                     },
                 },
             };
+
 
             const calendarResponse = await calendar.events.insert({
                 calendarId: "primary",

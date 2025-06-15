@@ -51,7 +51,7 @@ const ShortListed = () => {
             recruiter: e.target.recruiter_id.value.trim(),
             applicant: e.target.applicantId.value.trim(),
             job: e.target.jobId.value.trim(),
-            dateTime: e.target.dateTime.value.trim(),
+            dateTime: new Date(e.target.dateTime.value).toISOString(),
             interviewType: e.target.interviewType.value.trim(),
             notes: e.target.notes.value.trim(),
         };
