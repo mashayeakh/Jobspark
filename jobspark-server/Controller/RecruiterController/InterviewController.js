@@ -144,6 +144,98 @@ const getScheduledApplicanIds = async (req, res) => {
 
 }
 
+/**
+ * Goal to find {
+ * 
+  "applicantId": "123", 1
+  "applicantName": "John Doe",
+  "jobId": "789",1
+  "meetingType": "Google Meet",1
+  "location": "https://meet.google.com/xyz-abc",1
+  "notes": "Bring your portfolio",1
+  "dateTime": "2025-06-20T10:00:00Z",1
+  "endTime": "2025-06-20T10:30:00Z"
+
+  input url -  /api/v1/recruiter/:recruiterId/interviews/scheduled-info
+
+  Req - Get
+}
+
+ */
+const getScheduledInformation = async (req, res) => {
+    const { recruiterId } = req.params;
+
+    try {
+        console.log("\n🔍 Recruiter ID:", recruiterId);
+
+        // Fetch scheduled interviews for this recruiter
+        const interviewInfo = await ScheduledInterviewModel.find({ recruiter: recruiterId });
+
+        if (!interviewInfo || interviewInfo.length === 0) {
+            return res.status(200).json({
+                success: true,
+                message: "No interviews scheduled for this recruiter.",
+                data: [],
+            });
+        }
+
+        // Format interview data
+        const vals = interviewInfo.map(info => ({
+            applicantId: info?.applicant.toString(),
+            jobId: info?.job.toString(),
+            meetingType: info?.interviewType,
+            location: info?.interviewLink,
+            notes: info?.notes || "",
+            startTime: info?.dateTime,
+        }));
+
+        // Fetch applicant names
+        const applicantIds = interviewInfo.map(info => info.applicant);
+        const applicants = await UserModel.find(
+            { _id: { $in: applicantIds } },
+            { _id: 1, name: 1 }
+        );
+
+        // Map applicantId to name
+        const applicantIdToName = {};
+        applicants.forEach(app => {
+            applicantIdToName[app._id.toString()] = app.name;
+        });
+
+        // Merge applicant names into data
+        const valsWithNames = vals.map(item => ({
+            ...item,
+            applicantName: applicantIdToName[item.applicantId] || "Unknown"
+        }));
+
+        // Transform for FullCalendar format
+        const calendarEvents = valsWithNames.map(item => ({
+            title: item.applicantName,
+            start: item.startTime,
+            extendedProps: {
+                applicantId: item.applicantId,
+                jobId: item.jobId,
+                meetingType: item.meetingType,
+                location: item.location,
+                notes: item.notes,
+            }
+        }));
+
+        return res.status(200).json({
+            success: true,
+            message: "Scheduled interviews fetched successfully",
+            data: calendarEvents
+        });
+
+    } catch (error) {
+        console.error("❌ Error fetching scheduled interview data:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Server error while fetching scheduled interviews",
+            error: error.message
+        });
+    }
+};
 
 
-module.exports = { ScheduledInterview, getScheduledApplicanIds };
+module.exports = { ScheduledInterview, getScheduledApplicanIds, getScheduledInformation };

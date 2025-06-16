@@ -8,6 +8,7 @@ import ThemeProvider from './components/Context/ThemeProvider.jsx'
 import AuthContextProvider from './components/Context/AuthContextProvider.jsx'
 import ActiveJobsContextProvider from './components/Context/ActiveJobsContextProvider.jsx'
 import TotalApplicationProvider from './components/Context/TotalApplicationProvider.jsx'
+import InterviewContextProvider from './components/Context/InterviewContextProvider.jsx'
 
 
 
@@ -19,7 +20,9 @@ createRoot(document.getElementById('root')).render(
     <AuthContextProvider>
       <ActiveJobsContextProvider>
         <TotalApplicationProvider>
-          <RouterProvider router={router} />
+          <InterviewContextProvider>
+            <RouterProvider router={router} />
+          </InterviewContextProvider>
         </TotalApplicationProvider>
       </ActiveJobsContextProvider>
     </AuthContextProvider>
