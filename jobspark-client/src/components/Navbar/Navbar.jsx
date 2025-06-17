@@ -7,6 +7,7 @@ import profile from "../../assets/imgs/icons/user.png"
 import { Link, NavLink, useNavigate } from 'react-router'
 import { ThemeContext } from '../Context/ThemeProvider'
 import { Player } from '@lottiefiles/react-lottie-player';
+import { FaRegBell } from "react-icons/fa6";
 
 import signupAnimation from "../../assets/imgs/animations/signup.json"
 import { useStableMemo } from 'flowbite-react/helpers/resolve-theme'
@@ -36,128 +37,120 @@ const Navbar = () => {
         }
     };
 
+    const navLinkClass = ({ isActive }) =>
+        isActive
+            ? "text-primary font-bold border-b-2 border-primary transition-all duration-200"
+            : "text-gray-700 hover:text-primary hover:font-semibold transition-all duration-200";
+
     const links = (
         <>
-
-
             {user?.role === "recruiter" ? (
                 <>
                     <li>
                         <NavLink
                             to="/recruiter/dashboard/summary-cards"
-                            className={({ isActive }) =>
-                                isActive
-                                    ? "underline decoration-2 decoration-primary text-primary font-semibold"
-                                    : ""
-                            }
+                            className={navLinkClass}
                         >
-                            Dashboard
+                            <span className="flex items-center gap-2">
+                                <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 8h2v-2H7v2zm0-4h2v-2H7v2zm0-4h2V7H7v2zm4 8h2v-2h-2v2zm0-4h2v-2h-2v2zm0-4h2V7h-2v2zm4 8h2v-2h-2v2zm0-4h2v-2h-2v2zm0-4h2V7h-2v2z"></path></svg>
+                                Dashboard
+                            </span>
                         </NavLink>
                     </li>
                     <li>
                         <NavLink
                             to="/applications"
-                            className={({ isActive }) =>
-                                isActive
-                                    ? "underline decoration-2 decoration-primary text-primary font-semibold"
-                                    : ""
-                            }
+                            className={navLinkClass}
                         >
-                            Applications
+                            <span className="flex items-center gap-2">
+                                <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"></path></svg>
+                                Applications
+                            </span>
                         </NavLink>
                     </li>
                     <li>
                         <NavLink
                             to="/company-profile"
-                            className={({ isActive }) =>
-                                isActive
-                                    ? "underline decoration-2 decoration-primary text-primary font-semibold"
-                                    : ""
-                            }
+                            className={navLinkClass}
                         >
-                            Company Profile
+                            <span className="flex items-center gap-2">
+                                <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M3 21v-7a2 2 0 012-2h14a2 2 0 012 2v7"></path><path d="M16 3.13a4 4 0 010 7.75"></path></svg>
+                                Company Profile
+                            </span>
                         </NavLink>
                     </li>
                     <li>
                         <NavLink
                             to="/notification"
-                            className={({ isActive }) =>
-                                isActive
-                                    ? "underline decoration-2 decoration-primary text-primary font-semibold"
-                                    : ""
-                            }
+                            className={navLinkClass}
                         >
-                            Notification
+                            <span className="flex items-center gap-2">
+                                <FaRegBell size={20} className="text-primary" />
+                                Notification
+                            </span>
                         </NavLink>
                     </li>
                 </>
-            ) :
-                (
-                    <>
-                        <li>
-                            <NavLink
-                                to="/"
-                                className={({ isActive }) =>
-                                    isActive
-                                        ? "underline decoration-2 decoration-primary text-primary font-semibold"
-                                        : ""
-                                }
-                            >
+            ) : (
+                <>
+                    <li>
+                        <NavLink
+                            to="/"
+                            className={navLinkClass}
+                        >
+                            <span className="flex items-center gap-2">
+                                <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0h6"></path></svg>
                                 Home
-                            </NavLink>
-                        </li>
-                        <li>
-                            <NavLink
-                                to="/jobs"
-                                className={({ isActive }) =>
-                                    isActive
-                                        ? "underline decoration-2 decoration-primary text-primary font-semibold"
-                                        : ""
-                                }
-                            >
+                            </span>
+                        </NavLink>
+                    </li >
+                    <li>
+                        <NavLink
+                            to="/jobs"
+                            className={navLinkClass}
+                        >
+                            <span className="flex items-center gap-2">
+                                <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M17 9V7a5 5 0 00-10 0v2M5 9h14a2 2 0 012 2v7a2 2 0 01-2 2H5a2 2 0 01-2-2v-7a2 2 0 012-2z"></path></svg>
                                 Jobs
-                            </NavLink>
-                        </li>
-                        <li>
-                            <NavLink
-                                to="/companies"
-                                className={({ isActive }) =>
-                                    isActive
-                                        ? "underline decoration-2 decoration-primary text-primary font-semibold"
-                                        : ""
-                                }
-                            >
+                            </span>
+                        </NavLink>
+                    </li>
+                    <li>
+                        <NavLink
+                            to="/companies"
+                            className={navLinkClass}
+                        >
+                            <span className="flex items-center gap-2">
+                                <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M3 21v-7a2 2 0 012-2h14a2 2 0 012 2v7"></path><path d="M16 3.13a4 4 0 010 7.75"></path></svg>
                                 Companies
-                            </NavLink>
-                        </li>
-                        <li>
-                            <NavLink
-                                to="/network"
-                                className={({ isActive }) =>
-                                    isActive
-                                        ? "underline decoration-2 decoration-primary text-primary font-semibold"
-                                        : ""
-                                }
-                            >
+                            </span>
+                        </NavLink>
+                    </li>
+                    <li>
+                        <NavLink
+                            to="/network"
+                            className={navLinkClass}
+                        >
+                            <span className="flex items-center gap-2">
+                                <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M17 20h5v-2a4 4 0 00-3-3.87"></path><path d="M9 20H4v-2a4 4 0 013-3.87"></path><circle cx="12" cy="7" r="4"></circle></svg>
                                 Network
-                            </NavLink>
-                        </li>
-                        <li>
-                            <NavLink
-                                to="/notification"
-                                className={({ isActive }) =>
-                                    isActive
-                                        ? "underline decoration-2 decoration-primary text-primary font-semibold"
-                                        : ""
-                                }
-                            >
+                            </span>
+                        </NavLink>
+                    </li>
+                    <li>
+                        <NavLink
+                            to="/notification"
+                            className={navLinkClass}
+                        >
+                            <span className="flex items-center gap-2">
+                                <FaRegBell size={20} className="text-primary" />
                                 Notification
-                            </NavLink>
-                        </li>
-                    </>
-                )}
-            {/* Fallback or logged out user (optional) */}
-            {/*  */}
+                            </span>
+                        </NavLink>
+                    </li>
+                </>
+            )
+            }
         </>
     );
 
