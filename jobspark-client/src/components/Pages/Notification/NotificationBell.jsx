@@ -1,72 +1,73 @@
-import React, { useState } from 'react';
-
-const notifications = [
-    { id: 1, message: "New job posted: Frontend Developer" },
-    { id: 2, message: "Your application was viewed" },
-    { id: 3, message: "Interview scheduled for Backend Engineer" },
-];
+import React, { useContext, useState } from 'react';
+import { FaRegBell } from 'react-icons/fa';
+import { NotificationContext } from '../../Context/NotificationContextProvider';
 
 const NotificationBell = () => {
+    const { notification, fetchingNotification } = useContext(NotificationContext);
     const [open, setOpen] = useState(false);
-    const [selected, setSelected] = useState(notifications[0]);
+
+    // Count unread notifications
+    const unreadCount = notification?.filter(n => !n.isRead)?.length || 0;
 
     return (
         <div className="min-h-screen bg-gray-50 p-8">
             <div className="flex justify-end mb-8">
                 <div className="relative">
-                    <button
-                        className="relative p-2 rounded-full hover:bg-gray-200 transition"
-                        onClick={() => setOpen(!open)}
-                    >
-                        {/* Bell Icon */}
-                        <svg className="w-7 h-7 text-gray-700" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                        </svg>
-                        {/* Notification Count */}
-                        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full px-1.5">{notifications.length}</span>
+                    {/* Bell button */}
+                    <button onClick={() => setOpen(!open)} className="relative">
+                        <FaRegBell className="text-2xl text-primary" />
+
+                        {/* Badge */}
+                        {unreadCount > 0 && (
+                            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
+                                {unreadCount}
+                            </span>
+                        )}
                     </button>
+
                     {/* Dropdown */}
                     {open && (
-                        <div className="absolute right-0 mt-2 w-72 bg-white shadow-lg rounded-lg z-10">
-                            <div className="p-4 border-b font-semibold text-gray-700">Notifications</div>
+                        <div className="absolute right-0 mt-2 w-80 bg-white shadow-lg rounded-lg z-50">
+                            <div className="p-3 font-semibold border-b">Notifications</div>
                             <ul>
-                                {notifications.map((n) => (
-                                    <li
-                                        key={n.id}
-                                        className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${selected.id === n.id ? 'bg-gray-100' : ''}`}
-                                        onClick={() => setSelected(n)}
-                                    >
-                                        {n.message}
-                                    </li>
-                                ))}
+                                {notification?.length > 0 ? (
+                                    notification.slice(0, 5).map((n) => (
+                                        <li
+                                            key={n._id}
+                                            className="px-4 py-2 hover:bg-gray-100 text-sm border-b"
+                                        >
+                                            {n.message}
+                                        </li>
+                                    ))
+                                ) : (
+                                    <div className="px-4 py-3 text-gray-500 text-sm">
+                                        No notifications
+                                    </div>
+                                )}
                             </ul>
-                            {notifications.length === 0 && (
-                                <div className="p-4 text-gray-400 text-sm">No notifications</div>
-                            )}
                         </div>
                     )}
                 </div>
             </div>
+
+            {/* Optional full notification list + details */}
             <div className="flex gap-8">
-                {/* Notification List */}
                 <div className="flex-[2] bg-white rounded-lg p-6 shadow">
                     <h2 className="text-lg font-bold mb-4">All Notifications</h2>
                     <ul>
-                        {notifications.map((n) => (
+                        {notification?.map((n) => (
                             <li
-                                key={n.id}
-                                className={`p-3 rounded cursor-pointer mb-2 ${selected.id === n.id ? 'bg-blue-50 border-l-4 border-blue-500' : 'hover:bg-gray-50'}`}
-                                onClick={() => setSelected(n)}
+                                key={n._id}
+                                className="p-3 rounded cursor-pointer mb-2 hover:bg-gray-50 border-l-4 border-blue-500"
                             >
                                 {n.message}
                             </li>
                         ))}
                     </ul>
                 </div>
-                {/* Notification Details */}
                 <div className="flex-[1] bg-white rounded-lg p-6 shadow">
                     <h2 className="text-lg font-bold mb-4">Details</h2>
-                    <div className="text-gray-700">{selected.message}</div>
+                    {/* Add detailed view of selected notification here later */}
                 </div>
             </div>
         </div>

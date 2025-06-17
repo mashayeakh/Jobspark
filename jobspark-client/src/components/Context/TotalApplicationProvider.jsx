@@ -1,9 +1,12 @@
-import React, { createContext, useState } from 'react'
+import React, { createContext, useContext, useState } from 'react'
 import { getMethod, postMethod } from '../Utils/Api';
+import { NotificationContext } from './NotificationContextProvider';
 
 export const TotalApplicationContext = createContext();
 
 const TotalApplicationProvider = ({ children }) => {
+
+    const { fetchingNotification } = useContext(NotificationContext);
 
 
     //info who applied
@@ -51,6 +54,7 @@ const TotalApplicationProvider = ({ children }) => {
     const [schedule, setSchedule] = useState({});
     const sendSchedule = async (url, data) => {
         const response = await postMethod(url, data);
+        await fetchingNotification();
         setSchedule(response);
         return response;
     }
@@ -64,6 +68,7 @@ const TotalApplicationProvider = ({ children }) => {
         recruiterAction,
         getShortlistedApplicants,
         sendSchedule,
+        fetchingNotification,
 
         showAppliedInfo,
         setShowAppliedInfo,

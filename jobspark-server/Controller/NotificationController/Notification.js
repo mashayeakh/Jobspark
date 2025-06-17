@@ -65,7 +65,7 @@ const getAllTheNotifications = async (req, res) => {
 
         res.status(200).json(allNotifications);
     } catch (error) {
-        console.error("Error from fetching notifications:", error);
+        console.error("Error fetching notifications:", error);
         res.status(500).json({ error: "Failed to fetch notifications." });
     }
 }

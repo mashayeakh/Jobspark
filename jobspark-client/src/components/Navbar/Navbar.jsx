@@ -14,11 +14,15 @@ import { useStableMemo } from 'flowbite-react/helpers/resolve-theme'
 import { AuthContext } from '../Context/AuthContextProvider'
 import { SlSettings } from "react-icons/sl";
 import { IoLogOutOutline } from "react-icons/io5";
+import { NotificationContext } from '../Context/NotificationContextProvider'
 
 
 const Navbar = () => {
 
     const { user, signingOut } = useContext(AuthContext);
+
+    const { notification } = useContext(NotificationContext);
+
 
     console.log("User ", user);
     console.log("USER = ", user?.name);
@@ -79,13 +83,18 @@ const Navbar = () => {
                             </span>
                         </NavLink>
                     </li>
+
                     <li>
-                        <NavLink
-                            to="/notification"
-                            className={navLinkClass}
-                        >
-                            <span className="flex items-center gap-2">
-                                <FaRegBell size={20} className="text-primary" />
+                        <NavLink to="/notification" className={navLinkClass}>
+                            <span className="flex items-center gap-2 relative">
+                                <span className="relative">
+                                    <FaRegBell size={20} className="text-primary" />
+                                    {notification?.length > 0 && (
+                                        <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
+                                            {notification.length}
+                                        </span>
+                                    )}
+                                </span>
                                 Notification
                             </span>
                         </NavLink>
@@ -142,8 +151,15 @@ const Navbar = () => {
                             to="/notification"
                             className={navLinkClass}
                         >
-                            <span className="flex items-center gap-2">
-                                <FaRegBell size={20} className="text-primary" />
+                            <span className="flex items-center gap-2 relative">
+                                <span className="relative">
+                                    <FaRegBell size={20} className="text-primary" />
+                                    {notification?.length > 0 && (
+                                        <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
+                                            {notification.length}
+                                        </span>
+                                    )}
+                                </span>
                                 Notification
                             </span>
                         </NavLink>

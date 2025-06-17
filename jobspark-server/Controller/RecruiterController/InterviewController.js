@@ -1,4 +1,11 @@
 
+
+const { calendar } = require("../../Utils/google");
+const ScheduledInterviewModel = require("../../Model/RecruiterModel/ScheduledInterviewModel");
+const UserModel = require("../../Model/AccountModel/UserModel");
+const sendEmail = require("../../Utils/sendEmail");
+const { formatDistanceToNow } = require("date-fns");
+const NotificationModel = require("../../Model/NotificatonModel/NotificationModel");
 /**
  *  Goal - send a post req to craete interview schedule having 
  * receruiter, job, applicant id, and goole meet or zoom link will be generated. 
@@ -6,11 +13,6 @@
  * input url - http://localhost:5000/recruiter/${recruiterId}interviews/schedule
  *  req - post
  */
-
-const { calendar } = require("../../Utils/google");
-const ScheduledInterviewModel = require("../../Model/RecruiterModel/ScheduledInterviewModel");
-const UserModel = require("../../Model/AccountModel/UserModel");
-const sendEmail = require("../../Utils/sendEmail");
 
 const ScheduledInterview = async (req, res) => {
     try {
@@ -89,6 +91,17 @@ const ScheduledInterview = async (req, res) => {
         // Save to DB
         const newScheduledInterview = new ScheduledInterviewModel(allInfo);
         const result = await newScheduledInterview.save();
+
+        // Create notification after scheduling
+        const relativeTime = formatDistanceToNow(new Date(allInfo.dateTime), { addSuffix: true });
+        const notificationMessage = `Your interview with candidate ID ${allInfo.applicant} is ${relativeTime}.`;
+
+        await NotificationModel.create({
+            userId: recruiterId,
+            type: "reminder",
+            message: notificationMessage,
+            isRead: false,
+        });
 
         // Email content
         const emailSubject = "Interview Scheduled";

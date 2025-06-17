@@ -9,6 +9,7 @@ import AuthContextProvider from './components/Context/AuthContextProvider.jsx'
 import ActiveJobsContextProvider from './components/Context/ActiveJobsContextProvider.jsx'
 import TotalApplicationProvider from './components/Context/TotalApplicationProvider.jsx'
 import InterviewContextProvider from './components/Context/InterviewContextProvider.jsx'
+import NotificationContextProvider from './components/Context/NotificationContextProvider.jsx'
 
 
 
@@ -16,16 +17,16 @@ import InterviewContextProvider from './components/Context/InterviewContextProvi
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    {/* <ThemeProvider> */}
     <AuthContextProvider>
-      <ActiveJobsContextProvider>
-        <TotalApplicationProvider>
-          <InterviewContextProvider>
-            <RouterProvider router={router} />
-          </InterviewContextProvider>
-        </TotalApplicationProvider>
-      </ActiveJobsContextProvider>
+      <NotificationContextProvider> {/* ⬅️ Move this higher */}
+        <ActiveJobsContextProvider>
+          <TotalApplicationProvider>
+            <InterviewContextProvider>
+              <RouterProvider router={router} />
+            </InterviewContextProvider>
+          </TotalApplicationProvider>
+        </ActiveJobsContextProvider>
+      </NotificationContextProvider>
     </AuthContextProvider>
-    {/* </ThemeProvider>gvbcncgvnfgvngfnfgnvb  */}
   </StrictMode>,
-)
+);
