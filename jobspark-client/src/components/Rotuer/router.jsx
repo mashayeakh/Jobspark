@@ -22,6 +22,7 @@ import ActiveJobsDetails from "../Users/Recruiter/Dashboard/SummaryCards/ActiveJ
 import Job from './../Pages/Jobs/Jobs';
 import JobsDetails from "../Pages/Users/JobSeeker/JobsDetails"
 import ApplicantsDetails from "../Users/Recruiter/Dashboard/SummaryCards/TotalApplicants/ApplicantsDetails"
+import Notification from "../Pages/Notification/Notification"
 
 
 const router = createBrowserRouter([
@@ -136,6 +137,11 @@ const router = createBrowserRouter([
                     // },
 
                 ]
+            },
+
+            {
+                path: '/notification',
+                element: <Notification />
             },
         ]
     }
