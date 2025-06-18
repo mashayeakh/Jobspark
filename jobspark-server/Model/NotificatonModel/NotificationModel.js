@@ -23,6 +23,23 @@ const notificationSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
+
+    //extra fields for detiled view
+    applicantId: {
+        type: String
+    },
+    applicantName: {
+        type: String
+    },
+    interviewDate: {
+        type: Date
+    },
+    location: {
+        type: String
+    },
+    interviewer: {
+        type: String
+    }
 });
 
 module.exports = mongoose.model("NotificationModel", notificationSchema);

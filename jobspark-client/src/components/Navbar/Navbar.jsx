@@ -21,7 +21,9 @@ const Navbar = () => {
 
     const { user, signingOut } = useContext(AuthContext);
 
-    const { notification } = useContext(NotificationContext);
+    const { notification, markNotificationsRead } = useContext(NotificationContext);
+
+    const unreadCount = notification?.filter(n => !n.isRead)?.length || 0;
 
 
     console.log("User ", user);
@@ -39,6 +41,11 @@ const Navbar = () => {
         if (success) {
             navigate("/signin");
         }
+    };
+
+    const handleNotificationClick = () => {
+        markNotificationsRead();
+        // toggle dropdown or navigate
     };
 
     const navLinkClass = ({ isActive }) =>
@@ -85,16 +92,14 @@ const Navbar = () => {
                     </li>
 
                     <li>
-                        <NavLink to="/notification" className={navLinkClass}>
+                        <NavLink to="/notification" className={navLinkClass} onClick={handleNotificationClick}>
                             <span className="flex items-center gap-2 relative">
-                                <span className="relative">
-                                    <FaRegBell size={20} className="text-primary" />
-                                    {notification?.length > 0 && (
-                                        <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
-                                            {notification.length}
-                                        </span>
-                                    )}
-                                </span>
+                                <FaRegBell size={20} className="text-primary" />
+                                {unreadCount > 0 && (
+                                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
+                                        {unreadCount}
+                                    </span>
+                                )}
                                 Notification
                             </span>
                         </NavLink>
@@ -154,9 +159,9 @@ const Navbar = () => {
                             <span className="flex items-center gap-2 relative">
                                 <span className="relative">
                                     <FaRegBell size={20} className="text-primary" />
-                                    {notification?.length > 0 && (
-                                        <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
-                                            {notification.length}
+                                    {unreadCount > 0 && (
+                                        <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
+                                            {unreadCount}
                                         </span>
                                     )}
                                 </span>

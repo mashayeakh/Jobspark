@@ -22,7 +22,7 @@ const ScheduledInterViewSchema = mongoose.Schema({
     },
     interviewType: {
         type: String,
-        enum: ["Google Meet", "Zoom"],
+        enum: ["Google Meet"],
         required: true,
     },
     interviewLink: {

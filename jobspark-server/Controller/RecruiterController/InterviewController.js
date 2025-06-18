@@ -101,6 +101,8 @@ const ScheduledInterview = async (req, res) => {
             type: "reminder",
             message: notificationMessage,
             isRead: false,
+            applicantId: applicantInfo._id,
+            applicantName: applicantInfo.name,
         });
 
         // Email content
