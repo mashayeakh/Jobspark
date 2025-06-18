@@ -2,56 +2,55 @@ import React, { useContext, useEffect, useState } from 'react';
 import { FaRegBell } from 'react-icons/fa';
 import { NotificationContext } from '../../Context/NotificationContextProvider';
 import dayjs from 'dayjs';
-import relativeTime from 'dayjs/plugin/relativeTime'; // ✅ Correct import
-
+import relativeTime from 'dayjs/plugin/relativeTime';
 
 const NotificationBell = () => {
     const [open, setOpen] = useState(false);
-
     dayjs.extend(relativeTime);
-
 
     const { notification, fetchNotificationDetails } = useContext(NotificationContext);
     const [selectedNotification, setSelectedNotification] = useState(null);
-    const [showDetails, setShowDetails] = useState({});
+    const [showDetails, setShowDetails] = useState(null);
 
-    useEffect(() => {
-        // Just picking the first notification for now
-        if (notification && notification.length > 0) {
-            setSelectedNotification(notification[0]);
-        }
-    }, [notification]);
-
-    const fetchDetails = async () => {
-        if (!selectedNotification) return;
-
-        const recruiterId = selectedNotification.userId;
-        const applicantId = selectedNotification.applicantId;
-
-        const url = `http://localhost:5000/api/v1/recruiter/${recruiterId}/applicant/${applicantId}/details`;
-        console.log("URL:", url);
-
-        try {
-            const data = await fetchNotificationDetails(url);
-            console.log("Fetched details:", data);
-            setShowDetails(data);
-        } catch (error) {
-            console.error("Error fetching details:", error);
-        }
+    const handleNotificationClick = (n) => {
+        setSelectedNotification(n);
     };
 
     useEffect(() => {
+        const fetchDetails = async () => {
+            if (!selectedNotification) return;
+
+            const recruiterId = selectedNotification.userId;
+            const applicantId = selectedNotification.applicantId;
+
+            if (!recruiterId || !applicantId) return;
+
+            const url = `http://localhost:5000/api/v1/recruiter/${recruiterId}/applicant/${applicantId}/details`;
+
+            try {
+                const data = await fetchNotificationDetails(url);
+                setShowDetails(data);
+            } catch (error) {
+                console.error("Error fetching details:", error);
+            }
+        };
+
         fetchDetails();
     }, [selectedNotification]);
 
-    console.log("Show Details ", showDetails);
 
+
+    console.log("Details", showDetails);
+
+    console.log("selectedNotification", selectedNotification);
 
     return (
         <div className="min-h-screen bg-gray-50 p-8">
             <div className="flex justify-end mb-8">
                 <div className="relative">
-
+                    <button onClick={() => setOpen(!open)} className="text-2xl">
+                        <FaRegBell />
+                    </button>
 
                     {/* Dropdown */}
                     {open && (
@@ -62,7 +61,8 @@ const NotificationBell = () => {
                                     notification.slice(0, 5).map((n) => (
                                         <li
                                             key={n._id}
-                                            className="px-4 py-2 hover:bg-gray-100 text-sm border-b"
+                                            onClick={() => handleNotificationClick(n)}
+                                            className="px-4 py-2 hover:bg-gray-100 text-sm border-b cursor-pointer"
                                         >
                                             <p>{n.message}</p>
                                             <span className="text-xs text-gray-500">{dayjs(n.createdAt).fromNow()}</span>
@@ -72,32 +72,59 @@ const NotificationBell = () => {
                                     <div className="px-4 py-3 text-gray-500 text-sm">No notifications</div>
                                 )}
                             </ul>
-
                         </div>
                     )}
                 </div>
             </div>
 
-            {/* Optional full notification list + details */}
             <div className="flex gap-8 w-full">
+                {/* All Notifications */}
                 <div className="flex-[2] bg-white rounded-lg p-6 shadow">
                     <h2 className="text-lg font-bold mb-4">All Notifications</h2>
                     <ul>
                         {notification?.map((n) => (
                             <li
                                 key={n._id}
-                                className="p-3 rounded cursor-pointer mb-2 hover:bg-gray-50 border-l-4 border-blue-500"
+                                onClick={() => handleNotificationClick(n)}
+                                className={`p-3 rounded cursor-pointer mb-2 hover:bg-gray-50 border-l-4 ${selectedNotification?._id === n._id ? 'border-blue-500 bg-blue-50' : 'border-transparent'
+                                    }`}
                             >
                                 <p>{n.message}</p>
                                 <span className="text-xs text-gray-500">{dayjs(n.createdAt).fromNow()}</span>
                             </li>
                         ))}
                     </ul>
-
                 </div>
+
+                {/* Details Section */}
                 <div className="flex-[1] bg-white rounded-lg p-6 shadow">
                     <h2 className="text-lg font-bold mb-4">Details</h2>
-                    {/* Add detailed view of selected notification here later */}
+                    {showDetails && showDetails.length > 0 ? (
+                        showDetails.map((detail, index) => (
+                            <div key={index} className="text-sm space-y-2 mb-4 border-b pb-2">
+                                <p><strong>Date:</strong> {detail["Date"]}</p>
+                                <p><strong>Type:</strong> {detail["Type"]}</p>
+                                <p><strong>Candidate:</strong> {detail["Candidate"]}</p>
+                                <p><strong>Interview Date:</strong> {detail["Interview Date"]}</p>
+                                <p>
+                                    <strong>Location:</strong> {detail["Location"]} —{" "}
+                                    <a
+                                        href={detail["InterviewLink"]}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="text-blue-600 underline"
+                                    >
+                                        Join Link
+                                    </a>
+                                </p>
+                                <p><strong>Interviewer:</strong> {detail["Interviewer"]}</p>
+                                <p><strong>Notes:</strong> {detail["Notes"]}</p>
+                            </div>
+                        ))
+                    ) : (
+                        <p className="text-gray-500">Click a notification to view its details.</p>
+                    )}
+
 
                 </div>
             </div>
