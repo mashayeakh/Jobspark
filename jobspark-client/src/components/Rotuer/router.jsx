@@ -23,6 +23,7 @@ import Job from './../Pages/Jobs/Jobs';
 import JobsDetails from "../Pages/Users/JobSeeker/JobsDetails"
 import ApplicantsDetails from "../Users/Recruiter/Dashboard/SummaryCards/TotalApplicants/ApplicantsDetails"
 import Notification from "../Pages/Notification/Notification"
+import CompanyProfile from "../Pages/Users/Recruiter/CompanyProfile/CompanyProfile"
 
 
 const router = createBrowserRouter([
@@ -122,6 +123,10 @@ const router = createBrowserRouter([
                     {
                         path: "application-graph",
                         element: <ApplicatoinGraph />
+                    },
+                    {
+                        path: "company-profile",
+                        element: <CompanyProfile />
                     },
                     {
                         path: "inbox",

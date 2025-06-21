@@ -81,7 +81,7 @@ const Navbar = () => {
                     </li>
                     <li>
                         <NavLink
-                            to="/company-profile"
+                            to="/recruiter/dashboard/company-profile"
                             className={navLinkClass}
                         >
                             <span className="flex items-center gap-2">
@@ -89,6 +89,7 @@ const Navbar = () => {
                                 Company Profile
                             </span>
                         </NavLink>
+
                     </li>
 
                     <li>

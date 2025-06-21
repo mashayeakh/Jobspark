@@ -10,7 +10,8 @@ const Dashboard = () => {
             <DashboardSidebar />
             {/* <main className="flex-1 overflow-y-auto "> */}
             <main className="flex-1 overflow-y-auto">
-                <div className='p-4'>
+                {/* <div className='p-4'> */}
+                <div className=''>
                     <Outlet />
                 </div>
             </main>
