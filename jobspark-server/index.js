@@ -19,6 +19,8 @@ const interviewRoutes = require("./Routes/RecruiterJobsRouter/InterviewRoute")
 
 const notificationRoutes = require("./Routes/NotificationRouter/NotificationRouter")
 
+const companyRoutes = require("./Routes/CompanyRouter/CompanyRouter");
+
 const { default: mongoose } = require("mongoose");
 
 
@@ -45,6 +47,9 @@ app.use("/api/v1", jobApplicationRoutes);
 app.use("/api/v1", recruiterActivityRoutes);
 app.use("/api/v1", interviewRoutes);
 app.use("/api/v1", notificationRoutes);
+
+//company profile 
+app.use("/api/v1", companyRoutes);
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
