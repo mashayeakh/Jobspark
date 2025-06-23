@@ -58,17 +58,19 @@ const Navbar = () => {
             {user?.role === "recruiter" ? (
                 <>
                     <li>
+
                         <NavLink
-                            to="/recruiter/dashboard/summary-cards"
+                            to="/recruiter/dashboard/summary-cards/active-Jobs"
                             className={navLinkClass}
                         >
+
                             <span className="flex items-center gap-2">
                                 <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 8h2v-2H7v2zm0-4h2v-2H7v2zm0-4h2V7H7v2zm4 8h2v-2h-2v2zm0-4h2v-2h-2v2zm0-4h2V7h-2v2zm4 8h2v-2h-2v2zm0-4h2v-2h-2v2zm0-4h2V7h-2v2z"></path></svg>
                                 Dashboard
                             </span>
                         </NavLink>
                     </li>
-                    <li>
+                    {/* <li>
                         <NavLink
                             to="/applications"
                             className={navLinkClass}
@@ -78,10 +80,10 @@ const Navbar = () => {
                                 Applications
                             </span>
                         </NavLink>
-                    </li>
+                    </li> */}
                     <li>
                         <NavLink
-                            to="/recruiter/dashboard/company-profile"
+                            to="/company-profile"
                             className={navLinkClass}
                         >
                             <span className="flex items-center gap-2">

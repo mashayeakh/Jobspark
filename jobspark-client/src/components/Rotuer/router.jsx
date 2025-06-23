@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router"
+import { createBrowserRouter, Navigate } from "react-router"
 import Home from "../Home/Home"
 import Root from "../Root/Root"
 // import random from './../random';
@@ -53,8 +53,25 @@ const router = createBrowserRouter([
             },
             {
                 path: "/companies",
-                element: <Company />
+                element: <Company />,
+                loader: async () => {
+                    const response = await fetch("http://localhost:5000/api/v1/companies");
+                    if (!response.ok) throw new Error("Failed to fetch companies");
+                    const result = await response.json();
+                    return result.data;
+                }
             },
+            // App.jsx or Router.jsx
+            // {
+            //     path: "/companies",
+            //     element: <CompanyList />,
+            //     loader: async () => {
+            //         const res = await fetch("http://localhost:5000/api/v1/company/all");
+            //         if (!res.ok) throw new Error("Failed to fetch companies");
+            //         return res.json();
+            //     }
+            // },
+
             {
                 path: "/network",
                 element: <Network />
@@ -83,8 +100,7 @@ const router = createBrowserRouter([
                 children: [
                     {
                         index: true,
-                        element: <SummaryCards />
-
+                        element: <Navigate to="active-Jobs" replace />  // ✅ Redirect to active-Jobs by default
                     },
                     {
                         path: "summary-cards",
@@ -125,10 +141,6 @@ const router = createBrowserRouter([
                         element: <ApplicatoinGraph />
                     },
                     {
-                        path: "company-profile",
-                        element: <CompanyProfile />
-                    },
-                    {
                         path: "inbox",
                         element: <Inbox />
                     },
@@ -142,6 +154,10 @@ const router = createBrowserRouter([
                     // },
 
                 ]
+            },
+            {
+                path: "company-profile",
+                element: <CompanyProfile />
             },
 
             {
