@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { IoPeople } from "react-icons/io5"; // IoCalendarOutline was unused
+import { CompanyContext } from '../../../../Context/CompanyContextProvider';
 
 const CompanyProfileLayout = () => {
     const tabs = [
@@ -51,21 +52,79 @@ const CompanyProfileLayout = () => {
     const progress = ((activeTabIndex + 1) / tabs.length) * 100;
     const snappedProgress = Math.floor(progress / 10) * 10;
 
+    // const handleNext = () => {
+    //     if (activeTabIndex < tabs.length - 1) {
+    //         setActiveTabIndex(activeTabIndex + 1);
+    //     }
+    // };
+
     const handleNext = () => {
+        // Only change the tab, do not submit the form
         if (activeTabIndex < tabs.length - 1) {
             setActiveTabIndex(activeTabIndex + 1);
         }
     };
 
-    const handleSubmit = (e) => {
-        e.preventDefault(); // Prevent default form submission
+    const { createCompany } = useContext(CompanyContext);
 
-        // This will now always have all the data because it's stored in state
+    const [companyProfile, setCompanyProfile] = useState({})
+
+
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
         console.log("Final Form Data:", formData);
-        // alert("Submitting form...");
-        // Here you would typically send the formData to a server
-        // e.g., sendDataToAPI(formData);
+
+        //url
+        const url = `http://localhost:5000/api/v1/company/create`
+        try {
+            const response = await createCompany(url, formData);
+            console.log("Success response:", response);
+            if (response.success === true) {
+                setCompanyProfile(response);
+                alert("Company profile created successfully!");
+                setFormData({
+                    companyName: "",
+                    email: "",
+                    tagline: "",
+                    website: "",
+                    foundedYear: "",
+                    phone: "",
+                    logo: null,
+
+                    industry: "",
+                    headquarters: "",
+                    description: "",
+                    workingHours: "",
+                    workType: "",
+                    companySize: "",
+                    companyType: "",
+                    companyValues: "",
+                    certifications: "",
+
+                    facebook: "",
+                    instagram: "",
+                    x: "",
+                    whatsapp: "",
+                    linkedin: "",
+                    gmail: "",
+                }); // Reset the form
+            } else {
+                console.error("❌ Error creating company profile:", response);
+                alert(response.message || "Something went wrong.");
+            }
+        } catch (err) {
+            if (err.response && err.response.data) {
+                console.error("❌ API Error:", err.response.data);
+                alert(err.response.data.error || "Something went wrong.");
+            } else {
+                console.error("❌ Unknown Error:", err);
+            }
+        }
     };
+
+    console.log("companyProfile =>:", companyProfile);
 
     return (
         <div className="min-h-screen bg-white text-gray-800">
@@ -112,6 +171,9 @@ const CompanyProfileLayout = () => {
                                                 placeholder='Enter your company name'
                                                 className="w-full border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
                                             />
+                                            {/* {errors.companyName && (
+                                                <p className="text-red-500 text-sm mt-1">{errors.companyName}</p>
+                                            )} */}
                                         </div>
 
                                         <div className="flex-1">
@@ -463,7 +525,7 @@ const CompanyProfileLayout = () => {
                             </div>
                         )}
 
-                        <div className="text-center mt-6">
+                        {/* <div className="text-center mt-6">
                             <button
                                 type={activeTabIndex === tabs.length - 1 ? "submit" : "button"}
                                 className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-md transition"
@@ -471,7 +533,29 @@ const CompanyProfileLayout = () => {
                             >
                                 {activeTabIndex === tabs.length - 1 ? "Submit" : "Next"}
                             </button>
-                        </div>
+                        </div> */}
+                        {activeTabIndex === tabs.length - 1 && (
+                            <div className="text-center mt-6">
+                                <button
+                                    type="submit"  // Submit form only on the last tab
+                                    className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-md transition"
+                                >
+                                    Submit
+                                </button>
+                            </div>
+                        )}
+                        {/* Next button for other tabs */}
+                        {activeTabIndex < tabs.length - 1 && (
+                            <div className="text-center mt-6">
+                                <button
+                                    type="button"
+                                    className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-md transition"
+                                    onClick={handleNext}
+                                >
+                                    Next
+                                </button>
+                            </div>
+                        )}
                     </form>
                 </div>
 

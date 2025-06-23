@@ -10,6 +10,7 @@ import ActiveJobsContextProvider from './components/Context/ActiveJobsContextPro
 import TotalApplicationProvider from './components/Context/TotalApplicationProvider.jsx'
 import InterviewContextProvider from './components/Context/InterviewContextProvider.jsx'
 import NotificationContextProvider from './components/Context/NotificationContextProvider.jsx'
+import CompanyContextProvider, { CompanyContext } from './components/Context/CompanyContextProvider.jsx'
 
 
 
@@ -18,15 +19,17 @@ import NotificationContextProvider from './components/Context/NotificationContex
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <AuthContextProvider>
-      <NotificationContextProvider> {/* ⬅️ Move this higher */}
-        <ActiveJobsContextProvider>
-          <TotalApplicationProvider>
-            <InterviewContextProvider>
-              <RouterProvider router={router} />
-            </InterviewContextProvider>
-          </TotalApplicationProvider>
-        </ActiveJobsContextProvider>
-      </NotificationContextProvider>
+      <CompanyContextProvider>
+        <NotificationContextProvider> {/* ⬅️ Move this higher */}
+          <ActiveJobsContextProvider>
+            <TotalApplicationProvider>
+              <InterviewContextProvider>
+                <RouterProvider router={router} />
+              </InterviewContextProvider>
+            </TotalApplicationProvider>
+          </ActiveJobsContextProvider>
+        </NotificationContextProvider>
+      </CompanyContextProvider>
     </AuthContextProvider>
   </StrictMode>,
 );

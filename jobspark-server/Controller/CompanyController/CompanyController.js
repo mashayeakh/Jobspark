@@ -38,21 +38,21 @@ const createCompanyProfile = async (req, res) => {
         return res.status(400).json({ error: "Please provide a valid website URL." });
     }
 
-    const currentYear = new Date().getFullYear();
-    if (companyData.foundedYear !== undefined) {
-        if (typeof companyData.foundedYear !== "number" || companyData.foundedYear < 1000 || companyData.foundedYear > currentYear) {
-            return res.status(400).json({ error: `Founded year must be a number between 1000 and ${currentYear}.` });
-        }
-    }
+    // const currentYear = new Date().getFullYear();
+    // if (companyData.foundedYear !== undefined) {
+    //     if (typeof companyData.foundedYear !== "number") {
+    //         return res.status(400).json({ error: `Founded year must be a number ${currentYear}.` });
+    //     }
+    // }
 
     if (companyData.phone && (typeof companyData.phone !== "string" || companyData.phone.trim().length > 20)) {
         return res.status(400).json({ error: "Phone number must be a string and not exceed 20 characters." });
     }
 
     // Logo validation - usually handled after file upload
-    if (companyData.logo && typeof companyData.logo !== "string") {
-        return res.status(400).json({ error: "Logo must be a string (URL to image)." });
-    }
+    // if (companyData.logo && typeof companyData.logo !== "string") {
+    //     return res.status(400).json({ error: "Logo must be a string (URL to image)." });
+    // }
 
 
     // Company Details
@@ -138,6 +138,7 @@ const createCompanyProfile = async (req, res) => {
 
         console.log("Result from saving company profile:", result);
         res.status(201).json({
+            success: true,
             message: "Company profile created successfully!",
             data: result
         });
