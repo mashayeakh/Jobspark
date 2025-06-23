@@ -36,10 +36,10 @@ const companyProfileSchema = new mongoose.Schema({
         trim: true,
         maxlength: [20, "Phone number cannot exceed 20 characters"]
     },
-    logo: {
-        type: String, // Store URL to the logo image (after upload to a storage service)
-        // You might want to add a default image URL here if no logo is provided
-    },
+    // logo: {
+    //     type: String, // Store URL to the logo image (after upload to a storage service)
+    //     // You might want to add a default image URL here if no logo is provided
+    // },
 
     // Company Details
     industry: {

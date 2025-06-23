@@ -19,8 +19,9 @@ import CompanyContextProvider, { CompanyContext } from './components/Context/Com
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <AuthContextProvider>
-      <CompanyContextProvider>
-        <NotificationContextProvider> {/* ⬅️ Move this higher */}
+      <NotificationContextProvider> {/* ⬅️ Move this higher */}
+        <CompanyContextProvider>
+
           <ActiveJobsContextProvider>
             <TotalApplicationProvider>
               <InterviewContextProvider>
@@ -28,8 +29,9 @@ createRoot(document.getElementById('root')).render(
               </InterviewContextProvider>
             </TotalApplicationProvider>
           </ActiveJobsContextProvider>
-        </NotificationContextProvider>
-      </CompanyContextProvider>
+
+        </CompanyContextProvider>
+      </NotificationContextProvider>
     </AuthContextProvider>
   </StrictMode>,
 );

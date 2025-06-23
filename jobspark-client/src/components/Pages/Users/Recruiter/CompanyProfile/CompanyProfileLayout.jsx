@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { IoPeople } from "react-icons/io5"; // IoCalendarOutline was unused
 import { CompanyContext } from '../../../../Context/CompanyContextProvider';
+import { AuthContext } from '../../../../Context/AuthContextProvider';
 
 const CompanyProfileLayout = () => {
     const tabs = [
@@ -8,6 +9,8 @@ const CompanyProfileLayout = () => {
         { key: "details", label: "Company Details" },
         { key: "social", label: "Social & Media Links" },
     ];
+
+    const { user } = useContext(AuthContext);
 
     const [activeTabIndex, setActiveTabIndex] = useState(0);
     const activeTab = tabs[activeTabIndex].key;
@@ -20,7 +23,7 @@ const CompanyProfileLayout = () => {
         website: "https://www.example.com",
         foundedYear: "2000",
         phone: "(480) 555-0103",
-        logo: null, // File input requires special handling
+        // logo : null, // File input requires special handling
 
         industry: "Software",
         headquarters: "Dhaka, Bangladesh",
@@ -38,6 +41,8 @@ const CompanyProfileLayout = () => {
         whatsapp: "",
         linkedin: "",
         gmail: "",
+
+        // recruiterId: user?._id,
     });
 
     // Handle input changes
@@ -69,21 +74,27 @@ const CompanyProfileLayout = () => {
 
     const [companyProfile, setCompanyProfile] = useState({})
 
-
-
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        console.log("Final Form Data:", formData);
+        const finalData = {
+            ...formData,
+            recruiterId: user?._id ? user._id.toString() : null, // Ensure recruiterId is a string or null if undefined
+        };
 
-        //url
-        const url = `http://localhost:5000/api/v1/company/create`
+        console.log("Final Form Data:", finalData);
+
+        // URL to create company profile
+        const url = `http://localhost:5000/api/v1/company/create`;
+
         try {
-            const response = await createCompany(url, formData);
+            const response = await createCompany(url, finalData);
             console.log("Success response:", response);
+
             if (response.success === true) {
                 setCompanyProfile(response);
                 alert("Company profile created successfully!");
+
                 setFormData({
                     companyName: "",
                     email: "",
@@ -91,7 +102,7 @@ const CompanyProfileLayout = () => {
                     website: "",
                     foundedYear: "",
                     phone: "",
-                    logo: null,
+                    // logo: null,
 
                     industry: "",
                     headquarters: "",
@@ -109,6 +120,7 @@ const CompanyProfileLayout = () => {
                     whatsapp: "",
                     linkedin: "",
                     gmail: "",
+                    recruiterId: user?._id ? user._id.toString() : null, // Reset recruiterId as string or null
                 }); // Reset the form
             } else {
                 console.error("❌ Error creating company profile:", response);
@@ -125,6 +137,7 @@ const CompanyProfileLayout = () => {
     };
 
     console.log("companyProfile =>:", companyProfile);
+
 
     return (
         <div className="min-h-screen bg-white text-gray-800">
@@ -158,7 +171,8 @@ const CompanyProfileLayout = () => {
                     <form onSubmit={handleSubmit}>
                         {activeTab === "basic" && (
                             <div>
-                                <div className="border rounded-lg p-6 space-y-6 bg-gray-50 shadow-sm">
+                                <p className='text-4xl mb-4'>Lets start with basic information</p>
+                                <div className=" rounded-lg p-6 space-y-6 bg-gray-50 shadow-sm">
                                     {/* Row 1 */}
                                     <div className="flex gap-6">
                                         <div className="flex-1">
@@ -237,7 +251,7 @@ const CompanyProfileLayout = () => {
                                             />
                                         </div>
                                     </div>
-                                    <div className="flex gap-6">
+                                    {/* <div className="flex gap-6">
                                         <div className="flex-1">
                                             <label className="text-sm font-medium mb-1 block">Company Logo</label>
                                             <input
@@ -248,13 +262,15 @@ const CompanyProfileLayout = () => {
                                                 className="file-input file-input-md w-full"
                                             />
                                         </div>
-                                    </div>
+                                    </div> */}
                                 </div>
                             </div>
                         )}
                         {activeTab === "details" && (
                             <div>
-                                <div className="border rounded-lg p-6 space-y-6 bg-gray-50 shadow-sm">
+                                <p className='text-4xl mb-4'>More details</p>
+
+                                <div className=" rounded-lg p-6 space-y-6 bg-gray-50 shadow-sm">
                                     {/* Row 1 */}
                                     <div className="flex gap-6">
                                         <div className="flex-1">
@@ -387,9 +403,10 @@ const CompanyProfileLayout = () => {
                         )}
                         {activeTab === "social" && (
                             <div>
-                                <div>
-                                    <p>Let's add your social media accounts</p>
-                                </div>
+
+                                <p className='text-4xl mb-4'>Let's add your social media accounts</p>
+                                {/* <p className='text-4xl mb-4'>Lets start with basic information</p> */}
+
                                 <div>
                                     <div className="bg-white w-full h-auto py-8 ">
 
@@ -561,7 +578,7 @@ const CompanyProfileLayout = () => {
 
                 {/* Sidebar */}
                 <div className="flex-[1]">
-                    <div className="border rounded-lg bg-gray-50 shadow-sm p-6">
+                    <div className=" rounded-lg bg-gray-50 shadow-sm p-6">
                         <IoPeople size={40} className="text-blue-600" />
                         <h2 className="flex justify-between items-center text-lg font-semibold mt-4">
                             Profile Completion
