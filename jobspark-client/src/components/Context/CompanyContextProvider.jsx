@@ -30,25 +30,25 @@ const CompanyContextProvider = ({ children }) => {
         return response.data;
     }
 
-    // //get a specific company information
-    // const [companyDetails, setCompanyDetails] = useState([]);
-    // const singleCompanyInfo = async (url) => {
-    //     const response = await getMethod(url);
-    //     setCompanyDetails(response);
-    //     return response;
-    // }
+    //get a specific company information with jobs
+    const [companyDetails, setCompanyDetails] = useState([]);
+    const singleCompanyInfoWithJobs = async (url) => {
+        const response = await getMethod(url);
+        setCompanyDetails(response);
+        return response;
+    }
 
     const info = {
         createCompany,
         getCompany,
-        // singleCompanyInfo,
+        singleCompanyInfoWithJobs,
 
         company,
         setCompany,
         allCompany,
         setAllCompany,
-        // companyDetails,
-        // setCompanyDetails
+        companyDetails,
+        setCompanyDetails
     }
 
 
