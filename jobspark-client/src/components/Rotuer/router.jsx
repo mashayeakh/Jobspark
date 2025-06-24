@@ -24,6 +24,7 @@ import JobsDetails from "../Pages/Users/JobSeeker/JobsDetails"
 import ApplicantsDetails from "../Users/Recruiter/Dashboard/SummaryCards/TotalApplicants/ApplicantsDetails"
 import Notification from "../Pages/Notification/Notification"
 import CompanyProfile from "../Pages/Users/Recruiter/CompanyProfile/CompanyProfile"
+import CompanyDetails from "../Company/CompanyDetails"
 
 
 const router = createBrowserRouter([
@@ -53,25 +54,13 @@ const router = createBrowserRouter([
             },
             {
                 path: "/companies",
-                element: <Company />,
-                loader: async () => {
-                    const response = await fetch("http://localhost:5000/api/v1/companies");
-                    if (!response.ok) throw new Error("Failed to fetch companies");
-                    const result = await response.json();
-                    return result.data;
-                }
+                element: <Company />
             },
-            // App.jsx or Router.jsx
-            // {
-            //     path: "/companies",
-            //     element: <CompanyList />,
-            //     loader: async () => {
-            //         const res = await fetch("http://localhost:5000/api/v1/company/all");
-            //         if (!res.ok) throw new Error("Failed to fetch companies");
-            //         return res.json();
-            //     }
-            // },
-
+            {
+                path: "/company/:id",
+                element: <CompanyDetails />,
+                loader: ({ params }) => fetch(`http://localhost:5000/api/v1/company/${params.id}`)
+            },
             {
                 path: "/network",
                 element: <Network />

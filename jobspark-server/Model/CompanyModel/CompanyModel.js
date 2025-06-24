@@ -2,6 +2,14 @@ const mongoose = require("mongoose");
 
 const companyProfileSchema = new mongoose.Schema({
     // Basic Company Info
+
+
+    recruiter: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User", // Change this to "Recruiter" if you have a dedicated recruiter model
+        required: true
+    },
+
     companyName: {
         type: String,
         required: [true, "Company name is required"],

@@ -1,4 +1,3 @@
-import { useLoaderData } from "react-router";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { CiStar } from "react-icons/ci";
 import { HiOutlineLocationMarker } from "react-icons/hi";
@@ -6,9 +5,24 @@ import { RiBriefcase4Line } from "react-icons/ri";
 import { MdOutlinePeople } from "react-icons/md";
 import { FaCode } from "react-icons/fa";
 import Google from '../../../assets/imgs/companyLogo/google.png';
+import { useContext, useEffect, useState } from "react";
+import { CompanyContext } from "../../Context/CompanyContextProvider";
 
 const CompaniesList = () => {
-    const data = useLoaderData();
+    const { getCompany } = useContext(CompanyContext);
+
+    // console.log("Get Company ", getCompany);
+    const [data, setData] = useState([]);
+    const fetch = async () => {
+        const url = "http://localhost:5000/api/v1/companies";
+        const values = await getCompany(url);
+        setData(values);
+        console.log("Data ", values);
+    }
+
+    useEffect(() => {
+        fetch();
+    }, [])
 
     return (
         <div className="pt-5 flex">
@@ -16,7 +30,7 @@ const CompaniesList = () => {
                 {data.map((company) => (
                     <div
                         key={company._id}
-                        className="card bg-white border border-gray-200 rounded-md shadow-sm w-full"
+                        className="card bg-white border border-gray-200 rounded-md shadow-sm w-full relative group overflow-hidden"
                     >
                         <div className="card-body">
                             <div className="flex items-start gap-2">
@@ -35,11 +49,6 @@ const CompaniesList = () => {
                                         >
                                             <BsThreeDotsVertical />
                                         </button>
-                                    </div>
-
-                                    {/* Rating */}
-                                    <div className="flex items-center gap-2">
-                                        <CiStar /> 4.6 <span>200 reviews</span>
                                     </div>
                                 </div>
                             </div>
@@ -65,8 +74,16 @@ const CompaniesList = () => {
 
                             <p className="text-[#495057]">
                                 {company.description?.slice(0, 100) || "No description"}{" "}
-                                <span className="text-blue-700 font-bold">see more....</span>
                             </p>
+                        </div>
+                        {/* Overlay */}
+                        <div className="absolute inset-0 bg-white bg-opacity-70 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-out group-hover:scale-105 scale-100">
+                            <a
+                                href={`/company/${company._id}`}
+                                className="text-primary text-lg font-bold underline"
+                            >
+                                See more
+                            </a>
                         </div>
                     </div>
                 ))}

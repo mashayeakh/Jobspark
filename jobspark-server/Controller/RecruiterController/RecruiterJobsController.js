@@ -632,8 +632,69 @@ const todaysNewApplication = async (req, res) => {
 };
 
 
+/**
+ * *Retrieves all active jobs posted by a specific recruiter.
+ * 
+ * input - http://localhost:5000/api/v1/jobs/recruiter/:recruiterId
+ * Req - Get
+ *
+ * @async
+ * @function findjobsByRecruiterId
+ * @param {Object} req - Express request object.
+ * @param {Object} req.params - Request parameters.
+ * @param {string} req.params.recruiterId - The ID of the recruiter.
+ * @param {Object} res - Express response object.
+ * @returns {Promise<void>} Sends a JSON response with the jobs data or an error message.
+ */
+const findjobsByRecruiterId = async (req, res) => {
+    try {
+        const { recruiterId } = req.params;
+        if (!recruiterId) {
+            return res.status(400).json({
+                status: false,
+                message: "Recruiter id is required",
+            });
+        }
+
+        const jobs = await ActiveJobsModel.find({ recruiter: recruiterId });
+        if (!jobs || jobs.length === 0) {
+            return res.status(404).json({
+                status: false,
+                message: "No jobs found for this recruiter",
+            });
+        }
+
+        res.status(200).json({
+            status: true,
+            message: "Jobs fetched successfully",
+            data: jobs,
+            length: jobs.length
+        });
+    } catch (err) {
+        console.error("Error in findjobsByRecruiterId:", err.message);
+        res.status(500).json({
+            status: false,
+            message: "Internal server error",
+        });
+    }
+};
 
 
 
 
-module.exports = { showRecuiterJobs, getMostPopularJobsByARecruiter, getJobsWithNoApplicantsByARecuiter, recentlyPublishedJobs, closingJobByARecruiter, applicationsInfoToRecruiter, findApplicantInfoByARecruiterJob, findAllUserAppliedToRecruiterJobs, findApplicantDetailsInfoToRecruiterJob, todaysNewApplication }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+module.exports = { showRecuiterJobs, getMostPopularJobsByARecruiter, getJobsWithNoApplicantsByARecuiter, recentlyPublishedJobs, closingJobByARecruiter, applicationsInfoToRecruiter, findApplicantInfoByARecruiterJob, findAllUserAppliedToRecruiterJobs, findApplicantDetailsInfoToRecruiterJob, todaysNewApplication, findjobsByRecruiterId }

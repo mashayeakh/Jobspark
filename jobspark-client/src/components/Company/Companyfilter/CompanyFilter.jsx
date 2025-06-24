@@ -1,12 +1,32 @@
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { CiStar } from "react-icons/ci";
 import { FaCode, FaRegStar, FaSort } from "react-icons/fa";
 import { HiOutlineLocationMarker } from "react-icons/hi";
 import { MdOutlinePeople } from "react-icons/md";
 import { RiBriefcase4Line } from "react-icons/ri";
 import CompanyList from "./CompanyList";
+import { CompanyContext } from "../../Context/CompanyContextProvider";
 
 const CompanyFilter = () => {
+
+
+    const { getCompany } = useContext(CompanyContext);
+
+    // console.log("Get Company ", getCompany);
+    const [data, setData] = useState([]);
+    const fetch = async () => {
+        const url = "http://localhost:5000/api/v1/companies";
+        const values = await getCompany(url);
+        setData(values);
+        console.log("Data ", values);
+    }
+
+    useEffect(() => {
+        fetch();
+    }, [])
+
+    console.log("Values", data);
+    console.log("length - ", data.length);
     return (
         <>
             <div className="py-5">
@@ -36,7 +56,7 @@ const CompanyFilter = () => {
                 </label>
                 <div className="flex gap-2 items-center pt-3">
                     <p className="font-bold text-3xl">All Companies</p>
-                    <span className="text-gray-600 text-xl">(300 companies)</span>
+                    <span className="text-gray-600 text-xl">({data.length})</span>
                 </div>
                 <div className="flex flex-col pt-3">
                     <div className="flex items-center justify-between pt-4">

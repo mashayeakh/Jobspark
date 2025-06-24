@@ -79,13 +79,14 @@ const CompanyProfileLayout = () => {
 
         const finalData = {
             ...formData,
-            recruiterId: user?._id ? user._id.toString() : null, // Ensure recruiterId is a string or null if undefined
+            recruiter: user?._id ? user._id.toString() : null, // Ensure recruiterId is a string or null if undefined
         };
 
         console.log("Final Form Data:", finalData);
 
         // URL to create company profile
-        const url = `http://localhost:5000/api/v1/company/create`;
+        // const url = `http://localhost:5000/api/v1/company/create`;
+        const url = `http://localhost:5000/api/v1/recruiter/${user?._id}/company/create`
 
         try {
             const response = await createCompany(url, finalData);
@@ -120,7 +121,7 @@ const CompanyProfileLayout = () => {
                     whatsapp: "",
                     linkedin: "",
                     gmail: "",
-                    recruiterId: user?._id ? user._id.toString() : null, // Reset recruiterId as string or null
+                    recruiter: user?._id ? user._id.toString() : null, // Reset recruiterId as string or null
                 }); // Reset the form
             } else {
                 console.error("❌ Error creating company profile:", response);
