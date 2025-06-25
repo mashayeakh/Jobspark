@@ -55,13 +55,18 @@ const ActiveJobsContextProvider = ({ children }) => {
         return data;
     }
 
-
     //clsoing soon job by a specific recruiter
     const closingSoonJobByARecruiter = async (url) => {
         const data = await getMethod(url);
         setClosingSoon(data);
         return data;
     }
+
+
+    
+
+
+
 
     const addInfo = {
         fetchActiveJobsFromAPI,

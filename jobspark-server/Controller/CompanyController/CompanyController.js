@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const CompanyModel = require("../../Model/CompanyModel/CompanyModel");
 const NotificationModel = require("../../Model/NotificatonModel/NotificationModel");
 const ActiveJobsModel = require("../../Model/RecruiterModel/ActiveJobsModel");
+const JobApplicationModel = require("../../Model/JobApplicationModel/JobApplicationModel");
 
 
 /**
@@ -191,6 +192,19 @@ const findCompanyById = async (req, res) => {
     }
 };
 
+/**
+ * Retrieves a company's profile along with all jobs posted by the associated recruiter.
+ *
+ * @async
+ * @function getCompanyProfileWithJobs
+ * @param {import('express').Request} req - Express request object, expects `recruiterId` and `companyId` in `req.params`.
+ * @param {import('express').Response} res - Express response object.
+ * @returns {Promise<void>} Sends a JSON response with company profile, jobs, and job count, or an error message.
+ *
+ * @throws {404} If the company is not found.
+ * @throws {403} If the recruiter ID does not match the company's recruiter.
+ * @throws {500} If a server error occurs.
+ */
 const getCompanyProfileWithJobs = async (req, res) => {
     try {
         const { recruiterId, companyId } = req.params;
@@ -221,8 +235,60 @@ const getCompanyProfileWithJobs = async (req, res) => {
     }
 };
 
+// /GET http://localhost:5000/api/v1/recruiter/:recruiterId/company/:companyId/job-details
+
+/**
+ * Retrieves job details for a specific job posted by a recruiter within a company.
+ * 
+ * input url -  http://localhost:5000/api/v1/recruiter/:recruiterId/company/:companyId/job/:jobId
+ * 
+ * req - get
+ * 
+ * @async
+ * @function companyJobDetailsByRecruiter
+ * @param {Object} req - Express request object.
+ * @param {Object} req.params - Route parameters.
+ * @param {string} req.params.recruiterId - The ID of the recruiter.
+ * @param {string} req.params.companyId - The ID of the company.
+ * @param {string} req.params.jobId - The ID of the job.
+ * @param {Object} res - Express response object.
+ * @returns {Promise<void>} Sends a JSON response with job details or an error message.
+ *
+ * @throws {400} If any required parameter is missing.
+ * @throws {404} If the company or job is not found or does not belong to the recruiter.
+ * @throws {500} If a server error occurs.
+ */
+const companyJobDetailsByRecruiter = async (req, res) => {
+
+    const { recruiterId, companyId, jobId } = req.params;
+
+    if (!recruiterId || !companyId || !jobId) {
+        return res.status(400).json({ success: false, message: "All parameters are required." });
+    }
+
+    try {
+        // Optional: Validate company ownership
+        const company = await CompanyModel.findOne({ _id: companyId, recruiter: recruiterId });
+
+        if (!company) {
+            return res.status(404).json({ success: false, message: "Company not found or does not belong to recruiter." });
+        }
+
+        // Find job posted by this recruiter
+        const job = await ActiveJobsModel.findOne({ _id: jobId, recruiter: recruiterId });
+
+        if (!job) {
+            return res.status(404).json({ success: false, message: "Job not found or does not belong to recruiter." });
+        }
+
+        return res.status(200).json({ success: true, data: job });
+
+    } catch (err) {
+        console.error("Error fetching job:", err.message);
+        return res.status(500).json({ success: false, message: "Server error", error: err.message });
+    }
+};
 
 
 
-
-module.exports = { createCompanyProfile, getAllCompanies, findCompanyById, getCompanyProfileWithJobs };
+module.exports = { createCompanyProfile, getAllCompanies, findCompanyById, getCompanyProfileWithJobs, companyJobDetailsByRecruiter };

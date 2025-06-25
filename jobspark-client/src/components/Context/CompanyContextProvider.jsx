@@ -38,17 +38,32 @@ const CompanyContextProvider = ({ children }) => {
         return response;
     }
 
+    //get a sepecific job informations belonging to speficic company and receruiter
+    const [jobDetails, setJobDetails] = useState([]);
+    const jobDetailsInfo = async (url) => {
+        const response = await getMethod(url);
+        setJobDetails(response);
+        return response;
+    }
+
+
+
+
+
     const info = {
         createCompany,
         getCompany,
         singleCompanyInfoWithJobs,
+        jobDetailsInfo,
 
         company,
         setCompany,
         allCompany,
         setAllCompany,
         companyDetails,
-        setCompanyDetails
+        setCompanyDetails,
+        jobDetails,
+        setJobDetails
     }
 
 

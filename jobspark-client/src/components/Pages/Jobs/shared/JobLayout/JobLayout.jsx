@@ -47,7 +47,7 @@ const JobLayout = () => {
         <>
             <div className=''>
                 <div className="px-3 pb-4">
-                    <p className="text-xl text-gray-700">Showing Result: {showActiveJob.data?.length}</p>
+                    <p className="text-xl text-gray-700">Showsing Reult: {showActiveJob.data?.length}</p>
                 </div>
                 {
                     showActiveJob.data && showActiveJob.data.length > 0 ?
