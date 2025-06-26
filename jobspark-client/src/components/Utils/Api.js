@@ -59,3 +59,30 @@ export async function getMethod(url) {
         throw err;
     }
 }
+
+//* for auto suggested loction from rapid api
+export async function fetchLocations(query) {
+    const url = `https://wft-geo-db.p.rapidapi.com/v1/geo/cities?namePrefix=${encodeURIComponent(query)}&limit=10`;
+
+    try {
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'X-RapidAPI-Key': '54c813caebmshf2c97ab2d7830f8p1b78e5jsn42caf20b9ef6',
+                'X-RapidAPI-Host': 'wft-geo-db.p.rapidapi.com'
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        // Return an array of formatted city strings like "City, Country"
+        return data.data.map(city => `${city.city}, ${city.countryCode}`);
+
+    } catch (err) {
+        console.error(`Error fetching locations: ${err.message}`);
+        return [];
+    }
+}

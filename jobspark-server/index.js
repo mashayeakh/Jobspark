@@ -21,6 +21,8 @@ const notificationRoutes = require("./Routes/NotificationRouter/NotificationRout
 
 const companyRoutes = require("./Routes/CompanyRouter/CompanyRouter");
 
+const filterRoutes = require("./Routes/FilterRouter/FilterRouter");
+
 const { default: mongoose } = require("mongoose");
 
 
@@ -50,6 +52,10 @@ app.use("/api/v1", notificationRoutes);
 
 //company profile 
 app.use("/api/v1", companyRoutes);
+
+
+
+app.use("/api/v1", filterRoutes);
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
