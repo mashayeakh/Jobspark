@@ -47,6 +47,16 @@ const CompanyContextProvider = ({ children }) => {
     }
 
 
+    //get all companies
+    const [companies, setCompanies] = useState([]);
+    const allCompanies = async (url) => {
+        const response = await getMethod(url);
+        setCompanies(response);
+
+        return response;
+    }
+
+
 
 
 
@@ -55,6 +65,7 @@ const CompanyContextProvider = ({ children }) => {
         getCompany,
         singleCompanyInfoWithJobs,
         jobDetailsInfo,
+        allCompanies,
 
         company,
         setCompany,
@@ -63,7 +74,9 @@ const CompanyContextProvider = ({ children }) => {
         companyDetails,
         setCompanyDetails,
         jobDetails,
-        setJobDetails
+        setJobDetails,
+        companies,
+        setCompanies,
     }
 
 

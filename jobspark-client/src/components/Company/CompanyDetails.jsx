@@ -1,68 +1,91 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { Link, useLoaderData } from 'react-router'
+import { Link, useLoaderData, useParams } from 'react-router'
 import Google from '../../assets/imgs/companyLogo/google.png';
-import { MdArrowOutward } from "react-icons/md";
-import { FaRegBookmark } from "react-icons/fa6";
+import { MdArrowOutward, MdOutlinePeople } from "react-icons/md";
+import { FaCode, FaRegBookmark } from "react-icons/fa6";
 import { AuthContext } from '../Context/AuthContextProvider';
 import { CompanyContext } from '../Context/CompanyContextProvider';
-
-
+import { BsThreeDotsVertical } from 'react-icons/bs';
+import { RiBriefcase4Line } from 'react-icons/ri';
+import { HiOutlineLocationMarker } from 'react-icons/hi';
 
 const CompanyDetails = () => {
-
-
+    // Load company data
     const data = useLoaderData();
-    console.log("DATA", data);
-
     const item = data?.data;
+    const recruiterId = item?.recruiter;
+    const currId = useParams();
 
-    console.log("Item =====", item);
-
+    // Tabs
     const tabSections = [
         { key: "Home", label: "Home" },
         { key: "About", label: "About" },
         { key: "Jobs", label: "Job" },
-        // { key: "", label: "Social & Media Links" },
     ];
-
     const [activeTabIndex, setActiveTabIndex] = useState(0);
     const activeTab = tabSections[activeTabIndex].key;
 
-    const { singleCompanyInfoWithJobs } = useContext(CompanyContext);
+    // Context
+    const { singleCompanyInfoWithJobs, allCompanies } = useContext(CompanyContext);
+
+    // Jobs data
     const [jobs, setJobs] = useState([]);
-
-    const recruiterId = item?.recruiter;
-    console.log("REcuirter uid", recruiterId);
-
-    const fetchCompanyJobs = async () => {
-        const url = `http://localhost:5000/api/v1/recruiter/${recruiterId}/company/${item?._id}`;
-        const resposne = await singleCompanyInfoWithJobs(url);
-        setJobs(resposne);
-        console.log("Response check = ", resposne);
-    }
-
-
-
-    console.log("JOBS ", jobs);
-    console.log("JOBS ", jobs.jobCount);
-    console.log("JOBS DATA", jobs.company);
-
     const jobId = jobs.company?._id;
-    console.log("Job id ", jobId);
 
+    // Fetch jobs for the current company
+    const fetchCompanyJobs = async () => {
+        try {
+            const url = `http://localhost:5000/api/v1/recruiter/${recruiterId}/company/${item?._id}`;
+            const response = await singleCompanyInfoWithJobs(url);
+            setJobs(response);
+            console.log("Response check = ", response);
+        } catch (error) {
+            console.error("Error fetching company jobs:", error);
+        }
+    };
 
+    // Remaining companies (excluding the current one)
+    const [remCompany, setRemCompany] = useState([]);
+
+    const fetchRemCompanies = async () => {
+        try {
+            const url = "http://localhost:5000/api/v1/companies";
+            const response = await allCompanies(url);
+            const result = response.data.filter(re => re?._id !== currId?.id);
+            setRemCompany(result);
+        } catch (error) {
+            console.error("Error fetching remaining companies:", error);
+        }
+    };
+
+    // Fetch jobs and remaining companies on mount
     useEffect(() => {
         fetchCompanyJobs();
+        fetchRemCompanies();
     }, [recruiterId, item?._id]);
 
-    
+    // Pagination for remaining companies
+    const [currentPage, setCurrentPage] = useState(1);
+    const cardsPerPage = 4;
 
+    const totalPages = Math.ceil(remCompany.length / cardsPerPage);
+    const indexOfLastCard = currentPage * cardsPerPage;
+    const indexOfFirstCard = indexOfLastCard - cardsPerPage;
+    const currentCards = remCompany.slice(indexOfFirstCard, indexOfLastCard);
+
+    const handlePrev = () => {
+        if (currentPage > 1) setCurrentPage(prev => prev - 1);
+    };
+
+    const handleNext = () => {
+        if (currentPage < totalPages) setCurrentPage(prev => prev + 1);
+    };
     return (
         <div className="bg-gray-50 min-h-screen">
             {/* Company Cover & Info */}
-            <div className='flex'>
+            <div className='flex px-4 '>
                 <div className='flex-[3]'>
-                    <div className="max-w-5xl mx-auto px-4 md:px-8 py-8">
+                    <div className="max-w-6xl mx-auto  py-8">
                         <div className="bg-white rounded-lg shadow-md overflow-hidden">
                             {/* Cover Image */}
                             <div className="relative h-48 md:h-64 bg-gray-200">
@@ -348,9 +371,57 @@ const CompanyDetails = () => {
 
                     </div>
                 </div>
-                <div className='flex-[1]'>
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Sit corrupti labore similique culpa enim eaque repudiandae recusandae molestias vitae necessitatibus, dolorum, provident quo, laudantium cumque at. Culpa esse ipsam possimus.
+                <div className="flex-[1]">
+                    <div className="py-6 ">
+                        <p className="text-3xl font-semibold text-center mb-6">Check More Companies</p>
+                        <div className="px-4">
+                            {currentCards.map((r, i) => (
+                                <Link to={`/company/${r._id}`}>
+                                    <div key={i} className="card bg-base-100 shadow-md border rounded-xl hover:shadow-lg transition duration-300 mb-4">
+                                        <figure className="px-4 pt-4">
+                                            <img
+                                                src={r.logo || Google}
+                                                alt={r.companyName}
+                                                className="rounded-xl w-24 h-24 object-cover"
+                                            />
+                                        </figure>
+                                        <div className="card-body">
+                                            <h2 className="card-title text-lg">{r.companyName}</h2>
+                                            <p className="text-sm text-gray-500">
+                                                {r.tagline || "No tagline provided."}
+                                            </p>
+                                            <div className="card-actions justify-end">
+                                                <button className="btn btn-sm btn-primary">View</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </Link>
+                            ))}
+                        </div>
+
+                        {/* Pagination Controls */}
+                        <div className="flex justify-center items-center mt-6 gap-4">
+                            <button
+                                onClick={handlePrev}
+                                className="btn btn-sm"
+                                disabled={currentPage === 1}
+                            >
+                                Previous
+                            </button>
+                            <span className="text-sm font-medium text-gray-600">
+                                Page {currentPage} of {totalPages}
+                            </span>
+                            <button
+                                onClick={handleNext}
+                                className="btn btn-sm"
+                                disabled={currentPage === totalPages}
+                            >
+                                Next
+                            </button>
+                        </div>
+                    </div>
                 </div>
+
             </div>
 
         </div>
