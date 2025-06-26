@@ -4,6 +4,7 @@ import { postMethod } from "../../../../../Utils/Api"
 import { Link } from 'react-router';
 import { ActiveJobsContext } from '../../../../../Context/ActiveJobsContextProvider';
 import { AuthContext } from '../../../../../Context/AuthContextProvider';
+import jobCategories from '../../../../../../constants/JobCategories';
 
 const ActiveJobsTable = ({ sendJobsToParent }) => {
 
@@ -12,6 +13,23 @@ const ActiveJobsTable = ({ sendJobsToParent }) => {
     const recruiterId = user?._id;
 
     console.log("Recruiter id ", recruiterId);
+
+
+    // const jobCategories = [
+    //     { label: "Software Development", value: "software-dev" },
+    //     { label: "Web Development", value: "web-dev" },
+    //     { label: "AI & Machine Learning", value: "ai-ml" },
+
+    //     { label: "Content Writing / Copywriting", value: "content-writing" },
+    //     { label: "Digital Marketing", value: "digital-marketing" },
+    //     { label: "Social Media Marketing", value: "social-media" },
+
+    //     { label: "UI/UX Design", value: "ui-ux" },
+    //     { label: "Graphic Design", value: "graphic-design" },
+    //     { label: "Video Editing", value: "video-editing" },
+    // ];
+
+
 
 
     const handleAddJobs = async (e) => {
@@ -68,7 +86,7 @@ const ActiveJobsTable = ({ sendJobsToParent }) => {
 
             if (data.success) {
                 setActJobs(data.data);
-                sendJobsToParent && sendJobsToParent(data.data); 
+                sendJobsToParent && sendJobsToParent(data.data);
             }
         } catch (err) {
             console.log("Err from Client - ", err.message);
@@ -154,7 +172,6 @@ const ActiveJobsTable = ({ sendJobsToParent }) => {
                                         <div className="flex-1 pb-8">
                                             <select defaultValue="Employee Type" name="emp_type" className="select">
                                                 <option disabled={true}>Employee Type</option>
-                                                {/* 'Full time', 'Part time', 'Internship' */}
                                                 <option value={"Full time"}>Full time</option>
                                                 <option value={"Part time"}>Part time</option>
                                                 <option value={"Internship"}>Internship</option>
@@ -173,13 +190,15 @@ const ActiveJobsTable = ({ sendJobsToParent }) => {
                                             </select>
                                         </div>
                                         <div className="flex-1 pb-8">
-                                            <select defaultValue="Job Category" name="job_category" className="select">
-                                                <option disabled={true}>Job Category</option>
-                                                {/* Engineering', 'Design', 'Marketing */}
-                                                <option value={"Engineering"}>Engineering</option>
-                                                <option value={"Design"}>Design</option>
-                                                <option value={"Marketing"}>Marketing</option>
+                                            <select defaultValue="" name="job_category" className="select">
+                                                <option disabled value="">Job Category</option>
+                                                {jobCategories.map((cat) => (
+                                                    <option key={cat.value} value={cat.value}>
+                                                        {cat.label}
+                                                    </option>
+                                                ))}
                                             </select>
+
                                         </div>
                                     </div>
                                     <div className="flex gap-6">

@@ -102,9 +102,9 @@ const Home = () => {
                 <button className='btn btn-success text-black text-xl p-5'>Browse For More Jobs</button>
             </div>
             <HomeCategory />
-            <div className='py-15 flex justify-center'>
+            {/* <div className='py-15 flex justify-center'>
                 <button className='btn btn-success text-black text-xl p-5'>Browse For More Category</button>
-            </div>
+            </div> */}
             <HomeSubscribe />
         </>
     )

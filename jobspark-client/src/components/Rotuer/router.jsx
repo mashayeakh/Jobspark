@@ -25,6 +25,7 @@ import ApplicantsDetails from "../Users/Recruiter/Dashboard/SummaryCards/TotalAp
 import Notification from "../Pages/Notification/Notification"
 import CompanyProfile from "../Pages/Users/Recruiter/CompanyProfile/CompanyProfile"
 import CompanyDetails from "../Company/CompanyDetails"
+import CategoryJobs from "../Home/Category/CategoryJobs"
 
 
 const router = createBrowserRouter([
@@ -38,8 +39,9 @@ const router = createBrowserRouter([
                 element: <Home />
             },
             {
-                path: "/test",
-                element: <Test />
+                path: "/category/:categoryName",
+                element: <CategoryJobs />,
+                loader: ({ params }) => fetch(`http://localhost:5000/api/v1/category/${params.categoryName}`)
             },
             //* shared----------------------------------------------------
             {

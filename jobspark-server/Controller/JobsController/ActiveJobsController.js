@@ -161,5 +161,61 @@ const getJobsByRecruiterId = async (req, res) => {
     }
 };
 
+// url = http://localhost:5000/api/v1/category/:categoryName
+/**
+ * *Finds and returns jobs by category name.
+ *
+ * input url - // url = http://localhost:5000/api/v1/category/:categoryName
+ * 
+ * req - Get
+ * 
+ * @async
+ * @function findJobsByCategory
+ * @param {import('express').Request} req - Express request object, expects `categoryName` in `req.params`.
+ * @param {import('express').Response} res - Express response object.
+ * @returns {Promise<void>} Sends a JSON response with jobs data or error message.
+ *
+ * @throws {400} If category name is not provided.
+ * @throws {404} If no jobs are found for the given category.
+ * @throws {500} If an internal server error occurs.
+ */
+const findJobsByCategory = async (req, res) => {
+    const { categoryName } = req.params;
+    // const categoryName = decodeURIComponent(rawCategory); // safe decoding
 
-module.exports = { createActiveJobs, showActiveJobs, findActiveJobsById, applyToJobs, getJobsByRecruiterId }
+
+
+    if (!categoryName) {
+        return res.status(400).json({
+            message: "Category name is required",
+            success: false,
+        });
+    }
+
+    try {
+        const jobs = await activeJobsModel.find({ jobCategory: categoryName });
+
+        if (!jobs || jobs.length === 0) {
+            return res.status(404).json({
+                message: `No jobs found for category: ${categoryName}`,
+                success: false,
+            });
+        }
+
+        res.status(200).json({
+            message: "Jobs fetched successfully",
+            success: true,
+            data: jobs,
+            size: jobs.length
+        });
+    } catch (error) {
+        console.error("Error fetching jobs by category", error);
+        res.status(500).json({
+            message: "Something went wrong",
+            success: false,
+        });
+    }
+}
+
+
+module.exports = { createActiveJobs, showActiveJobs, findActiveJobsById, applyToJobs, getJobsByRecruiterId, findJobsByCategory }
