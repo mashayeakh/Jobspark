@@ -26,6 +26,7 @@ import Notification from "../Pages/Notification/Notification"
 import CompanyProfile from "../Pages/Users/Recruiter/CompanyProfile/CompanyProfile"
 import CompanyDetails from "../Company/CompanyDetails"
 import CategoryJobs from "../Home/Category/CategoryJobs"
+import SearchResults from "../Pages/SearchResults/SearchResults"
 
 
 const router = createBrowserRouter([
@@ -46,7 +47,10 @@ const router = createBrowserRouter([
             //* shared----------------------------------------------------
             {
                 path: "/jobs",
-                element: <Job />
+            },
+            {
+                path: "/search",
+                element: <SearchResults />
             },
             //* job details -----------------------------------------------
             {

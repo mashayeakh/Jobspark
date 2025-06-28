@@ -1,71 +1,58 @@
-import React, { useState } from 'react'
-import { IoLocation, IoSearchOutline } from "react-icons/io5";
+import React, { useState } from 'react';
+import { IoSearchOutline } from "react-icons/io5";
 import KeywordSearch from './KeywordSearch';
 import LocationSearch from './LocationSearch';
 import jobCategories from './../../../constants/JobCategories';
-import { getMethod } from '../../Utils/Api';
-
+import { useNavigate } from 'react-router';
 
 const HomeForm = () => {
-
-
-    const [keyword, setKeyword] = useState(""); // should be a string
+    const [keyword, setKeyword] = useState("");
     const [location, setLocation] = useState("");
+    const [selectedCategory, setSelectedCategory] = useState("");
 
-    const [selectedCategory, setSelectedCategory] = useState([]);
+    const navigate = useNavigate();
 
-    const [searchResults, setSearchResults] = useState([]);
+    const handleSearch = (e) => {
+        e.preventDefault(); // prevent form from refreshing
 
-    // const category = jobCategories
+        const queryParams = new URLSearchParams({
+            keyword,
+            location,
+            category: selectedCategory
+        }).toString();
 
-    const handleSearch = async () => {
-        const url = `http://localhost:5000/api/v1/jobs/search?keyword=${encodeURIComponent(keyword)}&location=${encodeURIComponent(location)}&category=${encodeURIComponent(selectedCategory)}`;
-        const response = await getMethod(url);
-        setSearchResults(response.data);
+        navigate(`/search?${queryParams}`);
     };
 
-
-
     return (
-        <>
-            <div>
-                <form action="">
-                    <fieldset className="fieldset w-fit p-2">
-                        <div className="join">
-                            <KeywordSearch value={keyword} onChange={setKeyword} />
+        <div>
+            <form onSubmit={handleSearch}>
+                <fieldset className="fieldset w-fit p-2">
+                    <div className="join">
+                        <KeywordSearch value={keyword} onChange={setKeyword} />
+                        <LocationSearch value={location} onChange={setLocation} />
 
-                            {/* <select defaultValue="Select location" className="select input join-item w-fit lg:input-xl text-black placeholder-black" placeholder="Location">
-                                <option disabled={true}>Select location</option>
-                                <option>Crimson</option>
-                                <option>Amber</option>
-                                <option>Velvet</option>
-                            </select> */}
+                        <select
+                            value={selectedCategory}
+                            onChange={(e) => setSelectedCategory(e.target.value)}
+                            className="select input join-item w-fit lg:input-xl text-black placeholder-black"
+                        >
+                            <option disabled value="">Select Category</option>
+                            {jobCategories.map((c, i) => (
+                                <option key={i} value={c.label}>
+                                    {c.label}
+                                </option>
+                            ))}
+                        </select>
 
-                            <LocationSearch value={location} onChange={setLocation} />
+                        <button type="submit" className="btn join-item lg:btn-xl">
+                            <IoSearchOutline />
+                        </button>
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+    );
+};
 
-
-                            <select
-                                value={selectedCategory}
-                                onChange={(e) => setSelectedCategory(e.target.value)}
-                                className="select input join-item w-fit lg:input-xl text-black placeholder-black"
-                            >
-                                <option disabled value="">Select Category</option>
-                                {jobCategories.map((c, i) => (
-                                    <option key={i} value={c.label}>
-                                        {c.label}
-                                    </option>
-                                ))}
-                            </select>
-
-                            <button onClick={handleSearch} className="btn join-item lg:btn-xl">
-                                <IoSearchOutline />
-                            </button>
-                        </div>
-                    </fieldset>
-                </form>
-            </div>
-        </>
-    )
-}
-
-export default HomeForm
+export default HomeForm;
