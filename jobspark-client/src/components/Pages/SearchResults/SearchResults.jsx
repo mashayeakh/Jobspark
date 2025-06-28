@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router';
+import { useLocation, Link } from 'react-router';
 import { getMethod } from '../../Utils/Api';
+import { HiOutlineLocationMarker } from 'react-icons/hi';
 
 const SearchResults = () => {
     const { search } = useLocation();
@@ -26,27 +27,67 @@ const SearchResults = () => {
     }, [keyword, location, category]);
 
     return (
-        <div className="px-10 py-8">
-            <h2 className="text-2xl font-bold mb-4">Search Results</h2>
+        <div className="px-6 py-10">
+            <div className="px-3 pb-4">
+                <p className="text-xl text-gray-700">
+                    Showing Result: {jobs?.length}
+                </p>
+            </div>
+
             {loading ? (
                 <p>Loading...</p>
-            ) : jobs.length > 0 ? (
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {jobs.map((job) => (
-                        <div key={job._id} className="card bg-base-100 shadow-md border">
-                            <div className="card-body">
-                                <h2 className="card-title">{job.jobTitle}</h2>
-                                <p>{job.companyName}</p>
-                                <p>{job.location}</p>
-                                <div className="card-actions justify-end">
-                                    <p className="badge badge-primary">{job.jobCategory}</p>
+            ) : jobs?.length > 0 ? (
+                jobs.map((job) => (
+                    <Link key={job._id} to={`/job/${job._id}`}>
+                        <div className="w-full p-4 shadow-2xl bg-white border border-gray-200 rounded-lg sm:p-8 transition delay-150 duration-200 cursor-pointer mb-8">
+                            <div className="flex items-start justify-between">
+                                <div className="flex gap-4 items-center">
+                                    <figure>
+                                        <img
+                                            src="https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.webp"
+                                            alt="Company Logo"
+                                            className="rounded-xl w-24 h-20"
+                                        />
+                                    </figure>
+                                    <div>
+                                        <h5 className="mb-2 text-3xl font-bold">{job?.jobTitle}</h5>
+                                        <div className="flex text-gray-600 text-lg gap-4">
+                                            <p className="font-bold">{job?.companyName}</p>
+                                            <p className="ml-2 flex items-center gap-1">
+                                                <HiOutlineLocationMarker size={24} />
+                                                {job?.location}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <p className="text-2xl font-bold">${job?.salary}</p>
+                                </div>
+                            </div>
+
+                            <div className="pt-8">
+                                <p className="mb-5 text-base text-gray-500 sm:text-lg">
+                                    {job?.description}
+                                </p>
+                                <div className="bg-white">
+                                    {job?.employeeType === 'Full time' && (
+                                        <div className="badge badge-primary badge-lg mr-4">Full time</div>
+                                    )}
+                                    {job?.employeeType === 'Part time' && (
+                                        <div className="badge badge-secondary badge-lg mr-4">Part time</div>
+                                    )}
+                                    {job?.employeeType === 'Internship' && (
+                                        <div className="badge badge-warning badge-lg mr-4">Internship</div>
+                                    )}
                                 </div>
                             </div>
                         </div>
-                    ))}
-                </div>
+                    </Link>
+                ))
             ) : (
-                <p>No jobs found matching your criteria.</p>
+                <div>
+                    <p>No Jobs found</p>
+                </div>
             )}
         </div>
     );
