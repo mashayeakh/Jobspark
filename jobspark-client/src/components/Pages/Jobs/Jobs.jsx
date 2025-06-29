@@ -4,7 +4,7 @@ import Filterbar from './shared/Filterbar/Filterbar';
 import JobLayout from './shared/JobLayout/JobLayout';
 // import JobLayout from './JobLayout/JobLayout';
 
-const Job = () => {
+const Jobs = () => {
 
 
     return (
@@ -54,4 +54,4 @@ const Job = () => {
     )
 };
 
-export default Job;
+export default Jobs;

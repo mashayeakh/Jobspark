@@ -10,6 +10,7 @@ import HomeCategory from './HomeCategory/HomeCategory';
 import HomeSubscribe from './HomeSubscribe/HomeSubscribe';
 // App.jsx or index.jsx
 import '../../../src/index.css';
+import ShowProfileModal from './Modal/ShowProfileModal';
 
 const Home = () => {
 
@@ -106,6 +107,7 @@ const Home = () => {
                 <button className='btn btn-success text-black text-xl p-5'>Browse For More Category</button>
             </div> */}
             <HomeSubscribe />
+            <ShowProfileModal />
         </>
     )
 }

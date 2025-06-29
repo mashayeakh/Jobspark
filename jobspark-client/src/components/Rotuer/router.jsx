@@ -27,6 +27,9 @@ import CompanyProfile from "../Pages/Users/Recruiter/CompanyProfile/CompanyProfi
 import CompanyDetails from "../Company/CompanyDetails"
 import CategoryJobs from "../Home/Category/CategoryJobs"
 import SearchResults from "../Pages/SearchResults/SearchResults"
+import JobLayout from "../Pages/Jobs/shared/JobLayout/JobLayout"
+import Jobs from "./../Pages/Jobs/Jobs"
+import ShowProfileModal from "../Home/Modal/ShowProfileModal"
 
 
 const router = createBrowserRouter([
@@ -47,6 +50,7 @@ const router = createBrowserRouter([
             //* shared----------------------------------------------------
             {
                 path: "/jobs",
+                element: <Jobs />
             },
             {
                 path: "/search",
@@ -70,6 +74,11 @@ const router = createBrowserRouter([
             {
                 path: "/network",
                 element: <Network />
+            },
+            //modal
+            {
+                path: "complete-profile",
+                element: <ShowProfileModal />
             },
             // Accounts
             {

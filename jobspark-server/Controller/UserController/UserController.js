@@ -100,6 +100,44 @@ async function patchUser(req, res) {
         });
     }
 }
+const userProfileFromModel = async (req, res) => {
+    try {
+        const { email, ...updatedFields } = req.body;
+
+        if (!email) {
+            return res.status(400).json({ success: false, message: "Email is required" });
+        }
+
+        // Find user document by email
+        const user = await UserModel.findOne({ email });
+
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+
+        // Update user fields
+        Object.keys(updatedFields).forEach((key) => {
+            user[key] = updatedFields[key];
+        });
+
+        // Save updated document
+        const updatedUser = await user.save();
+
+        return res.status(200).json({
+            success: true,
+            message: "User profile updated successfully",
+            data: updatedUser,
+        });
+    } catch (err) {
+        console.error("Error updating user profile:", err);
+        return res.status(500).json({ success: false, message: "Internal Server Error", error: err.message });
+    }
+}
+
+
+
+
+
 
 
 //! find by email
@@ -131,4 +169,4 @@ async function findUserByEmail(req, res) {
 
 }
 
-module.exports = { createUser, patchUser, findUserByEmail }
+module.exports = { createUser, patchUser, findUserByEmail, userProfileFromModel }
