@@ -12,7 +12,7 @@ const notificationSchema = new mongoose.Schema({
         ref: 'User',
         required: true,
     },
-    
+
     message: {
         type: String,
         required: true,
@@ -29,6 +29,8 @@ const notificationSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
+    timesIgnored: { type: Number, default: 1 }, // ✅ New field
+
 
     //extra fields for detiled view
     applicantId: {

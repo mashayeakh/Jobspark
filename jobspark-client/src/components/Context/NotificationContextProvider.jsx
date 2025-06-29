@@ -12,13 +12,18 @@ const NotificationContextProvider = ({ children }) => {
     const { user } = useContext(AuthContext);
 
 
+
     const role = user?.role;
     const id = user?._id;
+    console.log("id ", id);
 
+    console.log("role - ", user?.role);
 
     const res = role === "recruiter"
         ? "http://localhost:5000/api/v1/recruiter"
-        : "http://localhost:5000/api/v1/jobseeker"
+        : role === "job_seeker"
+            ? "http://localhost:5000/api/v1/jobSeeker"
+            : "";
 
     // fetching notifications based on role and id
     const [notification, setNotification] = useState([]);
@@ -30,16 +35,18 @@ const NotificationContextProvider = ({ children }) => {
         //     : `http://localhost:5000/api/v1/jobseeker/${id}/all-notifications`;
 
         const url = `${res}/${id}/all-notifications`
+        console.log("URL HITTING TO = ", url);
 
         try {
             const response = await getMethod(url);
             setNotification(response); // <-- response is already the array!
-            console.log("Response from fetchingNotification: ", response);
+            console.log("Response from fetchingNotification:::: ", response);
         } catch (error) {
             console.error("Error fetching notifications:", error.message);
         }
     };
 
+    
     //read the notification
     const markNotificationsRead = async () => {
         if (!role || !id) return;
@@ -60,6 +67,17 @@ const NotificationContextProvider = ({ children }) => {
         return response;
     }
 
+
+
+
+    const hasIncompleteProfileReminder = notification?.some(
+        n => n.type === "reminder" && n.message?.toLowerCase().includes("complete your profile") && !n.isRead
+    );
+
+
+
+
+
     useEffect(() => {
         if (user) {
             fetchingNotification();
@@ -70,6 +88,20 @@ const NotificationContextProvider = ({ children }) => {
 
 
 
+
+
+    // const addInfo = {
+    //     fetchingNotification,
+    //     markNotificationsRead,
+    //     fetchNotificationDetails,
+
+    //     notification,
+    //     setNotification,
+
+    //     notificationDetails,
+    //     setNotificationDetails,
+
+    // }
 
 
     const addInfo = {
@@ -83,8 +115,8 @@ const NotificationContextProvider = ({ children }) => {
         notificationDetails,
         setNotificationDetails,
 
-    }
-
+        hasIncompleteProfileReminder, // ✅ <-- ADD THIS
+    };
 
     return (
         <NotificationContext.Provider value={addInfo}>

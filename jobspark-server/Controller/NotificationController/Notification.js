@@ -42,6 +42,50 @@ const createNotification = async (req, res) => {
         res.status(500).json({ error: "Failed to create notification." });
     }
 }
+const createJobSeekerNotification = async (req, res) => {
+    try {
+        const { jobSeekerId } = req.params;
+        const { message, type } = req.body;
+
+        if (!jobSeekerId || !message || !type) {
+            return res.status(400).json({ error: "Job Seeker ID, message, and type are required." });
+        }
+
+        // ✅ Check if similar notification exists
+        const existingNotification = await NotificationModel.findOne({
+            userId: jobSeekerId,
+            message: message.trim(),
+            type: type.trim()
+        });
+
+        if (existingNotification) {
+            // ✅ Update timesIgnored instead of duplicating
+            existingNotification.timesIgnored = (existingNotification.timesIgnored || 1) + 1;
+            const updated = await existingNotification.save();
+            return res.status(200).json({
+                message: "Existing notification updated.",
+                data: updated
+            });
+        }
+
+        // ✅ Create new notification if not found
+        const notification = new NotificationModel({
+            userId: jobSeekerId,
+            message: message.trim(),
+            type: type.trim(),
+            timesIgnored: 1
+        });
+
+        const result = await notification.save();
+        res.status(201).json(result);
+
+    } catch (error) {
+        console.error("Error from creating job seeker notification:", error);
+        res.status(500).json({ error: "Failed to create job seeker notification." });
+    }
+};
+
+
 
 
 /**
@@ -77,6 +121,29 @@ const getAllTheNotifications = async (req, res) => {
         res.status(500).json({ error: "Failed to fetch notifications." });
     }
 }
+
+const getAllJobSeekerNotifications = async (req, res) => {
+    try {
+        const { jobSeekerId } = req.params;
+
+        if (!jobSeekerId) {
+            return res.status(400).json({ error: "Job Seeker ID is required." });
+        }
+
+        const allNotifications = await NotificationModel.find({ userId: jobSeekerId });
+
+        if (!allNotifications || allNotifications.length === 0) {
+            return res.status(404).json({ message: "No notifications found for this job seeker." });
+        }
+
+        console.log("Job Seeker Notifications:", allNotifications);
+        res.status(200).json(allNotifications);
+    } catch (error) {
+        console.error("Error fetching job seeker notifications:", error);
+        res.status(500).json({ error: "Failed to fetch job seeker notifications." });
+    }
+};
+
 
 /**
  * Goal - fetch deails on clicking specific applicant
@@ -164,4 +231,4 @@ const markTheNotifications = async (req, res) => {
     }
 }
 
-module.exports = { createNotification, getAllTheNotifications, markTheNotifications, getDetailsOnApplicant }
+module.exports = { createNotification, getAllTheNotifications, markTheNotifications, getDetailsOnApplicant, createJobSeekerNotification, getAllJobSeekerNotifications }

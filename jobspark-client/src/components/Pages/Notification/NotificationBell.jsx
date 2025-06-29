@@ -34,6 +34,7 @@ const NotificationBell = () => {
         fetchDetails();
     }, [selectedNotification, fetchNotificationDetails]);
 
+    console.log("Job Seeker Notifications:", showDetails);
 
     return (
         <div className="min-h-screen bg-gray-50 p-8">

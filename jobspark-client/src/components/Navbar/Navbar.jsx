@@ -22,8 +22,9 @@ const Navbar = () => {
     const { user, signingOut } = useContext(AuthContext);
 
     const { notification, markNotificationsRead } = useContext(NotificationContext);
-
     const unreadCount = notification?.filter(n => !n.isRead)?.length || 0;
+
+
 
 
     console.log("User ", user);
