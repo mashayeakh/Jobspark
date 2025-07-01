@@ -246,7 +246,7 @@ const Navbar = () => {
                                     <Link to="/profile">
                                         <div className="flex gap-2 items-center">
                                             <img src={profile} alt="" className="w-4" />
-                                            Profile
+                                            Profilee
                                         </div>
                                     </Link>
                                 </li>

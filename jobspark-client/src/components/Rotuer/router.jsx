@@ -30,6 +30,7 @@ import SearchResults from "../Pages/SearchResults/SearchResults"
 import JobLayout from "../Pages/Jobs/shared/JobLayout/JobLayout"
 import Jobs from "./../Pages/Jobs/Jobs"
 import ShowProfileModal from "../Home/Modal/ShowProfileModal"
+import Profile from "../Pages/Profile/Profile"
 
 
 const router = createBrowserRouter([
@@ -96,6 +97,11 @@ const router = createBrowserRouter([
             {
                 path: "/signin",
                 element: <Signin />
+            },
+            //* profle----------------------------------------
+            {
+                path: "/profile",
+                element: <Profile />
             },
             //* for recruiter Dashbaord -----------------------------------------------------
             {

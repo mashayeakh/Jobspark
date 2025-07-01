@@ -135,11 +135,6 @@ const userProfileFromModel = async (req, res) => {
 }
 
 
-
-
-
-
-
 //! find by email
 async function findUserByEmail(req, res) {
     //get the email

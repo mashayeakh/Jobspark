@@ -11,6 +11,7 @@
     "postinstall": "flowbite-react patch"
   },
   "dependencies": {
+    "@alptugidin/react-circular-progress-bar": "^1.1.4",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@flaticon/flaticon-uicons": "^3.3.1",
