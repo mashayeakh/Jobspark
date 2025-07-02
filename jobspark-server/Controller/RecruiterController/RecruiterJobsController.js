@@ -450,6 +450,8 @@ const findAllUserAppliedToRecruiterJobs = async (req, res) => {
         const recruiterJobs = await ActiveJobsModel.find({ recruiter: recruiterId });
         const recruiterJobIds = recruiterJobs.map(job => job._id);
 
+        console.log("REcuiter jods ", recruiterJobIds);
+
         // Step 2: Get all applications to these jobs with user and job populated
         const allApplications = await JobApplicationModel.find({
             job: { $in: recruiterJobIds },
@@ -457,19 +459,27 @@ const findAllUserAppliedToRecruiterJobs = async (req, res) => {
             .populate("user")
             .populate("job");
 
+        console.log("All app", allApplications);
+        console.log("All app length", allApplications.length);
+
         // Step 3: Create flat list (each application is one record)
-        const flatResult = allApplications.map(app => ({
-            userId: app.user._id.toString(),
-            userName: app.user.name,
-            jobId: app.job._id.toString(),
-            jobTitle: app.job.jobTitle,
-            jobType: app.job.jobCategory,
-            status: app.job.status
-        }));
+        const flatResult = allApplications
+            .filter(app => app.user && app.job) // <- ✅ skip broken refs
+            .map(app => ({
+                userId: app.user._id.toString(),
+                userName: app.user.name,
+                jobId: app.job._id.toString(),
+                jobTitle: app.job.jobTitle,
+                jobType: app.job.jobCategory,
+                status: app.job.status
+            }));
+
 
         // Step 4: Optional sort by userName
         flatResult.sort((a, b) => a.userName.localeCompare(b.userName));
         console.log("Flat result", flatResult);
+
+        console.log("FLAT RESUKT ", flatResult);
 
         // Step 5: Send response
         res.status(200).json({

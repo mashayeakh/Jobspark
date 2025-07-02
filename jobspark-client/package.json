@@ -19,6 +19,7 @@
     "@fullcalendar/interaction": "^6.1.17",
     "@fullcalendar/react": "^6.1.17",
     "@fullcalendar/timegrid": "^6.1.17",
+    "@heroicons/react": "^2.2.0",
     "@lottiefiles/react-lottie-player": "^3.6.0",
     "@mui/x-charts": "^8.4.0",
     "@tailwindcss/vite": "^4.1.7",

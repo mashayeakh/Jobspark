@@ -6,9 +6,24 @@
 
 @plugin "daisyui" {
   themes: light --default, dark --prefersdark, cupcake;
-}
+  /* theme: {
+    extend: {
+      dropShadow: {
+        'glow-sm': '0 0 5px rgba(59, 130, 246, 0.6)', // Subtle blue glow
+        'glow-md': '0 0 15px rgba(59, 130, 246, 0.9)', // Brighter blue glow
+        // You can add more colors/intensities:
+        'glow-purple': '0 0 8px rgba(168, 85, 247, 0.7)',
+        'glow-pink': '0 0 8px rgba(236, 72, 153, 0.7)',
+      },
+      transitionProperty: {
+        'filter': 'filter', // If not already included by default
+      }
+    },
+  },*/
+} 
 
 /*  */
+
 
 @plugin "flowbite/plugin";
 @source "../node_modules/flowbite";

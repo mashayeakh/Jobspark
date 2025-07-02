@@ -187,11 +187,19 @@ const userSchema = mongoose.Schema({
         },
         trim: true,
     },
+    experienceLevel: {
+        type: String,
+        required: true,
+        trim: true,
+        required: function () {
+            return this.role === 'job_seeker';
+        },
+    },
     // Job Seeker specific fields
     jobSeekerProfile: {
         university: { type: String, default: "" },
         roles: { type: String, default: "" }, // e.g. Junior Software Engineer
-        experienceLevel: { type: String, default: "" },
+        // experienceLevel: { type: String, default: "" },
         phoneNumber: { type: String, default: "" },
 
         bio: { type: String, default: "" },
