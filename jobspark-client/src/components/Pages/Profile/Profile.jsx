@@ -5,6 +5,7 @@ import { AuthContext } from '../../Context/AuthContextProvider';
 import { PiDotsThreeCircleVertical } from "react-icons/pi";
 import { BsThreeDotsVertical } from 'react-icons/bs';
 import { CheckIcon, XMarkIcon } from '@heroicons/react/20/solid'
+import { useNavigate } from 'react-router';
 
 
 
@@ -93,7 +94,7 @@ const Profile = () => {
 
 
     //* Toggle bahavior
-    const [editMode, setEditMode] = useState("");
+    const [editMode, setEditMode] = useState(false);
 
     const profileFields = [
         { label: "Basic Info", value: [user?.name, user?.email].filter(Boolean).join(" / ") },
@@ -113,6 +114,12 @@ const Profile = () => {
         { label: "Portfolio", value: user?.jobSeekerProfile?.socialLinks?.portfolio },
     ];
 
+    // const navigate = useNavigate();
+
+    const handleCancel = () => {
+        window.location.reload();
+        // navigate("/profile");
+    };
 
 
     return (
@@ -262,6 +269,9 @@ const Profile = () => {
                             {/* <PiDotsThreeCircleVertical size={36} /> */}
 
                             <div className="dropdown dropdown-start">
+                                {
+
+                                }
                                 <button
                                     tabIndex={0}
                                     className="bg-white shadow rounded-full p-4 flex items-center justify-center cursor-pointer hover:bg-gray-100"
@@ -284,6 +294,7 @@ const Profile = () => {
                                     </li>
                                 </ul>
                             </div>
+
 
                         </div>
                     </div>
@@ -1057,6 +1068,8 @@ const Profile = () => {
                             <div className="mt-6 flex justify-end gap-4 md:col-span-2">
                                 <button
                                     type="button"
+                                    onClick={handleCancel}
+
                                     className="rounded-lg border border-gray-300 bg-white px-6 py-3 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200"
                                 >
                                     Cancel

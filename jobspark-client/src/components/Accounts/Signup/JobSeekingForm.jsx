@@ -81,16 +81,6 @@ const JobSeekingForm = () => {
         }
     }
 
-
-    // const skills = [
-    //     'JavaScript', 'TypeScript', 'Java', 'C#', 'Ruby',
-    //     'Swift', 'Kotlin', 'Scala', 'HTML', 'CSS',
-    //     'React', 'Vue', 'Next.js', 'Node.js', 'Express', 'NestJS',
-    //     'Spring', 'Django', 'ASP.NET', 'MongoDB', 'MySQL',
-    //     'PostgreSQL', 'GraphQL', 'REST',
-    //     'AWS', 'Azure', 'Git', 'CI/CD', 'Machine Learning', 'Data Science'
-    // ];
-
     return (
         <>
             <div className='pt-10'>

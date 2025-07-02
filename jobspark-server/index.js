@@ -23,6 +23,9 @@ const companyRoutes = require("./Routes/CompanyRouter/CompanyRouter");
 
 const filterRoutes = require("./Routes/FilterRouter/FilterRouter");
 
+const networkRoutes = require("./Routes/NetworkRouter/NetworkRouter");
+
+
 const { default: mongoose } = require("mongoose");
 
 
@@ -53,9 +56,11 @@ app.use("/api/v1", notificationRoutes);
 //company profile 
 app.use("/api/v1", companyRoutes);
 
-
-
 app.use("/api/v1", filterRoutes);
+
+//Gemini api
+app.use("/api/v1/network", networkRoutes);
+
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
