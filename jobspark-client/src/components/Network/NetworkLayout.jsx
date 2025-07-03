@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { AuthContext } from './../Context/AuthContextProvider';
+import IncomingRequests from './IncomingRequests';
 
 const NetworkLayout = () => {
     const { user } = useContext(AuthContext); // Assuming you store logged-in user here
@@ -137,6 +138,7 @@ const NetworkLayout = () => {
                             ))}
                     </div>
                 </div>
+                <IncomingRequests />
             </div>
         </>
     )
