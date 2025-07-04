@@ -8,6 +8,8 @@ const IncomingRequests = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
+
+    console.log("USER== ", user);
     console.log("USER ID ", user?._id);
 
 

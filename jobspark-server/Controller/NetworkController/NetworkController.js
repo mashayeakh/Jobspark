@@ -1,6 +1,8 @@
 const axios = require("axios");
 const connectionRequest = require("../../Model/NetworkModel/ConnectionReqModel");
 const mongoose = require("mongoose");
+const { getRecommendedUsers } = require("../../Utils/gemini");
+const UserModel = require("../../Model/AccountModel/UserModel");
 
 
 
@@ -121,7 +123,7 @@ const sendConnectionRequest = async (req, res) => {
 
 /**
  * *Retrieves all pending incoming connection requests for a specific user.
- * http://localhost:5000/api/v1/network/connection-requests/${userId}
+ * http://localhost:5000/api/v1/network/connection-requests/${toUserId}
  * 
  *  Req - Get
  * @async
@@ -134,10 +136,10 @@ const sendConnectionRequest = async (req, res) => {
  */
 const getIncomingRequests = async (req, res) => {
     try {
-        const { userId } = req.params;
+        const { toUserId } = req.params;
 
-        // Validate userId
-        if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+        // Validate toUserId
+        if (!toUserId || !mongoose.Types.ObjectId.isValid(toUserId)) {
             return res.status(400).json({
                 success: false,
                 message: 'Invalid user ID format.'
@@ -146,7 +148,7 @@ const getIncomingRequests = async (req, res) => {
 
         // Find all pending connection requests for this user
         const requests = await connectionRequest.find({
-            toUser: userId,
+            toUser: toUserId,
             status: 'pending'
         }).populate("fromUser", "name profileImage role");
 
@@ -207,6 +209,80 @@ const respondToConnectRequest = async (req, res) => {
     }
 }
 
+//!---------------------------------------------------------------------------------------------------------
 
 
-module.exports = { getAIRecommendations, sendConnectionRequest, getIncomingRequests, respondToConnectRequest }
+// Example user schema has: _id, name, location, skills (array), preferredRoles (array)
+
+async function mapToRealUsers(recommendedUsers) {
+    const updatedUsers = [];
+
+    for (const rec of recommendedUsers) {
+        // Find one user in DB matching on name + skills + location, etc.
+        // You can relax the query or improve later
+        const user = await UserModel.findOne({
+            name: rec.name,
+            location: rec.location,
+            skills: { $all: rec.skills },
+            preferredRoles: { $in: rec.preferredRoles },
+        }).lean();
+        console.log(`Match found for ${rec.name}?`, !!user);
+
+
+        if (user) {
+            updatedUsers.push(user);
+        } else {
+            // If no exact match, you can skip or keep the dummy record
+            updatedUsers.push(rec);
+        }
+    }
+
+    return updatedUsers;
+}
+
+
+
+//Lets test this harcoded propmt first
+const testGemini = async (req, res) => {
+    const prompt = `
+    Based on this user's profile:
+    - Name: Jane Doe
+    - Location: New York, USA
+    - Skills: JavaScript, React, Node.js, MongoDB, Express.js
+    - Preferred Roles: Frontend Developer, Fullstack Developer
+    - University: University of Technology
+
+    Recommend 50 users with similar profiles.
+
+    Output ONLY the JSON array.
+    No markdown. No explanation. No comments.
+    `;
+
+    const response = await getRecommendedUsers(prompt);
+
+    try {
+        // Clean markdown-style backticks and trim
+        const cleaned = response
+            .replace(/```json/g, "")
+            .replace(/```/g, "")
+            .trim();
+
+        // Attempt to parse the cleaned JSON
+        const json = JSON.parse(cleaned);
+        const usersWithRealIds = await mapToRealUsers(json);
+        res.json({ size: json.length, success: true, data: usersWithRealIds });
+    } catch (err) {
+        console.error("❌ Failed to parse Gemini response");
+        console.error("Raw response:\n", response);
+        res.status(500).json({
+            success: false,
+            error: "Invalid JSON from Gemini",
+            raw: response
+        });
+    }
+};
+
+
+
+
+module.exports = { getAIRecommendations, sendConnectionRequest, getIncomingRequests, respondToConnectRequest, testGemini }
