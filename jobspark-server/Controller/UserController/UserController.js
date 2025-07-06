@@ -37,12 +37,90 @@ async function createUser(req, res) {
 
 //! Patch method to insert a specific col in the existing user while logging.
 
+// async function patchUser(req, res) {
+//     try {
+//         const exaistingEmail = req?.body?.email;
+//         const currDate = req?.body?.currDate;
+//         const jobId = req?.body?.jobId; // this should be sent from frontend only when applying
+//         const isApplying = !!jobId;
+
+//         if (!exaistingEmail) {
+//             return res.status(404).json({
+//                 error: "Email not found",
+//                 success: false
+//             });
+//         }
+
+//         const filter = { email: exaistingEmail };
+//         const user = await UserModel.findOne(filter).select("+appliedJobIds +applicationAppliedCount");
+//         console.log("USER ", user);
+
+//         if (!user) {
+//             return res.status(404).json({
+//                 error: "User not found",
+//                 success: false
+//             });
+//         }
+//         // Handle password match
+//         if (!user.isGeneratedByAI && !DEFAULT_AI_PASSWORD) {
+//             return res.status(401).json({ error: "Invalid credentials", success: false });
+//         }
+
+
+//         // For AI users, check only if password matches the default one
+//         if (user.isGeneratedByAI && !DEFAULT_AI_PASSWORD) {
+//             return res.status(401).json({ error: "Invalid AI credentials", success: false });
+//         }
+
+
+//         // Build the update payload
+//         const updateInfo = {
+//             $set: {
+//                 lastSignInTime: currDate,
+//             }
+//         };
+
+//         // If user is job_seeker and applying to a job
+//         if (isApplying && user.role === "job_seeker") {
+//             if (!user.appliedJobIds.includes(jobId)) {
+//                 updateInfo.$addToSet = { appliedJobIds: jobId };
+//                 updateInfo.$inc = { applicationAppliedCount: 1 };
+//             } else {
+//                 return res.status(409).json({
+//                     message: "User has already applied to this job",
+//                     success: false
+//                 });
+//             }
+//         }
+
+//         // Final update
+//         const updatedUser = await UserModel.findOneAndUpdate(filter, updateInfo, {
+//             new: true,
+//             select: "-appliedJobIds -applicationAppliedCount" // hide from response
+//         });
+
+//         return res.status(200).json({
+//             message: "User updated successfully",
+//             success: true,
+//             data: updatedUser,
+//         });
+
+//     } catch (error) {
+//         console.error("Error in patchUser:", error);
+//         return res.status(500).json({
+//             message: "Internal Server Error",
+//             success: false,
+//         });
+//     }
+// }
+
 async function patchUser(req, res) {
     try {
         const exaistingEmail = req?.body?.email;
         const currDate = req?.body?.currDate;
-        const jobId = req?.body?.jobId; // this should be sent from frontend only when applying
+        const jobId = req?.body?.jobId;
         const isApplying = !!jobId;
+        const profileUpdate = req.body.update || {}; // optional
 
         if (!exaistingEmail) {
             return res.status(404).json({
@@ -53,34 +131,36 @@ async function patchUser(req, res) {
 
         const filter = { email: exaistingEmail };
         const user = await UserModel.findOne(filter).select("+appliedJobIds +applicationAppliedCount");
-        console.log("USER ", user);
-
         if (!user) {
-            return res.status(404).json({
-                error: "User not found",
-                success: false
-            });
+            return res.status(404).json({ error: "User not found", success: false });
         }
-        // Handle password match
+
         if (!user.isGeneratedByAI && !DEFAULT_AI_PASSWORD) {
             return res.status(401).json({ error: "Invalid credentials", success: false });
         }
 
-
-        // For AI users, check only if password matches the default one
-        if (user.isGeneratedByAI && !DEFAULT_AI_PASSWORD) {
-            return res.status(401).json({ error: "Invalid AI credentials", success: false });
-        }
-
-
-        // Build the update payload
+        // Build update payload
         const updateInfo = {
             $set: {
                 lastSignInTime: currDate,
-            }
+            },
         };
 
-        // If user is job_seeker and applying to a job
+        // ✅ Add profile fields if provided
+        if (profileUpdate.location) {
+            updateInfo.$set.location = profileUpdate.location;
+        }
+
+        if (profileUpdate.jobSeekerProfile) {
+            if (profileUpdate.jobSeekerProfile.preferredLocations) {
+                updateInfo.$set["jobSeekerProfile.preferredLocations"] = profileUpdate.jobSeekerProfile.preferredLocations;
+            }
+            if (profileUpdate.jobSeekerProfile.university) {
+                updateInfo.$set["jobSeekerProfile.university"] = profileUpdate.jobSeekerProfile.university;
+            }
+        }
+
+        // ✅ Add job application logic if jobId exists
         if (isApplying && user.role === "job_seeker") {
             if (!user.appliedJobIds.includes(jobId)) {
                 updateInfo.$addToSet = { appliedJobIds: jobId };
@@ -93,10 +173,9 @@ async function patchUser(req, res) {
             }
         }
 
-        // Final update
         const updatedUser = await UserModel.findOneAndUpdate(filter, updateInfo, {
             new: true,
-            select: "-appliedJobIds -applicationAppliedCount" // hide from response
+            select: "-appliedJobIds -applicationAppliedCount"
         });
 
         return res.status(200).json({
@@ -113,6 +192,7 @@ async function patchUser(req, res) {
         });
     }
 }
+
 const userProfileFromModel = async (req, res) => {
     try {
         const { email, ...updatedFields } = req.body;

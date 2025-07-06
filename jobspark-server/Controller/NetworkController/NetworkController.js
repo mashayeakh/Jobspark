@@ -282,7 +282,49 @@ const testGemini = async (req, res) => {
     }
 };
 
+//get recommantion users, it means we need to call gemini API for users to get the recommendation fileterd by at least one matching skill, matching location, matching preferred role, matching university
+
+//url - api/v1/recommendations/ai-users/:userId
+
+const getRecommendedAIUsers = async (req, res) => {
+    try {
+        const { userId } = req.params;
+        console.log("User ID:", userId);
+
+        const currUser = await UserModel.findById(userId);
+        if (!currUser || currUser.role !== "job_seeker") {
+            return res.status(404).json({ error: "User not found or not a job seeker" });
+        }
+
+        const { location, jobSeekerProfile } = currUser;
+        const preferredLocation = jobSeekerProfile?.preferredLocations?.[0];
+        const university = jobSeekerProfile?.university;
+
+        const recommendations = await UserModel.find({
+            isGeneratedByAI: true,
+            _id: { $ne: userId },
+            $or: [
+                { location },
+                { "jobSeekerProfile.preferredLocations": preferredLocation },
+                { "jobSeekerProfile.university": university }
+            ]
+        }).limit(20);
+
+        console.log("Matched AI users count:", recommendations.length);
+
+        return res.status(200).json({
+            message: "Recommended AI users",
+            success: true,
+            data: recommendations,
+        });
+    } catch (error) {
+        console.error("Error in getRecommendedAIUsers:", error);
+        return res.status(500).json({ error: "Server error" });
+    }
+};
+  
 
 
 
-module.exports = { getAIRecommendations, sendConnectionRequest, getIncomingRequests, respondToConnectRequest, testGemini }
+
+module.exports = { getAIRecommendations, sendConnectionRequest, getIncomingRequests, respondToConnectRequest, testGemini, getRecommendedAIUsers };

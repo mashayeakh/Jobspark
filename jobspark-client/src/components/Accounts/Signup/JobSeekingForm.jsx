@@ -34,6 +34,8 @@ const JobSeekingForm = () => {
             toast.error(`password do not match`);
             return;
         }
+        const rawSkills = e.target.skills.value; // e.g. "reactjs, nodejs, mongo"
+        const skillsArray = rawSkills.split(",").map(skill => skill.trim()).filter(skill => skill.length > 0);
 
         const formData = {
             name: e.target.name.value,
@@ -42,7 +44,7 @@ const JobSeekingForm = () => {
             c_password: e.target.c_password.value,
             location: e.target.location.value,
             university: e.target.university.value,
-            skills: e.target.skills.value,
+            skills: skillsArray, // <-- send as array now
             roles: e.target.roles.value,
             experienceLevel: e.target.experienceLevel.value,
             role,

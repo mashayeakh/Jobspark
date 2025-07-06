@@ -98,8 +98,8 @@ const seedGeminiUsers = async () => {
         console.log("CONNECTED TO MONGODB");
 
 
-        const deleted = await UserModel.deleteMany({ isGeneratedByAI: true });
-        console.log(`🗑️ Deleted ${deleted.deletedCount} existing AI users`);
+        // const deleted = await UserModel.deleteMany({ isGeneratedByAI: true });
+        // console.log(`🗑️ Deleted ${deleted.deletedCount} existing AI users`);
 
         const existing = await UserModel.find({ isGeneratedByAI: true });
         if (existing.length > 0) {
