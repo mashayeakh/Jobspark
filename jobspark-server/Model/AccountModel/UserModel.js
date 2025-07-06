@@ -270,6 +270,11 @@ const userSchema = mongoose.Schema({
         type: Date,
         default: null,
     },
+
+    isGeneratedByAI: {
+        type: Boolean,
+        default: false,
+    }
 });
 
 module.exports = mongoose.model("User", userSchema);

@@ -1,4 +1,5 @@
 const UserModel = require("../../Model/AccountModel/UserModel");
+const DEFAULT_AI_PASSWORD = "aipass123";
 
 async function createUser(req, res) {
 
@@ -52,6 +53,7 @@ async function patchUser(req, res) {
 
         const filter = { email: exaistingEmail };
         const user = await UserModel.findOne(filter).select("+appliedJobIds +applicationAppliedCount");
+        console.log("USER ", user);
 
         if (!user) {
             return res.status(404).json({
@@ -59,6 +61,17 @@ async function patchUser(req, res) {
                 success: false
             });
         }
+        // Handle password match
+        if (!user.isGeneratedByAI && !DEFAULT_AI_PASSWORD) {
+            return res.status(401).json({ error: "Invalid credentials", success: false });
+        }
+
+
+        // For AI users, check only if password matches the default one
+        if (user.isGeneratedByAI && !DEFAULT_AI_PASSWORD) {
+            return res.status(401).json({ error: "Invalid AI credentials", success: false });
+        }
+
 
         // Build the update payload
         const updateInfo = {
