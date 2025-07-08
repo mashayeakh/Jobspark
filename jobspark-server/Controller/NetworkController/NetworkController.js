@@ -3,6 +3,7 @@ const connectionRequest = require("../../Model/NetworkModel/ConnectionReqModel")
 const mongoose = require("mongoose");
 const { getRecommendedUsers } = require("../../Utils/gemini");
 const UserModel = require("../../Model/AccountModel/UserModel");
+const ConnectionReqModel = require("../../Model/NetworkModel/ConnectionReqModel");
 
 
 
@@ -79,45 +80,6 @@ const getAIRecommendations = async (req, res) => {
     }
 }
 
-//sending req
-
-const sendConnectionRequest = async (req, res) => {
-    const { fromUserId, toUserId } = req.body;
-    console.log("FromUserId and ToUserId", fromUserId, toUserId);
-
-    //cant send req to self
-    if (fromUserId === toUserId) {
-        return res.status(400).json({ success: false, message: 'Cannot connect with yourself.' });
-    }
-
-    // Convert string IDs to ObjectId
-    let fromUserObjId, toUserObjId;
-    try {
-        fromUserObjId = new mongoose.Types.ObjectId(fromUserId);
-        toUserObjId = new mongoose.Types.ObjectId(toUserId);
-    } catch (err) {
-        return res.status(400).json({ success: false, message: 'Invalid user ID format.' });
-    }
-
-    //check if req exists already
-    const existing = await connectionRequest.findOne({ fromUser: fromUserObjId, toUser: toUserObjId });
-    if (existing) {
-        return res.status(400).json({ success: false, message: 'Connection request already sent.' });
-    }
-
-    const newConnection = new connectionRequest({
-        fromUser: fromUserObjId,
-        toUser: toUserObjId
-    })
-
-    await newConnection.save();
-    console.log("Connection Request Sent");
-
-    return res.status(201).json(
-        {
-            success: true, message: 'Connection request sent.'
-        });
-}
 
 //get all the reqs sent by a specific user
 
@@ -136,10 +98,10 @@ const sendConnectionRequest = async (req, res) => {
  */
 const getIncomingRequests = async (req, res) => {
     try {
-        const { toUserId } = req.params;
+        const { loggedIn_toUser } = req.params;
 
-        // Validate toUserId
-        if (!toUserId || !mongoose.Types.ObjectId.isValid(toUserId)) {
+        // Validate loggedIn_toUser
+        if (!loggedIn_toUser || !mongoose.Types.ObjectId.isValid(loggedIn_toUser)) {
             return res.status(400).json({
                 success: false,
                 message: 'Invalid user ID format.'
@@ -148,7 +110,7 @@ const getIncomingRequests = async (req, res) => {
 
         // Find all pending connection requests for this user
         const requests = await connectionRequest.find({
-            toUser: toUserId,
+            toUser: loggedIn_toUser,
             status: 'pending'
         }).populate("fromUser", "name profileImage role");
 
@@ -322,9 +284,81 @@ const getRecommendedAIUsers = async (req, res) => {
         return res.status(500).json({ error: "Server error" });
     }
 };
-  
+
+//sending req
+
+const sendConnectionRequest = async (req, res) => {
+    const { fromUserId, toUserId } = req.body;
+    console.log("FromUserId and ToUserId", fromUserId, toUserId);
+
+    //cant send req to self
+    if (fromUserId === toUserId) {
+        return res.status(400).json({ success: false, message: 'Cannot connect with yourself.' });
+    }
+
+    // Convert string IDs to ObjectId
+    let fromUserObjId, toUserObjId;
+    try {
+        fromUserObjId = new mongoose.Types.ObjectId(fromUserId);
+        toUserObjId = new mongoose.Types.ObjectId(toUserId);
+    } catch (err) {
+        return res.status(400).json({ success: false, message: 'Invalid user ID format.' });
+    }
+
+    //check if req exists already
+    const existing = await connectionRequest.findOne({ fromUser: fromUserObjId, toUser: toUserObjId });
+    if (existing) {
+        return res.status(400).json({ success: false, message: 'Connection request already sent.' });
+    }
+
+    const newConnection = new connectionRequest({
+        fromUser: fromUserObjId,
+        toUser: toUserObjId
+    })
+
+    await newConnection.save();
+    console.log("Connection Request Sent");
+
+    return res.status(201).json(
+        {
+            success: true, message: 'Connection request sent.'
+        });
+}
+
+//get the pending ids
+const getPendintReq = async (req, res) => {
+    try {
+        const { userId } = req.params;
+        console.log("USER ID ", userId);
+
+        // Validate userId
+        if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(400).json({ success: false, message: 'Invalid user ID format.' });
+        }
+
+        const pendingUsers = await ConnectionReqModel.find({ fromUser: userId });
+        console.log("Pending users : ", pendingUsers);
+        console.log("Pending users length: ", pendingUsers.length);
+
+        const toUserIds = pendingUsers.map(id => id.toUser.toString());
+
+        console.log("To users id ", toUserIds);
+        console.log("To users id length", toUserIds.length);
+
+        res.status(200).json({
+            success: true,
+            ids: toUserIds,
+            count: toUserIds.length
+        });
+    } catch (error) {
+        console.error("Error in getPendintReq:", error.message);
+        res.status(500).json({
+            success: false,
+            message: "Failed to fetch pending requests.",
+            error: error.message
+        });
+    }
+}
 
 
-
-
-module.exports = { getAIRecommendations, sendConnectionRequest, getIncomingRequests, respondToConnectRequest, testGemini, getRecommendedAIUsers };
+module.exports = { getAIRecommendations, sendConnectionRequest, getIncomingRequests, respondToConnectRequest, testGemini, getRecommendedAIUsers, getPendintReq };

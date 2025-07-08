@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { AuthContext } from './../Context/AuthContextProvider';
 import IncomingRequests from './IncomingRequests';
+import { NetworkContext } from '../Context/NetworkContextProvider';
 
 const NetworkLayout = () => {
     const { user } = useContext(AuthContext); // Assuming you store logged-in user here
@@ -41,38 +42,138 @@ const NetworkLayout = () => {
         fetchRecommendations();
     }, [user]);
 
+
+    const loggedInUserId = user?._id;
+
+    const { fetchRec, sendConnection, pending } = useContext(NetworkContext);
+    const [recommendation, setRecommendation] = useState([]);
+
+    const handleFetchRecom = async () => {
+        const url = `http://localhost:5000/api/v1/network/recommendations/ai-users/${loggedInUserId}`
+        console.log("Hitting into = ", url);
+        const response = await fetchRec(url);
+        setRecommendation(response);
+    }
+
+    useEffect(() => {
+        if (!loggedInUserId) return;
+        handleFetchRecom();
+    }, [loggedInUserId])
+
+    console.log("VALUE", recommendation);
+
+    const [activeDropdown, setActiveDropdown] = useState(null);
+
+    const toggleDropdown = (id) => {
+        setActiveDropdown((prev) => (prev === id ? null : id));
+    };
+
+    const fromUserId = user?._id;
+    const [sendConn, setSendConn] = useState(new Set());
+
+    const handleConnect = async (toUserId) => {
+        const url = `http://localhost:5000/api/v1/network/send-connection-request`;
+        const ids = {
+            fromUserId,
+            toUserId,
+        }
+        const req = await sendConnection(url, ids);
+        if (req.success === true) {
+            console.log("Request from handleConnect", req);
+            alert("Sent request");
+            setSendConn(prev => new Set(prev).add(toUserId));
+        } else {
+            alert(`Error: ${req.message}`);
+        }
+    }
+
+    //pending user
+    const [pendingData, setPendingData] = useState([]);
+    const fetchingPendingUser = async () => {
+        const url = `http://localhost:5000/api/v1/network/get-pendingId/${fromUserId}`;
+        console.log("Hitting to pending url", url);
+
+        const response = await pending(url);
+        if (response.success === true) {
+            setPendingData(response.ids);
+            console.log("Pending data ", pendingData);
+        }
+    }
+
+    useEffect(() => {
+        if (!fromUserId) return;
+        fetchingPendingUser();
+    }, [fromUserId])
+
+
+    console.log("Pending data ", pendingData);
+
     return (
         <>
-            <div>
-                <h2 className="mb-5 text-3xl">People you may know</h2>
+            <div className="p-6 bg-gray-50 rounded-xl">
+                <div className="flex justify-between items-center mb-6">
+                    <div>
+                        <h2 className="text-3xl font-bold text-gray-800">People you may know</h2>
+                        <span className="text-gray-500">Recommendations for you ({recommendation?.data?.length})</span>
+                    </div>
+                    <button className="text-blue-600 hover:text-blue-800 font-medium">
+                        See all
+                    </button>
+                </div>
 
-                {loading && <p>Loading recommendations...</p>}
-                {error && <p className="text-red-500">Error: {error}</p>}
-
-                {!loading && !error && recommendations.length === 0 && (
-                    <p>No recommendations found at the moment.</p>
+                {/* Status Messages */}
+                {loading && (
+                    <div className="flex justify-center items-center py-12">
+                        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500"></div>
+                    </div>
                 )}
 
+                {error && (
+                    <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6 rounded">
+                        <div className="flex">
+                            <div className="flex-shrink-0">
+                                <svg className="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                                </svg>
+                            </div>
+                            <div className="ml-3">
+                                <p className="text-sm text-red-700">Error loading recommendations: {error}</p>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {!loading && !error && recommendations.length === 0 && (
+                    <div className="text-center py-12 bg-white rounded-lg shadow-sm">
+                        <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <h3 className="mt-2 text-lg font-medium text-gray-900">No recommendations found</h3>
+                        <p className="mt-1 text-gray-500">We couldn't find any recommendations for you right now.</p>
+                        <div className="mt-6">
+                            <button className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                Refresh
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                {/* Recommendation Cards */}
                 <div className="w-full pt-5">
-                    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-                        {!loading &&
-                            !error &&
-                            recommendations.map((rec) => (
-                                <div
-                                    key={rec._id}
-                                    className="w-full max-w-sm rounded-lg border border-gray-200 bg-white shadow-sm"
-                                >
-                                    <div className="flex justify-end px-4 pt-4">
-                                        {/* Dropdown Button */}
-                                        {/* You'll need to implement actual dropdown logic using state or a library */}
+                    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                        {!loading && !error && recommendation?.data?.map((rec) => (
+                            <div
+                                key={rec._id}
+                                className="w-full max-w-sm rounded-xl border border-gray-200 bg-white shadow-sm hover:shadow-md transition-shadow duration-300"
+                            >
+                                <div className="flex justify-end px-4 pt-4">
+                                    <div className="relative">
                                         <button
-                                            id={`dropdownButton-${rec._id}`} // Unique ID for each dropdown
-                                            data-dropdown-toggle={`dropdown-${rec._id}`}
-                                            className="inline-block rounded-lg p-1.5 text-sm text-gray-500 hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-700"
+                                            id={`dropdownButton-${rec._id}`}
+                                            className="inline-flex items-center rounded-lg p-2 text-sm text-gray-500 hover:bg-gray-100 focus:outline-none"
                                             type="button"
-                                        // onClick={() => toggleDropdown(rec._id)} // Example: if you manage dropdowns with React state
+                                            onClick={() => toggleDropdown(rec._id)}
                                         >
-                                            <span className="sr-only">Open dropdown</span>
                                             <svg
                                                 className="h-5 w-5"
                                                 aria-hidden="true"
@@ -84,60 +185,93 @@ const NetworkLayout = () => {
                                             </svg>
                                         </button>
 
-                                        {/* Dropdown Content */}
-                                        {/* For a true dropdown, you'd likely manage visibility with state */}
-                                        <div
-                                            id={`dropdown-${rec._id}`} // Unique ID for each dropdown
-                                            className="z-10 hidden w-fit list-none divide-y divide-gray-100 rounded-lg bg-white shadow-sm dark:bg-gray-700 text-base"
-                                        // style={{ display: activeDropdown === rec._id ? 'block' : 'none' }} // Example: If managing visibility
-                                        >
-                                            <ul className="py-2" aria-labelledby={`dropdownButton-${rec._id}`}>
-                                                <li>
-                                                    <a
-                                                        href="#"
-                                                        className="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600 dark:hover:text-white"
-                                                        onClick={(e) => {
-                                                            e.preventDefault();
-                                                            console.log('Ignore clicked for:', rec.name);
-                                                            // Add logic to remove this recommendation or send to API
-                                                        }}
-                                                    >
-                                                        Ignore
-                                                    </a>
-                                                </li>
-                                            </ul>
-                                        </div>
+                                        {activeDropdown === rec._id && (
+                                            <div className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5">
+                                                <button
+                                                    className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
+                                                    onClick={() => {
+                                                        console.log("Hide this recommendation:", rec.name);
+                                                        setActiveDropdown(null);
+                                                    }}
+                                                >
+                                                    Ognore
+                                                </button>
+                                                <button
+                                                    className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
+                                                    onClick={() => {
+                                                        console.log("Report this profile:", rec.name);
+                                                        setActiveDropdown(null);
+                                                    }}
+                                                >
+                                                    Report profile
+                                                </button>
+                                            </div>
+                                        )}
                                     </div>
+                                </div>
 
-                                    {/* Profile Information */}
-                                    <div className="flex flex-col items-center pb-10">
+
+                                <div className="flex flex-col items-center pb-8 px-4">
+                                    <div className="relative mb-4">
                                         <img
-                                            className="mb-3 h-24 w-24 rounded-full shadow-lg object-cover"
-                                            src={
-                                                rec.profileImage ||
-                                                'https://via.placeholder.com/150'
-                                            } // Fallback image
+                                            className="h-24 w-24 rounded-full shadow-lg object-cover border-2 border-white"
+                                            src={rec.profileImage || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'}
                                             alt={rec.name}
                                         />
-                                        <h5 className="mb-1 text-xl font-medium text-gray-900 dark:text-white">
-                                            {rec.name}
-                                        </h5>
-                                        <span className="text-sm text-gray-500 dark:text-gray-400">
-                                            {rec.role}
-                                        </span>
-                                        <div className="mt-4 flex md:mt-6">
+                                        {rec.isActive && (
+                                            <span className="absolute bottom-0 right-0 block h-3 w-3 rounded-full bg-green-400 ring-2 ring-white"></span>
+                                        )}
+                                    </div>
+
+                                    <h5 className="mb-1 text-lg font-semibold text-gray-900">
+                                        {rec.name}
+                                    </h5>
+
+                                    <span className="text-sm text-gray-500 mb-2">
+                                        {
+                                            rec?.role === "job_seeker" ? "Job Holder" : "N/A"
+                                        }
+                                    </span>
+
+                                    {rec.mutualConnections > 0 && (
+                                        <div className="flex items-center text-sm text-gray-500 mb-4">
+                                            <svg className="h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
+                                            </svg>
+                                            {rec.mutualConnections} mutual connection{rec.mutualConnections !== 1 ? 's' : ''}
+                                        </div>
+                                    )}
+
+                                    <div className="flex space-x-3 mt-4">
+                                        {pendingData.includes(rec._id) ? (
                                             <button
-                                                className="btn btn-primary border px-10 py-2 text-2xl"
-                                                onClick={() => console.log('Connect clicked for:', rec.name)}
+                                                className="flex-1 px-4 py-2 border border-blue-600 text-blue-600 font-medium rounded-lg bg-blue-50 cursor-not-allowed"
+                                                disabled
+                                            >
+                                                Pending...
+                                            </button>
+                                        ) : (
+                                            <button
+                                                className="flex-1 px-4 py-2 border border-blue-600 text-blue-600 font-medium rounded-lg hover:bg-blue-50 transition-colors duration-200"
+                                                onClick={() => handleConnect(rec._id)}
                                             >
                                                 Connect
                                             </button>
-                                        </div>
+                                        )}
+
+                                        <button
+                                            className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors duration-200 cursor-pointer"
+                                            onClick={() => console.log('Message clicked for:', rec.name)}
+                                        >
+                                            Message
+                                        </button>
                                     </div>
                                 </div>
-                            ))}
+                            </div>
+                        ))}
                     </div>
                 </div>
+
                 <IncomingRequests />
             </div>
         </>
