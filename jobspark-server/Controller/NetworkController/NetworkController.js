@@ -345,6 +345,10 @@ const getPendintReq = async (req, res) => {
         console.log("To users id ", toUserIds);
         console.log("To users id length", toUserIds.length);
 
+        const r = await UserModel.find({ _id: toUserIds }).select("-password");
+        console.log("Result ", r);
+        console.log("Result length", r.length);
+
         res.status(200).json({
             success: true,
             ids: toUserIds,
@@ -360,5 +364,37 @@ const getPendintReq = async (req, res) => {
     }
 }
 
+// find the information about pending request
+// url - /network/pending-information/:userId
+const pendingDetails = async (req, res) => {
+    try {
+        const { userId } = req.params;
 
-module.exports = { getAIRecommendations, sendConnectionRequest, getIncomingRequests, respondToConnectRequest, testGemini, getRecommendedAIUsers, getPendintReq };
+        // Validate userId
+        if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(400).json({ success: false, message: 'Invalid user ID format.' });
+        }
+
+        // Find all pending connection requests where the current user is the sender
+        const pendingUsers = await ConnectionReqModel.find({ fromUser: userId });
+        const ids = pendingUsers.map(i => i.toUser);
+
+        const result = await UserModel.find({ _id: ids }).select("-password");
+
+        res.status(200).json({
+            success: true,
+            data: result,
+            count: result.length
+        });
+    } catch (error) {
+        console.error("Error in pendingDetails:", error.message);
+        res.status(500).json({
+            success: false,
+            message: "Failed to fetch pending request details.",
+            error: error.message
+        });
+    }
+}
+
+
+module.exports = { getAIRecommendations, sendConnectionRequest, getIncomingRequests, respondToConnectRequest, testGemini, getRecommendedAIUsers, getPendintReq, pendingDetails };

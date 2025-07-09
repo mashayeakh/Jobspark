@@ -1,9 +1,12 @@
-import React, { createContext, useEffect, useState } from 'react'
+import React, { createContext, useContext, useEffect, useState } from 'react'
 import { getMethod, postMethod } from '../Utils/Api';
+import { AuthContext } from './AuthContextProvider';
 
 export const NetworkContext = createContext();
 const NetworkContextProvider = ({ children }) => {
 
+
+    const { user } = useContext(AuthContext);
 
     const [findRecomandatiaon, setFindRecomandatiaon] = useState([]);
 
@@ -32,19 +35,29 @@ const NetworkContextProvider = ({ children }) => {
         return response;
     }
 
-
+    //fetch the detials for pending req
+    const [details, setDetails] = useState([]);
+    const pendingDetials = async (url) => {
+        const response = await getMethod(url);
+        setDetails(response);
+        return response;
+    }
 
 
     useEffect(() => {
+        if (!user?._id) return;
+
         fetchRec();
         sendConnection();
         pending();
-    }, [])
+        pendingDetials();
+    }, [user?._id])
 
     const addInfo = {
         fetchRec,
         sendConnection,
         pending,
+        pendingDetials,
 
         findRecomandatiaon,
         setFindRecomandatiaon,
@@ -52,6 +65,8 @@ const NetworkContextProvider = ({ children }) => {
         setSendReq,
         pendingUser,
         setPendingUser,
+        details,
+        setDetails,
     }
 
     return (

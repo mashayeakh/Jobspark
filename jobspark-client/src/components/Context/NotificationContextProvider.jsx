@@ -46,7 +46,7 @@ const NotificationContextProvider = ({ children }) => {
         }
     };
 
-    
+
     //read the notification
     const markNotificationsRead = async () => {
         if (!role || !id) return;

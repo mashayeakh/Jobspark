@@ -31,6 +31,7 @@ import JobLayout from "../Pages/Jobs/shared/JobLayout/JobLayout"
 import Jobs from "./../Pages/Jobs/Jobs"
 import ShowProfileModal from "../Home/Modal/ShowProfileModal"
 import Profile from "../Pages/Profile/Profile"
+import IncomingRequest from "../Network/IncomingRequest"
 
 
 const router = createBrowserRouter([
@@ -173,6 +174,10 @@ const router = createBrowserRouter([
             {
                 path: '/notification',
                 element: <Notification />
+            },
+            {
+                path: "/incoming-request",
+                element: <IncomingRequest />
             },
         ]
     }

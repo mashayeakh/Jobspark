@@ -1,13 +1,32 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { AuthContext } from './../Context/AuthContextProvider';
-import IncomingRequests from './IncomingRequests';
 import { NetworkContext } from '../Context/NetworkContextProvider';
+import IncomingRequest from './IncomingRequest';
 
 const NetworkLayout = () => {
     const { user } = useContext(AuthContext); // Assuming you store logged-in user here
     const [recommendations, setRecommendations] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+
+    const { pendingDetials } = useContext(NetworkContext);
+
+    const loggedInUserId = user?._id;
+
+    // const [pendingDetails, setPendingDetails] = useState([]);
+
+    // const fetch = async () => {
+    //     const url = `http://localhost:5000/api/v1/network/pending-information/${loggedInUserId}`;
+    //     const data = await pendingDetials(url);
+    //     if (data.success === true) {
+    //         setPendingDetails(data.data);
+    //         console.log("Pending data from fetch", data);
+    //     } else {
+    //         console.error("Error fetching pending details:", data.message);
+    //     }
+    // }
+
+
 
     // Function to fetch recommendations
     const fetchRecommendations = async () => {
@@ -39,11 +58,14 @@ const NetworkLayout = () => {
 
     // Call fetchRecommendations on mount
     useEffect(() => {
+
+        if (!loggedInUserId) return;
         fetchRecommendations();
+        // fetch();
+
     }, [user]);
 
 
-    const loggedInUserId = user?._id;
 
     const { fetchRec, sendConnection, pending } = useContext(NetworkContext);
     const [recommendation, setRecommendation] = useState([]);
@@ -110,13 +132,22 @@ const NetworkLayout = () => {
 
     return (
         <>
+            <div>
+                <IncomingRequest />
+            </div>
             <div className="p-6 bg-gray-50 rounded-xl">
                 <div className="flex justify-between items-center mb-6">
                     <div>
                         <h2 className="text-3xl font-bold text-gray-800">People you may know</h2>
-                        <span className="text-gray-500">Recommendations for you ({recommendation?.data?.length})</span>
+                        <span className="text-gray-500">
+                            Recommendations for you ({recommendation?.data?.length || 0})
+                        </span>
                     </div>
-                    <button className="text-blue-600 hover:text-blue-800 font-medium">
+                    <button
+                        className="text-blue-600 hover:text-blue-800 font-medium"
+                        onClick={handleFetchRecom}
+                        aria-label="See all recommendations"
+                    >
                         See all
                     </button>
                 </div>
@@ -125,6 +156,7 @@ const NetworkLayout = () => {
                 {loading && (
                     <div className="flex justify-center items-center py-12">
                         <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500"></div>
+                        <span className="ml-3 text-blue-600 font-medium">Loading recommendations...</span>
                     </div>
                 )}
 
@@ -143,7 +175,7 @@ const NetworkLayout = () => {
                     </div>
                 )}
 
-                {!loading && !error && recommendations.length === 0 && (
+                {!loading && !error && (recommendation?.data?.length === 0 || !recommendation?.data) && (
                     <div className="text-center py-12 bg-white rounded-lg shadow-sm">
                         <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -151,7 +183,10 @@ const NetworkLayout = () => {
                         <h3 className="mt-2 text-lg font-medium text-gray-900">No recommendations found</h3>
                         <p className="mt-1 text-gray-500">We couldn't find any recommendations for you right now.</p>
                         <div className="mt-6">
-                            <button className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            <button
+                                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                                onClick={handleFetchRecom}
+                            >
                                 Refresh
                             </button>
                         </div>
@@ -164,8 +199,9 @@ const NetworkLayout = () => {
                         {!loading && !error && recommendation?.data?.map((rec) => (
                             <div
                                 key={rec._id}
-                                className="w-full max-w-sm rounded-xl border border-gray-200 bg-white shadow-sm hover:shadow-md transition-shadow duration-300"
+                                className="w-full max-w-sm rounded-xl border border-gray-200 bg-white shadow-sm hover:shadow-md transition-shadow duration-300 relative group"
                             >
+                                {/* Dropdown */}
                                 <div className="flex justify-end px-4 pt-4">
                                     <div className="relative">
                                         <button
@@ -173,6 +209,7 @@ const NetworkLayout = () => {
                                             className="inline-flex items-center rounded-lg p-2 text-sm text-gray-500 hover:bg-gray-100 focus:outline-none"
                                             type="button"
                                             onClick={() => toggleDropdown(rec._id)}
+                                            aria-label="Open options"
                                         >
                                             <svg
                                                 className="h-5 w-5"
@@ -190,16 +227,16 @@ const NetworkLayout = () => {
                                                 <button
                                                     className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
                                                     onClick={() => {
-                                                        console.log("Hide this recommendation:", rec.name);
+                                                        // Optionally implement hide logic
                                                         setActiveDropdown(null);
                                                     }}
                                                 >
-                                                    Ognore
+                                                    Ignore
                                                 </button>
                                                 <button
                                                     className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
                                                     onClick={() => {
-                                                        console.log("Report this profile:", rec.name);
+                                                        // Optionally implement report logic
                                                         setActiveDropdown(null);
                                                     }}
                                                 >
@@ -210,7 +247,7 @@ const NetworkLayout = () => {
                                     </div>
                                 </div>
 
-
+                                {/* Card Content */}
                                 <div className="flex flex-col items-center pb-8 px-4">
                                     <div className="relative mb-4">
                                         <img
@@ -228,21 +265,23 @@ const NetworkLayout = () => {
                                     </h5>
 
                                     <span className="text-sm text-gray-500 mb-2">
-                                        {
-                                            rec?.role === "job_seeker" ? "Job Holder" : "N/A"
-                                        }
+                                        {rec?.role === "job_seeker"
+                                            ? "Job Seeker"
+                                            : rec?.role === "employer"
+                                                ? "Employer"
+                                                : "N/A"}
                                     </span>
 
                                     {rec.mutualConnections > 0 && (
                                         <div className="flex items-center text-sm text-gray-500 mb-4">
                                             <svg className="h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                                <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
+                                                <path d="M9 6a3 3 0 11-6 0 3 3 0 0 1 6 0zM17 6a3 3 0 11-6 0 3 3 0 0 1 6 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 0 0-1.5-4.33A5 5 0 0 1 19 16v1h-6.07zM6 11a5 5 0 0 1 5 5v1H1v-1a5 5 0 0 1 5-5z" />
                                             </svg>
                                             {rec.mutualConnections} mutual connection{rec.mutualConnections !== 1 ? 's' : ''}
                                         </div>
                                     )}
 
-                                    <div className="flex space-x-3 mt-4">
+                                    <div className="flex space-x-3 mt-4 w-full">
                                         {pendingData.includes(rec._id) ? (
                                             <button
                                                 className="flex-1 px-4 py-2 border border-blue-600 text-blue-600 font-medium rounded-lg bg-blue-50 cursor-not-allowed"
@@ -261,18 +300,23 @@ const NetworkLayout = () => {
 
                                         <button
                                             className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors duration-200 cursor-pointer"
-                                            onClick={() => console.log('Message clicked for:', rec.name)}
+                                            onClick={() => alert(`Messaging ${rec.name} is coming soon!`)}
                                         >
                                             Message
                                         </button>
                                     </div>
+                                </div>
+                                {/* Tooltip on hover */}
+                                <div className="absolute left-1/2 -translate-x-1/2 bottom-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                                    <span className="bg-gray-800 text-white text-xs rounded py-1 px-2">
+                                        {rec.email}
+                                    </span>
                                 </div>
                             </div>
                         ))}
                     </div>
                 </div>
 
-                <IncomingRequests />
             </div>
         </>
     )
