@@ -22,7 +22,7 @@ export async function postMethod(url, data) {
 }
 
 export async function patchMethod(url, data) {
-    console.log("Sending POST to:", url);
+    console.log("Sending Patch to:", url);
     console.log("Payload:", data);
 
     try {

@@ -331,29 +331,24 @@ const getPendintReq = async (req, res) => {
         const { userId } = req.params;
         console.log("USER ID ", userId);
 
-        // Validate userId
         if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
             return res.status(400).json({ success: false, message: 'Invalid user ID format.' });
         }
 
-        const pendingUsers = await ConnectionReqModel.find({ fromUser: userId });
-        console.log("Pending users : ", pendingUsers);
-        console.log("Pending users length: ", pendingUsers.length);
+        // ✅ Only fetch pending requests
+        const pendingUsers = await ConnectionReqModel.find({
+            fromUser: userId,
+            status: "pending"
+        });
 
-        const toUserIds = pendingUsers.map(id => id.toUser.toString());
-
-        console.log("To users id ", toUserIds);
-        console.log("To users id length", toUserIds.length);
-
-        const r = await UserModel.find({ _id: toUserIds }).select("-password");
-        console.log("Result ", r);
-        console.log("Result length", r.length);
+        const toUserIds = pendingUsers.map(req => req.toUser.toString());
 
         res.status(200).json({
             success: true,
             ids: toUserIds,
             count: toUserIds.length
         });
+
     } catch (error) {
         console.error("Error in getPendintReq:", error.message);
         res.status(500).json({
@@ -364,27 +359,80 @@ const getPendintReq = async (req, res) => {
     }
 }
 
+
 // find the information about pending request
 // url - /network/pending-information/:userId
+// const pendingDetails = async (req, res) => {
+//     try {
+//         const { userId } = req.params;
+
+//         // Validate userId
+//         if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+//             return res.status(400).json({ success: false, message: 'Invalid user ID format.' });
+//         }
+
+//         // Find all pending connection requests where the current user is the sender
+//         const pendingUsers = await ConnectionReqModel.find(
+//             {
+//                 fromUser: userId,
+//                 status: "pending"
+//             }
+//         );
+//         const ids = pendingUsers.map(i => i.toUser);
+
+//         const result = await UserModel.find({ _id: ids }).select("-password");
+
+//         res.status(200).json({
+//             success: true,
+//             data: result,
+//             count: result.length
+//         });
+//     } catch (error) {
+//         console.error("Error in pendingDetails:", error.message);
+//         res.status(500).json({
+//             success: false,
+//             message: "Failed to fetch pending request details.",
+//             error: error.message
+//         });
+//     }
+// }
+
 const pendingDetails = async (req, res) => {
     try {
         const { userId } = req.params;
 
-        // Validate userId
         if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
             return res.status(400).json({ success: false, message: 'Invalid user ID format.' });
         }
 
-        // Find all pending connection requests where the current user is the sender
-        const pendingUsers = await ConnectionReqModel.find({ fromUser: userId });
-        const ids = pendingUsers.map(i => i.toUser);
+        // Get all pending connection requests from the user
+        const pendingRequests = await ConnectionReqModel.find({
+            fromUser: userId,
+            status: "pending"
+        });
 
-        const result = await UserModel.find({ _id: ids }).select("-password");
+        // Extract all toUser IDs
+        const toUserIds = pendingRequests.map(req => req.toUser);
+
+        // Fetch all users who are the target of those connection requests
+        const users = await UserModel.find({ _id: { $in: toUserIds } }).select("-password");
+
+        // Combine user info with connectionRequestId from pendingRequests
+        const combined = users.map(user => {
+            // Find the matching connection request for this user
+            const connectionReq = pendingRequests.find(req => req.toUser.toString() === user._id.toString());
+
+            return {
+                ...user.toObject(),
+                connectionRequestId: connectionReq?._id.toString(),
+                status: connectionReq?.status || 'pending'
+            };
+        });
 
         res.status(200).json({
             success: true,
-            data: result,
-            count: result.length
+            data: combined,
+            count: combined.length
         });
     } catch (error) {
         console.error("Error in pendingDetails:", error.message);
@@ -394,7 +442,47 @@ const pendingDetails = async (req, res) => {
             error: error.message
         });
     }
-}
+};
 
 
-module.exports = { getAIRecommendations, sendConnectionRequest, getIncomingRequests, respondToConnectRequest, testGemini, getRecommendedAIUsers, getPendintReq, pendingDetails };
+// patch - update-status/:docId
+const updateStatus = async (req, res) => {
+    const { docId } = req.params;
+    const { status } = req.body;
+
+    if (!["accepted", "rejected"].includes(status)) {
+        return res.status(400).json({ success: false, message: "Invalid status" });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(docId)) {
+        return res.status(400).json({ success: false, message: "Invalid document ID" });
+    }
+
+    try {
+        const doc = await ConnectionReqModel.findById(docId);
+
+        if (!doc) {
+            return res.status(404).json({ success: false, message: "Connection request not found" });
+        }
+
+        doc.status = status;
+        await doc.save();
+
+        res.status(200).json({
+            success: true,
+            message: `Status updated to ${status}`,
+            data: { _id: doc._id, status: doc.status }
+        });
+    } catch (err) {
+        console.error("Error updating status:", err.message);
+        res.status(500).json({ success: false, message: "Server error", error: err.message });
+    }
+};
+
+
+
+
+
+module.exports = {
+    getAIRecommendations, sendConnectionRequest, getIncomingRequests, respondToConnectRequest, testGemini, getRecommendedAIUsers, getPendintReq, pendingDetails, updateStatus
+};

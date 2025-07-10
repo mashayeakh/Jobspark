@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { useContext, useEffect } from 'react'
 import { IoIosArrowDown } from 'react-icons/io'
 import { NetworkContext } from './../Context/NetworkContextProvider';
 import { Link } from 'react-router';
@@ -8,6 +8,9 @@ const NetworkSideBar = () => {
     const { pendingUser } = useContext(NetworkContext);
 
     console.log("pending from sidebar", pendingUser.count);
+    useEffect(() => {
+        console.log("Sidebar count updated:", pendingUser.count);
+    }, [pendingUser.count]);
 
     return (
         <>
@@ -52,29 +55,39 @@ const NetworkSideBar = () => {
 
                                 {/* Main card with more pronounced animation */}
 
-                                <div className={`relative flex items-center justify-between p-5 bg-amber-50 rounded-lg border ${pendingUser.count > 0
-                                    ? 'border-amber-300 shadow-lg animate-[gentleBounce_2s_ease-in-out_infinite]'
-                                    : 'border-amber-100 hover:border-amber-200'
-                                    } transition-all`}>
+                                <div
+                                    className={`relative flex items-center justify-between p-5 bg-amber-50 rounded-lg border transition-all
+    ${pendingUser.count > 0
+                                            ? 'border-amber-300 shadow-lg animate-[gentleBounce_2s_ease-in-out_infinite]'
+                                            : 'border-amber-100 hover:border-amber-200'
+                                        }`}
+                                >
                                     <div className="flex items-center space-x-4">
-                                        {/* Animated icon container */}
-                                        <div className={`p-3 rounded-full shadow-sm ${pendingUser.count > 0
-                                            ? 'bg-amber-100 ring-2 ring-amber-400 animate-[iconPulse_1.5s_ease-in-out_infinite]'
-                                            : 'bg-white ring-1 ring-amber-200'
-                                            }`}>
+                                        {/* Icon with conditional heartbeat effect */}
+                                        <div
+                                            className={`p-3 rounded-full shadow-sm
+        ${pendingUser.count > 0
+                                                    ? 'bg-amber-100 ring-2 ring-amber-400 animate-[iconPulse_1.5s_ease-in-out_infinite]'
+                                                    : 'bg-white ring-1 ring-amber-200'
+                                                }`}
+                                        >
                                             <span className="text-2xl">⏳</span>
                                         </div>
                                         <span className="text-xl font-medium text-gray-700">Pending Requests</span>
                                     </div>
 
-                                    {/* Animated counter */}
-                                    <span className={`text-2xl font-bold ${pendingUser.count > 0
-                                        ? 'text-amber-700 animate-[counterPulse_1s_ease-in-out_infinite]'
-                                        : 'text-amber-600'
-                                        }`}>
+                                    {/* Count with pulse animation if pending > 0 */}
+                                    <span
+                                        className={`text-2xl font-bold
+      ${pendingUser.count > 0
+                                                ? 'text-amber-700 animate-[counterPulse_1s_ease-in-out_infinite]'
+                                                : 'text-amber-600'
+                                            }`}
+                                    >
                                         {pendingUser.count}
                                     </span>
                                 </div>
+
                             </div>
 
                             {/* Companies Followed Card */}

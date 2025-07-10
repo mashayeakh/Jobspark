@@ -5,7 +5,7 @@ import { NetworkContext } from '../Context/NetworkContextProvider';
 import { AuthContext } from '../Context/AuthContextProvider';
 
 const IncomingRequest = () => {
-    const { details, pendingDetials } = useContext(NetworkContext);
+    const { details, pendingDetials, statusChange, pending } = useContext(NetworkContext);
     const { user } = useContext(AuthContext);
     const loggedInUserId = user?._id;
 
@@ -21,7 +21,12 @@ const IncomingRequest = () => {
         const data = await pendingDetials(url);
         if (data.success === true) {
             // Add "status: pending" manually so filtering works
-            const withStatus = data.data.map(r => ({ ...r, status: 'pending' }));
+            const withStatus = data.data.map(r => ({
+                ...r,
+                status: r.status || 'pending',  // keep status if exists, fallback 'pending'
+                connectionRequestId: r.connectionRequestId  // preserve connectionRequestId here
+            }));
+            console.log("WITH STATUS", withStatus);
             setRequests(withStatus);
         } else {
             console.error("Error fetching pending details:", data.message);
@@ -33,16 +38,48 @@ const IncomingRequest = () => {
         fetch();
     }, [loggedInUserId]);
 
-    // Accept or Decline action
-    const handleAction = (id, action) => {
+    // Accept or Reject action
+    // const handleAction = async (connectionRequestId, action) => {
+    //     setIsLoading(true);
+    //     const url = `http://localhost:5000/api/v1/network/update-status/${connectionRequestId}`;
+    //     const payload = { status: action };
+
+    //     try {
+    //         const result = await statusChange(url, payload);
+    //         if (result.success) {
+    //             setRequests(prev => prev.filter(req => req.connectionRequestId !== connectionRequestId));
+    //         } else {
+    //             console.error("Failed to update:", result.message);
+    //         }
+    //     } catch (err) {
+    //         console.error("Error updating status:", err.message);
+    //     } finally {
+    //         setIsLoading(false);
+    //     }
+    // };
+
+    const handleAction = async (connectionRequestId, action) => {
         setIsLoading(true);
-        setTimeout(() => {
-            const updated = requests.map(request =>
-                request._id === id ? { ...request, status: action } : request
-            );
-            setRequests(updated);
+        const url = `http://localhost:5000/api/v1/network/update-status/${connectionRequestId}`;
+        const payload = { status: action };
+
+        try {
+            const result = await statusChange(url, payload);
+            if (result.success) {
+                // Remove it visually
+                setRequests(prev => prev.filter(req => req.connectionRequestId !== connectionRequestId));
+
+                // ✅ Re-fetch to update context count
+                const pendingUrl = `http://localhost:5000/api/v1/network/pending-information/${loggedInUserId}`;
+                await pending(pendingUrl); // <- this updates pendingUser in context
+            } else {
+                console.error("Failed to update:", result.message);
+            }
+        } catch (err) {
+            console.error("Error updating status:", err.message);
+        } finally {
             setIsLoading(false);
-        }, 500);
+        }
     };
 
     // Filtering + Sorting
@@ -78,6 +115,8 @@ const IncomingRequest = () => {
             transition: { duration: 0.2 }
         }
     };
+
+    console.log("REQUEST ----", requests);
 
     return (
         <div className="h-auto bg-gradient-to-br from-gray-50 to-gray-100 py-8 px-4 sm:px-6 lg:px-8">
@@ -195,7 +234,7 @@ const IncomingRequest = () => {
 
                                                 <div className="mt-5 flex space-x-3">
                                                     <button
-                                                        onClick={() => handleAction(request._id, "accepted")}
+                                                        onClick={() => handleAction(request?.connectionRequestId, "accepted")}
                                                         disabled={isLoading}
                                                         className="inline-flex items-center px-4 py-2 border border-transparent text-sm leading-4 font-medium rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-150 disabled:opacity-70 disabled:cursor-not-allowed"
                                                     >
@@ -209,15 +248,18 @@ const IncomingRequest = () => {
                                                         )}
                                                         Accept
                                                     </button>
+
                                                     <button
-                                                        onClick={() => handleAction(request._id, "declined")}
+                                                        onClick={() => handleAction(request?.connectionRequestId, "rejected")}
+
                                                         disabled={isLoading}
                                                         className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm leading-4 font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-150 disabled:opacity-70 disabled:cursor-not-allowed"
                                                     >
                                                         <FiX className="mr-2" />
-                                                        Decline
+                                                        Reject
                                                     </button>
                                                 </div>
+
                                             </div>
                                         </div>
                                     </div>

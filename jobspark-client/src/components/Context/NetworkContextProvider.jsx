@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
-import { getMethod, postMethod } from '../Utils/Api';
+import { getMethod, patchMethod, postMethod } from '../Utils/Api';
 import { AuthContext } from './AuthContextProvider';
 
 export const NetworkContext = createContext();
@@ -14,7 +14,6 @@ const NetworkContextProvider = ({ children }) => {
     const fetchRec = async (url) => {
         const resposne = await getMethod(url);
         setFindRecomandatiaon(resposne);
-        console.log("Response fropm Network ", resposne);
         return resposne
     }
 
@@ -39,10 +38,25 @@ const NetworkContextProvider = ({ children }) => {
     const [details, setDetails] = useState([]);
     const pendingDetials = async (url) => {
         const response = await getMethod(url);
-        setDetails(response);
-        return response;
-    }
 
+        // Update both pending request details and count
+        if (response.success) {
+            setDetails(response); // existing list of full users
+            setPendingUser({ count: response.count }); // ✅ update count for sidebar
+        }
+
+        return response;
+    };
+
+
+    //convert pending req into accpeted/rejected
+    const [status, setStatus] = useState([]);
+    const statusChange = async (url, data) => {
+        const res = await patchMethod(url, data);
+        console.log("RES to ", res);
+        setStatus(res);
+        return res;
+    }
 
     useEffect(() => {
         if (!user?._id) return;
@@ -51,6 +65,7 @@ const NetworkContextProvider = ({ children }) => {
         sendConnection();
         pending();
         pendingDetials();
+        statusChange();
     }, [user?._id])
 
     const addInfo = {
@@ -58,6 +73,7 @@ const NetworkContextProvider = ({ children }) => {
         sendConnection,
         pending,
         pendingDetials,
+        statusChange,
 
         findRecomandatiaon,
         setFindRecomandatiaon,
@@ -67,6 +83,8 @@ const NetworkContextProvider = ({ children }) => {
         setPendingUser,
         details,
         setDetails,
+        status,
+        setStatus,
     }
 
     return (
