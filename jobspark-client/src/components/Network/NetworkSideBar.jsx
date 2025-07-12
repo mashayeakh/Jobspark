@@ -5,13 +5,14 @@ import { Link } from 'react-router';
 
 const NetworkSideBar = () => {
 
-    const { pendingUser } = useContext(NetworkContext);
+    const { pendingUser, accepted } = useContext(NetworkContext);
 
     console.log("pending from sidebar", pendingUser.count);
+    console.log("count", accepted.count);
     useEffect(() => {
         console.log("Sidebar count updated:", pendingUser.count);
     }, [pendingUser.count]);
-
+    1
     return (
         <>
             <div className="max-w-4xl mx-auto">
@@ -39,7 +40,7 @@ const NetworkSideBar = () => {
                                         <span className="text-xl font-medium text-gray-700">Total Connections</span>
                                     </div>
                                     <span className="text-2xl font-bold text-blue-600 [text-shadow:_0_0_10px_rgba(59,130,246,0.3)]">
-                                        {32}
+                                        {accepted.count}
                                     </span>
                                 </div>
                             </div>

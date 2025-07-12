@@ -262,7 +262,8 @@ const getRecommendedAIUsers = async (req, res) => {
         const preferredLocation = jobSeekerProfile?.preferredLocations?.[0];
         const university = jobSeekerProfile?.university;
 
-        const recommendations = await UserModel.find({
+        // Step 1: Get recommended users
+        const recommendedUsers = await UserModel.find({
             isGeneratedByAI: true,
             _id: { $ne: userId },
             $or: [
@@ -272,58 +273,101 @@ const getRecommendedAIUsers = async (req, res) => {
             ]
         }).limit(20);
 
-        console.log("Matched AI users count:", recommendations.length);
+        // Step 2: Get all connection requests involving the user
+        const recommendedUserIds = recommendedUsers.map(u => u._id);
+        const connections = await ConnectionReqModel.find({
+            $or: [
+                { fromUser: userId, toUser: { $in: recommendedUserIds } },
+                { fromUser: { $in: recommendedUserIds }, toUser: userId }
+            ]
+        });
+
+        // Step 3: Map status to each recommended user
+        const data = recommendedUsers.map(user => {
+            const connection = connections.find(conn =>
+                (conn.fromUser.toString() === userId && conn.toUser.toString() === user._id.toString()) ||
+                (conn.toUser.toString() === userId && conn.fromUser.toString() === user._id.toString())
+            );
+
+            return {
+                ...user.toObject(),
+                connectionStatus: connection?.status || null
+            };
+        });
 
         return res.status(200).json({
-            message: "Recommended AI users",
+            message: "Recommended AI users with connection status",
             success: true,
-            data: recommendations,
+            data
         });
+
     } catch (error) {
         console.error("Error in getRecommendedAIUsers:", error);
         return res.status(500).json({ error: "Server error" });
     }
 };
 
+
 //sending req
 
 const sendConnectionRequest = async (req, res) => {
-    const { fromUserId, toUserId } = req.body;
-    console.log("FromUserId and ToUserId", fromUserId, toUserId);
-
-    //cant send req to self
-    if (fromUserId === toUserId) {
-        return res.status(400).json({ success: false, message: 'Cannot connect with yourself.' });
-    }
-
-    // Convert string IDs to ObjectId
-    let fromUserObjId, toUserObjId;
     try {
-        fromUserObjId = new mongoose.Types.ObjectId(fromUserId);
-        toUserObjId = new mongoose.Types.ObjectId(toUserId);
-    } catch (err) {
-        return res.status(400).json({ success: false, message: 'Invalid user ID format.' });
-    }
+        const { fromUserId, toUserId } = req.body;
 
-    //check if req exists already
-    const existing = await connectionRequest.findOne({ fromUser: fromUserObjId, toUser: toUserObjId });
-    if (existing) {
-        return res.status(400).json({ success: false, message: 'Connection request already sent.' });
-    }
+        console.log("FromUserId and ToUserId", fromUserId, toUserId);
 
-    const newConnection = new connectionRequest({
-        fromUser: fromUserObjId,
-        toUser: toUserObjId
-    })
+        // 🔒 Cannot connect with self
+        if (fromUserId === toUserId) {
+            return res.status(400).json({ success: false, message: 'Cannot connect with yourself.' });
+        }
 
-    await newConnection.save();
-    console.log("Connection Request Sent");
+        // 🧪 Validate IDs
+        let fromUserObjId, toUserObjId;
+        try {
+            fromUserObjId = new mongoose.Types.ObjectId(fromUserId);
+            toUserObjId = new mongoose.Types.ObjectId(toUserId);
+        } catch (err) {
+            return res.status(400).json({ success: false, message: 'Invalid user ID format.' });
+        }
 
-    return res.status(201).json(
-        {
-            success: true, message: 'Connection request sent.'
+        // 🔁 Check if a request already exists
+        const existing = await connectionRequest.findOne({
+            fromUser: fromUserObjId,
+            toUser: toUserObjId
         });
-}
+
+        if (existing) {
+            return res.status(400).json({
+                success: false,
+                message: 'Connection request already sent.'
+            });
+        }
+
+        // 💾 Save new request
+        const newConnection = new connectionRequest({
+            fromUser: fromUserObjId,
+            toUser: toUserObjId,
+            status: 'pending' // optional, depends on your schema default
+        });
+
+        await newConnection.save();
+        console.log("✅ Connection Request Sent");
+
+        return res.status(201).json({
+            success: true,
+            message: 'Connection request sent.'
+        });
+
+    } catch (error) {
+        console.error("❌ Error sending connection request:", error);
+        return res.status(500).json({
+            success: false,
+            message: 'Failed to send connection request.',
+            error: error.message
+        });
+    }
+};
+
 
 //get the pending ids
 const getPendintReq = async (req, res) => {
@@ -405,23 +449,21 @@ const pendingDetails = async (req, res) => {
             return res.status(400).json({ success: false, message: 'Invalid user ID format.' });
         }
 
-        // Get all pending connection requests from the user
+        // ✅ Fetch pending requests sent TO the current user
         const pendingRequests = await ConnectionReqModel.find({
-            fromUser: userId,
+            toUser: userId,
             status: "pending"
         });
 
-        // Extract all toUser IDs
-        const toUserIds = pendingRequests.map(req => req.toUser);
+        // ✅ Extract all fromUser IDs (senders)
+        const fromUserIds = pendingRequests.map(req => req.fromUser);
 
-        // Fetch all users who are the target of those connection requests
-        const users = await UserModel.find({ _id: { $in: toUserIds } }).select("-password");
+        // ✅ Get user data of those who sent the request
+        const users = await UserModel.find({ _id: { $in: fromUserIds } }).select("-password");
 
-        // Combine user info with connectionRequestId from pendingRequests
+        // ✅ Attach connectionRequestId and status to each user
         const combined = users.map(user => {
-            // Find the matching connection request for this user
-            const connectionReq = pendingRequests.find(req => req.toUser.toString() === user._id.toString());
-
+            const connectionReq = pendingRequests.find(req => req.fromUser.toString() === user._id.toString());
             return {
                 ...user.toObject(),
                 connectionRequestId: connectionReq?._id.toString(),
@@ -443,7 +485,6 @@ const pendingDetails = async (req, res) => {
         });
     }
 };
-
 
 // patch - update-status/:docId
 const updateStatus = async (req, res) => {
@@ -479,46 +520,9 @@ const updateStatus = async (req, res) => {
     }
 };
 
-//req - get -> accepted-users/:userId
-//get all the accepted requests of a specific user
-// GET /accepted-users/:userId
-const getAcceptedRequest = async (req, res) => {
-    try {
-        const { userId } = req.params;
-        console.log("User Id = ", userId);
 
-        if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
-            return res.status(400).json({ success: false, message: 'Invalid user ID format.' });
-        }
-
-        // Get accepted connections sent by this user
-        const acceptedConnections = await ConnectionReqModel.find({
-            fromUser: userId,
-            status: "accepted"
-        });
-
-        // Extract toUser IDs
-        const toUserIds = acceptedConnections.map(conn => conn.toUser);
-
-        // Fetch user info
-        const users = await UserModel.find({ _id: { $in: toUserIds } }).select("-password");
-
-        res.status(200).json({
-            success: true,
-            data: users,
-            count: users.length
-        });
-    } catch (error) {
-        console.error("Error in getAcceptedRequest:", error.message);
-        res.status(500).json({
-            success: false,
-            message: "Failed to fetch accepted requests.",
-            error: error.message
-        });
-    }
-}
 
 
 module.exports = {
-    getAIRecommendations, sendConnectionRequest, getIncomingRequests, respondToConnectRequest, testGemini, getRecommendedAIUsers, getPendintReq, pendingDetails, updateStatus, getAcceptedRequest,
+    getAIRecommendations, sendConnectionRequest, getIncomingRequests, respondToConnectRequest, testGemini, getRecommendedAIUsers, getPendintReq, pendingDetails, updateStatus,
 };

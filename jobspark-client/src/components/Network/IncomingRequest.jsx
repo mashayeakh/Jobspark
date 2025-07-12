@@ -5,7 +5,7 @@ import { NetworkContext } from '../Context/NetworkContextProvider';
 import { AuthContext } from '../Context/AuthContextProvider';
 
 const IncomingRequest = () => {
-    const { details, pendingDetials, statusChange, pending } = useContext(NetworkContext);
+    const { pendingDetials, statusChange, pending } = useContext(NetworkContext);
     const { user } = useContext(AuthContext);
     const loggedInUserId = user?._id;
 
@@ -15,48 +15,28 @@ const IncomingRequest = () => {
     const [sortBy, setSortBy] = useState('Most Recent');
     const [isLoading, setIsLoading] = useState(false);
 
-    // Fetch request data
     const fetch = async () => {
         const url = `http://localhost:5000/api/v1/network/pending-information/${loggedInUserId}`;
+        console.log("Fetching pending requests from", url);
         const data = await pendingDetials(url);
+
         if (data.success === true) {
-            // Add "status: pending" manually so filtering works
-            const withStatus = data.data.map(r => ({
-                ...r,
-                status: r.status || 'pending',  // keep status if exists, fallback 'pending'
-                connectionRequestId: r.connectionRequestId  // preserve connectionRequestId here
+            const withStatus = data.data.map(req => ({
+                ...req,
+                connectionRequestId: req.connectionRequestId || req._id,
+                status: req.status || 'pending',
             }));
-            console.log("WITH STATUS", withStatus);
             setRequests(withStatus);
         } else {
-            console.error("Error fetching pending details:", data.message);
+            console.error("Error fetching incoming requests:", data.message);
         }
     };
+
 
     useEffect(() => {
         if (!loggedInUserId) return;
         fetch();
     }, [loggedInUserId]);
-
-    // Accept or Reject action
-    // const handleAction = async (connectionRequestId, action) => {
-    //     setIsLoading(true);
-    //     const url = `http://localhost:5000/api/v1/network/update-status/${connectionRequestId}`;
-    //     const payload = { status: action };
-
-    //     try {
-    //         const result = await statusChange(url, payload);
-    //         if (result.success) {
-    //             setRequests(prev => prev.filter(req => req.connectionRequestId !== connectionRequestId));
-    //         } else {
-    //             console.error("Failed to update:", result.message);
-    //         }
-    //     } catch (err) {
-    //         console.error("Error updating status:", err.message);
-    //     } finally {
-    //         setIsLoading(false);
-    //     }
-    // };
 
     const handleAction = async (connectionRequestId, action) => {
         setIsLoading(true);
@@ -66,12 +46,9 @@ const IncomingRequest = () => {
         try {
             const result = await statusChange(url, payload);
             if (result.success) {
-                // Remove it visually
                 setRequests(prev => prev.filter(req => req.connectionRequestId !== connectionRequestId));
-
-                // ✅ Re-fetch to update context count
-                const pendingUrl = `http://localhost:5000/api/v1/network/pending-information/${loggedInUserId}`;
-                await pending(pendingUrl); // <- this updates pendingUser in context
+                const pendingUrl = `http://localhost:5000/api/v1/network/incoming-requests/${loggedInUserId}`;
+                await pending(pendingUrl); // Refresh global count/context
             } else {
                 console.error("Failed to update:", result.message);
             }
@@ -82,21 +59,16 @@ const IncomingRequest = () => {
         }
     };
 
-    // Filtering + Sorting
     const filteredRequests = requests
         .filter(r => r.status === 'pending')
         .filter(r =>
-            r.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            r.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             r.jobSeekerProfile?.roles?.toLowerCase().includes(searchTerm.toLowerCase())
         )
         .sort((a, b) => {
-            if (sortBy === 'Most Recent') {
-                return new Date(b.lastSignInTime || 0) - new Date(a.lastSignInTime || 0);
-            } else if (sortBy === 'Name') {
-                return a.name.localeCompare(b.name);
-            } else if (sortBy === 'Oldest') {
-                return new Date(a.lastSignInTime || 0) - new Date(b.lastSignInTime || 0);
-            }
+            if (sortBy === 'Most Recent') return new Date(b.lastSignInTime || 0) - new Date(a.lastSignInTime || 0);
+            if (sortBy === 'Name') return a.name.localeCompare(b.name);
+            if (sortBy === 'Oldest') return new Date(a.lastSignInTime || 0) - new Date(b.lastSignInTime || 0);
             return 0;
         });
 
@@ -104,19 +76,9 @@ const IncomingRequest = () => {
 
     const itemVariants = {
         hidden: { opacity: 0, y: 20 },
-        visible: {
-            opacity: 1,
-            y: 0,
-            transition: { duration: 0.3, ease: "easeOut" }
-        },
-        exit: {
-            opacity: 0,
-            x: -50,
-            transition: { duration: 0.2 }
-        }
+        visible: { opacity: 1, y: 0, transition: { duration: 0.3, ease: "easeOut" } },
+        exit: { opacity: 0, x: -50, transition: { duration: 0.2 } }
     };
-
-    console.log("REQUEST ----", requests);
 
     return (
         <div className="h-auto bg-gradient-to-br from-gray-50 to-gray-100 py-8 px-4 sm:px-6 lg:px-8">
@@ -155,7 +117,7 @@ const IncomingRequest = () => {
                 <div className="flex justify-between items-center mb-6">
                     <div className="text-sm font-medium text-gray-700">
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                            {details.count}
+                            {filteredRequests.length}
                         </span>
                         <span className="ml-2">pending request{filteredRequests.length !== 1 ? 's' : ''}</span>
                     </div>
@@ -163,10 +125,10 @@ const IncomingRequest = () => {
                     <div className="relative">
                         <button
                             onClick={() => setSortOpen(!sortOpen)}
-                            className="inline-flex items-center px-4 py-2 border border-gray-200 shadow-sm text-sm leading-4 font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-150"
+                            className="inline-flex items-center px-4 py-2 border border-gray-200 shadow-sm text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50"
                         >
                             Sort by: {sortBy}
-                            <FiChevronDown className={`ml-2 transition-transform ${sortOpen ? 'transform rotate-180' : ''}`} />
+                            <FiChevronDown className={`ml-2 transition-transform ${sortOpen ? 'rotate-180' : ''}`} />
                         </button>
 
                         <AnimatePresence>
@@ -204,7 +166,7 @@ const IncomingRequest = () => {
                             filteredRequests.map(request => (
                                 <motion.div
                                     key={request._id}
-                                    className="bg-white overflow-hidden shadow rounded-xl transition-all hover:shadow-md"
+                                    className="bg-white overflow-hidden shadow rounded-xl"
                                     variants={itemVariants}
                                     initial="hidden"
                                     animate="visible"
@@ -213,14 +175,14 @@ const IncomingRequest = () => {
                                 >
                                     <div className="px-5 py-6 sm:p-6">
                                         <div className="flex items-start">
-                                            <div className="flex-shrink-0 bg-blue-500 rounded-full h-12 w-12 flex items-center justify-center text-white font-bold text-xl shadow-inner">
+                                            <div className="flex-shrink-0 bg-blue-500 rounded-full h-12 w-12 flex items-center justify-center text-white font-bold text-xl">
                                                 {request.name?.charAt(0)}
                                             </div>
                                             <div className="ml-4 flex-1">
                                                 <div className="flex items-center justify-between">
                                                     <div>
-                                                        <h3 className="text-lg leading-6 font-semibold text-gray-900">{request.name}</h3>
-                                                        <p className="text-sm text-gray-500 mt-1">{request.jobSeekerProfile?.roles}</p>
+                                                        <h3 className="text-lg font-semibold text-gray-900">{request.name}</h3>
+                                                        <p className="text-sm text-gray-500">{request.jobSeekerProfile?.roles}</p>
                                                     </div>
                                                     <span className="inline-flex items-center text-xs text-gray-500 bg-gray-50 px-2 py-1 rounded-full">
                                                         <FiClock className="mr-1" size={12} />
@@ -234,14 +196,14 @@ const IncomingRequest = () => {
 
                                                 <div className="mt-5 flex space-x-3">
                                                     <button
-                                                        onClick={() => handleAction(request?.connectionRequestId, "accepted")}
+                                                        onClick={() => handleAction(request.connectionRequestId, "accepted")}
                                                         disabled={isLoading}
-                                                        className="inline-flex items-center px-4 py-2 border border-transparent text-sm leading-4 font-medium rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-150 disabled:opacity-70 disabled:cursor-not-allowed"
+                                                        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                                                     >
                                                         {isLoading ? (
-                                                            <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                            <svg className="animate-spin h-4 w-4 mr-2" viewBox="0 0 24 24" fill="none">
+                                                                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" className="opacity-25" />
+                                                                <path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" className="opacity-75" />
                                                             </svg>
                                                         ) : (
                                                             <FiCheck className="mr-2" />
@@ -250,10 +212,9 @@ const IncomingRequest = () => {
                                                     </button>
 
                                                     <button
-                                                        onClick={() => handleAction(request?.connectionRequestId, "rejected")}
-
+                                                        onClick={() => handleAction(request.connectionRequestId, "rejected")}
                                                         disabled={isLoading}
-                                                        className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm leading-4 font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-150 disabled:opacity-70 disabled:cursor-not-allowed"
+                                                        className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50"
                                                     >
                                                         <FiX className="mr-2" />
                                                         Reject
