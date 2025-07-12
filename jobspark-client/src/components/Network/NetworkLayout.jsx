@@ -9,10 +9,11 @@ const NetworkLayout = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    const { pendingDetials } = useContext(NetworkContext);
+    const [acceptedConnections, setAcceptedConnections] = useState([]);
+
+    const { pendingDetials, fetchAcceptedInfo } = useContext(NetworkContext);
 
     const loggedInUserId = user?._id;
-
     // const [pendingDetails, setPendingDetails] = useState([]);
 
     // const fetch = async () => {
@@ -56,11 +57,26 @@ const NetworkLayout = () => {
         }
     };
 
+
+    const [info, setInfo] = useState([]);
+    const getAcceptedInfo = async () => {
+        const url = `http://localhost:5000/api/v1/network/accepted-users/${loggedInUserId}`;
+        const res = await fetchAcceptedInfo(url);
+        if (res.success === true) {
+            setInfo(res);
+            console.log("FETCH ", res);
+        } else {
+            console.error("Error fetching accepted users:", res.message);
+        }
+    }
+
+
     // Call fetchRecommendations on mount
     useEffect(() => {
 
         if (!loggedInUserId) return;
         fetchRecommendations();
+        getAcceptedInfo()
         // fetch();
 
     }, [user]);
@@ -72,6 +88,8 @@ const NetworkLayout = () => {
 
     const handleFetchRecom = async () => {
         const url = `http://localhost:5000/api/v1/network/recommendations/ai-users/${loggedInUserId}`
+        // const url = `http://localhost:5000/api/v1/network/accepted-connections/${loggedInUserId}`;
+
         console.log("Hitting into = ", url);
         const response = await fetchRec(url);
         setRecommendation(response);
@@ -121,6 +139,8 @@ const NetworkLayout = () => {
             console.log("Pending data ", pendingData);
         }
     }
+
+
 
     useEffect(() => {
         if (!fromUserId) return;
@@ -282,7 +302,14 @@ const NetworkLayout = () => {
                                     )}
 
                                     <div className="flex space-x-3 mt-4 w-full">
-                                        {pendingData.includes(rec._id) ? (
+                                        {info?.data.some(user => user._id === rec._id) ? (
+                                            <button
+                                                className="flex-1 px-4 py-2 bg-green-100 text-green-700 font-medium rounded-lg border border-green-600 cursor-not-allowed"
+                                                disabled
+                                            >
+                                                Accepted
+                                            </button>
+                                        ) : pendingData.includes(rec._id) ? (
                                             <button
                                                 className="flex-1 px-4 py-2 border border-blue-600 text-blue-600 font-medium rounded-lg bg-blue-50 cursor-not-allowed"
                                                 disabled
@@ -305,6 +332,7 @@ const NetworkLayout = () => {
                                             Message
                                         </button>
                                     </div>
+
                                 </div>
                                 {/* Tooltip on hover */}
                                 <div className="absolute left-1/2 -translate-x-1/2 bottom-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">

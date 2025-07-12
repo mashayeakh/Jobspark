@@ -58,6 +58,15 @@ const NetworkContextProvider = ({ children }) => {
         return res;
     }
 
+
+    //get accepted users info
+    const [accepted, setAccepted] = useState([]);
+    const fetchAcceptedInfo = async (url) => {
+        const res = await getMethod(url);
+        setAccepted(res);
+        return (res);
+    }
+
     useEffect(() => {
         if (!user?._id) return;
 
@@ -66,6 +75,7 @@ const NetworkContextProvider = ({ children }) => {
         pending();
         pendingDetials();
         statusChange();
+        fetchAcceptedInfo();
     }, [user?._id])
 
     const addInfo = {
@@ -74,6 +84,7 @@ const NetworkContextProvider = ({ children }) => {
         pending,
         pendingDetials,
         statusChange,
+        fetchAcceptedInfo,
 
         findRecomandatiaon,
         setFindRecomandatiaon,
@@ -85,6 +96,8 @@ const NetworkContextProvider = ({ children }) => {
         setDetails,
         status,
         setStatus,
+        accepted,
+        setAccepted,
     }
 
     return (

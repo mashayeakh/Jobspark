@@ -1,5 +1,5 @@
 const express = require("express");
-const { getAIRecommendations, sendConnectionRequest, getIncomingRequests, respondToConnectRequest, testGemini, getRecommendedAIUsers, getPendintReq, pendingDetails, updateStatus } = require("../../Controller/NetworkController/NetworkController");
+const { getAIRecommendations, sendConnectionRequest, getIncomingRequests, respondToConnectRequest, testGemini, getRecommendedAIUsers, getPendintReq, pendingDetails, updateStatus, getAcceptedRequest } = require("../../Controller/NetworkController/NetworkController");
 const router = express.Router();
 
 router.post("/recommend-connections", getAIRecommendations);
@@ -14,6 +14,7 @@ router.get("/recommendations/ai-users/:userId", getRecommendedAIUsers);
 router.get("/get-pendingId/:userId", getPendintReq);
 router.get("/pending-information/:userId", pendingDetails);
 router.patch("/update-status/:docId", updateStatus);
+router.get("/accepted-users/:userId", getAcceptedRequest);
 
 
 

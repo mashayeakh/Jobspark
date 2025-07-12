@@ -479,10 +479,46 @@ const updateStatus = async (req, res) => {
     }
 };
 
+//req - get -> accepted-users/:userId
+//get all the accepted requests of a specific user
+// GET /accepted-users/:userId
+const getAcceptedRequest = async (req, res) => {
+    try {
+        const { userId } = req.params;
+        console.log("User Id = ", userId);
 
+        if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(400).json({ success: false, message: 'Invalid user ID format.' });
+        }
 
+        // Get accepted connections sent by this user
+        const acceptedConnections = await ConnectionReqModel.find({
+            fromUser: userId,
+            status: "accepted"
+        });
+
+        // Extract toUser IDs
+        const toUserIds = acceptedConnections.map(conn => conn.toUser);
+
+        // Fetch user info
+        const users = await UserModel.find({ _id: { $in: toUserIds } }).select("-password");
+
+        res.status(200).json({
+            success: true,
+            data: users,
+            count: users.length
+        });
+    } catch (error) {
+        console.error("Error in getAcceptedRequest:", error.message);
+        res.status(500).json({
+            success: false,
+            message: "Failed to fetch accepted requests.",
+            error: error.message
+        });
+    }
+}
 
 
 module.exports = {
-    getAIRecommendations, sendConnectionRequest, getIncomingRequests, respondToConnectRequest, testGemini, getRecommendedAIUsers, getPendintReq, pendingDetails, updateStatus
+    getAIRecommendations, sendConnectionRequest, getIncomingRequests, respondToConnectRequest, testGemini, getRecommendedAIUsers, getPendintReq, pendingDetails, updateStatus, getAcceptedRequest,
 };
