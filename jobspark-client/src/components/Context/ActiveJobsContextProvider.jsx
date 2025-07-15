@@ -1,5 +1,6 @@
-import React, { createContext, useCallback, useState } from 'react'
-import { getMethod } from '../Utils/Api';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { getMethod, postMethod } from '../Utils/Api';
+import { AuthContext } from './AuthContextProvider';
 
 export const ActiveJobsContext = createContext();
 
@@ -11,6 +12,8 @@ const ActiveJobsContextProvider = ({ children }) => {
     const [jobWithNoApplicaiton, setJobWithNoApplicaiton] = useState({})
     const [recentjobs, setRecentjobs] = useState({})
     const [closingSoon, setClosingSoon] = useState({})
+
+    const { user } = useContext(AuthContext);
 
     // only
     const fetchActiveJobsFromAPI = useCallback(async (url) => {
@@ -63,9 +66,35 @@ const ActiveJobsContextProvider = ({ children }) => {
     }
 
 
-    
+
+    //saved jobs
+    const [savedJob, setSavedJob] = useState([]);
+    const savingJobs = async (url, data) => {
+        const res = await postMethod(url, data);
+        setSavedJob(res);
+        return res;
+    }
 
 
+    //num of saved jobs
+    const [savedNum, setSavedNum] = useState([]);
+    const fetchingSavedJobs = async (url) => {
+        const res = await getMethod(url);
+        setSavedNum(savedNum);
+        return res;
+    }
+
+
+    // //hot Jobs
+    // const [hotJobs, setHotJobs] = useState([]);
+    // const fetchHotJobs = useCallback(async () => {
+    //     const url = `http://localhost:5000/api/v1/hotJobs`;
+    //     const res = await getMethod(url);
+    //     if (res.success === true) {
+    //         setHotJobs(res.data);
+    //     }
+    //     return res;
+    // }, []); // <= very important: empty dependency array
 
 
     const addInfo = {
@@ -76,6 +105,10 @@ const ActiveJobsContextProvider = ({ children }) => {
         jobWithNoApplicationByARecruiter,
         recentlyPublishedJobByARecruiter,
         closingSoonJobByARecruiter,
+        // fetchHotJobs,
+        savingJobs,
+        fetchingSavedJobs,
+
         allActiveJobs,
         setAllActiveJobs,
         recruiterActiveJobs,
@@ -88,7 +121,56 @@ const ActiveJobsContextProvider = ({ children }) => {
         setRecentjobs,
         closingSoon,
         setClosingSoon,
+        savedJob,
+        setSavedJob,
+        savedNum,
+        setSavedNum,
+
     }
+
+
+
+    // const addInfo = useMemo(() => ({
+    //     fetchActiveJobsFromAPI,
+    //     fetchRecruiterAllActiveJobs,
+    //     fetchAllActiveJobs,
+    //     getMostPopularJobByARecruiter,
+    //     jobWithNoApplicationByARecruiter,
+    //     recentlyPublishedJobByARecruiter,
+    //     closingSoonJobByARecruiter,
+    //     // fetchHotJobs,
+
+    //     allActiveJobs,
+    //     setAllActiveJobs,
+    //     recruiterActiveJobs,
+    //     setRecruiterActiveJobs,
+    //     popularJob,
+    //     setPopularJob,
+    //     jobWithNoApplicaiton,
+    //     setJobWithNoApplicaiton,
+    //     recentjobs,
+    //     setRecentjobs,
+    //     closingSoon,
+    //     setClosingSoon,
+    //     // hotJobs,
+    //     // setHotJobs
+    // }), [
+    //     fetchActiveJobsFromAPI,
+    //     fetchRecruiterAllActiveJobs,
+    //     fetchAllActiveJobs,
+    //     getMostPopularJobByARecruiter,
+    //     jobWithNoApplicationByARecruiter,
+    //     recentlyPublishedJobByARecruiter,
+    //     closingSoonJobByARecruiter,
+    //     // fetchHotJobs,
+    //     allActiveJobs,
+    //     recruiterActiveJobs,
+    //     popularJob,
+    //     jobWithNoApplicaiton,
+    //     recentjobs,
+    //     closingSoon,
+    //     // hotJobs
+    // ]);
 
 
     return (

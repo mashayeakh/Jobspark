@@ -19,6 +19,9 @@ import NetworkContextProvider from './components/Context/NetworkContextProvider.
 
 
 createRoot(document.getElementById('root')).render(
+
+
+  
   <StrictMode>
     <AuthContextProvider>
       <UserContextProvider>

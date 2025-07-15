@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useCallback, useContext, useEffect, useState } from 'react'
 import { FaRegHeart } from "react-icons/fa";
 import { BsFire } from "react-icons/bs";
 import Google from '../../../assets/imgs/companyLogo/google.png';
@@ -6,28 +6,45 @@ import newIcon from '../../../assets/imgs/icons/new.png';
 import { BiGame } from 'react-icons/bi';
 import { FaLocationDot } from 'react-icons/fa6';
 import { AiOutlineDollar } from 'react-icons/ai';
+import { ActiveJobsContext } from '../../Context/ActiveJobsContextProvider';
 
 const HomeJobs = () => {
 
 
     const [activeTab, setActiveTab] = useState("hot");
 
+    // const { fetchHotJobs } = useContext(ActiveJobsContext);
 
-    const handleHotJobs = (e) => {
+    // const [jobs, setJobs] = useState([]);
+    // useEffect(() => {
+    //     const fetchJobs = async () => {
+    //         const res = await fetchHotJobs();
+    //         if (res.success === true) {
+    //             setJobs(res.data);
+    //         }
+    //     };
+
+    // }, [fetchHotJobs]); // ✅ Runs only once and sets jobs
+
+    const handleHotJobs = useCallback(async (e) => {
         e.preventDefault();
-        console.log("Clicked");
+        // const response = await fetchHotJobs();
+        // if (response.success === true) {
+        //     setJobs(response.data);
+        // } else {
+        //     console.log(response.message);
+        // }
         setActiveTab("hot");
+    }, []);
+    // fetchJobs();
 
-    }
 
     const handleRecentlyAddedJobs = (e) => {
         e.preventDefault();
         console.log("Clicked");
         setActiveTab("recent");
     }
-
-
-
+    // console.log("jobs ", jobs);
     return (
         <div>
             <div>

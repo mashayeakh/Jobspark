@@ -11,10 +11,9 @@ import HomeSubscribe from './HomeSubscribe/HomeSubscribe';
 // App.jsx or index.jsx
 import '../../../src/index.css';
 import ShowProfileModal from './Modal/ShowProfileModal';
+import { useNavigate } from 'react-router';
 
 const Home = () => {
-
-
     const [bgPosition, setBgPosition] = useState("80px");
 
     useEffect(() => {
@@ -62,8 +61,11 @@ const Home = () => {
         }
     }, [charIndex, currentIndex, trendingJobs]);
 
+    const navigate = useNavigate();
 
-
+    const handleBtn = () => {
+        navigate("/jobs");
+    }
 
     return (
         <>
@@ -100,12 +102,9 @@ const Home = () => {
             <ConnectesCompany />
             <HomeJobs />
             <div className='py-15 flex justify-center'>
-                <button className='btn btn-success text-black text-xl p-5'>Browse For More Jobs</button>
+                <button onClick={handleBtn} className='btn btn-success text-black text-xl p-5'>Browse For More Jobs</button>
             </div>
             <HomeCategory />
-            {/* <div className='py-15 flex justify-center'>
-                <button className='btn btn-success text-black text-xl p-5'>Browse For More Category</button>
-            </div> */}
             <HomeSubscribe />
             <ShowProfileModal />
         </>

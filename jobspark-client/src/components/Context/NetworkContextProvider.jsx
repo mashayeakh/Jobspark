@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react'
+import React, { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import { getMethod, patchMethod, postMethod } from '../Utils/Api';
 import { AuthContext } from './AuthContextProvider';
 
@@ -82,7 +82,7 @@ const NetworkContextProvider = ({ children }) => {
         fetchAcceptedInfo();
     }, [user?._id])
 
-    const addInfo = {
+    const addInfo = useMemo(() => ({
         fetchRec,
         sendConnection,
         pending,
@@ -102,7 +102,7 @@ const NetworkContextProvider = ({ children }) => {
         setStatus,
         accepted,
         setAccepted,
-    }
+    }), []);
 
     return (
         <NetworkContext.Provider value={addInfo}>

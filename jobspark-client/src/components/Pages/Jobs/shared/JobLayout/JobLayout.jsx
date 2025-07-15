@@ -1,108 +1,222 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react';
 import { ActiveJobsContext } from '../../../../Context/ActiveJobsContextProvider';
 import { AuthContext } from '../../../../Context/AuthContextProvider';
-import { HiOutlineLocationMarker } from 'react-icons/hi';
+import { HiOutlineLocationMarker, HiOutlineBookmark } from 'react-icons/hi';
+import { FaBookmark } from "react-icons/fa";
+import { FiClock, FiDollarSign } from 'react-icons/fi';
 import { Link } from 'react-router';
+import { BsThreeDotsVertical } from 'react-icons/bs';
 
 const JobLayout = () => {
+    const { fetchAllActiveJobs, fetchingSavedJobs, savingJobs } = useContext(ActiveJobsContext);
+    const { loading, user } = useContext(AuthContext);
+    const [showActiveJob, setShowActiveJob] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [savedNumJob, setSavedNumJob] = useState([]);
+    const jobsPerPage = 3;
 
-    const { fetchAllActiveJobs } = useContext(ActiveJobsContext);
-    const { loading } = useContext(AuthContext);
-    const [showActiveJob, setShowActiveJob] = useState([])
+    const fetchedSavedNum = async () => {
+        const url = `http://localhost:5000/api/v1/user/${user?._id}/saved-jobs`;
+        const res = await fetchingSavedJobs(url);
+        if (res.success === true) {
+            const jobIdList = res.data.map(job => job.jobId);
+            setSavedNumJob(jobIdList);
+        }
+    };
 
     useEffect(() => {
         const showAllActiveJobs = async () => {
             try {
                 const url = "http://localhost:5000/api/v1/";
                 const fetchedData = await fetchAllActiveJobs(url);
-                console.log("Fetched Data ", fetchedData);
-                setShowActiveJob(fetchedData);
+                setShowActiveJob(fetchedData.data);
             } catch (err) {
                 console.log("Err from job layout", err.message);
             }
-        }
+        };
+
         showAllActiveJobs();
-    }, [fetchAllActiveJobs])
+        if (user?._id) fetchedSavedNum();
+    }, [user?._id]);
 
+    // Pagination logic
+    const indexOfLastJob = currentPage * jobsPerPage;
+    const indexOfFirstJob = indexOfLastJob - jobsPerPage;
+    const currentJobs = showActiveJob.slice(indexOfFirstJob, indexOfLastJob);
+    const totalPages = Math.ceil(showActiveJob.length / jobsPerPage);
 
-    console.log("Show Active Jobs", showActiveJob);
-    console.log("Show Active Jobs", showActiveJob.data);
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
 
+    const handleNext = () => {
+        if (currentPage < totalPages) {
+            setCurrentPage(prev => prev + 1);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    };
 
+    const handlePrev = () => {
+        if (currentPage > 1) {
+            setCurrentPage(prev => prev - 1);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    };
 
+    const getEmploymentTypeBadge = (type) => {
+        const badgeClasses = "inline-flex items-center px-3 py-1 rounded-full text-xs font-medium";
 
-    console.log(Array.isArray(showActiveJob));
+        switch (type) {
+            case "Full time":
+                return <span className={`${badgeClasses} bg-blue-100 text-blue-800`}><FiClock className="mr-1" /> Full time</span>;
+            case "Part time":
+                return <span className={`${badgeClasses} bg-purple-100 text-purple-800`}><FiClock className="mr-1" /> Part time</span>;
+            default:
+                return <span className={`${badgeClasses} bg-yellow-100 text-yellow-800`}><FiClock className="mr-1" /> Internship</span>;
+        }
+    };
 
+    const handleSaveBtn = async (e, userId, jobId) => {
+        e.preventDefault();
+        e.stopPropagation();
 
+        try {
+            const url = `http://localhost:5000/api/v1/user/${userId}/save-jobs/${jobId}`;
+            const response = await savingJobs(url, {});
 
-
-    console.log(typeof (showActiveJob));
-    const showActiveJob_Arr = Object.keys(showActiveJob);
-    // console.log("Type of arrFromObj", typeof (arrFromObj));
-    console.log(Array.isArray(showActiveJob_Arr));
-    console.log("showActiveJob_Arr", showActiveJob_Arr);
-
+            if (response.success) {
+                if (savedNumJob.includes(jobId)) {
+                    setSavedNumJob(prev => prev.filter(id => id !== jobId));
+                } else {
+                    setSavedNumJob(prev => [...prev, jobId]);
+                }
+            }
+        } catch (error) {
+            console.error("Error saving job:", error);
+        }
+    };
 
     return (
-        <>
-            <div className=''>
-                <div className="px-3 pb-4">
-                    <p className="text-xl text-gray-700">Showsing Reult: {showActiveJob.data?.length}</p>
+        <div className="container mx-auto px-4 py-6 max-w-5xl">
+            <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
+                    Available Jobs
+                    <span className="text-gray-500 text-lg ml-2">({showActiveJob.length} results)</span>
+                </h2>
+                <div className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+                    Page {currentPage} of {totalPages}
                 </div>
-                {
-                    showActiveJob.data && showActiveJob.data.length > 0 ?
-                        showActiveJob.data.map(showJobs => (
-                            <Link to={`/job/${showJobs?._id}`}>
-                                <div className="w-full p-4 shadow-2xl bg-white border border-gray-200 rounded-lg sm:p-8 transition delay-150 duration-200 ease-in-out hover:-translate-y-1 hover:scale-110 cursor-pointer mb-8 ">
-                                    <div className='flex items-start justify-between'>
-                                        <div className='flex gap-4 items-center'>
-                                            <figure className="">
-                                                <img
-                                                    src="https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.webp"
-                                                    alt="Shoes"
-                                                    className="rounded-xl w-24 h-20" />
-                                            </figure>
-                                            <div>
-                                                <h5 className="mb-2 text-3xl font-bold ">{showJobs?.jobTitle}</h5>
-                                                <div className='flex text-gray-600 text-lg gap-4'>
-                                                    <p className='font-bold'>{showJobs?.companyName} </p>
+            </div>
 
-                                                    <p className="ml-2 flex items-center gap-1" >
-                                                        <HiOutlineLocationMarker size={24} />
-                                                        {showJobs?.location} </p>
+            {currentJobs.length > 0 ? (
+                <div className="space-y-5">
+                    {currentJobs.map(showJobs => (
+                        <Link to={`/job/${showJobs?._id}`} key={showJobs?._id} className="block group">
+                            <div className="bg-white p-5 md:p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-300 hover:border-blue-300">
+                                <div className="flex flex-col md:flex-row md:items-start justify-between gap-5">
+                                    <div className="flex flex-col sm:flex-row gap-4 flex-1">
+                                        <div className="flex-shrink-0">
+                                            <img
+                                                src={showJobs.companyLogo || "https://via.placeholder.com/80x80?text=Company"}
+                                                alt="Company Logo"
+                                                className="rounded-lg w-14 h-14 md:w-16 md:h-16 object-contain border border-gray-200 bg-gray-100"
+                                            />
+                                        </div>
+                                        <div className="flex-1">
+                                            <div className="flex justify-between items-start gap-3">
+                                                <div className="flex-1 min-w-0">
+                                                    <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-1 truncate group-hover:text-blue-600 transition-colors">
+                                                        {showJobs?.jobTitle}
+                                                    </h3>
+                                                    <p className="text-gray-700 font-medium mb-2 truncate">
+                                                        {showJobs?.companyName}
+                                                    </p>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <button
+                                                        className={`p-2 rounded-full transition-colors ${savedNumJob.includes(showJobs?._id) ? 'text-yellow-500 hover:text-yellow-600' : 'text-gray-400 hover:text-blue-500 hover:bg-blue-50'}`}
+                                                        onClick={(e) => handleSaveBtn(e, user?._id, showJobs?._id)}
+                                                        aria-label={savedNumJob.includes(showJobs?._id) ? "Unsave job" : "Save job"}
+                                                    >
+                                                        {savedNumJob.includes(showJobs?._id) ? (
+                                                            <FaBookmark className="w-5 h-5 fill-current" />
+                                                        ) : (
+                                                            <HiOutlineBookmark className="w-5 h-5 stroke-current" />
+                                                        )}
+                                                    </button>
+                                                    <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors">
+                                                        <BsThreeDotsVertical className="w-5 h-5" />
+                                                    </button>
                                                 </div>
                                             </div>
-                                        </div>
-                                        <div>
-                                            <p className='text-2xl font-bold'>$ {showJobs?.salary}</p>
-                                        </div>
-                                    </div>
-                                    <div className='pt-8'>
-                                        <p className="mb-5 text-base text-gray-500 sm:text-lg dark:text-gray-400">
-                                            {showJobs?.description}
-                                        </p>
-                                        <div>
-                                            <div className="bg-white">
-                                                {
-                                                    showJobs?.employeeType === "Full time" ?
-                                                        <div className="badge badge-primary badge-lg  mr-4">{showJobs?.employeeType}</div> : showJobs?.employeeType === "Part time" ? <div className="badge badge-secondary badge-lg mr-4">Part time</div> : <div className="badge badge-warning badge-lg  mr-4">Internship</div>
-                                                }
-                                                <div className="badge badge-warning badge-lg  mr-4">Internship</div>
+
+                                            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-2 mb-3">
+                                                <div className="flex items-center text-gray-600">
+                                                    <HiOutlineLocationMarker className="mr-1.5 text-gray-500 flex-shrink-0" />
+                                                    <span className="truncate">{showJobs?.location}</span>
+                                                </div>
+                                                <div className="flex items-center text-gray-600">
+                                                    <FiDollarSign className="mr-1.5 text-gray-500 flex-shrink-0" />
+                                                    <span>${showJobs?.salary?.toLocaleString()}</span>
+                                                </div>
+                                            </div>
+
+                                            <p className="text-gray-600 line-clamp-2 mb-4">
+                                                {showJobs?.description}
+                                            </p>
+
+                                            <div className="flex flex-wrap gap-2">
+                                                {getEmploymentTypeBadge(showJobs?.employeeType)}
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            </Link>
-                        )) : <div>
-                            <p>
-                                No Jobs found
-                            </p>
-                        </div>
-                }
-            </div >
+                            </div>
+                        </Link>
+                    ))}
+                </div>
+            ) : (
+                <div className="bg-white rounded-xl shadow-sm p-8 text-center">
+                    <h3 className="text-xl font-medium text-gray-700 mb-2">No jobs found</h3>
+                    <p className="text-gray-500">Try adjusting your search filters</p>
+                </div>
+            )}
 
-        </>
-    )
-}
+            {/* Pagination */}
+            {totalPages > 1 && (
+                <div className="mt-12 flex justify-center">
+                    <nav className="flex items-center gap-1">
+                        <button
+                            onClick={handlePrev}
+                            disabled={currentPage === 1}
+                            className="px-4 py-2 border border-gray-300 rounded-l-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        >
+                            Previous
+                        </button>
 
-export default JobLayout 
+                        {[...Array(totalPages)].map((_, i) => (
+                            <button
+                                key={i}
+                                onClick={() => handlePageChange(i + 1)}
+                                className={`px-4 py-2 border-t border-b border-gray-300 w-10 flex items-center justify-center ${currentPage === i + 1 ? 'bg-blue-600 text-white border-blue-600' : 'text-gray-700 hover:bg-gray-50'}`}
+                            >
+                                {i + 1}
+                            </button>
+                        ))}
+
+                        <button
+                            onClick={handleNext}
+                            disabled={currentPage === totalPages}
+                            className="px-4 py-2 border border-gray-300 rounded-r-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        >
+                            Next
+                        </button>
+                    </nav>
+                </div>
+            )}
+        </div>
+    );
+};
+
+export default JobLayout;
