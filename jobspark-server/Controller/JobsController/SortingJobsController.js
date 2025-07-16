@@ -140,9 +140,52 @@ const getSavedJobs = async (req, res) => {
 };
 
 
+//filtering
+// req - get; serch/jobs?jobType=Full-time&location=Dhaka&minSalary=1000&maxSalary=3000
+const filterJobs = async (req, res) => {
+    const { jobType, location, minSalary, maxSalary } = req.query;
+
+    console.log("jobType, location, minSalary, maxSalary ", jobType, location, minSalary, maxSalary);
+
+    // Filter with status ongoing
+    const filter = { status: "ongoing" };
+
+    if (jobType) {
+        filter.employeeType = { $regex: new RegExp(jobType, "i") };
+    }
+
+    if (location) {
+        filter.location = { $regex: new RegExp(location, "i") };
+    }
+
+    if (minSalary || maxSalary) {
+        filter.salary = {};
+        if (minSalary) filter.salary.$gte = Number(minSalary);
+        if (maxSalary) filter.salary.$lte = Number(maxSalary);
+    }
+
+    console.log("Filter Salary", filter);
+
+    try {
+        const filteredJobs = await ActiveJobsModel.find(filter);
+        console.log("Filtered Jobs ", filteredJobs);
+        console.log("Filtered Jobs length", filteredJobs.length);
+
+        // Send filtered jobs in JSON response
+        res.json({
+            success: true,
+            data: filteredJobs
+        });
+    } catch (error) {
+        console.error("Error fetching filtered jobs:", error);
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+};
+
 
 module.exports = {
     getHotJobs,
     savedJobs,
     getSavedJobs,
+    filterJobs
 }

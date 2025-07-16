@@ -25,6 +25,7 @@ const filterRoutes = require("./Routes/FilterRouter/FilterRouter");
 
 const networkRoutes = require("./Routes/NetworkRouter/NetworkRouter");
 
+const aiRoutes = require("./Routes/AiBasedRouter/AiJobsRouter");
 
 const { default: mongoose } = require("mongoose");
 
@@ -60,6 +61,7 @@ app.use("/api/v1", filterRoutes);
 
 //Gemini api
 app.use("/api/v1/network", networkRoutes);
+app.use("/api/v1/ai", aiRoutes);
 
 
 app.listen(port, () => {

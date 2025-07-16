@@ -8,8 +8,7 @@ async function getRecommendedUsers(promptText) {
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
         const result = await model.generateContent(promptText);
-        const response = await result.response;
-        const text = response.text();
+        const text = await result.response.text();
 
         return text;
     } catch (error) {
@@ -17,5 +16,6 @@ async function getRecommendedUsers(promptText) {
         return null;
     }
 }
+
 
 module.exports = { getRecommendedUsers }

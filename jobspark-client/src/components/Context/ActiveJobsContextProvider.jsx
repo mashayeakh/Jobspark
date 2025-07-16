@@ -14,6 +14,7 @@ const ActiveJobsContextProvider = ({ children }) => {
     const [closingSoon, setClosingSoon] = useState({})
 
     const { user } = useContext(AuthContext);
+    console.log("USER ID ", user?._id);
 
     // only
     const fetchActiveJobsFromAPI = useCallback(async (url) => {
@@ -84,6 +85,25 @@ const ActiveJobsContextProvider = ({ children }) => {
         return res;
     }
 
+    // //ai recommended jobs
+    // const [aiRecommandation, setAiRecommandation] = useState([]);
+    // const fetchingAiRecomJobs = async () => {
+    //     const url = `http://localhost:5000/api/v1/ai/recommend-jobs/${user?._id}`;
+    //     console.log("URL ", url);
+    //     const response = await getMethod(url);
+    //     if (response.success === "true") {
+    //         setAiRecommandation(response);
+    //     }
+    // }
+
+    // console.log("AI JOBSSS ===", aiRecommandation);
+
+    const [filter, setFilter] = useState();
+    const filteredJobs = async (url) => {
+        const res = await getMethod(url);
+        setFilter(res);
+        return res;
+    }
 
     // //hot Jobs
     // const [hotJobs, setHotJobs] = useState([]);
@@ -97,6 +117,13 @@ const ActiveJobsContextProvider = ({ children }) => {
     // }, []); // <= very important: empty dependency array
 
 
+    // useEffect(() => {
+    //     if (!user?._id) return;
+    //     fetchingAiRecomJobs();
+    // }, [user?._id])
+
+
+
     const addInfo = {
         fetchActiveJobsFromAPI,
         fetchRecruiterAllActiveJobs,
@@ -108,6 +135,8 @@ const ActiveJobsContextProvider = ({ children }) => {
         // fetchHotJobs,
         savingJobs,
         fetchingSavedJobs,
+        // fetchingAiRecomJobs,
+        filteredJobs,
 
         allActiveJobs,
         setAllActiveJobs,
@@ -125,7 +154,10 @@ const ActiveJobsContextProvider = ({ children }) => {
         setSavedJob,
         savedNum,
         setSavedNum,
-
+        // aiRecommandation,
+        // setAiRecommandation,
+        filter,
+        setFilter
     }
 
 

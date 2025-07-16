@@ -31,7 +31,7 @@ const Filterbar = () => {
 
 
 
-    console.log("Num ====", num);
+    // console.log("Num ====", num);
 
 
     return (
