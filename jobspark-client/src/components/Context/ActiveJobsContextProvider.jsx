@@ -123,6 +123,14 @@ const ActiveJobsContextProvider = ({ children }) => {
     // }, [user?._id])
 
 
+    const [hotJobs, setHotJobs] = useState([]);
+    const fetchHotJobs = useCallback(async (url) => {
+        const res = await getMethod(url);
+        setHotJobs(res);
+        return res;
+    }, []);
+
+
 
     const addInfo = {
         fetchActiveJobsFromAPI,
@@ -137,6 +145,7 @@ const ActiveJobsContextProvider = ({ children }) => {
         fetchingSavedJobs,
         // fetchingAiRecomJobs,
         filteredJobs,
+        fetchHotJobs,
 
         allActiveJobs,
         setAllActiveJobs,
@@ -157,7 +166,9 @@ const ActiveJobsContextProvider = ({ children }) => {
         // aiRecommandation,
         // setAiRecommandation,
         filter,
-        setFilter
+        setFilter,
+        hotJobs,
+        setHotJobs
     }
 
 

@@ -15,6 +15,8 @@ const JobLayout = ({ jobs }) => {
     const [savedNumJob, setSavedNumJob] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [recommendedJobs, setRecommendedJobs] = useState([]);
+    const [recommendedJobsLoading, setRecommendedJobsLoading] = useState(false);
+    const [showAll, setShowAll] = useState(false); // ✅ NEW STATE
     const jobsPerPage = 3;
 
     useEffect(() => {
@@ -50,32 +52,46 @@ const JobLayout = ({ jobs }) => {
     useEffect(() => {
         const fetchRecommendedJobs = async () => {
             try {
+                setRecommendedJobsLoading(true);
                 const res = await fetch(`http://localhost:5000/api/v1/ai/recommend-jobs/${user?._id}`);
                 const data = await res.json();
-                if (data.success && Array.isArray(data.jobs)) {
+                if (data.success) {
                     setRecommendedJobs(data.jobs);
+                } else {
+                    setRecommendedJobs([]);
                 }
             } catch (err) {
                 console.error("Failed to fetch recommended jobs", err);
+                setRecommendedJobs([]);
+            } finally {
+                setRecommendedJobsLoading(false);
             }
         };
 
-        // Trigger if jobs is undefined, null, or an empty array
-        if (!Array.isArray(jobs) || jobs.length === 0) {
+        if (user?._id && (!Array.isArray(jobs) || jobs.length === 0)) {
             fetchRecommendedJobs();
         }
     }, [jobs, user?._id]);
 
-    const isUsingRecommended = (!Array.isArray(jobs) || jobs.length === 0) && recommendedJobs.length > 0;
+    const isRecommendedView =
+        !showAll &&
+        (Array.isArray(jobs) || jobs.length === 0) &&
+        recommendedJobs.length > 0;
 
-    const displayedJobs =
-        Array.isArray(jobs) && jobs.length > 0
-            ? jobs
-            : Array.isArray(jobs) && jobs.length === 0
-                ? [] // No match
-                : allJobs;
+    // const jobsToDisplay = (() => {
+    //     if (!Array.isArray(jobs) && jobs.length > 0) return jobs;
+    //     if (isRecommendedView) return recommendedJobs;
+    //     if (allJobs.length > 0) return allJobs;
+    //     return [];
+    // })();
 
-    const jobsToDisplay = isUsingRecommended ? recommendedJobs : displayedJobs;
+    const jobsToDisplay = (() => {
+        if (Array.isArray(jobs) && jobs.length > 0) return jobs;
+        if (isRecommendedView) return recommendedJobs;
+        if (showAll) return allJobs;
+        return [];
+    })();
+
 
     const indexOfLastJob = currentPage * jobsPerPage;
     const indexOfFirstJob = indexOfLastJob - jobsPerPage;
@@ -194,15 +210,24 @@ const JobLayout = ({ jobs }) => {
         </div>
     );
 
+    const isLoading =
+        recommendedJobsLoading ||
+        ((!Array.isArray(jobs) || jobs.length === 0) &&
+            recommendedJobs.length === 0 &&
+            allJobs.length === 0);
+
+
     return (
         <div className="container mx-auto px-4 py-6 max-w-5xl">
             <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
-                    {isUsingRecommended ? "Recommended Jobs for You" : "Available Jobs"}
-                    <span className="text-gray-500 text-lg ml-2">
-                        ({jobsToDisplay.length} results)
-                    </span>
+                    {isLoading
+                        ? "Loading jobs..."
+                        : isRecommendedView
+                            ? `Recommended Jobs for You (${jobsToDisplay.length} results)`
+                            : `Available Jobs (${jobsToDisplay.length} results)`}
                 </h2>
+
                 {jobsToDisplay.length > 0 && (
                     <div className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
                         Page {currentPage} of {totalPages}
@@ -210,7 +235,22 @@ const JobLayout = ({ jobs }) => {
                 )}
             </div>
 
-            {jobsToDisplay.length === 0 ? (
+            {(jobs || jobs.length === 0) && recommendedJobs.length > 0 && (
+                <div className="mb-6 text-right">
+                    <button
+                        onClick={() => setShowAll(prev => !prev)}
+                        className="text-blue-600 font-medium hover:underline"
+                    >
+                        {showAll ? "← Back to Recommended Jobs" : "View All Active Jobs →"}
+                    </button>
+                </div>
+            )}
+
+
+
+            {recommendedJobsLoading ? (
+                <div className="text-center text-gray-500 py-8">Loading jobs...</div>
+            ) : jobsToDisplay.length === 0 ? (
                 <div className="bg-white rounded-xl shadow-sm p-8 text-center">
                     <h3 className="text-xl font-medium text-gray-700 mb-2">No jobs found</h3>
                     <p className="text-gray-500">Try adjusting your search filters</p>
