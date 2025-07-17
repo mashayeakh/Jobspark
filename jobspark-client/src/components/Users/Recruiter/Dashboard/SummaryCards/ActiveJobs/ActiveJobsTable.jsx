@@ -6,12 +6,14 @@ import { postMethod } from "../../../../../Utils/Api";
 import { ActiveJobsContext } from '../../../../../Context/ActiveJobsContextProvider';
 import { AuthContext } from '../../../../../Context/AuthContextProvider';
 import jobCategories from '../../../../../../constants/JobCategories';
+import toast from 'react-hot-toast';
 
 const ActiveJobsTable = ({ sendJobsToParent }) => {
     const { user } = useContext(AuthContext);
     const recruiterId = user?._id;
     const { fetchRecruiterAllActiveJobs } = useContext(ActiveJobsContext);
     const [actJobs, setActJobs] = useState([]);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -20,7 +22,7 @@ const ActiveJobsTable = ({ sendJobsToParent }) => {
 
     const fetchActiveJobs = async () => {
         try {
-            const url = `http://localhost:5000/api/v1/activeJobs/${user._id}`
+            const url = `http://localhost:5000/api/v1/activeJobs/${user._id}`;
             const data = await fetchRecruiterAllActiveJobs(url);
             if (data.success) {
                 setActJobs(data.data);
@@ -33,6 +35,8 @@ const ActiveJobsTable = ({ sendJobsToParent }) => {
 
     const handleAddJobs = async (e) => {
         e.preventDefault();
+        setIsSubmitting(true);
+
         const addJobs = {
             recruiter: recruiterId,
             jobTitle: e.target.job_title.value.trim(),
@@ -53,14 +57,22 @@ const ActiveJobsTable = ({ sendJobsToParent }) => {
         try {
             const url = "http://localhost:5000/api/v1/job";
             const data = await postMethod(url, addJobs);
-            if (data.success === "true") {
-                alert("Job Added Successfully");
+            console.log("DATA ", data);
+            if (data.status === true) {
+                toast.success(" Job Added Successfully");
                 e.target.reset();
                 document.getElementById('my_modal_1').close();
-                fetchActiveJobs();
+
+                // Small delay to allow modal to close before fetching data
+                setTimeout(() => {
+                    fetchActiveJobs();
+                }, 300);
             }
         } catch (err) {
-            console.log("Err from client while post req, ", err.message);
+            console.error("Error while posting job:", err.message);
+            toast.error("❌ Failed to add job. Try again.");
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -78,6 +90,7 @@ const ActiveJobsTable = ({ sendJobsToParent }) => {
     const handleEx = () => {
         navigate("/recruiter/dashboard/summary-cards/expired-Jobs");
     };
+
 
     return (
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
@@ -191,11 +204,9 @@ const ActiveJobsTable = ({ sendJobsToParent }) => {
             {/* Modal */}
             <dialog id="my_modal_1" className="modal backdrop-blur-sm">
                 <div className="modal-box max-w-4xl bg-white shadow-xl p-8 rounded-lg border border-gray-200">
-                    <form method="dialog">
-                        <button className="btn btn-sm btn-circle btn-ghost absolute right-4 top-4 text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors duration-200">
-                            ✕
-                        </button>
-                    </form>
+                    {/* <button className="btn btn-sm btn-circle btn-ghost absolute right-4 top-4 text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors duration-200">
+                        ✕
+                    </button> */}
 
                     <div className="space-y-1 mb-8">
                         <h3 className="font-bold text-2xl text-gray-800">Create New Job Posting</h3>
@@ -409,9 +420,11 @@ const ActiveJobsTable = ({ sendJobsToParent }) => {
                             </button>
                             <button
                                 type="submit"
-                                className="btn bg-blue-600 hover:bg-blue-700 text-white border-none px-8 hover:shadow-md transition-all duration-200"
+                                disabled={isSubmitting}
+                                className={`btn bg-blue-600 text-white border-none px-8 transition-all duration-200 ${isSubmitting ? "opacity-50 cursor-not-allowed" : "hover:bg-blue-700 hover:shadow-md"
+                                    }`}
                             >
-                                Create Job
+                                {isSubmitting ? "Creating..." : "Create Job"}
                             </button>
                         </div>
                     </form>

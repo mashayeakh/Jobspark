@@ -155,7 +155,7 @@ const DashboardSidebar = () => {
                     </li>
 
                     {/* Latest Applicants */}
-                    <li>
+                    {/* <li>
                         <NavLink
                             to="/recruiter/dashboard/latest-applicants"
                             className={({ isActive }) =>
@@ -167,7 +167,7 @@ const DashboardSidebar = () => {
                             </svg>
                             {!collapsed && <span className="flex-1 ms-3"> Latest Applicants</span>}
                         </NavLink>
-                    </li>
+                    </li> */}
                 </ul>
             </div>
         </aside>
