@@ -45,6 +45,8 @@ const NetworkLayout = () => {
         }
     };
 
+    console.log("PENDING DATA from network layout", pendingData);
+
     const handleConnect = async (toUserId) => {
         const url = `http://localhost:5000/api/v1/network/send-connection-request`;
         const ids = { fromUserId, toUserId };

@@ -68,8 +68,18 @@ const NetworkContextProvider = ({ children }) => {
     }
 
 
-    //get 
+    //get all connections of a specific user
+    const [conn, setConn] = useState([]);
+    const fetchConn = async () => {
+        const url = `http://localhost:5000/api/v1/network/getAllConn/${user?._id}`
+        const res = await getMethod(url);
+        if (res.success === true) {
+            setConn(res);
+            return res;
+        }
+    }
 
+    console.log("CONN- ", conn.count);
 
     useEffect(() => {
         if (!user?._id) return;
@@ -80,6 +90,7 @@ const NetworkContextProvider = ({ children }) => {
         pendingDetials();
         statusChange();
         fetchAcceptedInfo();
+        fetchConn();
     }, [user?._id])
 
     const addInfo = useMemo(() => ({
@@ -89,6 +100,7 @@ const NetworkContextProvider = ({ children }) => {
         pendingDetials,
         statusChange,
         fetchAcceptedInfo,
+        fetchConn,
 
         findRecomandatiaon,
         setFindRecomandatiaon,
@@ -102,7 +114,9 @@ const NetworkContextProvider = ({ children }) => {
         setStatus,
         accepted,
         setAccepted,
-    }), []);
+        conn,
+        setConn,
+    }), [accepted, conn, details, fetchConn, findRecomandatiaon, pendingUser, sendReq, status]);
 
     return (
         <NetworkContext.Provider value={addInfo}>

@@ -1,18 +1,52 @@
-import React, { useContext, useEffect } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { IoIosArrowDown } from 'react-icons/io'
 import { NetworkContext } from './../Context/NetworkContextProvider';
 import { Link } from 'react-router';
+import { AuthContext } from '../Context/AuthContextProvider';
 
 const NetworkSideBar = () => {
 
-    const { pendingUser, accepted } = useContext(NetworkContext);
+    const { pendingUser, accepted, pending, pendingData, conn } = useContext(NetworkContext);
+    const { user } = useContext(AuthContext);
 
-    console.log("pending from sidebar", pendingUser.count);
-    console.log("count", accepted.count);
+
+    // const handleSidebarCounts = async () => {
+    //     const url = ``;
+    // }
+
+    // console.log("pending from sidebar", pendingUser);
+    // console.log("count", accepted.count);
+
+    console.log("C ", conn);
+
+
+
+    const [pendingNum, setPendingNum] = useState([]);
+
+
+    const fetch = async () => {
+        const url = `http://localhost:5000/api/v1/network/get-pendingId/${user?._id}`;
+        console.log("link ", url);
+        const response = await pending(url);
+        if (response.success) {
+            setPendingNum(response);
+        }
+    };
+
+
+    const pendingUsers = pendingNum.count
+
+    // console.log(pendingUsers);
+
     useEffect(() => {
-        console.log("Sidebar count updated:", pendingUser.count);
-    }, [pendingUser.count]);
-    1
+        if (!user?._id) return;
+
+        fetch();
+    }, [user?._id]);
+
+
+
+
     return (
         <>
             <div className="max-w-4xl mx-auto">
@@ -40,7 +74,7 @@ const NetworkSideBar = () => {
                                         <span className="text-xl font-medium text-gray-700">Total Connections</span>
                                     </div>
                                     <span className="text-2xl font-bold text-blue-600 [text-shadow:_0_0_10px_rgba(59,130,246,0.3)]">
-                                        {accepted.count}
+                                        {accepted.count || 0}
                                     </span>
                                 </div>
                             </div>
@@ -67,7 +101,7 @@ const NetworkSideBar = () => {
                                         {/* Icon with conditional heartbeat effect */}
                                         <div
                                             className={`p-3 rounded-full shadow-sm
-        ${pendingUser.count > 0
+                                                        ${pendingUsers > 0
                                                     ? 'bg-amber-100 ring-2 ring-amber-400 animate-[iconPulse_1.5s_ease-in-out_infinite]'
                                                     : 'bg-white ring-1 ring-amber-200'
                                                 }`}
@@ -80,12 +114,12 @@ const NetworkSideBar = () => {
                                     {/* Count with pulse animation if pending > 0 */}
                                     <span
                                         className={`text-2xl font-bold
-      ${pendingUser.count > 0
+                                                        ${pendingUser.count > 0
                                                 ? 'text-amber-700 animate-[counterPulse_1s_ease-in-out_infinite]'
                                                 : 'text-amber-600'
                                             }`}
                                     >
-                                        {pendingUser.count}
+                                        {pendingUsers}
                                     </span>
                                 </div>
 

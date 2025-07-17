@@ -55,12 +55,16 @@ const getAcceptedConntection = async (req, res) => {
         console.log("USERS Length", users.length);
 
         res.status(200).json({
+            success: true,
+            count: users.length,
             data: users,
-            count: users.length
         });
     } catch (error) {
         console.error("Error in getAllConntection:", error);
-        res.status(500).json({ error: "Internal server error." });
+        res.status(500).json({
+            success: false,
+            error: "Internal server error."
+        });
     }
 };
 

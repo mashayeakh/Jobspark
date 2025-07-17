@@ -78,18 +78,14 @@ const JobLayout = ({ jobs }) => {
         (Array.isArray(jobs) || jobs.length === 0) &&
         recommendedJobs.length > 0;
 
-    // const jobsToDisplay = (() => {
-    //     if (!Array.isArray(jobs) && jobs.length > 0) return jobs;
-    //     if (isRecommendedView) return recommendedJobs;
-    //     if (allJobs.length > 0) return allJobs;
-    //     return [];
-    // })();
-
     const jobsToDisplay = (() => {
-        if (Array.isArray(jobs) && jobs.length > 0) return jobs;
-        if (isRecommendedView) return recommendedJobs;
-        if (showAll) return allJobs;
-        return [];
+        if (Array.isArray(jobs) && jobs.length > 0) {
+            return jobs; // Show searched jobs
+        }
+        if (!showAll && (!jobs || jobs.length === 0) && recommendedJobs.length > 0) {
+            return recommendedJobs; // Show recommended jobs by default
+        }
+        return allJobs; // Show all active jobs
     })();
 
 
@@ -249,7 +245,7 @@ const JobLayout = ({ jobs }) => {
 
 
             {recommendedJobsLoading ? (
-                <div className="text-center text-gray-500 py-8">Loading jobs...</div>
+                <div className="text-center text-gray-500 py-8">Loading recommended jobs...</div>
             ) : jobsToDisplay.length === 0 ? (
                 <div className="bg-white rounded-xl shadow-sm p-8 text-center">
                     <h3 className="text-xl font-medium text-gray-700 mb-2">No jobs found</h3>
