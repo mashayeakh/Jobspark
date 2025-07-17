@@ -29,8 +29,17 @@ const ActiveJobSchema = mongoose.Schema({
     jobCategory: {
         type: String,
         required: true,
-        enum: ['Engineering', 'Design', 'Marketing'],
-        // trim:true
+        enum: [
+            'software_dev',
+            'web_dev',
+            'ai_ml',
+            'content_writing',
+            'digital_marketing',
+            'social_media',
+            'ui_ux',
+            'graphic_design',
+            'video_editing'
+        ],
     },
     skills: {
         type: String,

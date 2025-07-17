@@ -123,12 +123,24 @@ const ActiveJobsContextProvider = ({ children }) => {
     // }, [user?._id])
 
 
+    //hot jobs
     const [hotJobs, setHotJobs] = useState([]);
     const fetchHotJobs = useCallback(async (url) => {
         const res = await getMethod(url);
         setHotJobs(res);
         return res;
     }, []);
+
+
+    //expired jobs
+    // const [ex, setEx] = useState([]);
+    // const fetchEx = async () => {
+    //     const url = `http://localhost:5000/api/v1/expiredJobs/${user?._id}`
+    //     const res = await getMethod(url);
+    //     if (res.success === true) {
+    //         setEx(res)
+    //     }
+    // }
 
 
 
@@ -146,6 +158,10 @@ const ActiveJobsContextProvider = ({ children }) => {
         // fetchingAiRecomJobs,
         filteredJobs,
         fetchHotJobs,
+        // fetchEx,
+
+
+
 
         allActiveJobs,
         setAllActiveJobs,
@@ -168,7 +184,9 @@ const ActiveJobsContextProvider = ({ children }) => {
         filter,
         setFilter,
         hotJobs,
-        setHotJobs
+        setHotJobs,
+        // ex,
+        // setEx,
     }
 
 

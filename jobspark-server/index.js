@@ -3,9 +3,12 @@ const app = express();
 const cors = require("cors");
 const dotenv = require("dotenv");
 const port = process.env.Port || 5000;
+const cron = require("node-cron");
+
 // const routes = require("./Routes/TestRoutes");
 // const testRoutes = require('./Routes/TestRoutes');
 const userRoutes = require('./Routes/UserRouter/UserRoutes');
+
 
 const activeJobsRoutes = require("./Routes/ActiveJobsRecruiter/ActiveJobsRouter");
 
@@ -28,7 +31,14 @@ const networkRoutes = require("./Routes/NetworkRouter/NetworkRouter");
 const aiRoutes = require("./Routes/AiBasedRouter/AiJobsRouter");
 
 const { default: mongoose } = require("mongoose");
+const { expireOldJobs } = require("./Controller/RecruiterController/RecruiterJobsController");
 
+
+cron.schedule("0 * * * *", () => {
+    console.log("⏰ Running job expiration check...");
+    expireOldJobs();
+});
+expireOldJobs();
 
 app.use(express.json());
 app.use(cors());

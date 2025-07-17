@@ -666,18 +666,35 @@ const findjobsByRecruiterId = async (req, res) => {
             });
         }
 
-        const jobs = await ActiveJobsModel.find({ recruiter: recruiterId });
+        const now = new Date();
+
+        const jobs = await ActiveJobsModel.find({
+            recruiter: recruiterId,
+            status: "ongoing",
+            deadline: { $gte: now }, // 🔒 ensure it's not expired
+        });
+
         if (!jobs || jobs.length === 0) {
             return res.status(404).json({
                 status: false,
-                message: "No jobs found for this recruiter",
+                message: "No active jobs found for this recruiter",
             });
         }
 
+        const updatedJobs = jobs.map(job => {
+            const jobObj = job.toObject();
+            jobObj.deadline = new Date(jobObj.deadline).toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+            });
+            return jobObj;
+        });
+
         res.status(200).json({
             status: true,
-            message: "Jobs fetched successfully",
-            data: jobs,
+            message: "Active jobs fetched successfully",
+            data: updatedJobs,
             length: jobs.length
         });
     } catch (err) {
@@ -690,21 +707,89 @@ const findjobsByRecruiterId = async (req, res) => {
 };
 
 
+// active jobs
+// req - get => /activeJobs/:recruiterId
+const fethcActiveJobs = async (req, res) => {
+    try {
+        const { recruiterId } = req.params;
+        const now = new Date();
+
+        const jobs = await ActiveJobsModel
+            .find({ recruiter: recruiterId, status: "ongoing" })
+
+        // .where('deadline').lt(now);
+
+        // jobs.forEach(job => {
+        //     console.log("Deadline:", job.deadline.toISOString());
+        // });
+
+        res.status(200).json({
+            success: true,
+            count: jobs.length,
+            message: "Active jobs fetched",
+            data: jobs,
+        });
+    } catch (err) {
+        console.error("Error fetching expired jobs:", err.message);
+        res.status(500).json({
+            success: false,
+            message: "Server error"
+        });
+    }
+}
+
+//expired jobs
+//req - get => /expiredJobs/:recruiterId 
+const fetchExpiredJobs = async (req, res) => {
+    try {
+        const { recruiterId } = req.params;
+        const now = new Date();
+
+        const jobs = await ActiveJobsModel
+            .find({ recruiter: recruiterId, status: "expired" })
+
+            .where('deadline').lt(now);
+
+        jobs.forEach(job => {
+            console.log("Deadline:", job.deadline.toISOString());
+        });
+
+        res.status(200).json({
+            success: true,
+            count: jobs.length,
+            message: "Expired jobs fetched",
+            data: jobs,
+        });
+    } catch (err) {
+        console.error("Error fetching expired jobs:", err.message);
+        res.status(500).json({
+            success: false,
+            message: "Server error"
+        });
+    }
+};
+
+
+const expireOldJobs = async () => {
+    try {
+        const now = new Date();
+
+        const result = await ActiveJobsModel.updateMany(
+            {
+                deadline: { $lt: now },
+                status: { $ne: "expired" },
+            },
+            { $set: { status: "expired" } }
+        );
+
+        console.log(`✅ ${result.modifiedCount} jobs marked as expired`);
+    } catch (error) {
+        console.error("❌ Error expiring jobs:", error.message);
+    }
+};
 
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-module.exports = { showRecuiterJobs, getMostPopularJobsByARecruiter, getJobsWithNoApplicantsByARecuiter, recentlyPublishedJobs, closingJobByARecruiter, applicationsInfoToRecruiter, findApplicantInfoByARecruiterJob, findAllUserAppliedToRecruiterJobs, findApplicantDetailsInfoToRecruiterJob, todaysNewApplication, findjobsByRecruiterId }
+module.exports = { showRecuiterJobs, getMostPopularJobsByARecruiter, getJobsWithNoApplicantsByARecuiter, recentlyPublishedJobs, closingJobByARecruiter, applicationsInfoToRecruiter, findApplicantInfoByARecruiterJob, findAllUserAppliedToRecruiterJobs, findApplicantDetailsInfoToRecruiterJob, todaysNewApplication, findjobsByRecruiterId, fetchExpiredJobs, expireOldJobs, fethcActiveJobs }

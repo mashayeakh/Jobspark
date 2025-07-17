@@ -32,6 +32,7 @@ import Jobs from "./../Pages/Jobs/Jobs"
 import ShowProfileModal from "../Home/Modal/ShowProfileModal"
 import Profile from "../Pages/Profile/Profile"
 import IncomingRequest from "../Network/IncomingRequest"
+import ExpiredJobs from "../Users/Recruiter/Dashboard/SummaryCards/ActiveJobs/ExpiredJobs"
 
 
 const router = createBrowserRouter([
@@ -104,6 +105,7 @@ const router = createBrowserRouter([
                 path: "/profile",
                 element: <Profile />
             },
+
             //* for recruiter Dashbaord -----------------------------------------------------
             {
                 path: "/recruiter/dashboard",
@@ -120,6 +122,10 @@ const router = createBrowserRouter([
                             {
                                 path: "active-Jobs",
                                 element: <ActiveJobs />
+                            },
+                            {
+                                path: "expired-Jobs",
+                                element: <ExpiredJobs />
                             },
                             {
                                 path: "active-job/:id",
