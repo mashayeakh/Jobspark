@@ -18,11 +18,19 @@ const TotalApplicationProvider = ({ children }) => {
     }
 
 
-    // information about applicants
+    // information about applicants for grid
     const [showAllApplicantsInfo, setShowAllApplicantsInfo] = useState();
     const allApplicantsInfo = async (url) => {
         const response = await getMethod(url);
         setShowAllApplicantsInfo(response);
+        return response;
+    }
+
+    // information about applicants for grid
+    const [showAllApplicantsTab, setShowAllApplicantsTab] = useState();
+    const allApplicantsInfoTable = async (url) => {
+        const response = await getMethod(url);
+        setShowAllApplicantsTab(response);
         return response;
     }
 
@@ -69,6 +77,7 @@ const TotalApplicationProvider = ({ children }) => {
         getShortlistedApplicants,
         sendSchedule,
         fetchingNotification,
+        allApplicantsInfoTable,
 
         showAppliedInfo,
         setShowAppliedInfo,
@@ -82,6 +91,8 @@ const TotalApplicationProvider = ({ children }) => {
         setShowShortlisted,
         schedule,
         setSchedule,
+        showAllApplicantsTab,
+        setShowAllApplicantsTab,
     }
 
     return (

@@ -350,89 +350,68 @@ const findApplicantInfoByARecruiterJob = async (req, res) => {
  * 
  */
 //http://localhost:5000/api/v1/recruiter/${recruiterId}/applicants
-// const findAllUserAppliedToRecruiterJobs = async (req, res) => {
-//     const { recruiterId } = req.params;
+const findAllUserAppliedToRecruiterJobs2 = async (req, res) => {
+    try {
+        const { recruiterId } = req.params;
 
-//     console.log("\n\nRecruiterId ", recruiterId);
+        if (!recruiterId) {
+            return res.status(400).json({ success: false, message: "Recruiter ID is required." });
+        }
 
-//     //find the all jobs
-//     const recruiterJobs = await ActiveJobsModel.find({ recruiter: recruiterId })
+        // 1. Get all jobs posted by the recruiter
+        const recruiterJobs = await ActiveJobsModel.find({ recruiter: recruiterId });
 
-//     console.log("\n\nRecruiter JOBS ", recruiterJobs);
-//     console.log("\n\nRecruiter JOBS length", recruiterJobs.length);
+        if (!recruiterJobs.length) {
+            return res.status(404).json({ success: false, message: "No jobs found for this recruiter." });
+        }
 
-//     const jobId = recruiterJobs.map(re => re._id)
-//     console.log("Job Id s ", jobId);
+        const jobIds = recruiterJobs.map(job => job._id);
 
+        // 2. Find all applications to those jobs
+        const applications = await JobApplicationModel.find({
+            job: { $in: jobIds }
+        }).populate("user");
 
-//     //now find all users who applied to these jobs
-//     const allAppliedJobs = await JobApplicationModel.find({
-//         job: { $in: jobId },
-//     })
+        if (!applications.length) {
+            return res.status(404).json({ success: false, message: "No applications found for recruiter's jobs." });
+        }
 
-//     console.log("\n\allAppliedJobs ", allAppliedJobs);
+        // 3. Group by user and collect applied jobs
+        const userJobMap = new Map();
 
+        applications.forEach(app => {
+            if (!app.user) return; // skip if user info missing (optional safety)
 
-//     const userId = allAppliedJobs.map(u => u.user)
-//     // console.log("User id ", userId);
+            const userId = app.user._id.toString();
+            const jobId = app.job.toString();
 
-//     //Find all the user
-//     const allUsers = await UserModel.find(
-//         { _id: { $in: userId } }
-//     ).select("+appliedJobIds +appliedApplicationCount");
+            if (!userJobMap.has(userId)) {
+                userJobMap.set(userId, {
+                    name: app.user.name,
+                    appliedJobIds: [jobId]
+                });
+            } else {
+                userJobMap.get(userId).appliedJobIds.push(jobId);
+            }
+        });
 
-//     console.log("All User ", allUsers);
+        // 4. Build final result array
+        const result = Array.from(userJobMap.values()).map(user => ({
+            name: user.name,
+            appliedJobCount: user.appliedJobIds.length,
+            appliedJobIds: user.appliedJobIds
+        }));
 
-
-//     // get the applied job ids
-//     const appliedJobIds = allUsers.map(ids => ids.appliedJobIds).flat();
-//     console.log("appliedJobIds ", appliedJobIds);
-
-//     const matched_ids = await ActiveJobsModel.find({
-//         _id: { $in: appliedJobIds }
-//     })
-
-//     console.log("Matched Ids ", matched_ids);
-//     console.log("Matched Ids length", matched_ids.length);
-
-
-
-
-//     // all user i can fetch the ids
-//     const appliedJobsId = allUsers.map(jobs => jobs.appliedJobIds).flat()
-
-//     // console.log("appliedJobsId", appliedJobsId);
-
-//     //now i can fetch the job infor
-//     const info = await ActiveJobsModel.find({ _id: appliedJobsId })
-//     // console.log("Job info ", info);
-//     // console.log("Job info length", info.length);
-
-
-//     //extract the jobTitle, status, jobType
-//     const result = info.map(job => ({
-//         jobTitle: job.jobTitle,
-//         status: job.status,
-//         jobType: job.jobCategory
-//     }))
+        return res.status(200).json({ success: true, data: result });
+    } catch (error) {
+        console.error("Error in findAllUserAppliedToRecruiterJobs2:", error);
+        return res.status(500).json({ success: false, message: "Server error occurred." });
+    }
+};
 
 
-//     // console.log("\nFinal result ", result);
-//     // console.log("\nFinal result length ", result.length);
 
 
-//     res.status(200).json({
-//         status: true,
-//         message: "All user applied to recruiter jobs",
-//         data: {
-//             userInfo: allUsers,
-//             jobInfo: result,
-//             matchedJobs: matched_ids,
-//         }
-//     })
-
-//     // res.send("Done");
-// }
 
 
 /**
@@ -483,14 +462,15 @@ const findAllUserAppliedToRecruiterJobs = async (req, res) => {
 
         // Step 5: Send response
         res.status(200).json({
-            status: true,
+            success: true,
             message: "All users who applied to this recruiter's jobs",
+            count: flatResult.length,
             data: flatResult
         });
 
     } catch (error) {
         console.error("Error fetching data:", error);
-        res.status(500).json({ status: false, message: "Server error" });
+        res.status(500).json({ success: false, message: "Server error" });
     }
 };
 
@@ -782,7 +762,7 @@ const expireOldJobs = async () => {
             { $set: { status: "expired" } }
         );
 
-        console.log(`✅ ${result.modifiedCount} jobs marked as expired`);
+        // console.log(`✅ ${result.modifiedCount} jobs marked as expired`);
     } catch (error) {
         console.error("❌ Error expiring jobs:", error.message);
     }
@@ -792,4 +772,7 @@ const expireOldJobs = async () => {
 
 
 
-module.exports = { showRecuiterJobs, getMostPopularJobsByARecruiter, getJobsWithNoApplicantsByARecuiter, recentlyPublishedJobs, closingJobByARecruiter, applicationsInfoToRecruiter, findApplicantInfoByARecruiterJob, findAllUserAppliedToRecruiterJobs, findApplicantDetailsInfoToRecruiterJob, todaysNewApplication, findjobsByRecruiterId, fetchExpiredJobs, expireOldJobs, fethcActiveJobs }
+module.exports = {
+    showRecuiterJobs, getMostPopularJobsByARecruiter, getJobsWithNoApplicantsByARecuiter, recentlyPublishedJobs, closingJobByARecruiter, applicationsInfoToRecruiter, findApplicantInfoByARecruiterJob, findAllUserAppliedToRecruiterJobs, findApplicantDetailsInfoToRecruiterJob, todaysNewApplication, findjobsByRecruiterId, fetchExpiredJobs, expireOldJobs,
+    fethcActiveJobs, findAllUserAppliedToRecruiterJobs2
+}
