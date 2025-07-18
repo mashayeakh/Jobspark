@@ -6,7 +6,10 @@ export const GraphsContext = createContext();
 
 const GraphsContextProvider = ({ children }) => {
 
+
     const { user } = useContext(AuthContext);
+
+    //Line Data
     const [lineData, setLineData] = useState([]);
     const fetchLineData = async () => {
         const url = `http://localhost:5000/api/v1/graphs/recruiter/${user?._id}/application/over-time`;
@@ -16,18 +19,32 @@ const GraphsContextProvider = ({ children }) => {
         }
     }
 
+    //Bar Data
+    const [barData, setBarData] = useState([]);
+    const fetchingBarData = async () => {
+        const url = `http://localhost:5000/api/v1/graphs/recruiter/${user?._id}/job-wise-applications`;
+        const res = await getMethod(url);
+        if (res.success === true) {
+            setBarData(res);
+        }
+    }
+
     useEffect(() => {
         if (!user?._id) return;
 
         fetchLineData();
+        fetchingBarData();
     }, [user?._id])
 
     const addInfo = {
         fetchLineData,
+        fetchingBarData,
 
 
         lineData,
-        setLineData
+        setLineData,
+        barData,
+        setBarData,
     }
 
 

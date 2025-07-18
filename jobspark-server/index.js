@@ -30,7 +30,10 @@ const networkRoutes = require("./Routes/NetworkRouter/NetworkRouter");
 
 const aiRoutes = require("./Routes/AiBasedRouter/AiJobsRouter");
 
-const graphRoutes = require("./Routes/ApplicationGraphRouter/ApplicationOverTime")
+const appliationOverTimeGraphs = require("./Routes/ApplicationGraphRouter/ApplicationOverTime")
+
+const appliationsPerJobs = require("./Routes/ApplicationGraphRouter/ApplicationsPerJobs")
+
 
 const { default: mongoose } = require("mongoose");
 const { expireOldJobs } = require("./Controller/RecruiterController/RecruiterJobsController");
@@ -71,8 +74,6 @@ app.use("/api/v1", companyRoutes);
 
 app.use("/api/v1", filterRoutes);
 
-//application graphs
-app.use("/api/v1/graphs", graphRoutes);
 
 
 //Gemini api
@@ -80,7 +81,9 @@ app.use("/api/v1/network", networkRoutes);
 app.use("/api/v1/ai", aiRoutes);
 
 
-
+//application graphs
+app.use("/api/v1/graphs", appliationOverTimeGraphs);
+app.use("/api/v1/graphs", appliationsPerJobs);
 
 
 app.listen(port, () => {

@@ -71,18 +71,14 @@ const staggerContainer = (staggerChildren, delayChildren) => {
 //     { date: 'Jul 17', total: 1 },
 // ];
 
-const barData = [
-    { job: 'UI/UX Designer', applicants: 2 },
-    { job: 'Frontend Dev', applicants: 3 },
-    { job: 'AI Intern', applicants: 1 },
-    { job: 'Graphic Designer', applicants: 2 },
-];
+// const barData = [
+//     { job: 'UI/UX Designer', applicants: 2 },
+//     { job: 'Frontend Dev', applicants: 3 },
+//     { job: 'AI Intern', applicants: 1 },
+//     { job: 'Graphic Designer', applicants: 2 },
+// ];
 
-const pieData = [
-    { name: 'New', value: 3 },
-    { name: 'Shortlisted', value: 5 },
-    { name: 'Rejected', value: 0 },
-];
+
 
 const areaData = [
     { date: 'Jul 12', new: 1, shortlisted: 0 },
@@ -128,12 +124,17 @@ const ApplicationGraphDashboard = () => {
 
 
     const { getAllApplicants, applied, activity } = useContext(TotalApplicationContext);
+    const { lineData, barData } = useContext(GraphsContext);
 
+    console.log("AC ", activity);
 
+    const { rejectedCount, shortlistedCount } = activity;
 
-    const { lineData } = useContext(GraphsContext);
-
-    console.log("LineData ", lineData);
+    const pieData = [
+        { name: 'New', value: 3 - (shortlistedCount + rejectedCount) }, // optional logic
+        { name: 'Shortlisted', value: shortlistedCount },
+        { name: 'Rejected', value: rejectedCount }
+    ];
 
 
     return (
@@ -341,7 +342,7 @@ const ApplicationGraphDashboard = () => {
                                 📊 Applications Per Job
                             </Typography>
                             <ResponsiveContainer width="100%" height="85%">
-                                <BarChart data={barData}>
+                                <BarChart data={barData?.data}>
                                     <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                                     <XAxis dataKey="job" stroke="#888" />
                                     <YAxis stroke="#888" />
