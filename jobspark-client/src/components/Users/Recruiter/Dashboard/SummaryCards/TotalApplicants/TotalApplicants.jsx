@@ -10,7 +10,7 @@ import { motion, AnimatePresence, useAnimation } from 'framer-motion';
 
 const TotalApplicants = () => {
     // Original state and context hooks
-    const { appliedInfo, allApplicantsInfo, newApplicantsToday, allApplicantsInfoTable } = useContext(TotalApplicationContext);
+    const { appliedInfo, allApplicantsInfo, newApplicantsToday, allApplicantsInfoTable, activity } = useContext(TotalApplicationContext);
     const { user } = useContext(AuthContext);
     const [showDataInfo, setShowDataInfo] = useState({});
     const [showAllApplicantsInfoInGridView, setShowAllApplicantsInfoInGridView] = useState({});
@@ -141,19 +141,15 @@ const TotalApplicants = () => {
     const showAllInfoTable = async () => {
         const url = `http://localhost:5000/api/v1/recruiter/${user?._id}/all-applicants-info`;
         // const url = `http://localhost:5000/api/v1/recruiter/${user?._id}/applicants`
-        console.log("hit table", url);
         try {
             const data = await allApplicantsInfoTable(url);
             if (data.success === true) {
-
                 setShowAllApplicantsTableView(data);
             }
         } catch (err) {
             console.log("Error from total Application", err.message);
         }
     };
-
-
 
 
     const newApplication = async () => {
@@ -179,28 +175,39 @@ const TotalApplicants = () => {
     console.log("VV", showAllApplicantsInfoInGridView);
     console.log("tab", showAllApplicantsTableView);
 
-    useEffect(() => {
-        const fetchCounts = async () => {
-            try {
-                setLoading(true);
-                const response = await fetch(
-                    `http://localhost:5000/api/v1/recruiter/${user?._id}/numOfStatus`
-                );
-                if (!response.ok) throw new Error("Network response was not ok");
-                const data = await response.json();
-                setCounts({
-                    shortlistedCount: data.shortlistedCount,
-                    rejectedCount: data.rejectedCount,
-                });
-                setLoading(false);
-            } catch (err) {
-                setError("Failed to fetch counts");
-                setLoading(false);
-            }
-        };
 
-        if (user?._id) fetchCounts();
-    }, [user?._id]);
+    // const test = () => {
+    //     activity?.shortlistedCount;
+    // }
+
+    console.log("ACTIVITY ", activity);
+
+
+    // useEffect(() => {
+    //     // const fetchCounts = async () => {
+    //     //     try {
+    //     //         setLoading(true);
+    //     //         const url = `http://localhost:5000/api/v1/recruiter/${user?._id}/numOfStatus`
+    //     //         console.log("Calling from ", url);
+    //     //         const response = await fetch(
+    //     //             url
+    //     //         );
+    //     //         if (!response.ok) throw new Error("Network response was not ok");
+    //     //         const data = await response.json();
+    //     //         setCounts({
+    //     //             shortlistedCount: data.shortlistedCount,
+    //     //             rejectedCount: data.rejectedCount,
+    //     //         });
+    //     //         setLoading(false);
+    //     //     } catch (err) {
+    //     //         setError("Failed to fetch counts");
+    //     //         setLoading(false);
+    //     //     }
+    //     // };
+
+    //     if (user?._id)
+    //         activity.shortlistedCount
+    // }, [user?._id]);
 
     const totalApplicants = showDataInfo.data?.jobs.map(j => j?.applicantsCount || 0).reduce((acc, crrVal) => acc + crrVal, 0);
 
@@ -304,14 +311,14 @@ const TotalApplicants = () => {
                         },
                         {
                             title: "Shortlisted",
-                            value: counts.shortlistedCount,
+                            value: activity?.shortlistedCount || 0,
                             icon: <MdOutlineEmail className="text-yellow-600 text-xl" />,
                             color: "yellow",
                             delay: 0.3
                         },
                         {
                             title: "Rejected",
-                            value: counts.rejectedCount,
+                            value: activity?.rejectedCount || 0,
                             icon: <MdCleaningServices className="text-red-600 text-xl" />,
                             color: "red",
                             delay: 0.4
@@ -542,6 +549,7 @@ const TotalApplicants = () => {
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Job Title</th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Job Type</th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Applied At</th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                     </tr>
                                 </thead>
@@ -573,6 +581,14 @@ const TotalApplicants = () => {
                                                     whileHover={{ scale: 1.05 }}
                                                 >
                                                     {applicant?.status}
+                                                </motion.span>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                <motion.span
+                                                    className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-sky-200 text-green-800"
+                                                    whileHover={{ scale: 1.05 }}
+                                                >
+                                                    {applicant?.appliedAt}
                                                 </motion.span>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">

@@ -436,7 +436,8 @@ const findAllUserAppliedToRecruiterJobs = async (req, res) => {
             job: { $in: recruiterJobIds },
         })
             .populate("user")
-            .populate("job");
+            .populate("job")
+            .populate("appliedAt");
 
         console.log("All app", allApplications);
         console.log("All app length", allApplications.length);
@@ -450,7 +451,8 @@ const findAllUserAppliedToRecruiterJobs = async (req, res) => {
                 jobId: app.job._id.toString(),
                 jobTitle: app.job.jobTitle,
                 jobType: app.job.jobCategory,
-                status: app.job.status
+                status: app.job.status,
+                appliedAt: new Date(app.appliedAt).toLocaleDateString(),
             }));
 
 

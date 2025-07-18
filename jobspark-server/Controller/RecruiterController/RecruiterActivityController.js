@@ -120,12 +120,13 @@ const getNumOfStatus = async (req, res) => {
         });
 
         return res.status(200).json({
+            success: true,
             shortlistedCount: numOfShortListing,
             rejectedCount: numOfRejection,
         });
     } catch (error) {
         return res.status(500).json({
-            status: false,
+            success: false,
             message: "Error fetching status counts",
             error: error.message,
         });
