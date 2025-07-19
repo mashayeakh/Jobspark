@@ -80,14 +80,14 @@ const staggerContainer = (staggerChildren, delayChildren) => {
 
 
 
-const areaData = [
-    { date: 'Jul 12', new: 1, shortlisted: 0 },
-    { date: 'Jul 13', new: 0, shortlisted: 1 },
-    { date: 'Jul 14', new: 2, shortlisted: 1 },
-    { date: 'Jul 15', new: 3, shortlisted: 2 },
-    { date: 'Jul 16', new: 1, shortlisted: 1 },
-    { date: 'Jul 17', new: 2, shortlisted: 0 },
-];
+// const areaData = [
+//     { date: 'Jul 12', new: 1, shortlisted: 0 },
+//     { date: 'Jul 13', new: 0, shortlisted: 1 },
+//     { date: 'Jul 14', new: 2, shortlisted: 1 },
+//     { date: 'Jul 15', new: 3, shortlisted: 2 },
+//     { date: 'Jul 16', new: 1, shortlisted: 1 },
+//     { date: 'Jul 17', new: 2, shortlisted: 0 },
+// ];
 
 const categoryData = [
     { category: ' Dev', count: 5 },
@@ -124,9 +124,13 @@ const ApplicationGraphDashboard = () => {
 
 
     const { getAllApplicants, applied, activity } = useContext(TotalApplicationContext);
-    const { lineData, barData } = useContext(GraphsContext);
+    const { lineData, barData, areaData, byHours, categoryWise } = useContext(GraphsContext);
 
+    console.log("ARAE DATA ", areaData);
     console.log("AC ", activity);
+    console.log("BH ", byHours);
+    console.log("CATE ", categoryWise);
+
 
     const { rejectedCount, shortlistedCount } = activity;
 
@@ -135,6 +139,9 @@ const ApplicationGraphDashboard = () => {
         { name: 'Shortlisted', value: shortlistedCount },
         { name: 'Rejected', value: rejectedCount }
     ];
+
+
+
 
 
     return (
@@ -447,7 +454,7 @@ const ApplicationGraphDashboard = () => {
                                 📊 Daily Activity
                             </Typography>
                             <ResponsiveContainer width="100%" height="85%">
-                                <AreaChart data={areaData}>
+                                <AreaChart data={areaData?.data}>
                                     <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                                     <XAxis dataKey="date" stroke="#888" />
                                     <YAxis stroke="#888" />
@@ -504,7 +511,7 @@ const ApplicationGraphDashboard = () => {
                                 📁 Category-wise Applications
                             </Typography>
                             <ResponsiveContainer width="100%" height="85%">
-                                <BarChart layout="vertical" data={categoryData}>
+                                <BarChart layout="vertical" data={categoryWise?.data}>
                                     <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                                     <XAxis type="number" stroke="#888" />
                                     <YAxis type="category" dataKey="category" stroke="#888" />
@@ -549,7 +556,7 @@ const ApplicationGraphDashboard = () => {
                                 🕒 Applications by Hour
                             </Typography>
                             <ResponsiveContainer width="100%" height="85%">
-                                <BarChart data={hourData}>
+                                <BarChart data={byHours?.data}>
                                     <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                                     <XAxis dataKey="hour" stroke="#888" />
                                     <YAxis stroke="#888" />

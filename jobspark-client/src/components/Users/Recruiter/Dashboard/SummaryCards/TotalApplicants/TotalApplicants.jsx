@@ -227,6 +227,29 @@ const TotalApplicants = () => {
         };
     }, []);
 
+    useEffect(() => {
+        if (!user?._id) return;
+
+        const fetchAllData = async () => {
+            try {
+                setLoading(true);
+                await Promise.all([
+                    showInfo(),
+                    showAllInfoGrid(),
+                    newApplication(),
+                    showAllInfoTable()
+                ]);
+            } catch (error) {
+                console.error("Error fetching data:", error);
+                setError(error.message);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchAllData();
+    }, [user?._id]);
+
     return (
         <motion.div
             initial={{ opacity: 0 }}

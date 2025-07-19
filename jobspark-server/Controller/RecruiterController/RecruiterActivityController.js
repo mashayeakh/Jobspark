@@ -1,3 +1,4 @@
+const { default: mongoose } = require("mongoose");
 const UserModel = require("../../Model/AccountModel/UserModel");
 const JobApplicationModel = require("../../Model/JobApplicationModel/JobApplicationModel");
 const ActiveJobsModel = require("../../Model/RecruiterModel/ActiveJobsModel");
@@ -190,11 +191,184 @@ const getShortlistedCandidates = async (req, res) => {
     }
 };
 
+//req - GET /api/v1/jobs/recruiter/:recruiterId/daily-activity
+
+
+const getDailyActivity = async (req, res) => {
+    try {
+        const { recruiterId } = req.params;
+
+        // Step 1: Get all job IDs for the recruiter
+        const recruiterJobs = await ActiveJobsModel.find({ recruiter: recruiterId });
+
+        const recruiterJobIds = recruiterJobs.map(job => job._id);
+
+        // Step 2: Get new applicants (JobApplicationModel)
+        const applications = await JobApplicationModel.find({
+            job: { $in: recruiterJobIds },
+        });
+
+        const newPerDay = {};
+        applications.forEach(r => {
+            const date = new Date(r.createdAt).toLocaleDateString();
+            newPerDay[date] = (newPerDay[date] || 0) + 1;
+        });
+
+        // Step 3: Get shortlisted per day (RecruiterActivityModel)
+        const shortlistActivities = await RecruiterActivityModel.find({
+            job: { $in: recruiterJobIds },
+            recruiter: recruiterId,
+            status: "shortlisted"
+        });
+
+        const shortlistedPerDay = {};
+        shortlistActivities.forEach(r => {
+            const date = new Date(r.createdAt).toLocaleDateString();
+            shortlistedPerDay[date] = (shortlistedPerDay[date] || 0) + 1;
+        });
+
+        // Step 4: Combine dates
+        const allDates = Array.from(
+            new Set([...Object.keys(newPerDay), ...Object.keys(shortlistedPerDay)])
+        ).sort((a, b) => new Date(a) - new Date(b));
+
+        const finalData = allDates.map(date => ({
+            date,
+            new: newPerDay[date] || 0,
+            shortlisted: shortlistedPerDay[date] || 0
+        }));
+
+        return res.status(200).json({
+            success: true,
+            data: finalData
+        });
+
+    } catch (error) {
+        console.error("Error fetching daily activity:", error.message);
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+};
+
+
+// req = Get  /api/v1/jobs/recruiter/:recruiterId/app-perHour
+
+const getAppPerHour = async (req, res) => {
+    try {
+        const { recruiterId } = req.params;
+
+        // ✅ Validate recruiter ID
+        if (!recruiterId || !mongoose.Types.ObjectId.isValid(recruiterId)) {
+            return res.status(400).json({ success: false, message: "Invalid recruiter ID" });
+        }
+
+        // ✅ Get recruiter's jobs
+        const recruiterJobs = await ActiveJobsModel.find({ recruiter: recruiterId });
+        if (recruiterJobs.length === 0) {
+            return res.status(200).json({ success: true, message: "No jobs found for this recruiter", data: [] });
+        }
+
+        const jobIds = recruiterJobs.map(job => job._id);
+
+        // ✅ Get applications for those jobs
+        const applications = await JobApplicationModel.find({ job: { $in: jobIds } });
+        if (applications.length === 0) {
+            return res.status(200).json({ success: true, message: "No applications found for this recruiter", data: [] });
+        }
+
+        // ✅ Count by hour
+        const hourlyCounts = {};
+        applications.forEach(app => {
+            const hour = new Date(app.createdAt).getHours(); // 0–23
+            hourlyCounts[hour] = (hourlyCounts[hour] || 0) + 1;
+        });
+
+        // ✅ Format data for frontend
+        const formattedData = [];
+        for (let i = 0; i < 24; i++) {
+            const hourStr = i.toString().padStart(2, '0');
+            formattedData.push({
+                hour: hourStr,
+                apps: hourlyCounts[i] || 0
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "Applications grouped by hour",
+            data: formattedData
+        });
+
+    } catch (error) {
+        console.error("Error in getAppPerHour:", error.message);
+        return res.status(500).json({
+            success: false,
+            message: "Server error while fetching hourly application data"
+        });
+    }
+};
+
+// req = Get  /api/v1/jobs/recruiter/:recruiterId/categorywise-App
+const getCategoryWiseApplications = async (req, res) => {
+    try {
+        const { recruiterId } = req.params;
+
+        // ✅ Validate recruiter ID
+        if (!recruiterId || !mongoose.Types.ObjectId.isValid(recruiterId)) {
+            return res.status(400).json({ success: false, message: "Invalid recruiter ID" });
+        }
+
+        // ✅ Step 1: Get all jobs posted by this recruiter
+        const recruiterJobs = await ActiveJobsModel.find({ recruiter: recruiterId });
+        if (recruiterJobs.length === 0) {
+            return res.status(200).json({ success: true, message: "No jobs found", data: [] });
+        }
+
+        const jobIdToCategoryMap = {};
+        recruiterJobs.forEach(job => {
+            jobIdToCategoryMap[job._id.toString()] = job.jobCategory;
+        });
+
+        const jobIds = recruiterJobs.map(job => job._id);
+
+        // ✅ Step 2: Find all applications to these jobs
+        const applications = await JobApplicationModel.find({
+            job: { $in: jobIds }
+        });
+
+        // ✅ Step 3: Count category-wise applications
+        const categoryCounts = {};
+
+        applications.forEach(app => {
+            const jobId = app.job.toString();
+            const category = jobIdToCategoryMap[jobId] || "Unknown";
+
+            categoryCounts[category] = (categoryCounts[category] || 0) + 1;
+        });
+
+        // ✅ Step 4: Format for frontend
+        const formattedData = Object.entries(categoryCounts).map(([category, count]) => ({
+            category,
+            count
+        }));
+
+        return res.status(200).json({
+            success: true,
+            message: "Category-wise applications",
+            data: formattedData
+        });
+
+    } catch (error) {
+        console.error("Error in getCategoryWiseApplications:", error.message);
+        return res.status(500).json({
+            success: false,
+            message: "Server error while fetching category-wise applications"
+        });
+    }
+};
 
 
 
 
 
 
-
-module.exports = { test, shortListing, getRecruiterStatus, getNumOfStatus, getNumOfStatus, getShortlistedCandidates }
+module.exports = { test, shortListing, getRecruiterStatus, getNumOfStatus, getNumOfStatus, getShortlistedCandidates, getDailyActivity, getAppPerHour, getCategoryWiseApplications }

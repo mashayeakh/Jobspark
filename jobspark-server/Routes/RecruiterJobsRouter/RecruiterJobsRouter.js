@@ -1,6 +1,7 @@
 
 const express = require("express");
 const { showRecuiterJobs, getMostPopularJobsByARecruiter, getJobsWithNoApplicantsByARecuiter, recentlyPublishedJobs, closingJobByARecruiter, applicationsInfoToRecruiter, findApplicantInfoByARecruiterJob, findAllUserAppliedToRecruiterJobs, findApplicantDetailsInfoToRecruiterJob, todaysNewApplication, findjobsByRecruiterId, fetchExpiredJobs, fethcActiveJobs, findAllUserAppliedToRecruiterJobs2 } = require("../../Controller/RecruiterController/RecruiterJobsController");
+const { dailyActivity, getDailyActivity, getAppPerHour, getCategoryWiseApplications } = require("../../Controller/RecruiterController/RecruiterActivityController");
 findApplicantDetailsInfoToRecruiterJob
 const router = express.Router();
 
@@ -21,7 +22,9 @@ router.get("/today/recruiter/:recruiterId", todaysNewApplication);
 router.get("/jobs/recruiter/:recruiterId", findjobsByRecruiterId);
 router.get("/activeJobs/:recruiterId", fethcActiveJobs);
 router.get("/expiredJobs/:recruiterId", fetchExpiredJobs);
+router.get("/recruiter/:recruiterId/daily-activity", getDailyActivity);
+router.get("/recruiter/:recruiterId/apps-perHour", getAppPerHour);
+router.get("/recruiter/:recruiterId/categorywise-App", getCategoryWiseApplications);
 
-// router.get("/job/recruiter", showRecruiterJobs);
 
 module.exports = router
