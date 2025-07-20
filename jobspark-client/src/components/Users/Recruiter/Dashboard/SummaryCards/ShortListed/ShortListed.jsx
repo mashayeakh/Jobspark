@@ -3,6 +3,8 @@ import { FaSort, FaSearch, FaCalendarAlt, FaUniversity, FaCode, FaBriefcase, FaU
 import { motion } from 'framer-motion';
 import { TotalApplicationContext } from './../../../../../Context/TotalApplicationProvider';
 import { AuthContext } from '../../../../../Context/AuthContextProvider';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const ShortListed = () => {
     const { getShortlistedApplicants, sendSchedule } = useContext(TotalApplicationContext);
@@ -12,6 +14,7 @@ const ShortListed = () => {
     const [disabledApplicantIds, setDisabledApplicantIds] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [isLoading, setIsLoading] = useState(true);
+    const [isScheduling, setIsScheduling] = useState(false);
 
     const recruiterId = user?._id;
 
@@ -25,6 +28,7 @@ const ShortListed = () => {
             }
         } catch (err) {
             console.error("Error fetching shortlisted applicants:", err.message);
+            toast.error('Failed to load applicants');
         } finally {
             setIsLoading(false);
         }
@@ -37,6 +41,8 @@ const ShortListed = () => {
 
     const sendingSchedule = async (e) => {
         e.preventDefault();
+        setIsScheduling(true);
+
         const data = {
             recruiter: e.target.recruiter_id.value.trim(),
             applicant: e.target.applicantId.value.trim(),
@@ -54,12 +60,15 @@ const ShortListed = () => {
                 setDisabledApplicantIds(prev => [...prev, data.applicant.trim()]);
                 e.target.reset();
                 document.getElementById('my_modal_5').close();
+                toast.success('Interview scheduled successfully!');
             } else {
-                alert(response.message || "Failed to schedule interview");
+                toast.error(response.message || "Failed to schedule interview");
             }
         } catch (error) {
             console.error("Error scheduling interview:", error);
-            alert(`Interview already scheduled for this applicant and job.`);
+            toast.error(error.response?.data?.message || "Interview already scheduled for this applicant and job.");
+        } finally {
+            setIsScheduling(false);
         }
     };
 
@@ -100,6 +109,19 @@ const ShortListed = () => {
             variants={fadeIn}
             className="p-4 md:p-6"
         >
+            <ToastContainer
+                position="top-right"
+                autoClose={5000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="light"
+            />
+
             {/* Header Section */}
             <div className="mb-8">
                 <h1 className="text-3xl font-bold text-gray-800 mb-2">Shortlisted Applicants</h1>
@@ -248,70 +270,92 @@ const ShortListed = () => {
             </div>
 
             {/* Schedule Interview Modal */}
-            <dialog id="my_modal_5" className="modal">
-                <div className="modal-box max-w-2xl">
-                    <div className="flex justify-between items-center mb-4">
-                        <h3 className="font-bold text-xl text-gray-800">Schedule Interview</h3>
+            <dialog id="my_modal_5" className="modal backdrop-blur-sm">
+                <div className="modal-box max-w-2xl bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-2xl border border-gray-200">
+                    <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-200">
+                        <div>
+                            <h3 className="font-bold text-2xl text-gray-800">Schedule Interview</h3>
+                            <p className="text-sm text-gray-500 mt-1">Set up meeting details for {selectedApplicant?.name || 'the candidate'}</p>
+                        </div>
                         <form method="dialog">
-                            <button className="btn btn-sm btn-circle btn-ghost">✕</button>
+                            <button
+                                className="btn btn-sm btn-circle btn-ghost hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors"
+                                disabled={isScheduling}
+                            >
+                                ✕
+                            </button>
                         </form>
                     </div>
-                    <form onSubmit={sendingSchedule} className="space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label className="label">
-                                    <span className="label-text font-medium">Recruiter ID</span>
+
+                    <form onSubmit={sendingSchedule} className="space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {/* Recruiter ID */}
+                            <div className="space-y-2">
+                                <label className="block">
+                                    <span className="label-text font-medium text-gray-700">Recruiter ID</span>
                                 </label>
                                 <input
                                     name="recruiter_id"
                                     type="text"
-                                    className="input input-bordered w-full"
+                                    className="input input-bordered w-full bg-gray-50 border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20"
                                     defaultValue={recruiterId}
                                     required
                                     readOnly
                                 />
                             </div>
-                            <div>
-                                <label className="label">
-                                    <span className="label-text font-medium">Job ID</span>
+
+                            {/* Job ID */}
+                            <div className="space-y-2">
+                                <label className="block">
+                                    <span className="label-text font-medium text-gray-700">Job ID</span>
                                 </label>
                                 <input
                                     name="jobId"
                                     defaultValue={selectedApplicant?.jobId}
                                     type="text"
-                                    className="input input-bordered w-full"
+                                    className="input input-bordered w-full bg-gray-50 border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20"
                                     required
                                     readOnly
                                 />
                             </div>
-                            <div>
-                                <label className="label">
-                                    <span className="label-text font-medium">Applicant ID</span>
+
+                            {/* Applicant ID */}
+                            <div className="space-y-2">
+                                <label className="block">
+                                    <span className="label-text font-medium text-gray-700">Applicant ID</span>
                                 </label>
                                 <input
                                     name="applicantId"
                                     defaultValue={selectedApplicant?.applicantId}
                                     type="text"
-                                    className="input input-bordered w-full"
+                                    className="input input-bordered w-full bg-gray-50 border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20"
                                     required
                                     readOnly
                                 />
                             </div>
-                            <div>
-                                <label className="label">
-                                    <span className="label-text font-medium">Interview Type</span>
+
+                            {/* Interview Type */}
+                            <div className="space-y-2">
+                                <label className="block">
+                                    <span className="label-text font-medium text-gray-700">Interview Type</span>
                                 </label>
-                                <select name="interviewType" className="select select-bordered w-full" required>
-                                    <option value="">Select type</option>
+                                <select
+                                    name="interviewType"
+                                    className="select select-bordered w-full bg-gray-50 border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20"
+                                    required
+                                >
+                                    <option value="">Select interview type</option>
                                     <option value="Google Meet">Google Meet (Online)</option>
                                     <option value="Zoom">Zoom (Online)</option>
                                     <option value="In-Person">In-Person</option>
                                 </select>
                             </div>
                         </div>
-                        <div>
-                            <label className="label">
-                                <span className="label-text font-medium">Date & Time</span>
+
+                        {/* Date & Time */}
+                        <div className="space-y-2">
+                            <label className="block">
+                                <span className="label-text font-medium text-gray-700">Date & Time</span>
                             </label>
                             <div className="relative">
                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -320,28 +364,55 @@ const ShortListed = () => {
                                 <input
                                     name="dateTime"
                                     type="datetime-local"
-                                    className="input input-bordered w-full pl-10"
+                                    className="input input-bordered w-full pl-10 bg-gray-50 border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20"
                                     required
                                 />
                             </div>
                         </div>
-                        <div>
-                            <label className="label">
-                                <span className="label-text font-medium">Notes (optional)</span>
+
+                        {/* Notes */}
+                        <div className="space-y-2">
+                            <label className="block">
+                                <span className="label-text font-medium text-gray-700">Notes (optional)</span>
                             </label>
                             <textarea
                                 name="notes"
-                                className="textarea textarea-bordered w-full"
-                                placeholder="Add any notes for the candidate..."
+                                className="textarea textarea-bordered w-full bg-gray-50 border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20"
+                                placeholder="Add meeting link, agenda, or special instructions..."
                                 rows={3}
                             />
                         </div>
-                        <div className="modal-action">
-                            <button type="submit" className="btn btn-primary">
-                                Send Schedule
-                            </button>
-                            <button type="button" className="btn" onClick={() => document.getElementById('my_modal_5').close()}>
+
+                        {/* Action Buttons */}
+                        <div className="modal-action pt-4 flex justify-end space-x-3">
+                            <button
+                                type="button"
+                                className="btn btn-ghost border border-gray-300 hover:bg-gray-100 text-gray-700"
+                                onClick={() => document.getElementById('my_modal_5').close()}
+                                disabled={isScheduling}
+                            >
                                 Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                className="btn btn-primary bg-gradient-to-r from-primary to-primary-dark hover:from-primary-dark hover:to-primary shadow-md hover:shadow-lg transition-all relative"
+                                disabled={isScheduling}
+                            >
+                                {isScheduling ? (
+                                    <>
+                                        <span className="opacity-0">Send Schedule</span>
+                                        <div className="absolute inset-0 flex items-center justify-center">
+                                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <>
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 1.414L10.586 9H7a1 1 0 100 2h3.586l-1.293 1.293a1 1 0 101.414 1.414l3-3a1 1 0 000-1.414z" clipRule="evenodd" />
+                                        </svg>
+                                        Send Schedule
+                                    </>
+                                )}
                             </button>
                         </div>
                     </form>

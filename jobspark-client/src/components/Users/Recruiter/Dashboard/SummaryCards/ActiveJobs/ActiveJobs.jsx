@@ -30,8 +30,9 @@ const ActiveJobs = () => {
         } else {
             console.log("Error from popular jobs ", data);
         }
-
     }
+
+    console.log("showPopularJob ", showPopularJob);
 
     useEffect(() => {
         if (!user?._id) return;
@@ -325,9 +326,9 @@ const ActiveJobs = () => {
                                             Most Popular Jobs
                                         </h2>
                                         <div className="mt-3">
-                                            <p className="text-gray-600 text-sm mb-1">UX/UI Designer</p>
+                                            <p className="text-gray-600 text-sm mb-1">{showPopularJob?.data?.jobTitle}</p>
                                             <div className="flex items-center text-xs text-gray-500 space-x-2">
-                                                <span>{showPopularJob.data?.applicantsCount || 0} Applicants</span>
+                                                <span>{showPopularJob?.data?.applicantsCount || 0} Applicants</span>
                                                 <span>•</span>
                                                 <span className={daysLeft <= 3 ? "text-red-500 font-medium" : "text-gray-500"}>
                                                     {daysLeft > 0

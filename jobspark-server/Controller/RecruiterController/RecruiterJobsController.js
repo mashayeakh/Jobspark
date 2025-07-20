@@ -111,7 +111,7 @@ const getJobsWithNoApplicantsByARecuiter = async (req, res) => {
         });
     }
 
-    const gettingRecruiterJob = await ActiveJobsModel.find({ recruiter: recruiterId })
+    const gettingRecruiterJob = await ActiveJobsModel.find({ recruiter: recruiterId, status: "ongoing" })
 
     if (!gettingRecruiterJob || gettingRecruiterJob.length === 0) {
         return res.status(400).json({
@@ -137,7 +137,6 @@ const getJobsWithNoApplicantsByARecuiter = async (req, res) => {
                 count: result.length,
             }
         })
-
 
     }
 }

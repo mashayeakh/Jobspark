@@ -17,6 +17,7 @@
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "googleapis": "^150.0.1",
+    "json2csv": "^6.0.0-alpha.2",
     "mongoose": "^8.15.0",
     "node-cron": "^4.2.1",
     "nodemailer": "^7.0.3"
