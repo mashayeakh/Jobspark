@@ -36,6 +36,8 @@ const appliationsPerJobs = require("./Routes/ApplicationGraphRouter/Applications
 
 const exportingActiveJobs = require("./Routes/ExportRoutes/ExportActiveJobsRouter");
 
+const exportingTotalApplication = require("./Routes/ExportRoutes/ExportTotalApplicationRouter");
+
 
 const { default: mongoose } = require("mongoose");
 const { expireOldJobs } = require("./Controller/RecruiterController/RecruiterJobsController");
@@ -88,7 +90,8 @@ app.use("/api/v1/graphs", appliationOverTimeGraphs);
 app.use("/api/v1/graphs", appliationsPerJobs);
 
 //exporting 
-app.use("/api/v1/export", exportingActiveJobs)
+app.use("/api/v1/export", exportingActiveJobs);
+app.use("/api/v1/export", exportingTotalApplication);
 
 
 app.listen(port, () => {

@@ -512,10 +512,10 @@ const ActiveJobs = () => {
                                     Comparison of full-time vs part-time job postings
                                 </p>
                             </div>
-                            <div className="flex gap-3 flex-wrap">
-                                <div className="flex items-center">
+                            <div className="flex gap-3 flex-wrap ">
+                                <div className="flex items-center ">
                                     <div className="w-3 h-3 rounded-full bg-indigo-500 mr-2"></div>
-                                    <span className="text-xs text-gray-600">Full-Time</span>
+                                    <span className="text-xs text-gray-600 ">Full-Time</span>
                                 </div>
                                 <div className="flex items-center">
                                     <div className="w-3 h-3 rounded-full bg-emerald-500 mr-2"></div>
@@ -611,10 +611,10 @@ const ActiveJobs = () => {
                                 Updated {new Date().toLocaleDateString()}
                             </p>
                             <button className="text-xs text-indigo-600 hover:text-indigo-800 flex items-center">
-                                View detailed report
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                {/* View detailed report */}
+                                {/* <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                </svg>
+                                </svg> */}
                             </button>
                         </div>
                     </div>

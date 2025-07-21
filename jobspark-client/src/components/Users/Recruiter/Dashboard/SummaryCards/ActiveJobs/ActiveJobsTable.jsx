@@ -11,7 +11,7 @@ import toast from 'react-hot-toast';
 const ActiveJobsTable = ({ sendJobsToParent }) => {
     const { user } = useContext(AuthContext);
     const recruiterId = user?._id;
-    const { fetchRecruiterAllActiveJobs } = useContext(ActiveJobsContext);
+    const { fetchRecruiterAllActiveJobs, downloadJobs } = useContext(ActiveJobsContext);
     const [actJobs, setActJobs] = useState([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const navigate = useNavigate();
@@ -91,6 +91,26 @@ const ActiveJobsTable = ({ sendJobsToParent }) => {
         navigate("/recruiter/dashboard/summary-cards/expired-Jobs");
     };
 
+    const [isDownloading, setIsDownloading] = useState(false);
+
+
+    const handleDownloadCSV = (e) => {
+        e.preventDefault();
+        // console.log("Download triggered");
+        // downloadJobs;
+
+        setIsDownloading(true);
+
+        const url = `http://localhost:5000/api/v1/export/recruiter/${user?._id}/active-jobs`;
+
+        setTimeout(() => {
+            window.location.href = url;
+            //after downloading is done, 
+            setIsDownloading(false);
+        }, 900)
+
+        // setIsDownloading(false);
+    }
 
     return (
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
@@ -115,8 +135,57 @@ const ActiveJobsTable = ({ sendJobsToParent }) => {
                     >
                         View Expired Jobs
                     </button>
+                    <button
+                        onClick={handleDownloadCSV}
+                        disabled={isDownloading}
+                        className={`
+                                btn bg-[#4c956c] gap-2 px-6 text-white 
+                                relative overflow-hidden
+                                transition-all duration-300
+                                hover:shadow-lg
+                                ${isDownloading ?
+                                'cursor-wait opacity-90' :
+                                'hover:scale-[1.02] active:scale-[0.98]'
+                            }
+                                `}
+                    >
+                        {isDownloading ? (
+                            <div className="flex items-center gap-2">
+                                <svg
+                                    className="animate-spin h-5 w-5 text-white"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                <span>Downloading...</span>
+                            </div>
+                        ) : (
+                            <div className="flex items-center gap-2">
+                                <svg
+                                    className="w-5 h-5"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                >
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                                </svg>
+                                <span>Download CSV</span>
+                            </div>
+                        )}
+
+                        {/* Animated background effect */}
+                        {isDownloading && (
+                            <div className="absolute inset-0 bg-primary/10 animate-pulse"></div>
+                        )}
+                    </button>
+
                 </div>
             </div>
+
 
             {/* Table */}
             <div className="overflow-x-auto">
@@ -391,7 +460,7 @@ const ActiveJobsTable = ({ sendJobsToParent }) => {
                             </label>
                             <textarea
                                 name="responsibility"
-                                className="textarea textarea-bordered h-24 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-200 border-gray-200 focus:border-blue-300 transition-all duration-200"
+                                className="input input-bordered w-full h-28 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-200 border-gray-200 focus:border-blue-300 transition-all duration-200"
                                 placeholder="List key responsibilities (separate with bullet points or commas)..."
                                 required
                             ></textarea>
@@ -404,7 +473,7 @@ const ActiveJobsTable = ({ sendJobsToParent }) => {
                             </label>
                             <textarea
                                 name="description"
-                                className="textarea textarea-bordered h-32 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-200 border-gray-200 focus:border-blue-300 transition-all duration-200"
+                                className="input input-bordered w-full h-32 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-200 border-gray-200 focus:border-blue-300 transition-all duration-200"
                                 placeholder="Detailed job description including company culture, benefits, etc..."
                                 required
                             ></textarea>
@@ -430,7 +499,7 @@ const ActiveJobsTable = ({ sendJobsToParent }) => {
                     </form>
                 </div>
             </dialog>
-        </div>
+        </div >
     );
 };
 

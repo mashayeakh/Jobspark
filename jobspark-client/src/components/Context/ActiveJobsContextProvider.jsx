@@ -142,7 +142,15 @@ const ActiveJobsContextProvider = ({ children }) => {
     //     }
     // }
 
-
+    const [downloadJobs, setDownloadJobs] = useState([]);
+    const downloadActiveJobs = async () => {
+        const url = `http://localhost:5000/api/v1/export/recruiter/${user?._id}/active-jobs`;
+        const res = await getMethod(url);
+        if (res) {
+            setDownloadJobs(res);   
+            return res
+        }
+    }
 
     const addInfo = {
         fetchActiveJobsFromAPI,
@@ -159,6 +167,7 @@ const ActiveJobsContextProvider = ({ children }) => {
         filteredJobs,
         fetchHotJobs,
         // fetchEx,
+        downloadActiveJobs,
 
 
 
@@ -187,6 +196,8 @@ const ActiveJobsContextProvider = ({ children }) => {
         setHotJobs,
         // ex,
         // setEx,
+        downloadJobs,
+        setDownloadJobs
     }
 
 
