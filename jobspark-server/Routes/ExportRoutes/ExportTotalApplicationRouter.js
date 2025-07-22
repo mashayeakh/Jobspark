@@ -3,6 +3,6 @@ const { exportTotalApplication } = require("../../Controller/ExportController/To
 
 const router = express.Router();
 
-router.get("/recruiter/:recruiterId/total-application/export", exportTotalApplication);
+router.get("/recruiter/:recruiterId/total-application/", exportTotalApplication);
 
 module.exports = router; 

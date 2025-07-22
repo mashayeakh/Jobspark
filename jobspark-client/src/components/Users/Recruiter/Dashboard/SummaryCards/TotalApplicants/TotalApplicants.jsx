@@ -250,6 +250,21 @@ const TotalApplicants = () => {
         fetchAllData();
     }, [user?._id]);
 
+
+    const [isDownloading, setIsDownloading] = useState(false);
+
+    const handleDownloadCSV = (e) => {
+        e.preventDefault();
+        setIsDownloading(true);
+
+        const url = `http://localhost:5000/api/v1/export/recruiter/${user?._id}/total-application`;
+        setTimeout(() => {
+            window.location.href = url;
+            //after downloading is done, 
+            setIsDownloading(false);
+        }, 900)
+    }
+
     return (
         <motion.div
             initial={{ opacity: 0 }}
@@ -293,21 +308,65 @@ const TotalApplicants = () => {
                             whileTap={{ scale: 0.98 }}
                             className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-200"
                         >
-                            <span className="text-sm text-gray-600">View:</span>
+                            {/* <span className="text-sm text-gray-600">View:</span> */}
                             <button
                                 onClick={() => setView(true)}
-                                className={`p-2 rounded-md transition-colors ${view ? 'bg-blue-100 text-blue-600' : 'text-gray-500 hover:bg-gray-100'}`}
+                                className={`p-2 rounded-md transition-colors cursor-pointer ${view ? 'bg-blue-100 text-blue-600' : 'text-gray-500 hover:bg-gray-100'}`}
                             >
                                 <MdGridView size={20} />
                             </button>
                             <button
                                 onClick={() => setView(false)}
-                                className={`p-2 rounded-md transition-colors ${!view ? 'bg-blue-100 text-blue-600' : 'text-gray-500 hover:bg-gray-100'}`}
+                                className={`p-2 rounded-md transition-colors cursor-pointer ${!view ? 'bg-blue-100 text-blue-600' : 'text-gray-500 hover:bg-gray-100'}`}
                             >
                                 <MdOutlineTableChart size={20} />
                             </button>
-                            <button className='btn btn-primary'>
-                                Downlaod application List
+                            <button
+                                onClick={handleDownloadCSV}
+                                disabled={isDownloading}
+                                className={`
+                                btn bg-[#4c956c] gap-2 px-6 text-white 
+                                relative overflow-hidden
+                                transition-all duration-300
+                                hover:shadow-lg
+                                ${isDownloading ?
+                                        'cursor-wait opacity-90' :
+                                        'hover:scale-[1.02] active:scale-[0.98]'
+                                    }
+                                `}
+                            >
+                                {isDownloading ? (
+                                    <div className="flex items-center gap-2">
+                                        <svg
+                                            className="animate-spin h-5 w-5 text-white"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                        <span>Downloading...</span>
+                                    </div>
+                                ) : (
+                                    <div className="flex items-center gap-2">
+                                        <svg
+                                            className="w-5 h-5"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                        >
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                                        </svg>
+                                        <span>Download CSV</span>
+                                    </div>
+                                )}
+
+                                {/* Animated background effect */}
+                                {isDownloading && (
+                                    <div className="absolute inset-0 bg-primary/10 animate-pulse"></div>
+                                )}
                             </button>
                         </motion.div>
                     </div>
@@ -565,35 +624,33 @@ const TotalApplicants = () => {
                             initial="hidden"
                             animate="visible"
                             exit="exit"
-                            className="relative overflow-x-auto bg-white rounded-xl shadow-sm p-4 border border-gray-200"
+                            className="relative overflow-x-auto bg-white/80 backdrop-blur-sm rounded-xl shadow-lg p-4 border border-gray-200/20"
                         >
-                            {/* Download Button - positioned top-right */}
+                            {/* Enhanced Download Button */}
                             <motion.div
                                 initial={{ opacity: 0, y: -10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.2 }}
                                 className="absolute top-4 right-4 z-10"
                             >
-                                <button>
-                                    Downlaod
-                                </button>
                                 {/* <button
-                                    onClick={handleDownloadCSV}
+                                    onClick={handleDownloadApplicantsCSV}
                                     disabled={isDownloading}
                                     className={`
-                flex items-center gap-2 px-4 py-2 rounded-md
-                bg-blue-600 text-white text-sm font-medium
-                hover:bg-blue-700 transition-all duration-200
-                shadow-md hover:shadow-lg
-                ${isDownloading ? 'opacity-80 cursor-wait' : ''}
-            `}
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.95 }}
+                                btn bg-[#4c956c] gap-2 px-6 text-white 
+                                relative overflow-hidden
+                                transition-all duration-300
+                                hover:shadow-lg
+                                ${isDownloading ?
+                                            'cursor-wait opacity-90' :
+                                            'hover:scale-[1.02] active:scale-[0.98]'
+                                        }
+                                `}
                                 >
                                     {isDownloading ? (
-                                        <>
+                                        <div className="flex items-center gap-2">
                                             <svg
-                                                className="animate-spin h-4 w-4 text-white"
+                                                className="animate-spin h-5 w-5 text-white"
                                                 xmlns="http://www.w3.org/2000/svg"
                                                 fill="none"
                                                 viewBox="0 0 24 24"
@@ -601,12 +658,12 @@ const TotalApplicants = () => {
                                                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                             </svg>
-                                            Downloading...
-                                        </>
+                                            <span>Downloading...</span>
+                                        </div>
                                     ) : (
-                                        <>
+                                        <div className="flex items-center gap-2">
                                             <svg
-                                                className="w-4 h-4"
+                                                className="w-5 h-5"
                                                 fill="none"
                                                 stroke="currentColor"
                                                 viewBox="0 0 24 24"
@@ -614,15 +671,19 @@ const TotalApplicants = () => {
                                             >
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                                             </svg>
-                                            Download CSV
-                                        </>
+                                            <span>Download CSV</span>
+                                        </div>
+                                    )}
+
+                                    {isDownloading && (
+                                        <div className="absolute inset-0 bg-primary/10 animate-pulse"></div>
                                     )}
                                 </button> */}
                             </motion.div>
 
-                            {/* Your existing table - completely unchanged */}
+                            {/* Enhanced Table with better hover effects */}
                             <table className="table w-full">
-                                <thead className="bg-gray-50">
+                                <thead className="bg-gray-50/50 backdrop-blur-sm">
                                     <tr>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Serial No</th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User Name</th>
@@ -633,7 +694,7 @@ const TotalApplicants = () => {
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody className="bg-white divide-y divide-gray-200">
+                                <tbody className="bg-white divide-y divide-gray-200/30">
                                     {showAllApplicantsTableView?.data?.map((applicant, idx) => (
                                         <motion.tr
                                             key={applicant.userId}
@@ -642,40 +703,43 @@ const TotalApplicants = () => {
                                             initial="hidden"
                                             animate="visible"
                                             whileHover="hover"
-                                            className="hover:bg-gray-50"
+                                            className="hover:bg-gray-50/50"
                                         >
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{idx + 1}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{applicant.userName}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{applicant.jobTitle}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{applicant.userName || 'N/A'}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{applicant.jobTitle || 'N/A'}</td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 <motion.span
                                                     className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800"
                                                     whileHover={{ scale: 1.05 }}
                                                 >
-                                                    {applicant?.jobType}
+                                                    {applicant?.jobType || 'N/A'}
                                                 </motion.span>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 <motion.span
-                                                    className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800"
+                                                    className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${applicant?.status === 'shortlisted' ? 'bg-green-100 text-green-800' :
+                                                        applicant?.status === 'rejected' ? 'bg-red-100 text-red-800' :
+                                                            'bg-yellow-100 text-yellow-800'
+                                                        }`}
                                                     whileHover={{ scale: 1.05 }}
                                                 >
-                                                    {applicant?.status}
+                                                    {applicant?.status || 'pending'}
                                                 </motion.span>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 <motion.span
-                                                    className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-sky-200 text-green-800"
+                                                    className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-sky-100 text-sky-800"
                                                     whileHover={{ scale: 1.05 }}
                                                 >
-                                                    {applicant?.appliedAt}
+                                                    {applicant?.appliedAt || 'N/A'}
                                                 </motion.span>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                                 <motion.div whileHover={{ scale: 1.05 }}>
                                                     <Link
                                                         to={`/recruiter/dashboard/summary-cards/applicant-details/recruiter/${user?._id}/applicant/${applicant?.userId}/job/${applicant?.jobId}`}
-                                                        className="text-blue-600 hover:text-blue-900"
+                                                        className="text-blue-600 hover:text-blue-800 font-medium"
                                                     >
                                                         View Details
                                                     </Link>
