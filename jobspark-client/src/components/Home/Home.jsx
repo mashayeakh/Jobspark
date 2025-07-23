@@ -1,113 +1,226 @@
 import React, { useEffect, useState } from 'react'
-
+import { motion, AnimatePresence } from 'framer-motion'
 import heroImg from "../../assets/imgs/HomeImg/heroimg.jpeg"
-// import HomeForm from './HomeForm';
-import HomeJobs from './HomeJobs/HomeJobs';
-import ConnectesCompany from './ConnectedCompany/ConnectesCompany';
-// import { Marquee } from 'marquee';
-import HomeForm from './HomeForm/HomeForm';
-import HomeCategory from './HomeCategory/HomeCategory';
-import HomeSubscribe from './HomeSubscribe/HomeSubscribe';
-// App.jsx or index.jsx
-import '../../../src/index.css';
-import ShowProfileModal from './Modal/ShowProfileModal';
-import { useNavigate } from 'react-router';
+import HomeJobs from './HomeJobs/HomeJobs'
+import ConnectesCompany from './ConnectedCompany/ConnectesCompany'
+import HomeForm from './HomeForm/HomeForm'
+import HomeCategory from './HomeCategory/HomeCategory'
+import HomeSubscribe from './HomeSubscribe/HomeSubscribe'
+import '../../../src/index.css'
+import ShowProfileModal from './Modal/ShowProfileModal'
+import { useNavigate } from 'react-router'
+import { FiArrowRight } from 'react-icons/fi'
 
 const Home = () => {
-    const [bgPosition, setBgPosition] = useState("80px");
+    const [bgPosition, setBgPosition] = useState("80px")
+    const trendingJobs = ["Software Development", "Web Development", "Graphic Design", "Frontend Developer", "Backend Developer"]
+    const [currentIndex, setCurrentIndex] = useState(0)
+    const [displayText, setDisplayText] = useState("")
+    const [charIndex, setCharIndex] = useState(0)
+    const navigate = useNavigate()
 
     useEffect(() => {
-        //get the window width
         const handleBgPosition = () => {
-            const width = window.innerWidth;
-            if (width < 640)
-                setBgPosition("56px");
-            else if (width < 1024) setBgPosition("72px");
-            else setBgPosition("96px");
-            console.log("Window width:", width); // 👈 Add this
-
+            const width = window.innerWidth
+            if (width < 640) setBgPosition("56px")
+            else if (width < 1024) setBgPosition("72px")
+            else setBgPosition("96px")
         }
-        handleBgPosition();
-        //whenever user changes the screen size it calls handleBgPosition
-        window.addEventListener("resize", handleBgPosition);
-        return () => {
-            //clean up to avoid memory leaks
-            window.removeEventListener("resize", handleBgPosition);
-        }
+        handleBgPosition()
+        window.addEventListener("resize", handleBgPosition)
+        return () => window.removeEventListener("resize", handleBgPosition)
     }, [])
-
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    const trendingJobs = ["Software Development", "Web Development", "Graphis Design", "Frontend Developer", "Backend Developer"]
-
-    const [currentIndex, setCurrentIndex] = useState(0);
-    const [displayText, setDisplayText] = useState("");
-    const [charIndex, setCharIndex] = useState(0);
 
     useEffect(() => {
         if (charIndex < trendingJobs[currentIndex].length) {
             const timeout = setTimeout(() => {
-                setDisplayText((prev) => prev + trendingJobs[currentIndex][charIndex]);
-                setCharIndex((prev) => prev + 1);
-            }, 50); // typing speed
-            return () => clearTimeout(timeout);
+                setDisplayText(prev => prev + trendingJobs[currentIndex][charIndex])
+                setCharIndex(prev => prev + 1)
+            }, 50)
+            return () => clearTimeout(timeout)
         } else {
             const pauseBeforeNext = setTimeout(() => {
-                setCharIndex(0);
-                setDisplayText("");
-                setCurrentIndex((prev) => (prev + 1) % trendingJobs.length);
-            }, 1500); // pause after full text
-            return () => clearTimeout(pauseBeforeNext);
+                setCharIndex(0)
+                setDisplayText("")
+                setCurrentIndex(prev => (prev + 1) % trendingJobs.length)
+            }, 1500)
+            return () => clearTimeout(pauseBeforeNext)
         }
-    }, [charIndex, currentIndex, trendingJobs]);
+    }, [charIndex, currentIndex])
 
-    const navigate = useNavigate();
+    const handleBtn = () => navigate("/jobs")
 
-    const handleBtn = () => {
-        navigate("/jobs");
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.2
+            }
+        }
+    }
+
+    const itemVariants = {
+        hidden: { y: 20, opacity: 0 },
+        visible: {
+            y: 0,
+            opacity: 1,
+            transition: {
+                duration: 0.5
+            }
+        }
+    }
+
+    const heroTextVariants = {
+        hidden: { opacity: 0, y: 50 },
+        visible: {
+            opacity: 1,
+            y: 0,
+            transition: {
+                duration: 0.8,
+                ease: "easeOut"
+            }
+        }
     }
 
     return (
-        <>
-            <div
-                className="hero min-h-screen"
+        <div className="overflow-hidden">
+            {/* Hero Section */}
+            <motion.div
+                className="hero min-h-screen relative overflow-hidden"
                 style={{
-                    // backgroundImage: `url(${heroImg})`,
                     backgroundImage: `url(${heroImg})`,
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
                     backgroundRepeat: 'no-repeat',
-                    backgroundAttachment: 'fixed',
-                    position: 'relative'
+                    backgroundAttachment: 'fixed'
                 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.8 }}
             >
-                <div className="hero-overlay"></div>
-                <div className="text-neutral-content">
-                    <div>
+                <motion.div
+                    className="hero-overlay bg-black/60"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 1 }}
+                />
 
-                        <div className='text-6xl md:w-40 lg:w-[55%] text-start text-shadow-white '>
-                            <p className='mb-5 '>Find your next big opportunity — <span>faster
-                            </span> </p>
-                        </div>
-                        <div className='text-start lg:mt-3 pb-5'>
-                            <p className='text-shadow-white text-2xl'>
-                                Trending Job: <span className="font-semibold">{displayText}</span>
+                <motion.div
+                    className="hero-content text-neutral-content text-center lg:text-left px-4 lg:px-8"
+                    variants={containerVariants}
+                    initial="hidden"
+                    animate="visible"
+                >
+                    <div className="max-w-4xl">
+                        <motion.h1
+                            className="mb-5 text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-start"
+                            variants={heroTextVariants}
+                        >
+                            Find your next big opportunity —{" "}
+                            <motion.span
+                                className="text-primary"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ delay: 0.5, duration: 0.8 }}
+                            >
+                                faster
+                            </motion.span>
+                        </motion.h1>
+
+                        <motion.div
+                            className="text-start lg:mt-3 pb-5"
+                            variants={itemVariants}
+                        >
+                            <p className="text-xl md:text-2xl">
+                                Trending Job:{" "}
+                                <motion.span
+                                    className="font-semibold text-primary"
+                                    key={currentIndex}
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    transition={{ duration: 0.3 }}
+                                >
+                                    {displayText}
+                                    <motion.span
+                                        className="inline-block w-1 h-8 bg-primary ml-1"
+                                        animate={{ opacity: [0, 1, 0] }}
+                                        transition={{ repeat: Infinity, duration: 1 }}
+                                    />
+                                </motion.span>
                             </p>
-                        </div>
+                        </motion.div>
+
+                        <motion.div variants={itemVariants}>
+                            <HomeForm />
+                        </motion.div>
                     </div>
-                    <HomeForm />
-                </div>
-            </div >
-            {/* <HomeForm /> */}
-            <ConnectesCompany />
-            <HomeJobs />
-            <div className='py-15 flex justify-center'>
-                <button onClick={handleBtn} className='btn btn-success text-black text-xl p-5'>Browse For More Jobs</button>
-            </div>
-            <HomeCategory />
-            <HomeSubscribe />
+                </motion.div>
+            </motion.div>
+
+            {/* Connected Companies */}
+            <motion.section
+                initial={{ opacity: 0, y: 50 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+                viewport={{ once: true, margin: "-100px" }}
+            >
+                <ConnectesCompany />
+            </motion.section>
+
+            {/* Featured Jobs */}
+            <motion.section
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+                viewport={{ once: true, margin: "-100px" }}
+                className="py-12"
+            >
+                <HomeJobs />
+            </motion.section>
+
+            {/* Browse More Button */}
+            <motion.div
+                className="py-15 flex justify-center my-12"
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                transition={{ duration: 0.6 }}
+                viewport={{ once: true }}
+            >
+                <motion.button
+                    onClick={handleBtn}
+                    className="btn btn-primary text-white text-lg md:text-xl px-8 py-4 rounded-full shadow-lg hover:shadow-xl transition-all"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                >
+                    Browse For More Jobs
+                    <FiArrowRight className="ml-2" />
+                </motion.button>
+            </motion.div>
+
+            {/* Job Categories */}
+            <motion.section
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                transition={{ duration: 0.6 }}
+                viewport={{ once: true, margin: "-100px" }}
+            >
+                <HomeCategory />
+            </motion.section>
+
+            {/* Newsletter Subscription */}
+            <motion.section
+                initial={{ opacity: 0, y: 50 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+                viewport={{ once: true }}
+                className="my-12"
+            >
+                <HomeSubscribe />
+            </motion.section>
+
             <ShowProfileModal />
-        </>
+        </div>
     )
 }
 

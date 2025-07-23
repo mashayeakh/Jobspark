@@ -178,3 +178,13 @@ html, .lato-bold {
     0%, 100% { transform: scale(1); color: rgb(180, 83, 9); }
     50% { transform: scale(1.1); color: rgb(146, 64, 14); }
   }
+
+  @keyframes gradient-x {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.animate-gradient-x {
+  background-size: 200% auto;
+  animation: gradient-x 3s ease infinite;
+}
