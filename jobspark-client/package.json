@@ -21,6 +21,8 @@
     "@fullcalendar/timegrid": "^6.1.17",
     "@heroicons/react": "^2.2.0",
     "@lottiefiles/react-lottie-player": "^3.6.0",
+    "@mui/icons-material": "^7.2.0",
+    "@mui/material": "^7.2.0",
     "@mui/x-charts": "^8.4.0",
     "@tailwindcss/vite": "^4.1.7",
     "cally": "^0.8.0",

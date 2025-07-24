@@ -2,28 +2,58 @@ const UserModel = require("../../Model/AccountModel/UserModel");
 const DEFAULT_AI_PASSWORD = "aipass123";
 
 async function createUser(req, res) {
-
     try {
         const data = req.body;
-        console.log("Data received:", data);
-        console.log("Received role:", req.query.role); // or req.params.role if using route param
-        //specifing the role
+
         if (!data.role) {
-            res.status(400).json({
-                error: "Role is required",
-            })
+            return res.status(400).json({ error: "Role is required" });
         }
 
-        if (data.role === "recruiter" && (!data.company_role || !data.website)) {
-            return res.status(400).json({
-                error: "Company role and website are required for recruiters",
-            });
+        if (data.role === "recruiter") {
+            if (!data.company_role || !data.website || !data.company_name) {
+                return res.status(400).json({
+                    error: "Company name, role and website are required for recruiters",
+                });
+            }
+
+            data.recruiterProfile = {
+                company_name: data.company_name,
+                company_role: data.company_role,
+                website: data.website,
+            };
+
+            // Cleanup recruiter from job_seeker fields
+            delete data.company_role;
+            delete data.website;
+            delete data.jobSeekerProfile;
+            delete data.skills;
+            delete data.experienceLevel;
+            delete data.appliedApplicationCount;
+            delete data.appliedJobIds;
+        }
+
+        if (data.role === "job_seeker") {
+            if (!Array.isArray(data.skills)) {
+                return res.status(400).json({ error: "Skills array is required" });
+            }
+
+            if (!data.experienceLevel) {
+                return res.status(400).json({ error: "Experience level is required" });
+            }
+
+            data.appliedApplicationCount = 0;
+            data.appliedJobIds = [];
+            data.jobSeekerProfile = data.jobSeekerProfile || {};
+
+            // Cleanup job seeker from recruiter fields
+            delete data.recruiterProfile;
+            delete data.company_role;
+            delete data.website;
         }
 
         const newUser = new UserModel(data);
         const result = await newUser.save();
 
-        console.log("Result:", result);
         res.status(201).json({
             message: "User created successfully",
             success: true,
@@ -34,6 +64,7 @@ async function createUser(req, res) {
         res.status(500).json({ message: "Something went wrong", error: err.message });
     }
 }
+
 
 //! Patch method to insert a specific col in the existing user while logging.
 
