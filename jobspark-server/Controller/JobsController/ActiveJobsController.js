@@ -124,9 +124,14 @@ const applyToJobs = async (req, res) => {
     // ✅ Update user with job application info
     const user = await UserModel.findById(userInfo._id).select("+appliedJobIds +appliedApplicationCount");
 
+    // Ensure appliedJobIds is always an array
+    if (!Array.isArray(user.appliedJobIds)) {
+        user.appliedJobIds = [];
+    }
+
     if (!user.appliedJobIds.includes(currentJobId)) {
         user.appliedJobIds.push(currentJobId);
-        user.appliedApplicationCount += 1;
+        user.appliedApplicationCount = (user.appliedApplicationCount || 0) + 1;
         await user.save();
     }
 

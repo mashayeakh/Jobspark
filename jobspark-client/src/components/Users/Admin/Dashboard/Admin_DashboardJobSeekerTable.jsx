@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { motion } from 'framer-motion';
 import {
@@ -19,7 +19,6 @@ import {
   KeyboardArrowDown as KeyboardArrowDownIcon,
   KeyboardArrowUp as KeyboardArrowUpIcon
 } from '@mui/icons-material';
-import { AdminDashboardContext } from '../../../Context/AdminContext/AdminDashboardContextProvider';
 
 const rowVariants = {
   hidden: { opacity: 0 },
@@ -43,7 +42,7 @@ const collapseVariants = {
 };
 
 const UserRow = ({ row }) => {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = React.useState(false);
 
   return (
     <React.Fragment>
@@ -130,7 +129,7 @@ UserRow.propTypes = {
 };
 
 const Admin_DashboardJobSeekerTable = ({ data, title }) => {
-  const [page, setPage] = useState(1);
+  const [page, setPage] = React.useState(1);
   const rowsPerPage = 5;
 
   if (!data || data.length === 0) {
@@ -153,12 +152,12 @@ const Admin_DashboardJobSeekerTable = ({ data, title }) => {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden"
+      className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden h-full flex flex-col"
     >
       <div className="p-6 border-b border-gray-100">
         <h2 className="text-lg font-semibold text-gray-800">{title}</h2>
       </div>
-      <TableContainer className="max-h-[500px] overflow-auto">
+      <TableContainer className="flex-1 overflow-auto">
         <Table stickyHeader className="min-w-full">
           <TableHead>
             <TableRow className="bg-gray-50">

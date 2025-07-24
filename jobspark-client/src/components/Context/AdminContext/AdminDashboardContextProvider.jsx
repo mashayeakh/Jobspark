@@ -45,6 +45,12 @@ const AdminDashboardContextProvider = ({ children }) => {
         }
     }
 
+
+    // const [jobSeekerActivity, setJobSeekerActivity] = useState([]);
+    // const jobSeeker = async () => {
+    //     const url = 
+    // }
+
     useEffect(() => {
         // if (!user?._id) return;
         dashboardStats();

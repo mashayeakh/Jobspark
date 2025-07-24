@@ -85,7 +85,7 @@ const Admin_DashboardSidebar = () => {
             initial={collapsed ? "closed" : "open"}
             animate={collapsed ? "closed" : "open"}
             variants={sidebarVariants}
-            className="bg-white shadow-xl h-screen overflow-y-auto overflow-x-hidden flex flex-col border-r border-gray-200 transition-all duration-300"
+            className="bg-white shadow-xl max-h-full overflow-y-auto overflow-x-hidden flex flex-col border-r border-gray-200 transition-all duration-300"
         >
 
             <div className="p-4 flex-1">

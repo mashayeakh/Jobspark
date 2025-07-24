@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const recruiterProfileSchema = new mongoose.Schema({
-    company_name: { type: String, required: true }, 
+    company_name: { type: String, required: true },
     company_role: { type: String, required: true },
     website: { type: String, required: true },
 });
@@ -90,6 +90,6 @@ const userSchema = new mongoose.Schema({
     // Common
     lastSignInTime: { type: Date },
     isGeneratedByAI: { type: Boolean, default: false },
-});
+}, { timestamps: true });
 
 module.exports = mongoose.model("User", userSchema);

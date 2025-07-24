@@ -1,9 +1,10 @@
 import React, { useContext } from 'react';
 import { motion } from 'framer-motion';
 import { AdminDashboardContext } from '../../../Context/AdminContext/AdminDashboardContextProvider';
-import Admin_DashboardContentTable from './Admin_DashboardJobSeekerTable';
 import Admin_DashboardJobSeekerTable from './Admin_DashboardJobSeekerTable';
 import Admin_DashboardRecruiterTable from './Admin_DashboardRecruiterTable';
+import Demo from './Admin_DashboardCharts/Activity';
+import Activity from './Admin_DashboardCharts/Activity';
 
 const StatCard = ({ icon, title, value, color, delay }) => (
     <motion.div
@@ -50,12 +51,12 @@ const Admin_DashboardContent = () => {
             { label: 'Applied Jobs', value: seeker?.Applied_Jobs || 0 },
         ],
     })) || [];
-    console.log("Recruiters ", recruiter);
+
     const recruiterRows = recruiter?.data?.map((rec) => ({
         name: rec?.Name || 'N/A',
         email: rec?.Email || 'N/A',
         location: rec?.Location || 'N/A',
-        status: rec?.Status || 'N/A', // <-- Use the correct status field here!
+        status: rec?.Status || 'N/A',
         jobsPosted: rec?.JobsCount || 0,
         lastActivity: rec?.lastSignIn || 'N/A',
         details: [
@@ -66,7 +67,6 @@ const Admin_DashboardContent = () => {
         ],
     })) || [];
 
-    console.log("RE ", recruiterRows);
     return (
         <div className="p-6 max-w-7xl mx-auto">
             {/* Header */}
@@ -118,16 +118,36 @@ const Admin_DashboardContent = () => {
                 />
             </motion.div>
 
-            {/* User Tables */}
-            <div className="space-y-8">
-                <Admin_DashboardJobSeekerTable
-                    data={jobSeekerRows}
-                    title="Job Seekers"
-                />
-                <Admin_DashboardRecruiterTable
-                    data={recruiterRows}
-                    title="Recruiters"
-                />
+            {/* Tables Container */}
+            <motion.div
+                className="flex flex-col lg:flex-row gap-6 w-full"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.4 }}
+            >
+                {/* Job Seekers Table */}
+                <div className="flex-1 min-w-0">
+                    <Admin_DashboardJobSeekerTable
+                        data={jobSeekerRows}
+                        title="Job Seekers"
+                    />
+                </div>
+
+                {/* Recruiters Table */}
+                <div className="flex-1 min-w-0">
+                    <Admin_DashboardRecruiterTable
+                        data={recruiterRows}
+                        title="Recruiters"
+                    />
+                </div>
+            </motion.div>
+            <div className=' flex gap-4 mt-8 w-full'>
+                <div className='border flex-8/5'>
+                    <Activity />
+                </div>
+                <div className='border'>
+                    Lorem ipsum dolor sit amet consectetur, adipisicing elit. Exercitationem repudiandae nobis, ducimus impedit quos id consequuntur quibusdam voluptatem, omnis officia quisquam odio illum iste modi explicabo debitis neque unde aliquam!
+                </div>
             </div>
         </div>
     );

@@ -1,11 +1,25 @@
-import React, { useState, useContext } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { motion } from 'framer-motion';
-import { Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, IconButton, Collapse, Pagination, Paper } from '@mui/material';
-import { KeyboardArrowDown as KeyboardArrowDownIcon, KeyboardArrowUp as KeyboardArrowUpIcon } from '@mui/icons-material';
-import { AdminDashboardContext } from '../../../Context/AdminContext/AdminDashboardContextProvider';
+import {
+    Box,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    Typography,
+    IconButton,
+    Collapse,
+    Pagination,
+    Paper
+} from '@mui/material';
+import {
+    KeyboardArrowDown as KeyboardArrowDownIcon,
+    KeyboardArrowUp as KeyboardArrowUpIcon
+} from '@mui/icons-material';
 
-// Variants for motion animations
 const rowVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -27,75 +41,97 @@ const collapseVariants = {
     }
 };
 
-// Row for displaying each recruiter's data
 const RecruiterRow = ({ row }) => {
-    const [open, setOpen] = useState(false);
+    const [open, setOpen] = React.useState(false);
 
     return (
         <React.Fragment>
-            <motion.tr variants={rowVariants} className="hover:bg-gray-50">
-                <TableCell>
-                    <IconButton size="small" onClick={() => setOpen(!open)}>
+            <motion.tr
+                variants={rowVariants}
+                className="hover:bg-gray-50"
+            >
+                <TableCell className="border-0">
+                    <IconButton
+                        size="small"
+                        onClick={() => setOpen(!open)}
+                        className="text-gray-500 hover:bg-gray-200"
+                    >
                         {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
                     </IconButton>
                 </TableCell>
-                <TableCell>{row.details.find(d => d.label === 'Company')?.value || 'N/A'}</TableCell>
-                <TableCell>{row.name}</TableCell>
-                <TableCell>{row.status || 'N/A'}</TableCell>
-                <TableCell>{row.jobsPosted}</TableCell>
-                <TableCell>{row.lastActivity}</TableCell>
-                <TableCell>
+                <TableCell className="border-0 font-medium">{row.name}</TableCell>
+                <TableCell className="border-0 text-gray-600">{row.email}</TableCell>
+                <TableCell className="border-0">{row.location}</TableCell>
+                <TableCell className="border-0">
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${row.status === 'Active'
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-red-100 text-red-800'
+                        }`}>
+                        {row.status}
+                    </span>
+                </TableCell>
+                <TableCell className="border-0">{row.jobsPosted}</TableCell>
+                <TableCell className="border-0">
                     <button className="text-sm px-3 py-1 bg-red-50 text-red-600 rounded-md hover:bg-red-100 transition-colors">
                         Manage
                     </button>
                 </TableCell>
             </motion.tr>
             <TableRow>
-                <TableCell className="p-0" colSpan={7}>
-                    <Collapse in={open} timeout="auto" unmountOnExit>
-                        <Box className="p-4 bg-gray-50">
-                            <Typography variant="subtitle1" className="font-medium mb-2">
-                                Recruiter Details
-                            </Typography>
-                            <div className="grid grid-cols-2 gap-4">
-                                {row.details.map((detail, idx) => (
-                                    <div key={idx} className="bg-white p-3 rounded-lg shadow-xs">
-                                        <p className="text-xs text-gray-500">{detail.label}</p>
-                                        <p className="font-medium">{detail.value}</p>
-                                    </div>
-                                ))}
-                            </div>
-                        </Box>
-                    </Collapse>
+                <TableCell className="p-0 border-0" colSpan={7}>
+                    <motion.div
+                        initial="closed"
+                        animate={open ? "open" : "closed"}
+                        variants={collapseVariants}
+                    >
+                        <Collapse in={open} timeout="auto" unmountOnExit>
+                            <Box className="p-4 bg-gray-50">
+                                <Typography variant="subtitle1" className="font-medium mb-2">
+                                    Recruiter Details
+                                </Typography>
+                                <div className="grid grid-cols-2 gap-4">
+                                    {row.details.map((detail, index) => (
+                                        <motion.div
+                                            key={index}
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: index * 0.1 }}
+                                            className="bg-white p-3 rounded-lg shadow-xs"
+                                        >
+                                            <p className="text-xs text-gray-500">{detail.label}</p>
+                                            <p className="font-medium">{detail.value}</p>
+                                        </motion.div>
+                                    ))}
+                                </div>
+                            </Box>
+                        </Collapse>
+                    </motion.div>
                 </TableCell>
             </TableRow>
         </React.Fragment>
     );
 };
 
-
 RecruiterRow.propTypes = {
     row: PropTypes.shape({
-        company: PropTypes.string.isRequired,
         name: PropTypes.string.isRequired,
+        email: PropTypes.string.isRequired,
+        location: PropTypes.string.isRequired,
         status: PropTypes.string.isRequired,
         jobsPosted: PropTypes.number.isRequired,
-        lastActivity: PropTypes.string.isRequired,
-        role: PropTypes.string.isRequired,
-        contact: PropTypes.string.isRequired,
-        jobHistory: PropTypes.arrayOf(PropTypes.string).isRequired
+        details: PropTypes.arrayOf(
+            PropTypes.shape({
+                label: PropTypes.string.isRequired,
+                value: PropTypes.string.isRequired,
+            })
+        ).isRequired,
     }).isRequired,
 };
 
-
-
-
-// Table Component for displaying all recruiters
 const Admin_DashboardRecruiterTable = ({ data, title }) => {
-    const [page, setPage] = useState(1);
+    const [page, setPage] = React.useState(1);
     const rowsPerPage = 5;
 
-    // Check if data is available before trying to map
     if (!data || data.length === 0) {
         return (
             <motion.div
@@ -112,27 +148,25 @@ const Admin_DashboardRecruiterTable = ({ data, title }) => {
         setPage(value);
     };
 
-    console.log("DATA ", data);
-
     return (
         <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden"
+            className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden h-full flex flex-col"
         >
             <div className="p-6 border-b border-gray-100">
                 <h2 className="text-lg font-semibold text-gray-800">{title}</h2>
             </div>
-            <TableContainer className="max-h-[500px] overflow-auto">
+            <TableContainer className="flex-1 overflow-auto">
                 <Table stickyHeader className="min-w-full">
                     <TableHead>
                         <TableRow className="bg-gray-50">
                             <TableCell className="w-12 border-0"></TableCell>
-                            <TableCell className="border-0 font-medium">Company Name</TableCell>
-                            <TableCell className="border-0 font-medium">Recruiter Name</TableCell>
-                            <TableCell className="border-0 font-medium">Profile Status</TableCell>
+                            <TableCell className="border-0 font-medium">Name</TableCell>
+                            <TableCell className="border-0 font-medium">Email</TableCell>
+                            <TableCell className="border-0 font-medium">Company</TableCell>
+                            <TableCell className="border-0 font-medium">Status</TableCell>
                             <TableCell className="border-0 font-medium">Jobs Posted</TableCell>
-                            <TableCell className="border-0 font-medium">Last Activity</TableCell>
                             <TableCell className="border-0 font-medium">Actions</TableCell>
                         </TableRow>
                     </TableHead>
@@ -142,7 +176,6 @@ const Admin_DashboardRecruiterTable = ({ data, title }) => {
                             .map((row, index) => (
                                 <RecruiterRow key={`${row.name}-${index}`} row={row} />
                             ))}
-
                     </TableBody>
                 </Table>
             </TableContainer>
