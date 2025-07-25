@@ -24,67 +24,69 @@ function Activity() {
     const [running, setRunning] = useState(false);
     const [firstData, setFirstData] = useState([]);
     const [secondData, setSecondData] = useState([]);
+    const [recruiterRegistered, setRecruiterRegistered] = useState([]);
+    const [recruiterPostings, setRecruiterPostings] = useState([]);
     const [startDate, setStartDate] = useState(new Date("2025-07-21"));
     const [endDate, setEndDate] = useState(new Date("2025-07-30"));
     const [loading, setLoading] = useState(false);
 
-    const fetchData = async () => {
+    // ✅ Separated: Fetch Job Seeker Data
+    const fetchJobSeekerData = async () => {
         setLoading(true);
         try {
-            const url = `http://localhost:5000/api/v1/admin/dashboard/job-seekers/activity-trends?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`;
-            const response = await getMethod(url);
-            const activityData = response.data;
+            const seekerUrl = `http://localhost:5000/api/v1/admin/dashboard/job-seekers/activity-trends?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`;
+            const res = await getMethod(seekerUrl);
+            const data = res.data;
 
-            const firstData = activityData.map(item => item.registered);
-            const secondData = activityData.map(item => item.applied);
+            setFirstData(data.map(item => item.registered));
+            setSecondData(data.map(item => item.applied));
 
-            setFirstData(firstData);
-            setSecondData(secondData);
+            console.log("✅ Job Seeker Data", data);
         } catch (error) {
-            console.error("Error fetching activity data:", error);
+            console.error("❌ Error fetching Job Seeker data:", error);
         } finally {
             setLoading(false);
         }
     };
 
+    // ✅ Separated: Fetch Recruiter Data
+    const fetchRecruiterData = async () => {
+        try {
+            const recruiterUrl = `http://localhost:5000/api/v1/admin/dashboard/recruiter-activity-trends?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`;
+            const res = await getMethod(recruiterUrl);
+
+            const activityArray = res.data; // ✅ Directly the array of recruiter objects
+
+            console.log("✅ Final Recruiter Data:", activityArray);
+
+            setRecruiterRegistered(activityArray.map(item => item.registered));
+            setRecruiterPostings(activityArray.map(item => item.jobPostings));
+        } catch (error) {
+            console.error("❌ Error fetching Recruiter data:", error);
+        }
+    };
+
     useEffect(() => {
-        fetchData();
+        fetchJobSeekerData();
+        fetchRecruiterData();
     }, [startDate, endDate]);
 
-    React.useEffect(() => {
-        if (!running) {
-            return undefined;
-        }
+    useEffect(() => {
+        if (!running) return;
         const intervalId = setInterval(() => {
-            // Generate more realistic fluctuations around the current values
-            setFirstData(prev => {
-                if (prev.length === 0) return prev;
-                return prev.map(value => {
-                    const fluctuation = Math.floor(Math.random() * 100) - 50; // -50 to +50
-                    return Math.max(0, value + fluctuation); // Ensure we don't go below 0
-                });
-            });
-            setSecondData(prev => {
-                if (prev.length === 0) return prev;
-                return prev.map(value => {
-                    const fluctuation = Math.floor(Math.random() * 100) - 50; // -50 to +50
-                    return Math.max(0, value + fluctuation); // Ensure we don't go below 0
-                });
-            });
-        }, 1000); // Changed to update every second instead of every 100ms
-
-        return () => {
-            clearInterval(intervalId);
-        };
+            setFirstData(prev => prev.map(v => Math.max(0, v + Math.floor(Math.random() * 100) - 50)));
+            setSecondData(prev => prev.map(v => Math.max(0, v + Math.floor(Math.random() * 100) - 50)));
+            setRecruiterRegistered(prev => prev.map(v => Math.max(0, v + Math.floor(Math.random() * 100) - 50)));
+            setRecruiterPostings(prev => prev.map(v => Math.max(0, v + Math.floor(Math.random() * 100) - 50)));
+        }, 1000);
+        return () => clearInterval(intervalId);
     }, [running]);
 
-    const handleDateChange = (dateRange) => {
-        const [newStartDate, newEndDate] = dateRange;
+    const handleDateChange = ([newStartDate, newEndDate]) => {
         setStartDate(newStartDate);
         setEndDate(newEndDate);
     };
 
-    // Generate x-axis labels based on the selected date range
     const generateXAxisData = () => {
         const daysDiff = Math.round((endDate - startDate) / (1000 * 60 * 60 * 24));
         return Array.from({ length: daysDiff + 1 }, (_, i) => addDays(startDate, i));
@@ -94,7 +96,7 @@ function Activity() {
         <Paper elevation={3} sx={{ p: 3, width: '100%' }}>
             <Stack spacing={3}>
                 <Typography variant="h6" component="h2" sx={{ fontWeight: 'bold' }}>
-                    Job Seeker Activity Trends
+                    Job Seeker & Recruiter Activity Trends
                 </Typography>
 
                 <Grid container spacing={2} alignItems="center">
@@ -131,7 +133,8 @@ function Activity() {
                             <Button
                                 variant="outlined"
                                 onClick={() => {
-                                    fetchData(); // Simply refetch the original data
+                                    fetchJobSeekerData();
+                                    fetchRecruiterData();
                                 }}
                                 disabled={loading || running}
                             >
@@ -159,8 +162,22 @@ function Activity() {
                                 },
                                 {
                                     data: firstData,
-                                    label: 'New Registrations',
+                                    label: 'Job Seeker Registrations',
                                     color: '#f28e2b',
+                                    showMark: false,
+                                    area: true,
+                                },
+                                {
+                                    data: recruiterRegistered,
+                                    label: 'Recruiter Signups',
+                                    color: '#59a14f',
+                                    showMark: false,
+                                    area: true,
+                                },
+                                {
+                                    data: recruiterPostings,
+                                    label: 'Job Postings',
+                                    color: '#e15759',
                                     showMark: false,
                                     area: true,
                                 },
@@ -173,11 +190,7 @@ function Activity() {
                                     label: 'Date',
                                 },
                             ]}
-                            yAxis={[
-                                {
-                                    label: 'Count',
-                                }
-                            ]}
+                            yAxis={[{ label: 'Count' }]}
                             margin={{ left: 70, right: 30, top: 30, bottom: 50 }}
                             slotProps={{
                                 legend: {

@@ -100,7 +100,7 @@ const jobSeekerActivityBar = async (req, res) => {
             success: true,
             data: activityData,
             length: activityData.length,
-            
+
         });
     } catch (error) {
         console.error("Error fetching activity data:", error);
