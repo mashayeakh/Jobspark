@@ -70,7 +70,7 @@ function Activity() {
         fetchJobSeekerData();
         fetchRecruiterData();
     }, [startDate, endDate]);
-
+  
     useEffect(() => {
         if (!running) return;
         const intervalId = setInterval(() => {

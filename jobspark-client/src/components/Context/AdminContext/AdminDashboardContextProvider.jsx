@@ -46,29 +46,49 @@ const AdminDashboardContextProvider = ({ children }) => {
     }
 
 
+    const [pie, setPie] = useState([]);
+    const pieInfo = async () => {
+        const url = `http://localhost:5000/api/v1/admin/dashboard/skills-count`;
+        const res = await getMethod(url);
+        if (res.success === true) {
+            setPie(res);
+            return res
+        } else {
+            console.log("err in fetching recruiter info", res.success);
+        }
+    }
+
+
     // const [jobSeekerActivity, setJobSeekerActivity] = useState([]);
     // const jobSeeker = async () => {
     //     const url = 
     // }
+
+
+
 
     useEffect(() => {
         // if (!user?._id) return;
         dashboardStats();
         jobSeekerInfo();
         recruiterInfo();
+        pieInfo();
     }, [user?._id])
 
     const addInfo = {
         dashboardStats,
         jobSeekerInfo,
         recruiterInfo,
+        pieInfo,
 
         stats,
         setStats,
         jobSeeker,
         setJobSeeker,
         recruiter,
-        setRecruiter
+        setRecruiter,
+        pie,
+        setPie
 
     }
 

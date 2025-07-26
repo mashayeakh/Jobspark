@@ -46,6 +46,8 @@ const jobSeekerActivityBar = require("./Routes/AdminRouter/Admin_DashboardGraphs
 
 const recruiterActivityBar = require("./Routes/AdminRouter/Admin_DashboardGraphs/RecruiterRouter");
 
+const piechartDashboard = require("./Routes/AdminRouter/Admin_DashboardGraphs/PiChatRouter");
+
 const { default: mongoose } = require("mongoose");
 const { expireOldJobs } = require("./Controller/RecruiterController/RecruiterJobsController");
 
@@ -106,6 +108,8 @@ app.use("/api/v1/export", exportingAnalyticsData);
 app.use("/api/v1/admin", admin_dashboardStats);
 app.use("/api/v1/admin", jobSeekerActivityBar);
 app.use("/api/v1/admin", recruiterActivityBar);
+app.use("/api/v1/admin", piechartDashboard);
+
 
 
 app.listen(port, () => {

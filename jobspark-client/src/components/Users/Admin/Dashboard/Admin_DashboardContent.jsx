@@ -5,6 +5,7 @@ import Admin_DashboardJobSeekerTable from './Admin_DashboardJobSeekerTable';
 import Admin_DashboardRecruiterTable from './Admin_DashboardRecruiterTable';
 import Demo from './Admin_DashboardCharts/Activity';
 import Activity from './Admin_DashboardCharts/Activity';
+import SkillsPieChart from './SkillsPieChart';
 
 const StatCard = ({ icon, title, value, color, delay }) => (
     <motion.div
@@ -66,6 +67,42 @@ const Admin_DashboardContent = () => {
             { label: 'Active Listings', value: rec?.ActiveListings || 0 },
         ],
     })) || [];
+
+
+
+    const container = {
+        hidden: { opacity: 0 },
+        show: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.2,
+                when: "beforeChildren"
+            }
+        }
+    };
+
+    const item = {
+        hidden: {
+            opacity: 0,
+            y: 20,
+            scale: 0.95
+        },
+        show: {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            transition: {
+                type: "spring",
+                stiffness: 100,
+                damping: 15
+            }
+        },
+        hover: {
+            scale: 1.02,
+            transition: { duration: 0.2 }
+        }
+    };
+
 
     return (
         <div className="p-6 max-w-7xl mx-auto">
@@ -141,14 +178,29 @@ const Admin_DashboardContent = () => {
                     />
                 </div>
             </motion.div>
-            <div className=' flex gap-4 mt-8 w-full'>
-                <div className='border flex-8/5'>
+            <motion.div
+                className='flex gap-6 mt-8 w-full'
+                variants={container}
+                initial="hidden"
+                animate="show"
+            >
+                <motion.div
+                    className='flex-8/5'
+                    variants={item}
+                    whileHover="hover"
+                >
                     <Activity />
-                </div>
-                <div className='border'>
-                    Lorem ipsum dolor sit amet consectetur, adipisicing elit. Exercitationem repudiandae nobis, ducimus impedit quos id consequuntur quibusdam voluptatem, omnis officia quisquam odio illum iste modi explicabo debitis neque unde aliquam!
-                </div>
-            </div>
+                </motion.div>
+
+                <motion.div
+                    className='flex-8/5'
+                    variants={item}
+                    whileHover="hover"
+                    transition={{ delay: 0.15 }}
+                >
+                    <SkillsPieChart />
+                </motion.div>
+            </motion.div>
         </div>
     );
 };
