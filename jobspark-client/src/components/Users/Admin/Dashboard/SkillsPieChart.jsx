@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import {
     PieChart,
     Pie,
@@ -31,7 +31,7 @@ const RADIAN = Math.PI / 180;
 
 // Custom label renderer
 const renderCustomizedLabel = ({
-    cx, cy, midAngle, innerRadius, outerRadius, percent, index, name
+    cx, cy, midAngle, innerRadius, outerRadius, percent
 }) => {
     const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
     const x = cx + radius * Math.cos(-midAngle * RADIAN);
@@ -146,7 +146,7 @@ const SkillsPieChart = () => {
                             animationDuration={1000}
                             animationEasing="ease-out"
                         >
-                            {chartData.map((entry, index) => (
+                            {chartData.map((_, index) => (
                                 <Cell
                                     key={`cell-${index}`}
                                     fill={COLORS[index % COLORS.length]}
@@ -156,10 +156,12 @@ const SkillsPieChart = () => {
                             ))}
                         </Pie>
                         <Tooltip
-                            formatter={(value, name, props) => [
-                                value,
-                                `${name} (${((props.payload.percent * 100).toFixed(1))}%)`
-                            ]}
+                            formatter={(value, name, props) => {
+                                // Calculate percent based on chartData
+                                const total = chartData.reduce((sum, item) => sum + item.value, 0);
+                                const percent = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                                return [value, `${name} (${percent}%)`];
+                            }}
                             contentStyle={{
                                 backgroundColor: theme.palette.background.paper,
                                 border: 'none',
@@ -175,8 +177,10 @@ const SkillsPieChart = () => {
                             wrapperStyle={{
                                 paddingLeft: 20
                             }}
-                            formatter={(value, entry, index) => {
-                                const percent = (entry.payload.percent * 100).toFixed(1);
+                            formatter={(value, entry) => {
+                                // Calculate percent based on chartData
+                                const total = chartData.reduce((sum, item) => sum + item.value, 0);
+                                const percent = total > 0 ? ((entry.payload.value / total) * 100).toFixed(1) : 0;
                                 return `${value} (${percent}%)`;
                             }}
                         />
