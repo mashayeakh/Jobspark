@@ -186,7 +186,8 @@ const topLocation = async (req, res) => {
             { $match: { location: { $exists: true, $ne: "" } } },
             { $group: { _id: "$location", count: { $sum: 1 } } },
             { $sort: { count: -1 } },
-            { $limit: 5 }
+            { $limit: 5 },
+            { $project: { _id: 0, location: "$_id", count: 1 } }
         ]);
 
         res.status(200).json({
@@ -208,7 +209,9 @@ const top_job_categories = async (req, res) => {
             { $match: { jobCategory: { $exists: true, $ne: "" } } },
             { $group: { _id: "$jobCategory", count: { $sum: 1 } } },
             { $sort: { count: -1 } },
-            { $limit: 5 }
+            { $limit: 5 },
+            { $project: { _id: 0, name: "$_id", count: 1 } }
+
         ]);
 
         res.status(200).json({

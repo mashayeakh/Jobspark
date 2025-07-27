@@ -416,7 +416,7 @@ import Admin_DashboardContent from "../Users/Admin/Dashboard/Admin_DashboardCont
 
 // 🔸 Admin - Jobseeker Management
 import Manage from "../Users/Admin/Dashboard/Manage/Manage";
-import Jobseeker_Dashboard from "../Users/Admin/Dashboard/Manage/Jobseeker/Jobseeker_Dashboard";
+
 import ActiveProfiles from "../Users/Admin/Dashboard/Manage/Jobseeker/All_Jobseeker/ActiveProfiles";
 import SuspendedProfiles from "../Users/Admin/Dashboard/Manage/Jobseeker/All_Jobseeker/SuspendedProfiles";
 import VerifiedProfiles from "../Users/Admin/Dashboard/Manage/Jobseeker/All_Jobseeker/VerifiedProfiles";
@@ -445,6 +445,7 @@ import ActivityReports from "../Users/Admin/Dashboard/Manage/Recruiter/Reports/A
 
 // 🔹 Shared Components
 import JobLayout from "../Pages/Jobs/shared/JobLayout/JobLayout";
+import JobSeeker_Dashboard from "../Users/Admin/Dashboard/Manage/Jobseeker/Dashboard/Jobseeker_Dashboard";
 
 // ROUTER CONFIGURATION
 const router = createBrowserRouter([
@@ -510,7 +511,7 @@ const router = createBrowserRouter([
                 path: "/admin/job-seeker/",
                 element: <Manage />,
                 children: [
-                    { path: "dashboard", element: <Jobseeker_Dashboard /> },
+                    { path: "dashboard", element: <JobSeeker_Dashboard /> },
                     { path: "all/active-profile", element: <ActiveProfiles /> },
                     { path: "all/suspended-profile", element: <SuspendedProfiles /> },
                     { path: "all/verified-porfile", element: <VerifiedProfiles /> },
