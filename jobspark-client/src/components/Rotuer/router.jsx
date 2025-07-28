@@ -417,7 +417,7 @@ import Admin_DashboardContent from "../Users/Admin/Dashboard/Admin_DashboardCont
 // 🔸 Admin - Jobseeker Management
 import Manage from "../Users/Admin/Dashboard/Manage/Manage";
 
-import ActiveProfiles from "../Users/Admin/Dashboard/Manage/Jobseeker/All_Jobseeker/ActiveProfiles";
+import ActiveProfiles from "../Users/Admin/Dashboard/Manage/Jobseeker/All_Jobseeker/ActiveProfile/ActiveProfiles";
 import SuspendedProfiles from "../Users/Admin/Dashboard/Manage/Jobseeker/All_Jobseeker/SuspendedProfiles";
 import VerifiedProfiles from "../Users/Admin/Dashboard/Manage/Jobseeker/All_Jobseeker/VerifiedProfiles";
 import UnverifiedProfiles from "../Users/Admin/Dashboard/Manage/Jobseeker/All_Jobseeker/UnverifiedProfiles";

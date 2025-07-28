@@ -143,6 +143,42 @@ const JobSeekerDashboardContextProvider = ({ children }) => {
         }
     }
 
+    //qucik stats
+    const [stats, setStats] = useState([]);
+    const quickOverview = async () => {
+        try {
+            const url = `http://localhost:5000/api/v1/admin/jobseeker/all/overview-stats`;
+            const response = await getMethod(url);
+            if (response.success === true) {
+                setStats(response);
+                return response;
+            } else {
+                console.log("response ", response.success);
+            }
+        } catch (error) {
+            console.error("Error ", error);
+        }
+    }
+
+    //completeness
+    const [completeness, setCompleteness] = useState([]);
+    const completeProfile = async () => {
+        try {
+            const url = `http://localhost:5000/api/v1/admin/jobseeker/all/completeness`;
+            const response = await getMethod(url);
+            if (response.success === true) {
+                setCompleteness(response);
+                return response;
+            } else {
+                console.log("response ", response.success);
+            }
+        } catch (error) {
+            console.error("Error ", error);
+        }
+    }
+
+
+
     useEffect(() => {
         jobSeeker();
         activeProfile();
@@ -152,6 +188,8 @@ const JobSeekerDashboardContextProvider = ({ children }) => {
         topSkills();
         topLoc();
         topJobCategories();
+        quickOverview();
+        completeProfile();
     }, [])
 
     const addInfo = {
@@ -163,7 +201,8 @@ const JobSeekerDashboardContextProvider = ({ children }) => {
         topSkills,
         topLoc,
         topJobCategories,
-
+        quickOverview,
+        completeProfile,
 
 
         total_JobSeeker,
@@ -181,7 +220,11 @@ const JobSeekerDashboardContextProvider = ({ children }) => {
         top_loc,
         setTop_loc,
         top_job_categories,
-        setTop_job_categories
+        setTop_job_categories,
+        stats,
+        setStats,
+        completeness,
+        setCompleteness
     }
 
 
