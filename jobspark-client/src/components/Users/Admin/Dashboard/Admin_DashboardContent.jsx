@@ -1,5 +1,5 @@
-import React, { useContext } from 'react';
-import { motion } from 'framer-motion';
+import React, { useContext, useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { AdminDashboardContext } from '../../../Context/AdminContext/AdminDashboardContextProvider';
 import Admin_DashboardJobSeekerTable from './Admin_DashboardJobSeekerTable';
 import Admin_DashboardRecruiterTable from './Admin_DashboardRecruiterTable';
@@ -37,6 +37,15 @@ const StatCard = ({ icon, title, value, color, delay }) => (
 
 const Admin_DashboardContent = () => {
     const { stats, jobSeeker, recruiter } = useContext(AdminDashboardContext);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        // Simulate loading delay
+        const timer = setTimeout(() => {
+            setIsLoading(false);
+        }, 2500);
+        return () => clearTimeout(timer);
+    }, []);
 
     // Process data for tables
     const jobSeekerRows = jobSeeker?.data?.map(seeker => ({
@@ -67,8 +76,6 @@ const Admin_DashboardContent = () => {
             { label: 'Active Listings', value: rec?.ActiveListings || 0 },
         ],
     })) || [];
-
-
 
     const container = {
         hidden: { opacity: 0 },
@@ -103,105 +110,179 @@ const Admin_DashboardContent = () => {
         }
     };
 
+    // Loader animations
+    const loaderContainer = {
+        hidden: { opacity: 0 },
+        show: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.1
+            }
+        },
+        exit: { opacity: 0 }
+    };
+
+    const loaderDot = {
+        hidden: { y: 0, opacity: 0 },
+        show: (i) => ({
+            y: [0, -15, 0],
+            opacity: 1,
+            transition: {
+                y: {
+                    duration: 1.2,
+                    repeat: Infinity,
+                    delay: i * 0.2,
+                    ease: "easeInOut"
+                },
+                opacity: { duration: 0.3 }
+            }
+        })
+    };
 
     return (
-        <div className="p-6 max-w-7xl mx-auto">
-            {/* Header */}
-            <motion.div
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="mb-8"
-            >
-                <h1 className="text-3xl font-bold text-gray-800">Admin Dashboard</h1>
-                <p className="text-gray-600">Manage your platform users and content</p>
-            </motion.div>
+        <>
+            <AnimatePresence>
+                {isLoading && (
+                    <motion.div
+                        className="fixed inset-0 bg-white bg-opacity-95 flex flex-col items-center justify-center z-50"
+                        initial="hidden"
+                        animate="show"
+                        exit="exit"
+                        variants={loaderContainer}
+                    >
+                        <motion.div
+                            className="flex space-x-3 mb-8"
+                        >
+                            {[0, 1, 2, 3, 4].map((i) => (
+                                <motion.div
+                                    key={i}
+                                    className="w-5 h-5 rounded-full"
+                                    style={{
+                                        backgroundColor: ['#6366F1', '#EC4899', '#10B981', '#F59E0B', '#3B82F6'][i % 5]
+                                    }}
+                                    variants={loaderDot}
+                                    custom={i}
+                                />
+                            ))}
+                        </motion.div>
+                        <motion.h2
+                            className="text-2xl font-bold text-gray-800 mb-2"
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.4 }}
+                        >
+                            Loading Dashboard
+                        </motion.h2>
+                        <motion.p
+                            className="text-gray-600"
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.6 }}
+                        >
+                            Preparing admin analytics...
+                        </motion.p>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
-            {/* Stats Cards */}
-            <motion.div
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
-                initial="hidden"
-                animate="visible"
-                variants={{
-                    visible: { transition: { staggerChildren: 0.1 } }
-                }}
-            >
-                <StatCard
-                    icon={<UsersIcon className="text-blue-500" />}
-                    title="Total Job Seekers"
-                    value={stats?.jobSeekerCount || 0}
-                    color="blue"
-                    delay={0}
-                />
-                <StatCard
-                    icon={<BriefcaseIcon className="text-amber-500" />}
-                    title="Total Recruiters"
-                    value={stats?.recruiterCount || 0}
-                    color="amber"
-                    delay={1}
-                />
-                <StatCard
-                    icon={<DocumentIcon className="text-green-500" />}
-                    title="Active Jobs"
-                    value={stats?.activeJobsCount || 0}
-                    color="green"
-                    delay={2}
-                />
-                <StatCard
-                    icon={<ClockIcon className="text-purple-500" />}
-                    title="Expired Jobs"
-                    value={stats?.expiredJobsCount || 0}
-                    color="purple"
-                    delay={3}
-                />
-            </motion.div>
-
-            {/* Tables Container */}
-            <motion.div
-                className="flex flex-col lg:flex-row gap-6 w-full"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.4 }}
-            >
-                {/* Job Seekers Table */}
-                <div className="flex-1 min-w-0">
-                    <Admin_DashboardJobSeekerTable
-                        data={jobSeekerRows}
-                        title="Job Seekers"
-                    />
-                </div>
-
-                {/* Recruiters Table */}
-                <div className="flex-1 min-w-0">
-                    <Admin_DashboardRecruiterTable
-                        data={recruiterRows}
-                        title="Recruiters"
-                    />
-                </div>
-            </motion.div>
-            <motion.div
-                className='flex gap-6 mt-8 w-full'
-                variants={container}
-                initial="hidden"
-                animate="show"
-            >
+            <div className="p-6 max-w-7xl mx-auto">
+                {/* Header */}
                 <motion.div
-                    className='flex-8/5'
-                    variants={item}
-                    whileHover="hover"
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={isLoading ? {} : { opacity: 1, y: 0 }}
+                    className="mb-8"
                 >
-                    <Activity />
+                    <h1 className="text-3xl font-bold text-gray-800">Admin Dashboard</h1>
+                    <p className="text-gray-600">Manage your platform users and content</p>
                 </motion.div>
 
+                {/* Stats Cards */}
                 <motion.div
-                    className='flex-8/5'
-                    variants={item}
-                    whileHover="hover"
-                    transition={{ delay: 0.15 }}
+                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
+                    initial="hidden"
+                    animate={isLoading ? {} : "visible"}
+                    variants={{
+                        visible: { transition: { staggerChildren: 0.1 } }
+                    }}
                 >
-                    <SkillsPieChart />
+                    <StatCard
+                        icon={<UsersIcon className="text-blue-500" />}
+                        title="Total Job Seekers"
+                        value={stats?.jobSeekerCount || 0}
+                        color="blue"
+                        delay={0}
+                    />
+                    <StatCard
+                        icon={<BriefcaseIcon className="text-amber-500" />}
+                        title="Total Recruiters"
+                        value={stats?.recruiterCount || 0}
+                        color="amber"
+                        delay={1}
+                    />
+                    <StatCard
+                        icon={<DocumentIcon className="text-green-500" />}
+                        title="Active Jobs"
+                        value={stats?.activeJobsCount || 0}
+                        color="green"
+                        delay={2}
+                    />
+                    <StatCard
+                        icon={<ClockIcon className="text-purple-500" />}
+                        title="Expired Jobs"
+                        value={stats?.expiredJobsCount || 0}
+                        color="purple"
+                        delay={3}
+                    />
                 </motion.div>
-            </motion.div>
-        </div>
+
+                {/* Tables Container */}
+                <motion.div
+                    className="flex flex-col lg:flex-row gap-6 w-full"
+                    initial={{ opacity: 0 }}
+                    animate={isLoading ? {} : { opacity: 1 }}
+                    transition={{ delay: 0.4 }}
+                >
+                    {/* Job Seekers Table */}
+                    <div className="flex-1 min-w-0">
+                        <Admin_DashboardJobSeekerTable
+                            data={jobSeekerRows}
+                            title="Job Seekers"
+                        />
+                    </div>
+
+                    {/* Recruiters Table */}
+                    <div className="flex-1 min-w-0">
+                        <Admin_DashboardRecruiterTable
+                            data={recruiterRows}
+                            title="Recruiters"
+                        />
+                    </div>
+                </motion.div>
+                <motion.div
+                    className='flex gap-6 mt-8 w-full'
+                    variants={container}
+                    initial="hidden"
+                    animate={isLoading ? {} : "show"}
+                >
+                    <motion.div
+                        className='flex-8/5'
+                        variants={item}
+                        whileHover="hover"
+                    >
+                        <Activity />
+                    </motion.div>
+
+                    <motion.div
+                        className='flex-8/5'
+                        variants={item}
+                        whileHover="hover"
+                        transition={{ delay: 0.15 }}
+                    >
+                        <SkillsPieChart />
+                    </motion.div>
+                </motion.div>
+            </div>
+        </>
     );
 };
 
