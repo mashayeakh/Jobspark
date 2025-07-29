@@ -1,5 +1,5 @@
 import React, { createContext, useEffect, useState } from 'react'
-import { getMethod } from '../../Utils/Api';
+import { getMethod, postMethod } from '../../Utils/Api';
 
 export const JobSeekerDashboardContext = createContext();
 
@@ -177,6 +177,47 @@ const JobSeekerDashboardContextProvider = ({ children }) => {
         }
     }
 
+    //suspended profiles
+    const [suspenedProfile, setSuspenedProfile] = useState([]);
+    const fetchSuspendedProfile = async () => {
+        try {
+            const url = `http://localhost:5000/api/v1/admin/job-seeker/all/incomplete`;
+            const response = await getMethod(url);
+            if (response.success === true) {
+                setSuspenedProfile(response);
+                return response;
+            } else {
+                console.log("response ", response.success);
+            }
+        } catch (error) {
+            console.error("Error ", error);
+        }
+    }
+
+
+    //sending notification
+    // const [jobseekerNotify, setJobSeekerNotify] = useState([]);
+
+    // const notify = async (jobSeekerId) => {
+    //     // Dynamically passing jobSeekerId when calling the backend API
+    //     const url = `http://localhost:5000/api/v1/admin/send-notification/job-seeker/${jobSeekerId}`;
+
+    //     try {
+    //         const response = await postMethod(url, {
+    //             message: "Please complete your profile within 24 hours.",
+    //             type: "profile_incomplete"
+    //         });
+
+    //         console.log("Notification response: ", response);
+
+    //         // Optionally update your state after the notification is sent
+    //         setJobSeekerNotify(response);
+    //     } catch (error) {
+    //         console.error("Error sending notification: ", error);
+    //     }
+    // };
+
+
 
 
     useEffect(() => {
@@ -190,6 +231,7 @@ const JobSeekerDashboardContextProvider = ({ children }) => {
         topJobCategories();
         quickOverview();
         completeProfile();
+        fetchSuspendedProfile()
     }, [])
 
     const addInfo = {
@@ -203,6 +245,7 @@ const JobSeekerDashboardContextProvider = ({ children }) => {
         topJobCategories,
         quickOverview,
         completeProfile,
+        fetchSuspendedProfile,
 
 
         total_JobSeeker,
@@ -224,7 +267,9 @@ const JobSeekerDashboardContextProvider = ({ children }) => {
         stats,
         setStats,
         completeness,
-        setCompleteness
+        setCompleteness,
+        suspenedProfile,
+        setSuspenedProfile
     }
 
 

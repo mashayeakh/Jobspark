@@ -86,8 +86,6 @@ const createJobSeekerNotification = async (req, res) => {
 };
 
 
-
-
 /**
  * goal - get all the created notifiction
  * 

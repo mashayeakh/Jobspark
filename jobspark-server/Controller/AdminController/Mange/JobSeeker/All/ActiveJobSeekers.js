@@ -58,7 +58,8 @@ const getJobSeekerOverviewStats = async (req, res) => {
                                 status: 1, // Added for dashboard status overview
                                 applications: 1, // Added for dashboard applications overview
                                 skills: 1, // Added for skills breakdown
-                                experienceLevel: 1 // Added for experience level breakdown
+                                experienceLevel: 1, // Added for experience level breakdown
+                                isProfileComplete: "$jobSeekerProfile.isProfileComplete"
                             }
                         }
                     ],
@@ -68,7 +69,7 @@ const getJobSeekerOverviewStats = async (req, res) => {
                             $match: {
                                 lastSignInTime: { $gte: sevenDaysAgo }
                             }
-                        },
+                        },   
                         { $count: "count" }
                     ],
                     // Pipeline 4: Get ALL job seeker details (for the main table/list)

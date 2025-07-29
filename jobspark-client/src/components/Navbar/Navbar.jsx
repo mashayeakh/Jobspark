@@ -21,6 +21,10 @@ const Navbar = () => {
     // const { theme, toggleTheme } = useContext(ThemeContext);
     const navigate = useNavigate();
 
+
+    console.log("admin user ", user);
+
+
     const [searchQuery, setSearchQuery] = useState('');
 
     const handleSignout = async (e) => {

@@ -2,126 +2,110 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 const dotenv = require("dotenv");
-const port = process.env.Port || 5000;
+const mongoose = require("mongoose");
+const session = require('express-session');
+const crypto = require('crypto');
 const cron = require("node-cron");
 
-// const routes = require("./Routes/TestRoutes");
-// const testRoutes = require('./Routes/TestRoutes');
+dotenv.config();  // Load environment variables
+
+// Middleware to parse JSON request bodies
+app.use(express.json());
+app.use(cors());
+
+// Session middleware - Ensure it's added above routes
+const secretKey = process.env.SESSION_SECRET_KEY;  // Load from .env file
+
+app.use(session({
+    secret: secretKey, // A secret key for encryption
+    resave: false,             // Forces the session to be saved even if it wasn't modified
+    saveUninitialized: true,   // Save uninitialized session
+    cookie: { secure: false }  // Set to true if using HTTPS
+}));
+
+// MongoDB connection setup
+mongoose.connect(process.env.MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+}).then(() => console.log("MongoDB connected"))
+    .catch(err => console.error("MongoDB connection error:", err));
+
+// Set the port from environment or default to 5000
+const port = process.env.PORT || 5000;
+
+// Import Routes
 const userRoutes = require('./Routes/UserRouter/UserRoutes');
-
-
-const activeJobsRoutes = require("./Routes/ActiveJobsRecruiter/ActiveJobsRouter");
-
 const recruiterJobsRoutes = require("./Routes/RecruiterJobsRouter/RecruiterJobsRouter");
-
+const activeJobsRoutes = require("./Routes/ActiveJobsRecruiter/ActiveJobsRouter");
 const jobApplicationRoutes = require("./Routes/JobApplicationRecruiter/JobApplicationRecruiter");
-
 const recruiterActivityRoutes = require("./Routes/RecruiterJobsRouter/RecruiterActivityRouter");
-
-const interviewRoutes = require("./Routes/RecruiterJobsRouter/InterviewRoute")
-
-const notificationRoutes = require("./Routes/NotificationRouter/NotificationRouter")
-
+const interviewRoutes = require("./Routes/RecruiterJobsRouter/InterviewRoute");
+const notificationRoutes = require("./Routes/NotificationRouter/NotificationRouter");
 const companyRoutes = require("./Routes/CompanyRouter/CompanyRouter");
-
 const filterRoutes = require("./Routes/FilterRouter/FilterRouter");
-
 const networkRoutes = require("./Routes/NetworkRouter/NetworkRouter");
-
 const aiRoutes = require("./Routes/AiBasedRouter/AiJobsRouter");
-
-const appliationOverTimeGraphs = require("./Routes/ApplicationGraphRouter/ApplicationOverTime")
-
-const appliationsPerJobs = require("./Routes/ApplicationGraphRouter/ApplicationsPerJobs")
-
+const appliationOverTimeGraphs = require("./Routes/ApplicationGraphRouter/ApplicationOverTime");
+const appliationsPerJobs = require("./Routes/ApplicationGraphRouter/ApplicationsPerJobs");
 const exportingActiveJobs = require("./Routes/ExportRoutes/ExportActiveJobsRouter");
-
 const exportingTotalApplication = require("./Routes/ExportRoutes/ExportTotalApplicationRouter");
-
 const exportingAnalyticsData = require("./Routes/ExportRoutes/ExportAnalyticsDataRouter");
-
 const admin_dashboardStats = require("./Routes/AdminRouter/Admin_DashboardRoute");
-
 const jobSeekerActivityBar = require("./Routes/AdminRouter/Admin_DashboardGraphs/JobSeekerRouter");
-
 const recruiterActivityBar = require("./Routes/AdminRouter/Admin_DashboardGraphs/RecruiterRouter");
-
 const piechartDashboard = require("./Routes/AdminRouter/Admin_DashboardGraphs/PiChatRouter");
-
 const jobSeeker_Dashboard = require("./Routes/AdminRouter/Manage/JobSeeker_DashboardRouter/JobSeeker_DashboardRouter");
-
-
 const jobSeeker_activeProfile = require("./Routes/AdminRouter/Manage/JobSeeker_DashboardRouter/JobSeeker_ActiveProfileRouter");
+const suspended_jobSeeker = require("./Routes/AdminRouter/Manage/JobSeeker_DashboardRouter/Suspended_JobSeeker");
+const adminNotification = require("./Routes/NotificationRouter/AdminNotificationRouter");
+const createAdmin = require("./Routes/AdminRouter/AdminAcc");
 
-
-const { default: mongoose } = require("mongoose");
-const { expireOldJobs } = require("./Controller/RecruiterController/RecruiterJobsController");
-
-
+// Cron job for job expiration check every hour
 cron.schedule("0 * * * *", () => {
     console.log("⏰ Running job expiration check...");
     expireOldJobs();
 });
-expireOldJobs();
 
-app.use(express.json());
-app.use(cors());
+// Function to expire old jobs (you must define this function somewhere)
+const expireOldJobs = () => {
+    console.log("Expiring old jobs...");
+};
 
-dotenv.config();
-app.use(express.json());
-
-mongoose.connect(process.env.MONGO_URI, {
-    useNewUrlParser: true,
-    // useUnifiedTopology: true
-})
-
+// Testing route to check server
 app.get("/test", async (req, res) => {
     res.send("Hello world");
 });
 
-// app.use('/api/v1', testRoutes);
+// Routes
 app.use('/api/v1', userRoutes);
-app.use("/api/v1", recruiterJobsRoutes); //changed the order
+app.use("/api/v1", recruiterJobsRoutes);
 app.use("/api/v1", activeJobsRoutes);
 app.use("/api/v1", jobApplicationRoutes);
 app.use("/api/v1", recruiterActivityRoutes);
 app.use("/api/v1", interviewRoutes);
 app.use("/api/v1", notificationRoutes);
-
-//company profile 
 app.use("/api/v1", companyRoutes);
-
 app.use("/api/v1", filterRoutes);
-
-
-
-//Gemini api
 app.use("/api/v1/network", networkRoutes);
 app.use("/api/v1/ai", aiRoutes);
-
-
-//application graphs
 app.use("/api/v1/graphs", appliationOverTimeGraphs);
 app.use("/api/v1/graphs", appliationsPerJobs);
-
-//exporting 
 app.use("/api/v1/export", exportingActiveJobs);
 app.use("/api/v1/export", exportingTotalApplication);
 app.use("/api/v1/export", exportingAnalyticsData);
 
-//admin
-// dashboard 
+// Admin Routes
 app.use("/api/v1/admin", admin_dashboardStats);
 app.use("/api/v1/admin", jobSeekerActivityBar);
 app.use("/api/v1/admin", recruiterActivityBar);
 app.use("/api/v1/admin", piechartDashboard);
-
-//admin/jobseeker/dashboard
+app.use("/api/v1/admin", createAdmin);
 app.use("/api/v1/admin", jobSeeker_Dashboard);
 app.use("/api/v1/admin", jobSeeker_activeProfile);
+app.use("/api/v1/admin", suspended_jobSeeker);
+app.use("/api/v1/admin", adminNotification);
 
-
-
+// Starting the server
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
-})
+});
