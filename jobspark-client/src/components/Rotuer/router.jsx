@@ -418,7 +418,7 @@ import Admin_DashboardContent from "../Users/Admin/Dashboard/Admin_DashboardCont
 import Manage from "../Users/Admin/Dashboard/Manage/Manage";
 
 import ActiveProfiles from "../Users/Admin/Dashboard/Manage/Jobseeker/All_Jobseeker/ActiveProfile/ActiveProfiles";
-import SuspendedProfiles from "../Users/Admin/Dashboard/Manage/Jobseeker/All_Jobseeker/SuspendedProfiles";
+
 import VerifiedProfiles from "../Users/Admin/Dashboard/Manage/Jobseeker/All_Jobseeker/VerifiedProfiles";
 import UnverifiedProfiles from "../Users/Admin/Dashboard/Manage/Jobseeker/All_Jobseeker/UnverifiedProfiles";
 import SearchByName from "../Users/Admin/Dashboard/Manage/Jobseeker/Search&Filter/SearchByName";
@@ -446,6 +446,7 @@ import ActivityReports from "../Users/Admin/Dashboard/Manage/Recruiter/Reports/A
 // 🔹 Shared Components
 import JobLayout from "../Pages/Jobs/shared/JobLayout/JobLayout";
 import JobSeeker_Dashboard from "../Users/Admin/Dashboard/Manage/Jobseeker/Dashboard/Jobseeker_Dashboard";
+import SuspendedProfiles from "../Users/Admin/Dashboard/Manage/Jobseeker/All_Jobseeker/SuspendedProfile/SuspendedProfiles";
 
 // ROUTER CONFIGURATION
 const router = createBrowserRouter([
