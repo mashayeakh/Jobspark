@@ -30,6 +30,7 @@ const SuspendedProfilesPage = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [profilesPerPage] = useState(10);
     const [expandedProfile, setExpandedProfile] = useState(null);
+    const [notifiedProfiles, setNotifiedProfiles] = useState([]);
 
     const { suspenedProfile } = useContext(JobSeekerDashboardContext);
     const { user } = useContext(AuthContext);
@@ -48,6 +49,32 @@ const SuspendedProfilesPage = () => {
         const timer = setTimeout(() => setLoading(false), 1000);
         return () => clearTimeout(timer);
     }, []);
+
+    // Fetch notified profiles when tab is active
+    useEffect(() => {
+        if (activeTab === "notified") {
+            const fetchNotifiedProfiles = async () => {
+                try {
+                    setLoading(true);
+                    const response = await fetch(
+                        "http://localhost:5000/api/v1/admin/job-seeker/all/incomplete-with-notification",
+                        {
+                            credentials: "include",
+                        }
+                    );
+                    const data = await response.json();
+                    if (data.success) {
+                        setNotifiedProfiles(data.data);
+                    }
+                } catch (error) {
+                    console.error("Error fetching notified profiles:", error);
+                } finally {
+                    setLoading(false);
+                }
+            };
+            fetchNotifiedProfiles();
+        }
+    }, [activeTab]);
 
     // Stats calculation
     const suspendedCount = suspenedProfile?.data?.length || 0;
@@ -69,63 +96,80 @@ const SuspendedProfilesPage = () => {
     };
 
     useEffect(() => {
-        // If user is undefined, we can handle it here
         if (!user) {
-            // Do something when user is not available
             console.log("User is not logged in yet.");
         }
-    }, [user]);  // This will run every time the user data changes
-
+    }, [user]);
 
     const [message, setMessage] = useState('');
     const [type, setType] = useState('');
+    const [sentNotifications, setSentNotifications] = React.useState([]);
 
     const handleNotification = async (jobSeekerId) => {
         if (!user) {
             alert("User not authenticated.");
             return;
         }
-
         if (!message || !type) {
             alert("Please provide a message and select a notification type.");
             return;
         }
 
-        const notificationData = {
-            message,
-            type,
-            // senderId: user._id, // Ensure that the admin's ID is passed
-        };
+        const isDuplicate = sentNotifications.some(
+            (notif) =>
+                notif.message === message.trim() &&
+                notif.type === type &&
+                notif.recipientId === jobSeekerId
+        );
+
+        if (isDuplicate) {
+            alert("This notification has already been sent.");
+            return;
+        }
+
+        const notificationData = { message, type };
 
         try {
             setLoading(true);
             const url = `http://localhost:5000/api/v1/admin/send-notification/job-seeker/${jobSeekerId}`;
-            const response = await postMethod(url, notificationData);
 
-            if (response) {
+            const response = await fetch(url, {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(notificationData),
+            });
+
+            const responseData = await response.json();
+
+            if (response.status === 201 && responseData.success) {
                 alert("Notification sent successfully.");
-                document.getElementById('notification_modal').close();
+                setMessage('');
+                setType('');
+                setSentNotifications([
+                    ...sentNotifications,
+                    { message: message.trim(), type, recipientId: jobSeekerId },
+                ]);
+                const modal = document.getElementById('notification_modal');
+                if (modal && modal.close) modal.close();
+            } else if (response.status === 409) {
+                alert("Duplicate Notification: " + (responseData.message || 'This notification was already sent.'));
+            } else {
+                alert("Notification was not successful: " + (responseData.message || 'Unknown error'));
             }
         } catch (error) {
-            console.error("Error sending notification:", error);
-            alert("Failed to send notification.");
+            alert("Failed to send notification: " + error.message);
         } finally {
             setLoading(false);
         }
     };
 
-
-
-
-
-
-
     // Filter profiles based on active tab
     const filteredProfiles =
         activeTab === "all"
             ? suspenedProfile?.data || []
-            : activeTab === "complete"
-                ? (suspenedProfile?.data || []).filter((p) => p.isProfileComplete)
+            : activeTab === "notified"
+                ? notifiedProfiles
                 : (suspenedProfile?.data || []).filter((p) => !p.isProfileComplete);
 
     // Pagination logic
@@ -152,7 +196,6 @@ const SuspendedProfilesPage = () => {
             </div>
         );
     }
-
 
     return (
         <div className="suspended-profile-page p-6 max-w-7xl mx-auto">
@@ -229,7 +272,7 @@ const SuspendedProfilesPage = () => {
             {/* Filter Tabs and Pagination Controls */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
                 <div className="flex space-x-2">
-                    {["all", "complete", "incomplete"].map((tab) => (
+                    {["all", "notified", "incomplete"].map((tab) => (
                         <motion.button
                             key={tab}
                             whileHover={{ scale: 1.03 }}
@@ -283,12 +326,28 @@ const SuspendedProfilesPage = () => {
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Email
                                 </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Status
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Suspension Reason
-                                </th>
+                                {activeTab === "notified" ? (
+                                    <>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Notification Type
+                                        </th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Status
+                                        </th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Message
+                                        </th>
+                                    </>
+                                ) : (
+                                    <>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Status
+                                        </th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Suspension Reason
+                                        </th>
+                                    </>
+                                )}
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Actions
                                 </th>
@@ -324,19 +383,44 @@ const SuspendedProfilesPage = () => {
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {profile.email || "No email"}
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <span
-                                                className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${profile.isProfileComplete
-                                                    ? "bg-green-100 text-green-800"
-                                                    : "bg-yellow-100 text-yellow-800"
-                                                    }`}
-                                            >
-                                                {profile.isProfileComplete ? "Complete" : "Incomplete"}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {profile.suspensionReason || "Not specified"}
-                                        </td>
+                                        {activeTab === "notified" ? (
+                                            <>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                    {profile.notifications?.[0]?.type || "N/A"}
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <span
+                                                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${profile.notifications?.[0]?.status === "pending"
+                                                            ? "bg-yellow-100 text-yellow-800"
+                                                            : profile.notifications?.[0]?.status === "read"
+                                                                ? "bg-green-100 text-green-800"
+                                                                : "bg-gray-100 text-gray-800"
+                                                            }`}
+                                                    >
+                                                        {profile.notifications?.[0]?.status || "N/A"}
+                                                    </span>
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                    {profile.notifications?.[0]?.message || "N/A"}
+                                                </td>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <span
+                                                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${profile.isProfileComplete
+                                                            ? "bg-green-100 text-green-800"
+                                                            : "bg-yellow-100 text-yellow-800"
+                                                            }`}
+                                                    >
+                                                        {profile.isProfileComplete ? "Complete" : "Incomplete"}
+                                                    </span>
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                    {profile.suspensionReason || "Not specified"}
+                                                </td>
+                                            </>
+                                        )}
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                             <button
                                                 onClick={(e) => {
@@ -369,7 +453,7 @@ const SuspendedProfilesPage = () => {
                                                 transition={{ duration: 0.3 }}
                                                 className="bg-gray-50"
                                             >
-                                                <td colSpan="5" className="px-6 py-4">
+                                                <td colSpan={activeTab === "notified" ? 6 : 5} className="px-6 py-4">
                                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                                         <div>
                                                             <h4 className="font-medium text-gray-900 mb-2">
@@ -393,6 +477,27 @@ const SuspendedProfilesPage = () => {
                                                                     </span>{" "}
                                                                     {profile.suspensionDate || "Unknown date"}
                                                                 </p>
+                                                                {activeTab === "notified" && profile.notifications?.length > 0 && (
+                                                                    <div className="mt-4">
+                                                                        <h5 className="font-medium text-gray-900 mb-2">
+                                                                            Notification Details
+                                                                        </h5>
+                                                                        <div className="space-y-2">
+                                                                            <p>
+                                                                                <span className="font-medium">Type:</span>{" "}
+                                                                                {profile.notifications[0].type}
+                                                                            </p>
+                                                                            <p>
+                                                                                <span className="font-medium">Sent At:</span>{" "}
+                                                                                {new Date(profile.notifications[0].timestamp).toLocaleString()}
+                                                                            </p>
+                                                                            <p>
+                                                                                <span className="font-medium">Message:</span>{" "}
+                                                                                {profile.notifications[0].message}
+                                                                            </p>
+                                                                        </div>
+                                                                    </div>
+                                                                )}
                                                             </div>
                                                         </div>
                                                         <div>
@@ -450,7 +555,14 @@ const SuspendedProfilesPage = () => {
                                                                             </button>
                                                                         </div>
 
-                                                                        <form onSubmit={() => handleNotification(profile._id)} method="dialog" className="space-y-5">
+                                                                        <form
+                                                                            onSubmit={(e) => {
+                                                                                e.preventDefault();
+                                                                                handleNotification(profile._id);
+                                                                            }}
+                                                                            method="dialog"
+                                                                            className="space-y-5"
+                                                                        >
                                                                             <div className="space-y-2">
                                                                                 <label className="block text-sm font-medium text-gray-700">
                                                                                     Message
@@ -481,29 +593,37 @@ const SuspendedProfilesPage = () => {
                                                                                     value={type}
                                                                                     onChange={(e) => setType(e.target.value)}
                                                                                 >
-                                                                                    <option value="" disabled selected>
-                                                                                        Select notification type
+                                                                                    <option value="" disabled>Select notification type</option>
+                                                                                    <option value="profile_incomplete">
+                                                                                        Profile Incomplete
                                                                                     </option>
-                                                                                    <option value="warning">Profile Warning</option>
-                                                                                    <option value="update">Profile Update Request</option>
-                                                                                    <option value="suspension">Suspension Notice</option>
-                                                                                    <option value="reactivation">Reactivation Notice</option>
+                                                                                    <option value="account_suspended">
+                                                                                        Account Suspended
+                                                                                    </option>
+                                                                                    <option value="reminder">
+                                                                                        Reminder
+                                                                                    </option>
+                                                                                    <option value="warning">
+                                                                                        Warning
+                                                                                    </option>
                                                                                 </select>
                                                                             </div>
 
                                                                             <div className="flex justify-end space-x-3 pt-2">
                                                                                 <button
                                                                                     type="button"
-                                                                                    onClick={() => document.getElementById('notification_modal').close()}
+                                                                                    onClick={() => document.getElementById('notification_modal')?.close()}
                                                                                     className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300 transition-all duration-200"
                                                                                 >
                                                                                     Cancel
                                                                                 </button>
                                                                                 <button
                                                                                     type="submit"
-                                                                                    className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 shadow-sm"
+                                                                                    disabled={loading || !type}
+                                                                                    className={`px-4 py-2 text-sm font-medium text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 shadow-sm
+        ${loading ? "bg-blue-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"}`}
                                                                                 >
-                                                                                    Send Notification
+                                                                                    {loading ? "Sending..." : "Send Notification"}
                                                                                 </button>
                                                                             </div>
                                                                         </form>

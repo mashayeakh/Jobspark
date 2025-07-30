@@ -11,7 +11,12 @@ dotenv.config();  // Load environment variables
 
 // Middleware to parse JSON request bodies
 app.use(express.json());
-app.use(cors());
+// app.use(cors());
+
+app.use(cors({
+    origin: 'http://localhost:5173',
+    credentials: true,
+}));
 
 // Session middleware - Ensure it's added above routes
 const secretKey = process.env.SESSION_SECRET_KEY;  // Load from .env file
@@ -19,8 +24,13 @@ const secretKey = process.env.SESSION_SECRET_KEY;  // Load from .env file
 app.use(session({
     secret: secretKey, // A secret key for encryption
     resave: false,             // Forces the session to be saved even if it wasn't modified
-    saveUninitialized: true,   // Save uninitialized session
-    cookie: { secure: false }  // Set to true if using HTTPS
+    saveUninitialized: false,   // Save uninitialized session
+    cookie: {
+        // Make sure cookie is set correctly for localhost
+        secure: false,    // secure: true only for https
+        httpOnly: true,
+        maxAge: 1000 * 60 * 60 * 24,
+    }  // Set to true if using HTTPS
 }));
 
 // MongoDB connection setup

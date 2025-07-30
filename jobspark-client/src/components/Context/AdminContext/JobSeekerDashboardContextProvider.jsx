@@ -220,6 +220,7 @@ const JobSeekerDashboardContextProvider = ({ children }) => {
 
 
 
+
     useEffect(() => {
         jobSeeker();
         activeProfile();

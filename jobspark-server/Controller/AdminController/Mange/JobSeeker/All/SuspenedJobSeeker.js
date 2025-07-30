@@ -1,6 +1,7 @@
 //! This page contains this code of suspended job seeker.
 
 const UserModel = require("../../../../../Model/AccountModel/UserModel");
+const AdminNotificationModel = require("../../../../../Model/NotificatonModel/AdminNotificationModel");
 
 
 //fetch the incomplete profiles
@@ -60,5 +61,49 @@ const getIncompleteProfiles = async (req, res) => {
     }
 };
 
+const getIncompleteProfilesWithNotifications = async (req, res) => {
+    try {
+        const incompleteUsers = await UserModel.find({
+            role: "job_seeker",
+            "jobSeekerProfile.isProfileComplete": false,
+            $or: [
+                { "jobSeekerProfile.preferredJobTitles": { $size: 0 } },
+                { "jobSeekerProfile.preferredLocations": { $size: 0 } },
+                { "jobSeekerProfile.certificates": { $size: 0 } },
+            ],
+        }).lean();
 
-module.exports = { getIncompleteProfiles }
+        const usersWithNotifications = [];
+
+        for (const user of incompleteUsers) {
+            const notifications = await AdminNotificationModel.find({
+                recipientId: user._id,
+            }).lean();
+
+            if (notifications.length > 0) {
+                usersWithNotifications.push({
+                    ...user,
+                    notifications,
+                });
+            }
+        }
+
+        return res.status(200).json({
+            success: true,
+            count: usersWithNotifications.length,
+            message: `${usersWithNotifications.length} incomplete profiles with notifications found`,
+            data: usersWithNotifications,
+        });
+    } catch (error) {
+        console.error("Error fetching incomplete profiles with notifications:", error);
+        return res.status(500).json({
+            success: false,
+            message: "An error occurred while fetching data",
+            error: error.message,
+        });
+    }
+};
+
+
+
+module.exports = { getIncompleteProfiles, getIncompleteProfilesWithNotifications }

@@ -5,19 +5,20 @@ export async function postMethod(url, data) {
     try {
         const response = await fetch(url, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data)
+            credentials: 'include',  // <-- add this line
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
         });
         const result = await response.json();
+        console.log("RESUL ", result);
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            // Instead of throwing, just return the error info so frontend can handle it
+            return { success: false, status: response.status, message: result.message || 'Error' };
         }
         return result;
     } catch (err) {
         console.error(`Error in postMethod: ${err.message}`);
-        throw err;
+        return { success: false, message: err.message || 'Failed to fetch' };
     }
 }
 

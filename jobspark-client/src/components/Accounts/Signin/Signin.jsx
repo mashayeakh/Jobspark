@@ -26,6 +26,7 @@ const Signin = () => {
                 // Admin login with backend endpoint
                 const response = await fetch("http://localhost:5000/api/v1/admin/login", {
                     method: "POST",
+                    credentials: 'include',  // <--- add this here
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ email, password }),
                 });
