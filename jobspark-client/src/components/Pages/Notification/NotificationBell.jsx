@@ -1,140 +1,241 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { FaRegBell } from 'react-icons/fa';
-import { NotificationContext } from '../../Context/NotificationContextProvider';
+import { AuthContext } from '../../Context/AuthContextProvider';
+import { getMethod } from '../../Utils/Api';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import { motion, AnimatePresence } from 'framer-motion';
+
+dayjs.extend(relativeTime);
 
 const NotificationBell = () => {
-    const [open, setOpen] = useState(false);
-    dayjs.extend(relativeTime);
-
-    const { notification, fetchNotificationDetails } = useContext(NotificationContext);
     const [selectedNotification, setSelectedNotification] = useState(null);
-    const [showDetails, setShowDetails] = useState(null);
+    const { user } = useContext(AuthContext);
+    const [notifications, setNotifications] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [bellShake, setBellShake] = useState(false);
 
-    const handleNotificationClick = (n) => {
-        setSelectedNotification(n);
-        setOpen(false);
+    const fetchAllJobSeekerNotifications = async () => {
+        setIsLoading(true);
+        try {
+            const url = `http://localhost:5000/api/v1/jobseeker/notification/${user?._id}`;
+            const response = await getMethod(url);
+            setNotifications(response.data);
+
+            // Shake the bell if there are new notifications
+            if (response.data.length > 0) {
+                setBellShake(true);
+                setTimeout(() => setBellShake(false), 1000);
+            }
+        } catch (error) {
+            console.error("Failed to fetch notifications:", error);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     useEffect(() => {
-        const fetchDetails = async () => {
-            if (!selectedNotification) return;
-            const recruiterId = selectedNotification.userId;
-            const applicantId = selectedNotification.applicantId;
-            if (!recruiterId || !applicantId) return;
-            const url = `http://localhost:5000/api/v1/recruiter/${recruiterId}/applicant/${applicantId}/details`;
-            try {
-                const data = await fetchNotificationDetails(url);
-                setShowDetails(data);
-            } catch (error) {
-                console.error("Error fetching details:", error);
-            }
-        };
-        fetchDetails();
-    }, [selectedNotification, fetchNotificationDetails]);
+        if (user?.role === "job_seeker" && user?._id) {
+            fetchAllJobSeekerNotifications();
+        }
+    }, [user?._id]);
 
-    console.log("Job Seeker Notifications:", showDetails);
+    const handleNotificationClick = (n) => {
+        setSelectedNotification(n);
+    };
+
+    const notificationVariants = {
+        hidden: { opacity: 0, x: -20 },
+        visible: {
+            opacity: 1,
+            x: 0,
+            transition: {
+                type: "spring",
+                stiffness: 300,
+                damping: 20
+            }
+        },
+        exit: { opacity: 0, x: 20 }
+    };
+
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.1,
+                when: "beforeChildren"
+            }
+        }
+    };
 
     return (
-        <div className="min-h-screen bg-gray-50 p-8">
-            <div className="flex justify-end mb-8">
-                <div className="relative">
-                    {open && (
-                        <div className="absolute right-0 mt-2 w-80 bg-white shadow-lg rounded-lg z-50 animate-fade-in">
-                            <div className="p-3 font-semibold border-b flex justify-between items-center">
-                                Notifications
-                                <button className="text-xs text-blue-600 hover:underline">Mark all as read</button>
-                            </div>
-                            <ul>
-                                {notification?.length > 0 ? (
-                                    notification.slice(0, 5).map((n) => (
-                                        <li
-                                            key={n._id}
-                                            onClick={() => handleNotificationClick(n)}
-                                            className={`px-4 py-2 hover:bg-gray-100 text-sm border-b cursor-pointer flex items-center gap-2 ${!n.read ? 'bg-blue-50 font-semibold' : ''
-                                                }`}
-                                        >
-                                            <span className="w-2 h-2 rounded-full mr-2" style={{ background: n.read ? 'transparent' : '#3b82f6' }}></span>
-                                            <div>
-                                                <p>{n.message}</p>
-                                                <span className="text-xs text-gray-500">{dayjs(n.createdAt).fromNow()}</span>
-                                            </div>
-                                        </li>
-                                    ))
-                                ) : (
-                                    <div className="px-4 py-3 text-gray-500 text-sm">No notifications</div>
-                                )}
-                            </ul>
-                            <div className="text-center py-2">
-                                <button className="text-blue-600 text-xs hover:underline">View all</button>
-                            </div>
-                        </div>
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+            className="min-h-screen bg-gray-50 p-8"
+        >
+            <div className="flex items-center justify-between mb-6">
+                <motion.h2
+                    initial={{ y: -20 }}
+                    animate={{ y: 0 }}
+                    transition={{ type: "spring", stiffness: 300 }}
+                    className="text-2xl font-bold text-gray-800"
+                >
+                    Your Notifications
+                </motion.h2>
+
+                <motion.div
+                    animate={bellShake ? {
+                        rotate: [0, -15, 15, -15, 15, 0],
+                        transition: { duration: 0.6 }
+                    } : {}}
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    onClick={fetchAllJobSeekerNotifications}
+                    className="p-3 bg-white rounded-full shadow-md cursor-pointer"
+                >
+                    <FaRegBell className="text-gray-600 text-xl" />
+                    {notifications.length > 0 && (
+                        <motion.span
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center"
+                        >
+                            {notifications.length}
+                        </motion.span>
                     )}
-                </div>
+                </motion.div>
             </div>
 
-            <div className="flex gap-8 w-full">
-                {/* All Notifications */}
-                <div className="flex-[2] bg-white rounded-lg p-6 shadow">
-                    <h2 className="text-lg font-bold mb-4">All Notifications</h2>
-                    <ul>
-                        {notification?.map((n, idx) => (
-                            <li
-                                key={n._id}
-                                onClick={() => handleNotificationClick(n)}
-                                className={`p-3 rounded cursor-pointer mb-2 flex items-center gap-2 border-l-4 transition-all ${selectedNotification?._id === n._id
-                                    ? 'border-blue-500 bg-blue-50'
-                                    : 'border-transparent'
-                                    } ${idx % 2 === 0 ? 'bg-gray-50' : ''}`}
-                            >
-                                <span className="w-2 h-2 rounded-full" style={{ background: n.read ? 'transparent' : '#3b82f6' }}></span>
-                                <div>
-                                    <p>{n.message}</p>
-                                    <span className="text-xs text-gray-500">{dayjs(n.createdAt).fromNow()}</span>
-                                </div>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-
-                {/* Details Section */}
-                <div className="flex-[1] bg-white rounded-lg p-6 shadow">
-                    <h2 className="text-lg font-bold mb-4">Details</h2>
-                    {showDetails && showDetails.length > 0 ? (
-                        showDetails.map((detail, index) => (
-                            <div key={index} className="text-sm space-y-2 mb-4 border-b pb-2 bg-gray-50 rounded p-3 shadow">
-                                <p><strong>Date:</strong> {detail["Date"]}</p>
-                                <p><strong>Type:</strong> {detail["Type"]}</p>
-                                <p><strong>Candidate:</strong> {detail["Candidate"]}</p>
-                                <p><strong>Interview Date:</strong> {detail["Interview Date"]}</p>
-                                <p>
-                                    <strong>Location:</strong> {detail["Location"]} —{" "}
-                                    <a
-                                        href={detail["InterviewLink"]}
-                                        target="_blank"
-                                        rel="noreferrer"
-                                        className="text-blue-600 underline"
+            <motion.div
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.2 }}
+                className="flex bg-white shadow-lg rounded-xl overflow-hidden"
+            >
+                {/* Left side - Notification List */}
+                <div className="w-1/3 border-r max-h-[80vh] overflow-y-auto">
+                    {isLoading ? (
+                        <div className="p-4 flex justify-center">
+                            <motion.div
+                                animate={{ rotate: 360 }}
+                                transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+                                className="h-6 w-6 border-2 border-blue-500 border-t-transparent rounded-full"
+                            />
+                        </div>
+                    ) : notifications?.length > 0 ? (
+                        <motion.div
+                            variants={containerVariants}
+                            initial="hidden"
+                            animate="visible"
+                            className="divide-y divide-gray-200"
+                        >
+                            <AnimatePresence>
+                                {notifications.map((n) => (
+                                    <motion.div
+                                        key={n._id}
+                                        variants={notificationVariants}
+                                        initial="hidden"
+                                        animate="visible"
+                                        exit="exit"
+                                        onClick={() => handleNotificationClick(n)}
+                                        className={`p-4 cursor-pointer hover:bg-gray-50 transition-colors ${selectedNotification?._id === n._id ? 'bg-blue-50' : ''}`}
+                                        whileHover={{ scale: 1.01 }}
+                                        whileTap={{ scale: 0.99 }}
                                     >
-                                        Join Link
-                                    </a>
-                                </p>
-                                <p><strong>Interviewer:</strong> {detail["Interviewer"]}</p>
-                                <p><strong>Notes:</strong> {detail["Notes"]}</p>
-                            </div>
-                        ))
+                                        <div className="flex items-start">
+                                            <motion.div
+                                                animate={selectedNotification?._id === n._id ?
+                                                    { backgroundColor: "#3b82f6" } :
+                                                    { backgroundColor: "#e5e7eb" }
+                                                }
+                                                className="h-2 w-2 rounded-full mt-1 mr-2"
+                                            />
+                                            <div>
+                                                <p className="text-sm font-medium text-gray-800">{n.message}</p>
+                                                <div className="text-xs text-gray-500 flex justify-between mt-1">
+                                                    <span>{dayjs(n.createdAt).fromNow()}</span>
+                                                    <span className={`italic ${n.source === 'admin' ? 'text-blue-500' : 'text-gray-400'}`}>
+                                                        {n.source === 'admin' ? 'From Admin' : 'System'}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                ))}
+                            </AnimatePresence>
+                        </motion.div>
                     ) : (
-                        <div className="flex flex-col items-center justify-center h-full text-gray-400">
-                            <svg width="64" height="64" fill="none" viewBox="0 0 24 24">
-                                <path d="M12 22c1.1 0 2-.9 2-2h-4a2 2 0 002 2zm6-6V11c0-3.07-1.63-5.64-5-6.32V4a1 1 0 10-2 0v.68C7.63 5.36 6 7.92 6 11v5l-1.29 1.29A1 1 0 006 19h12a1 1 0 00.71-1.71L18 16z" fill="#cbd5e1" />
-                            </svg>
-                            <p className="mt-2">Click a notification to view its details.</p>
-                        </div>
+                        <motion.p
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className="p-4 text-gray-500 text-sm text-center"
+                        >
+                            No notifications yet
+                        </motion.p>
                     )}
                 </div>
-            </div>
-        </div>
+
+                {/* Right side - Notification Details */}
+                <div className="w-2/3 p-6 bg-gray-50">
+                    <AnimatePresence mode="wait">
+                        {selectedNotification ? (
+                            <motion.div
+                                key={selectedNotification._id}
+                                initial={{ opacity: 0, x: 20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: -20 }}
+                                transition={{ duration: 0.3 }}
+                                className="bg-white p-6 rounded-lg shadow-sm"
+                            >
+                                <div className="flex items-center mb-4">
+                                    <div className={`h-3 w-3 rounded-full mr-2 ${selectedNotification.source === 'admin' ? 'bg-blue-500' : 'bg-gray-400'}`} />
+                                    <h3 className="text-lg font-bold text-gray-800">Notification Details</h3>
+                                </div>
+
+                                <motion.div
+                                    initial={{ height: 0 }}
+                                    animate={{ height: 'auto' }}
+                                    className="overflow-hidden"
+                                >
+                                    <p className="text-md mb-4 text-gray-700">{selectedNotification.message}</p>
+                                </motion.div>
+
+                                <div className="space-y-3 text-sm text-gray-600 border-t pt-4">
+                                    <div className="flex">
+                                        <span className="font-semibold w-24">Type:</span>
+                                        <span className="capitalize">{selectedNotification.type}</span>
+                                    </div>
+                                    <div className="flex">
+                                        <span className="font-semibold w-24">From:</span>
+                                        <span className={`${selectedNotification.source === 'admin' ? 'text-blue-500' : 'text-gray-500'}`}>
+                                            {selectedNotification.source === 'admin' ? 'Admin' : 'System'}
+                                        </span>
+                                    </div>
+                                    <div className="flex">
+                                        <span className="font-semibold w-24">Received:</span>
+                                        <span>{dayjs(selectedNotification.createdAt).format('MMM DD, YYYY h:mm A')}</span>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        ) : (
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                className="flex flex-col items-center justify-center h-full text-gray-400"
+                            >
+                                <FaRegBell className="text-4xl mb-4" />
+                                <p className="text-lg">Select a notification to view details</p>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </div>
+            </motion.div>
+        </motion.div>
     );
 };
 
-export default NotificationBell
+export default NotificationBell;

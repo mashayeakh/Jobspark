@@ -2,6 +2,7 @@ const NotificationModel = require("../../Model/NotificatonModel/NotificationMode
 const { default: mongoose } = require("mongoose");
 const ScheduledInterviewModel = require("../../Model/RecruiterModel/ScheduledInterviewModel");
 const dayjs = require('dayjs');
+const AdminNotificationModel = require("../../Model/NotificatonModel/AdminNotificationModel");
 
 
 /**
@@ -229,4 +230,102 @@ const markTheNotifications = async (req, res) => {
     }
 }
 
-module.exports = { createNotification, getAllTheNotifications, markTheNotifications, getDetailsOnApplicant, createJobSeekerNotification, getAllJobSeekerNotifications }
+
+//* fetch notification both notificatino model and admin notificaitonmodel
+// get - jobseeker/notification/:userId
+
+const getAllNotificationsForJobSeeker = async (req, res) => {
+    const { userId } = req.params;
+
+    try {
+        // 1. System notifications
+        const systemNotifications = await NotificationModel.find({ userId })
+            .lean()
+            .sort({ createdAt: -1 });
+
+
+        // Add source to each
+        const formattedSystem = systemNotifications.map(n => ({
+            ...n,
+            source: 'system',
+        }));
+
+        // 2. Admin notifications
+        const adminNotifications = await AdminNotificationModel.find({ recipientId: userId })
+            .lean()
+            .sort({ timestamp: -1 });
+
+        const formattedAdmin = adminNotifications.map(n => ({
+            _id: n._id,
+            message: n.message,
+            type: n.type,
+            status: n.status,
+            createdAt: n.timestamp,
+            source: 'admin',
+        }));
+
+        // 3. Combine and sort all
+        const allNotifications = [...formattedSystem, ...formattedAdmin].sort(
+            (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        );
+
+        res.status(200).json({
+            success: true,
+            data: allNotifications
+        });
+    } catch (err) {
+        console.error('Error fetching notifications:', err);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to fetch notifications'
+        });
+    }
+};
+
+//mark the notificaiton as read
+// PATCH /api/v1/notifications/:id/mark-read
+const markNotificationAsRead = async (req, res) => {
+    const { id } = req.params;
+    const { type, userId } = req.query;
+
+    try {
+        let notification;
+
+        if (type === "system") {
+            notification = await NotificationModel.findById(id);
+        } else if (type === "admin") {
+            notification = await AdminNotificationModel.findById(id);
+        } else {
+            return res.status(400).json({ success: false, message: "Invalid type" });
+        }
+
+        if (!notification) {
+            return res.status(404).json({ success: false, message: "Notification not found" });
+        }
+
+        // Use correct user ID field based on type
+        const recipientField = type === "system" ? notification.userId : notification.recipientId;
+
+        if (recipientField?.toString() !== userId) {
+            return res.status(403).json({ success: false, message: "Unauthorized" });
+        }
+
+        notification.isRead = true;
+        await notification.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Notification marked as read",
+            data: notification,
+        });
+    } catch (err) {
+        console.error("Error marking notification as read", err);
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+};
+
+
+
+
+
+module.exports = { createNotification, getAllTheNotifications, markTheNotifications, getDetailsOnApplicant, createJobSeekerNotification, getAllJobSeekerNotifications, getAllNotificationsForJobSeeker, markNotificationAsRead }

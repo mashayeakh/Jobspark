@@ -49,14 +49,21 @@ export async function getMethod(url) {
     try {
         const response = await fetch(url, {
             method: 'GET',
+            credentials: 'include', // ✅ Important: this sends cookies/session
+            headers: {
+                'Content-Type': 'application/json',
+            },
         });
+
         const result = await response.json();
+
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
+
         return result;
     } catch (err) {
-        console.error(`Error in patchMethod: ${err.message}`);
+        console.error(`Error in getMethod: ${err.message}`);
         throw err;
     }
 }

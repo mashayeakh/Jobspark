@@ -77,12 +77,31 @@ const NotificationContextProvider = ({ children }) => {
 
 
 
+    //  Add this inside your NotificationContextProvider component
+    // const [newNotification, setNewNotification] = useState([]);
+    // const fetchAllJobSeekerNotifications = async (jobSeekerId) => {
+    //     try {
+    //         const url = `http://localhost:5000/api/v1/jobseeker/notification/${jobSeekerId}`
+    //         console.log("UR ", url);
+    //         const response = await getMethod(url);
+
+    //         setNewNotification(response); // stores both admin + system notifications
+    //     } catch (error) {
+    //         console.error("Failed to fetch all job seeker notifications:", error);
+    //     }
+    // };
+
+
+
+
+
 
     useEffect(() => {
         if (user) {
             fetchingNotification();
             markNotificationsRead();
             fetchNotificationDetails();
+            // fetchAllJobSeekerNotifications();
         }
     }, [user])
 
@@ -114,8 +133,10 @@ const NotificationContextProvider = ({ children }) => {
 
         notificationDetails,
         setNotificationDetails,
-
+        // fetchAllJobSeekerNotifications,
         hasIncompleteProfileReminder, // ✅ <-- ADD THIS
+        // newNotification,
+        // setNewNotification
     };
 
     return (
