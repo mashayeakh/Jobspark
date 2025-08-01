@@ -600,9 +600,6 @@ const SuspendedProfilesPage = () => {
                                                                                     <option value="account_suspended">
                                                                                         Account Suspended
                                                                                     </option>
-                                                                                    <option value="reminder">
-                                                                                        Reminder
-                                                                                    </option>
                                                                                     <option value="warning">
                                                                                         Warning
                                                                                     </option>

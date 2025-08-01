@@ -33,12 +33,30 @@ app.use(session({
     }  // Set to true if using HTTPS
 }));
 
+const fetchIncompleteProfiles = require("./Utils/fectchIncompleteProfiles");
+const { processProfileIncompleteNotifications } = require("./Utils/profileReminderService");
+
 // MongoDB connection setup
+// testFetch.js
+
 mongoose.connect(process.env.MONGO_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true
-}).then(() => console.log("MongoDB connected"))
-    .catch(err => console.error("MongoDB connection error:", err));
+}).then(async () => {
+    console.log("✅ Connected to MongoDB");
+
+    // const result = await fetchIncompleteProfiles();
+    // console.log("🧠 Users to warn ➤", result.map(r => r.user.email));
+
+    await processProfileIncompleteNotifications();
+    console.log("✅ Done processing profile reminders.");
+
+    await mongoose.disconnect();
+    console.log("🔌 Disconnected from MongoDB");
+}).catch(err => {
+    console.error("❌ MongoDB connection error:", err);
+});
+
 
 // Set the port from environment or default to 5000
 const port = process.env.PORT || 5000;
@@ -69,6 +87,19 @@ const jobSeeker_activeProfile = require("./Routes/AdminRouter/Manage/JobSeeker_D
 const suspended_jobSeeker = require("./Routes/AdminRouter/Manage/JobSeeker_DashboardRouter/Suspended_JobSeeker");
 const adminNotification = require("./Routes/NotificationRouter/AdminNotificationRouter");
 const createAdmin = require("./Routes/AdminRouter/AdminAcc");
+// const fetchIncompleteProfiles = require("./Utils/fectchIncompleteProfiles");
+
+cron.schedule("* * * * *", async () => {
+    console.log("⏰ Running daily profile warning reminder...");
+    try {
+        await processProfileIncompleteNotifications();
+        console.log("✅ Done sending profile warnings");
+    } catch (err) {
+        console.error("❌ Error in profile reminder job:", err.message);
+    }
+});
+
+
 
 // Cron job for job expiration check every hour
 cron.schedule("0 * * * *", () => {
@@ -79,6 +110,7 @@ cron.schedule("0 * * * *", () => {
 // Function to expire old jobs (you must define this function somewhere)
 const expireOldJobs = () => {
     console.log("Expiring old jobs...");
+
 };
 
 // Testing route to check server

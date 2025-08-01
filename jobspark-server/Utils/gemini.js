@@ -17,5 +17,22 @@ async function getRecommendedUsers(promptText) {
     }
 }
 
+//generating remainder for profile 
+const generateProfileReminder = async (userName) => {
+    const prompt = `
+You are a polite assistant helping users complete their job portal profiles. Write a friendly message in less than 30 words encouraging a user named "${userName}" to complete their profile. Avoid sounding robotic.`;
 
-module.exports = { getRecommendedUsers }
+    try {
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const result = await model.generateContent(prompt);
+        const response = result.response;
+        const text = response.text().trim();
+
+        return text;
+    } catch (err) {
+        console.error("Gemini message generation error:", err);
+        return `Hi ${userName}, don’t forget to complete your profile to unlock new opportunities!`;
+    }
+};
+
+module.exports = { getRecommendedUsers, generateProfileReminder }
