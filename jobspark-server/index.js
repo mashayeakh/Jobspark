@@ -39,20 +39,29 @@ const { processProfileIncompleteNotifications } = require("./Utils/profileRemind
 // MongoDB connection setup
 // testFetch.js
 
+// mongoose.connect(process.env.MONGO_URI, {
+//     useNewUrlParser: true,
+//     useUnifiedTopology: true
+// }).then(async () => {
+//     console.log("✅ Connected to MongoDB");
+
+//     // const result = await fetchIncompleteProfiles();
+//     // console.log("🧠 Users to warn ➤", result.map(r => r.user.email));
+
+//     // await processProfileIncompleteNotifications();
+//     // console.log("✅ Done processing profile reminders.");
+
+//     // await mongoose.disconnect();
+//     // console.log("🔌 Disconnected from MongoDB");
+// }).catch(err => {
+//     console.error("❌ MongoDB connection error:", err);
+// });
+
 mongoose.connect(process.env.MONGO_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true
-}).then(async () => {
+}).then(() => {
     console.log("✅ Connected to MongoDB");
-
-    // const result = await fetchIncompleteProfiles();
-    // console.log("🧠 Users to warn ➤", result.map(r => r.user.email));
-
-    await processProfileIncompleteNotifications();
-    console.log("✅ Done processing profile reminders.");
-
-    await mongoose.disconnect();
-    console.log("🔌 Disconnected from MongoDB");
 }).catch(err => {
     console.error("❌ MongoDB connection error:", err);
 });
@@ -89,15 +98,15 @@ const adminNotification = require("./Routes/NotificationRouter/AdminNotification
 const createAdmin = require("./Routes/AdminRouter/AdminAcc");
 // const fetchIncompleteProfiles = require("./Utils/fectchIncompleteProfiles");
 
-cron.schedule("* * * * *", async () => {
-    console.log("⏰ Running daily profile warning reminder...");
-    try {
-        await processProfileIncompleteNotifications();
-        console.log("✅ Done sending profile warnings");
-    } catch (err) {
-        console.error("❌ Error in profile reminder job:", err.message);
-    }
-});
+// cron.schedule("* * * * *", async () => {
+//     console.log("⏰ Running daily profile warning reminder...");
+//     try {
+//         // await processProfileIncompleteNotifications();
+//         console.log("✅ Done sending profile warnings");
+//     } catch (err) {
+//         console.error("❌ Error in profile reminder job:", err.message);
+//     }
+// });
 
 
 
