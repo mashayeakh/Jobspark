@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { BadgeCheck, AlertCircle, Search, Filter, ChevronDown, ChevronUp, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { JobSeekerVerifiedContext } from "../../../../../../../Context/AdminContext/JobSeekerVerifiedContextProvider";
 
 // Mock data - in a real app this would come from an API
 const generateMockData = () => {
@@ -33,17 +34,32 @@ const VerifiedProfiles = () => {
     const [itemsPerPage, setItemsPerPage] = useState(10);
     const [jobSeekersData, setJobSeekersData] = useState([]);
 
+
+    // const 
+
+
     // Initialize with mock data
     useEffect(() => {
         setJobSeekersData(generateMockData());
     }, []);
 
+
+    const { verified } = useContext(JobSeekerVerifiedContext);
+
+    console.log("Verified -", verified);
+    const totalJobSeeker = verified?.data?.jobSeeker;
+    const verifiedJobSeeker = verified?.data?.verified;
+    const unVerifiedJobSeeker = verified?.data?.unverified;
+
+    console.log("verified?.data?.verifiedUsers =>", verified?.data?.verifiedUsers);
+
+
     // Filter logic
-    const filteredProfiles = jobSeekersData.filter(user => {
+    const filteredProfiles = verified?.data?.totalUsers?.filter(user => {
         const matchesSearch = user.name.toLowerCase().includes(search.toLowerCase()) ||
             user.email.toLowerCase().includes(search.toLowerCase());
         const matchesTab = activeTab === "all" ||
-            (activeTab === "verified" && user.isVerified) ||
+            (activeTab === "verified" && user.status === "Verified") ||
             (activeTab === "unverified" && !user.isVerified);
         const matchesLocation = !filters.location || user.location === filters.location;
         const matchesExperience = !filters.experience || user.experienceLevel === filters.experience;
@@ -51,15 +67,18 @@ const VerifiedProfiles = () => {
         return matchesSearch && matchesTab && matchesLocation && matchesExperience;
     });
 
+    console.log("Filt", filteredProfiles);
+
+
     // Pagination logic
-    const totalItems = filteredProfiles.length;
+    const totalItems = filteredProfiles?.length;
     const totalPages = Math.ceil(totalItems / itemsPerPage);
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentItems = filteredProfiles.slice(indexOfFirstItem, indexOfLastItem);
+    const currentItems = filteredProfiles?.slice(indexOfFirstItem, indexOfLastItem);
 
-    const verifiedCount = jobSeekersData.filter(u => u.isVerified).length;
-    const unverifiedCount = jobSeekersData.filter(u => !u.isVerified).length;
+    const verifiedCount = jobSeekersData.filter(u => u.isVerified)?.length;
+    const unverifiedCount = jobSeekersData.filter(u => !u.isVerified)?.length;
 
     // Get unique filter options
     const locations = [...new Set(jobSeekersData.map(u => u.location))];
@@ -157,6 +176,16 @@ const VerifiedProfiles = () => {
 
         return pages;
     };
+
+
+
+    // const { verified } = useContext(JobSeekerVerifiedContext);
+
+    // console.log("Verified -", verified);
+    // const totalJobSeeker = verified?.data?.jobSeeker;
+    // const verifiedJobSeeker = verified?.data?.verified;
+    // const unVerifiedJobSeeker = verified?.data?.unverified;
+
 
     return (
         <motion.div
@@ -274,7 +303,7 @@ const VerifiedProfiles = () => {
                 >
                     All Candidates
                     <span className="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded-full">
-                        {jobSeekersData.length}
+                        {totalJobSeeker}
                     </span>
                 </motion.button>
 
@@ -290,7 +319,7 @@ const VerifiedProfiles = () => {
                     <BadgeCheck size={18} />
                     Verified
                     <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
-                        {verifiedCount}
+                        {verifiedJobSeeker}
                     </span>
                 </motion.button>
 
@@ -306,7 +335,7 @@ const VerifiedProfiles = () => {
                     <AlertCircle size={18} />
                     Unverified
                     <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">
-                        {unverifiedCount}
+                        {unVerifiedJobSeeker}
                     </span>
                 </motion.button>
             </div>
@@ -318,7 +347,7 @@ const VerifiedProfiles = () => {
                     className="bg-white p-4 rounded-lg shadow-sm border-l-4 border-blue-500"
                 >
                     <div className="text-sm text-gray-500">Total Candidates</div>
-                    <div className="text-2xl font-bold">{jobSeekersData.length}</div>
+                    <div className="text-2xl font-bold">{totalJobSeeker}</div>
                 </motion.div>
 
                 <motion.div
@@ -326,9 +355,9 @@ const VerifiedProfiles = () => {
                     className="bg-white p-4 rounded-lg shadow-sm border-l-4 border-green-500"
                 >
                     <div className="text-sm text-gray-500">Verified</div>
-                    <div className="text-2xl font-bold text-green-600">{verifiedCount}</div>
+                    <div className="text-2xl font-bold text-green-600">{verifiedJobSeeker}</div>
                     <div className="text-xs text-gray-500 mt-1">
-                        {Math.round((verifiedCount / jobSeekersData.length) * 100)}% of total
+                        {Math.round((verifiedJobSeeker / totalJobSeeker) * 100)}% of total
                     </div>
                 </motion.div>
 
@@ -337,9 +366,9 @@ const VerifiedProfiles = () => {
                     className="bg-white p-4 rounded-lg shadow-sm border-l-4 border-yellow-500"
                 >
                     <div className="text-sm text-gray-500">Unverified</div>
-                    <div className="text-2xl font-bold text-yellow-600">{unverifiedCount}</div>
+                    <div className="text-2xl font-bold text-yellow-600">{unVerifiedJobSeeker}</div>
                     <div className="text-xs text-gray-500 mt-1">
-                        {Math.round((unverifiedCount / jobSeekersData.length) * 100)}% of total
+                        {Math.round((unVerifiedJobSeeker / totalJobSeeker) * 100)}% of total
                     </div>
                 </motion.div>
             </div>
@@ -380,7 +409,7 @@ const VerifiedProfiles = () => {
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
                             <AnimatePresence>
-                                {currentItems.length > 0 ? (
+                                {currentItems?.length > 0 ? (
                                     currentItems.map((user) => (
                                         <motion.tr
                                             key={user.id}
@@ -409,11 +438,11 @@ const VerifiedProfiles = () => {
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                                                    {user.experienceLevel}
+                                                    {user.experience}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
-                                                {user.isVerified ? (
+                                                {user?.status === "Verified" ? (
                                                     <motion.span
                                                         whileHover={{ scale: 1.05 }}
                                                         className="px-2 inline-flex items-center text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800"
@@ -421,7 +450,7 @@ const VerifiedProfiles = () => {
                                                         <BadgeCheck className="mr-1" size={12} />
                                                         Verified
                                                     </motion.span>
-                                                ) : (
+                                                ) : user?.status === "Not Verified" ? (
                                                     <motion.span
                                                         whileHover={{ scale: 1.05 }}
                                                         className="px-2 inline-flex items-center text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800"
@@ -429,8 +458,17 @@ const VerifiedProfiles = () => {
                                                         <AlertCircle className="mr-1" size={12} />
                                                         Unverified
                                                     </motion.span>
+                                                ) : (
+                                                    <motion.span
+                                                        whileHover={{ scale: 1.05 }}
+                                                        className="px-2 inline-flex items-center text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800"
+                                                    >
+                                                        <AlertCircle className="mr-1" size={12} />
+                                                        Not Specified
+                                                    </motion.span>
                                                 )}
                                             </td>
+
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                                 {user.isVerified ? (
                                                     <button className="text-blue-600 hover:text-blue-900">View Details</button>

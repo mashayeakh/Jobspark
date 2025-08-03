@@ -200,8 +200,6 @@
 // module.exports = mongoose.model("User", userSchema);
 
 
-
-
 const mongoose = require("mongoose");
 
 const jobSeekerProfileSchema = new mongoose.Schema({
@@ -217,13 +215,10 @@ const jobSeekerProfileSchema = new mongoose.Schema({
     suspensionDate: { type: Date, default: null },
     reactivationDate: { type: Date, default: null },
 
-    // ✅ Verification
+    // ✅ Verification for Job Seekers
     isVerified: { type: Boolean, default: false },
     verifiedFields: {
-        emailVerified: { type: Boolean, default: false },
-        phoneVerified: { type: Boolean, default: false },
-        identityDocsVerified: { type: Boolean, default: false },
-        educationDocsVerified: { type: Boolean, default: false },
+        resumeVerified: { type: Boolean, default: false }, // ✅ you're verifying CV/resume
     },
     verifiedAt: { type: Date, default: null }
 });
@@ -233,12 +228,10 @@ const recruiterProfileSchema = new mongoose.Schema({
     company_role: { type: String, required: true },
     website: { type: String, required: true },
 
-    // ✅ Verification
+    // ✅ Verification for Recruiters
     isVerified: { type: Boolean, default: false },
     verifiedFields: {
-        companyEmailVerified: { type: Boolean, default: false },
-        companyDocsVerified: { type: Boolean, default: false },
-        phoneNumberVerified: { type: Boolean, default: false },
+        companyDocsVerified: { type: Boolean, default: false } // for any company identity proof
     },
     verifiedAt: { type: Date, default: null }
 });
