@@ -1,7 +1,9 @@
 //! This page contains the code of Notification sending from Admin to job seeker and recruiter.
 
+const { response } = require("express");
 const UserModel = require("../../../../Model/AccountModel/UserModel");
 const AdminNotificationModel = require("../../../../Model/NotificatonModel/AdminNotificationModel");
+const NotificationModel = require("../../../../Model/NotificatonModel/NotificationModel");
 
 //send notification to job seeker
 //req - Post - admin/send-notification/job-seeker/{jobSeekerId}
@@ -129,6 +131,54 @@ const getNotifiedJobSeekers = async (req, res) => {
 };
 
 
+//! verifciation related notification stays here.
+// post - admin/remainder/:jobSeekerId
+const sendVerificationReminder = async (req, res) => {
+    try {
+        const { jobSeekerId } = req.params;
+
+        // Validate jobSeekerId presence and format (basic MongoDB ObjectId check)
+        if (!jobSeekerId || !jobSeekerId.match(/^[0-9a-fA-F]{24}$/)) {
+            return res.status(400).json({ success: false, message: "Invalid or missing jobSeekerId" });
+        }
+
+        console.log("Job seeker ", jobSeekerId);
+
+        const found_jobSeeker = await UserModel.findById(jobSeekerId);
+
+        if (!found_jobSeeker) {
+            return res.status(404).json({ success: false, message: "Job seeker not found" });
+        }
 
 
-module.exports = { sendAdminNotification, getSentNotificationTypes, getNotifiedJobSeekers }
+        const existingNotification = await NotificationModel.findOne({
+            userId: found_jobSeeker._id,
+            message: "Please complete your profile to verify",
+            type: "reminder",
+        });
+
+        if (existingNotification) {
+            return res.status(409).json({ success: false, message: "Reminder notification already sent" });
+        }
+
+
+        const newNotification = new NotificationModel({
+            userId: found_jobSeeker._id,
+            message: "Please complete your profile to verify",
+            type: "reminder",
+        });
+
+
+        const savedNotification = await newNotification.save();
+
+        console.log("Notification saved in DB", savedNotification);
+
+        return res.status(200).json({ success: true, message: "Verification reminder sent successfully" });
+    } catch (error) {
+        console.error("Error in sendVerificationReminder:", error);
+        return res.status(500).json({ success: false, message: "Internal server error" });
+    }
+};
+
+
+module.exports = { sendAdminNotification, getSentNotificationTypes, getNotifiedJobSeekers, sendVerificationReminder }

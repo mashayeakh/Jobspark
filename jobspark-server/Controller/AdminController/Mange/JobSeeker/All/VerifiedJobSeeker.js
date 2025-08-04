@@ -59,6 +59,7 @@ const getVerifiedStats = async (req, res) => {
                 verified: verifiedCount,
                 unverified: unverifiedCount,
                 totalUsers: allUsers.map(all => ({
+                    id: all._id,
                     name: all.name,
                     email: all.email,
                     location: all?.location || 'Not specified',

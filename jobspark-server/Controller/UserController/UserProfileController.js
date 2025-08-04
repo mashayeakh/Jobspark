@@ -1,5 +1,6 @@
 const UserModel = require("../../Model/AccountModel/UserModel");
 const mongoose = require("mongoose");
+const AdminNotificationModel = require("../../Model/NotificatonModel/AdminNotificationModel");
 
 /**
  * *Retrieves a user's profile information by their ID.
@@ -38,4 +39,55 @@ const getProfileInfo = async (req, res) => {
     }
 }
 
-module.exports = { getProfileInfo }
+// patch - /jobSeekerId/update-profile
+const updateProfile = async (req, res) => {
+    try {
+        const { jobSeekerId } = req.params;
+
+        // Accept nested or flat update:
+        const updateData = req.body.jobSeekerProfile || req.body;
+
+        // Find user first
+        const existingJobSeeker = await UserModel.findById(jobSeekerId);
+        if (!existingJobSeeker) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+
+        const wasVerified = existingJobSeeker.jobSeekerProfile?.isVerified || false;
+
+        // If jobSeekerProfile undefined, initialize it as empty object
+        const currentProfile = existingJobSeeker.jobSeekerProfile
+            ? existingJobSeeker.jobSeekerProfile.toObject()
+            : {};
+
+        // Merge existing profile with updateData
+        const newProfile = { ...currentProfile, ...updateData };
+
+        // Update only jobSeekerProfile subdocument
+        const updatedUser = await UserModel.findByIdAndUpdate(
+            jobSeekerId,
+            { $set: { jobSeekerProfile: newProfile } },
+            { new: true, runValidators: true }
+        );
+
+        const isNowVerified = updatedUser.jobSeekerProfile?.isVerified || false;
+
+        if (!wasVerified && isNowVerified) {
+            await AdminNotificationModel.create({
+                message: `Job Seeker ${updatedUser.name} (ID: ${updatedUser._id}) has been verified.`,
+                recipientId: null, // add admin IDs if needed
+                senderId: updatedUser._id,
+                status: "sent",
+                type: "profile_verified",
+                occurrences: 1,
+            });
+        }
+
+        return res.json({ success: true, user: updatedUser });
+    } catch (error) {
+        console.error("Error updating profile:", error);
+        return res.status(500).json({ success: false, message: "Server error" });
+    }
+};
+
+module.exports = { getProfileInfo, updateProfile }
