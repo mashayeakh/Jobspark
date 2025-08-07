@@ -2,27 +2,13 @@ import React, { useState, useEffect, useContext } from "react";
 import { BadgeCheck, AlertCircle, Search, Filter, ChevronDown, ChevronUp, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { JobSeekerVerifiedContext } from "../../../../../../../Context/AdminContext/JobSeekerVerifiedContextProvider";
+import { patchMethod, postMethod } from "../../../../../../../Utils/Api";
+import { ToastContainer, toast } from 'react-toastify';
 
-// Mock data - in a real app this would come from an API
-const generateMockData = () => {
-    return Array.from({ length: 299 }, (_, i) => ({
-        id: i + 1,
-        name: i < 200 ? `Verified User ${i + 1}` : `Unverified User ${i + 1}`,
-        email: i < 200 ? `verified${i + 1}@example.com` : `unverified${i + 1}@example.com`,
-        location: ["Lahore", "Karachi", "Islamabad", "Peshawar", "Quetta"][i % 5],
-        experienceLevel: ["Entry Level", "Junior", "Mid Level", "Senior", "Executive"][i % 5],
-        isVerified: i < 200,
-        verifiedDetails: i < 200 ? {
-            email: true,
-            phone: Math.random() > 0.2,
-            identity: Math.random() > 0.3,
-            educationDocs: Math.random() > 0.4,
-            lastVerified: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-        } : null
-    }));
-};
 
 const VerifiedProfiles = () => {
+    const { verified } = useContext(JobSeekerVerifiedContext);
+    // console.log("VErifield ", verified);
     const [search, setSearch] = useState("");
     const [activeTab, setActiveTab] = useState("verified");
     const [showFilters, setShowFilters] = useState(false);
@@ -32,70 +18,44 @@ const VerifiedProfiles = () => {
     });
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(10);
-    const [jobSeekersData, setJobSeekersData] = useState([]);
 
-
-    // const 
-
-
-    // Initialize with mock data
-    useEffect(() => {
-        setJobSeekersData(generateMockData());
-    }, []);
-
-
-    const { verified } = useContext(JobSeekerVerifiedContext);
-
-    console.log("Verified -", verified);
+    // Extract data from context
     const totalJobSeeker = verified?.data?.jobSeeker;
     const verifiedJobSeeker = verified?.data?.verified;
     const unVerifiedJobSeeker = verified?.data?.unverified;
-
-    console.log("verified?.data?.verifiedUsers =>", verified?.data?.verifiedUsers);
-
+    const allUsers = verified?.data?.totalUsers || [];
+    // console.log("AA ====", allUsers);
 
     // Filter logic
-    const filteredProfiles = verified?.data?.totalUsers?.filter(user => {
-        const matchesSearch = user.name.toLowerCase().includes(search.toLowerCase()) ||
-            user.email.toLowerCase().includes(search.toLowerCase());
+    const filteredProfiles = allUsers.filter(user => {
+        const matchesSearch = user?.name?.toLowerCase().includes(search.toLowerCase()) ||
+            user?.email?.toLowerCase().includes(search.toLowerCase());
+
         const matchesTab = activeTab === "all" ||
-            (activeTab === "verified" && user.status === "Verified") ||
-            (activeTab === "unverified" && !user.isVerified);
-        const matchesLocation = !filters.location || user.location === filters.location;
-        const matchesExperience = !filters.experience || user.experienceLevel === filters.experience;
+            (activeTab === "verified" && user?.status === "Verified") ||
+            (activeTab === "unverified" && user?.status !== "Verified");
+
+        const matchesLocation = !filters.location ||
+            (user?.location || 'Not specified') === filters.location;
+
+        const matchesExperience = !filters.experience ||
+            (user?.experience || 'Not specified') === filters.experience;
 
         return matchesSearch && matchesTab && matchesLocation && matchesExperience;
     });
 
-    console.log("Filt", filteredProfiles);
-
-
     // Pagination logic
-    const totalItems = filteredProfiles?.length;
+    const totalItems = filteredProfiles.length;
     const totalPages = Math.ceil(totalItems / itemsPerPage);
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentItems = filteredProfiles?.slice(indexOfFirstItem, indexOfLastItem);
-
-    const verifiedCount = jobSeekersData.filter(u => u.isVerified)?.length;
-    const unverifiedCount = jobSeekersData.filter(u => !u.isVerified)?.length;
+    const currentItems = filteredProfiles.slice(indexOfFirstItem, indexOfLastItem);
 
     // Get unique filter options
-    const locations = [...new Set(jobSeekersData.map(u => u.location))];
-    const experienceLevels = [...new Set(jobSeekersData.map(u => u.experienceLevel))];
+    const locations = [...new Set(allUsers.map(user => user.location || 'Not specified'))];
+    const experienceLevels = [...new Set(allUsers.map(user => user.experience || 'Not specified'))];
 
     // Animation variants
-    const containerVariants = {
-        hidden: { opacity: 0 },
-        visible: {
-            opacity: 1,
-            transition: {
-                staggerChildren: 0.05,
-                when: "beforeChildren"
-            }
-        }
-    };
-
     const itemVariants = {
         hidden: { y: 20, opacity: 0 },
         visible: {
@@ -128,7 +88,7 @@ const VerifiedProfiles = () => {
 
     const handleItemsPerPageChange = (value) => {
         setItemsPerPage(Number(value));
-        setCurrentPage(1); // Reset to first page when changing items per page
+        setCurrentPage(1);
     };
 
     // Generate page numbers with ellipsis
@@ -176,16 +136,34 @@ const VerifiedProfiles = () => {
 
         return pages;
     };
+    const [selectedUser, setSelectedUser] = useState(null);
+    const [sentVerifications, setSentVerifications] = useState(new Set());
 
+    const handleVerification = async (userId) => {
+        if (!userId || sentVerifications.has(userId)) return;  // Prevent multiple clicks
 
+        const url = `http://localhost:5000/api/v1/admin/verification-remainder/${userId}`;
 
-    // const { verified } = useContext(JobSeekerVerifiedContext);
-
-    // console.log("Verified -", verified);
-    // const totalJobSeeker = verified?.data?.jobSeeker;
-    // const verifiedJobSeeker = verified?.data?.verified;
-    // const unVerifiedJobSeeker = verified?.data?.unverified;
-
+        try {
+            const res = await postMethod(url, {});
+            if (res.success) {
+                console.log("RESPONSE ", res);
+                toast.success("Verification reminder sent successfully!");
+                // Add user ID to the set of sent verifications
+                setSentVerifications(prev => {
+                    const newSet = new Set(prev).add(userId);
+                    console.log("Updated sentVerifications:", newSet);
+                    return newSet;
+                });
+            } else {
+                console.log("RESPONSE ", res);
+                toast.error(res.message || "Failed to send verification reminder.");
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            toast.error("An error occurred while sending verification reminder.");
+        }
+    }
 
     return (
         <motion.div
@@ -194,6 +172,7 @@ const VerifiedProfiles = () => {
             transition={{ duration: 0.3 }}
             className="p-4 md:p-6 max-w-6xl mx-auto"
         >
+            {/* Header and Search */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
                 <motion.h1
                     initial={{ y: -20 }}
@@ -216,7 +195,7 @@ const VerifiedProfiles = () => {
                             value={search}
                             onChange={(e) => {
                                 setSearch(e.target.value);
-                                setCurrentPage(1); // Reset to first page when searching
+                                setCurrentPage(1);
                             }}
                         />
                     </motion.div>
@@ -333,7 +312,7 @@ const VerifiedProfiles = () => {
                     className={`px-4 py-2 font-medium flex items-center gap-2 ${activeTab === "unverified" ? "text-yellow-600 border-b-2 border-yellow-500" : "text-gray-600 hover:bg-gray-100"}`}
                 >
                     <AlertCircle size={18} />
-                    Unverified
+                    Unverifdsfds
                     <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">
                         {unVerifiedJobSeeker}
                     </span>
@@ -409,10 +388,10 @@ const VerifiedProfiles = () => {
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
                             <AnimatePresence>
-                                {currentItems?.length > 0 ? (
+                                {currentItems.length > 0 ? (
                                     currentItems.map((user) => (
                                         <motion.tr
-                                            key={user.id}
+                                            key={user._id || user.id}
                                             variants={itemVariants}
                                             initial="hidden"
                                             animate="visible"
@@ -423,7 +402,7 @@ const VerifiedProfiles = () => {
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <div className="flex items-center">
                                                     <div className="flex-shrink-0 h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
-                                                        {user.name.charAt(0)}
+                                                        {user.name?.charAt(0)}
                                                     </div>
                                                     <div className="ml-4">
                                                         <div className="text-sm font-medium text-gray-900">{user.name}</div>
@@ -434,11 +413,11 @@ const VerifiedProfiles = () => {
                                                 <div className="text-sm text-gray-900">{user.email}</div>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
-                                                <div className="text-sm text-gray-900">{user.location}</div>
+                                                <div className="text-sm text-gray-900">{user.location || 'Not specified'}</div>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                                                    {user.experience}
+                                                    {user.experience || 'Not specified'}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
@@ -450,7 +429,7 @@ const VerifiedProfiles = () => {
                                                         <BadgeCheck className="mr-1" size={12} />
                                                         Verified
                                                     </motion.span>
-                                                ) : user?.status === "Not Verified" ? (
+                                                ) : user?.status === "Not verified" ? (
                                                     <motion.span
                                                         whileHover={{ scale: 1.05 }}
                                                         className="px-2 inline-flex items-center text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800"
@@ -464,24 +443,29 @@ const VerifiedProfiles = () => {
                                                         className="px-2 inline-flex items-center text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800"
                                                     >
                                                         <AlertCircle className="mr-1" size={12} />
-                                                        Not Specified
+                                                        Not specified
                                                     </motion.span>
                                                 )}
                                             </td>
-
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                {user.isVerified ? (
+                                                {user?.status === "Verified" ? (
                                                     <button className="text-blue-600 hover:text-blue-900">View Details</button>
                                                 ) : (
                                                     <motion.button
-                                                        whileHover={{ scale: 1.05 }}
-                                                        whileTap={{ scale: 0.95 }}
-                                                        className="text-yellow-600 hover:text-yellow-900 font-medium"
+                                                        whileHover={{ scale: sentVerifications.has(user.id) ? 1 : 1.05 }}
+                                                        whileTap={{ scale: sentVerifications.has(user.id) ? 1 : 0.95 }}
+                                                        className={`${sentVerifications.has(user.id) ? 'text-gray-400 cursor-not-allowed' : 'text-yellow-600 hover:text-yellow-900'} font-medium`}
+                                                        onClick={() => {
+                                                            console.log("Button clicked for user:", user.id); // ✅ Check if this logs
+                                                            !sentVerifications.has(user.id) && handleVerification(user.id);
+                                                        }}
+                                                        disabled={sentVerifications.has(user.id)}
                                                     >
-                                                        Verify Now
+                                                        {sentVerifications.has(user.id) ? 'Verification Sent' : 'Verify Now'}
                                                     </motion.button>
                                                 )}
                                             </td>
+
                                         </motion.tr>
                                     ))
                                 ) : (
@@ -582,6 +566,8 @@ const VerifiedProfiles = () => {
                     </motion.button>
                 </div>
             </div>
+            <ToastContainer position="top-right" autoClose={3000} />
+
         </motion.div>
     );
 };

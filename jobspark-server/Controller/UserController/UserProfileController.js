@@ -43,27 +43,17 @@ const getProfileInfo = async (req, res) => {
 const updateProfile = async (req, res) => {
     try {
         const { jobSeekerId } = req.params;
-
-        // Accept nested or flat update:
         const updateData = req.body.jobSeekerProfile || req.body;
 
-        // Find user first
         const existingJobSeeker = await UserModel.findById(jobSeekerId);
         if (!existingJobSeeker) {
             return res.status(404).json({ success: false, message: "User not found" });
         }
 
         const wasVerified = existingJobSeeker.jobSeekerProfile?.isVerified || false;
-
-        // If jobSeekerProfile undefined, initialize it as empty object
-        const currentProfile = existingJobSeeker.jobSeekerProfile
-            ? existingJobSeeker.jobSeekerProfile.toObject()
-            : {};
-
-        // Merge existing profile with updateData
+        const currentProfile = existingJobSeeker.jobSeekerProfile ? existingJobSeeker.jobSeekerProfile.toObject() : {};
         const newProfile = { ...currentProfile, ...updateData };
 
-        // Update only jobSeekerProfile subdocument
         const updatedUser = await UserModel.findByIdAndUpdate(
             jobSeekerId,
             { $set: { jobSeekerProfile: newProfile } },
@@ -73,9 +63,11 @@ const updateProfile = async (req, res) => {
         const isNowVerified = updatedUser.jobSeekerProfile?.isVerified || false;
 
         if (!wasVerified && isNowVerified) {
+            const adminUser = await UserModel.findOne({ role: 'admin' });
+
             await AdminNotificationModel.create({
                 message: `Job Seeker ${updatedUser.name} (ID: ${updatedUser._id}) has been verified.`,
-                recipientId: null, // add admin IDs if needed
+                recipientId: adminUser ? adminUser._id : null, // <-- pass valid ObjectId or null
                 senderId: updatedUser._id,
                 status: "sent",
                 type: "profile_verified",
@@ -89,5 +81,6 @@ const updateProfile = async (req, res) => {
         return res.status(500).json({ success: false, message: "Server error" });
     }
 };
+
 
 module.exports = { getProfileInfo, updateProfile }

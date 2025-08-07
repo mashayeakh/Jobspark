@@ -15,7 +15,7 @@ const JobSeekerVerifiedContextProvider = ({ children }) => {
         const response = await getMethod(url);
         if (response.success === true) {
             setVerified(response);
-            console.log("Veifeid from context === ", response);
+            console.log("Veifeid from context ===   ", response);
             return response;
         } else {
             console.log("Veifeid ", response.success);

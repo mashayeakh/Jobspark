@@ -151,6 +151,7 @@ const sendVerificationReminder = async (req, res) => {
         }
 
 
+
         const existingNotification = await NotificationModel.findOne({
             userId: found_jobSeeker._id,
             message: "Please complete your profile to verify",
