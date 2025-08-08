@@ -448,6 +448,7 @@ import JobLayout from "../Pages/Jobs/shared/JobLayout/JobLayout";
 import JobSeeker_Dashboard from "../Users/Admin/Dashboard/Manage/Jobseeker/Dashboard/Jobseeker_Dashboard";
 import SuspendedProfiles from "../Users/Admin/Dashboard/Manage/Jobseeker/All_Jobseeker/SuspendedProfile/SuspendedProfiles";
 import VerifiedProfiles from "../Users/Admin/Dashboard/Manage/Jobseeker/All_Jobseeker/VerifiedProfiles/VerifiedProfiles";
+import Search from "../Users/Admin/Dashboard/Manage/Jobseeker/Search&Filter/Search";
 
 // ROUTER CONFIGURATION
 const router = createBrowserRouter([
@@ -518,9 +519,13 @@ const router = createBrowserRouter([
                     { path: "all/suspended-profile", element: <SuspendedProfiles /> },
                     { path: "all/verified-porfile", element: <VerifiedProfiles /> },
                     { path: "all/unverified-profile", element: <UnverifiedProfiles /> },
-                    { path: "search/name", element: <SearchByName /> },
-                    { path: "search/status", element: <FilterByStatus /> },
-                    { path: "search/advanced", element: <AdvancedSearchFilters /> },
+                    // { path: "search", element: <SearchByName /> },
+
+                    { path: "search", element: <Search /> },
+
+
+                    // { path: "search/status", element: <FilterByStatus /> },
+                    // { path: "search/advanced", element: <AdvancedSearchFilters /> },
                     { path: "analytics/activity-tracking", element: <Tracking /> },
                     { path: "export/active-profiles", element: <ExportProfiles /> },
                     { path: "export/application-reports", element: <DownloadData /> },

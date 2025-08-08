@@ -254,20 +254,44 @@ const Admin_DashboardSidebar = () => {
 
                                     {/* Search & Filters */}
                                     <motion.li variants={subMenuItemVariants} className="mt-2">
-                                        <div className="flex items-center p-2 text-gray-600 font-medium">
+                                        {/* <div className="flex items-center p-2 text-gray-600 font-medium">
                                             <FiSearch className="w-4 h-4 mr-3" />
                                             <span>Search & Filters</span>
-                                        </div>
-                                        <motion.ul className="ml-6 mt-1 space-y-1">
+                                        </div> */}
+
+                                        <NavLink
+                                            to="/admin/job-seeker/search"
+                                            className={navLinkClass}
+                                        >
+                                            <FiSearch className="w-4 h-4 mr-2" />
+                                            <AnimatePresence>
+                                                {!collapsed && (
+                                                    <motion.span
+                                                        initial="closed"
+                                                        animate="open"
+                                                        exit="closed"
+                                                        variants={menuItemVariants}
+                                                        className="ml-3"
+                                                    >
+                                                        Search & Filters
+                                                    </motion.span>
+                                                )}
+                                            </AnimatePresence>
+                                        </NavLink>
+
+
+                                        {/* <motion.ul className="ml-6 mt-1 space-y-1">
                                             <motion.li variants={subMenuItemVariants}>
                                                 <NavLink
-                                                    to="/admin/job-seeker/search/name"
+                                                    to="/admin/job-seeker/search"
                                                     className={({ isActive }) =>
                                                         `flex items-center p-2 rounded-lg ${isActive ? "bg-primary/10 text-primary" : "text-gray-600 hover:bg-gray-100"}`
                                                     }
                                                 >
-                                                    <span className="ml-1">Search by Name</span>
+                                                    <FiSearch className="w-4 h-4 mr-2" />
+                                                    <span>Search & Filter</span>
                                                 </NavLink>
+
                                             </motion.li>
                                             <motion.li variants={subMenuItemVariants}>
                                                 <NavLink
@@ -290,7 +314,7 @@ const Admin_DashboardSidebar = () => {
                                                     <span>Advanced Search</span>
                                                 </NavLink>
                                             </motion.li>
-                                        </motion.ul>
+                                        </motion.ul> */}
                                     </motion.li>
 
                                     {/* Analytics */}
