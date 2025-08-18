@@ -5,7 +5,7 @@ export async function postMethod(url, data) {
     try {
         const response = await fetch(url, {
             method: 'POST',
-            credentials: 'include',  // <-- add this line
+            credentials: 'include',  // <-- adding this line
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data),
         });
