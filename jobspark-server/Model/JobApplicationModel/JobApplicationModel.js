@@ -1,27 +1,20 @@
-const { application } = require("express");
-const { default: mongoose } = require("mongoose");
+const mongoose = require("mongoose");
 
-const JobApplicationSchema = mongoose.Schema({
-
+const JobApplicationSchema = new mongoose.Schema({
     job: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "ActiveJob",
-        require: true,
+        required: true,
     },
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
-        require: true,
+        required: true,
     },
     appliedAt: {
         type: Date,
         default: Date.now,
-    },
-    // applicationAppliedTo: {
-    //     type: Number,
-    //     default: 0,
-    // }
-
+    }
 }, { timestamps: true });
 
 module.exports = mongoose.model("JobApplication", JobApplicationSchema);

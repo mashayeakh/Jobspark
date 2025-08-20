@@ -98,6 +98,13 @@ const adminNotification = require("./Routes/NotificationRouter/AdminNotification
 const createAdmin = require("./Routes/AdminRouter/AdminAcc");
 const verifiedJobSeeker = require("./Routes/AdminRouter/Manage/JobSeeker_DashboardRouter/JobSeeker_VerifiedRouter");
 const jobSeekerSearch = require("./Routes/AdminRouter/Manage/JobSeeker_DashboardRouter/JobSeeker_SearchingRouter");
+
+const jobSeekerActivity = require("./Routes/AdminRouter/Manage/JobSeeker_DashboardRouter/JobSeeker_ActivityRouter");
+
+
+
+
+
 // const fetchIncompleteProfiles = require("./Utils/fectchIncompleteProfiles");
 
 // cron.schedule("* * * * *", async () => {
@@ -159,6 +166,7 @@ app.use("/api/v1/admin", suspended_jobSeeker);
 app.use("/api/v1/admin", adminNotification);
 app.use("/api/v1/admin", verifiedJobSeeker);
 app.use("/api/v1/admin", jobSeekerSearch);
+app.use("/api/v1/admin", jobSeekerActivity);
 
 // Starting the server
 app.listen(port, () => {

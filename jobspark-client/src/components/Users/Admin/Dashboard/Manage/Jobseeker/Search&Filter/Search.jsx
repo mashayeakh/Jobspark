@@ -23,10 +23,13 @@ const Search = () => {
     const allUsers = searchJobSeeker?.data?.allUsers || [];
     const allUserCount = allUsers.length;
     const verifiedCount = searchJobSeeker?.data?.verifiedUsers?.length || 0;
-    const unverifiedCount = searchJobSeeker?.data?.unverifiedUsers?.length || 0;
+    const unverifiedCount = searchJobSeeker?.data?.unverifiedUsers || 0;
     const adminCount = searchJobSeeker?.data?.admin?.length || 0;
     const jobSeekerCount = searchJobSeeker?.data?.jobSeekerCount?.length || 0;
     const recruiterCount = searchJobSeeker?.data?.recruiterCount?.length || 0;
+
+
+    console.log("Search jobs ", searchJobSeeker);
 
     // Filters & sorting
     const [search, setSearch] = useState('');
@@ -98,6 +101,9 @@ const Search = () => {
 
         return matchesSearch && matchesStatus && matchesRole && matchesLocation;
     });
+
+
+    console.log("Filllll", filteredUsers);
 
     const resetFilters = () => {
         setSearch('');
@@ -187,6 +193,7 @@ const Search = () => {
     const filteredUnverified = filteredUsers.filter(u => !u.jobSeekerProfile?.isVerified).length;
     const filteredAdmins = filteredUsers.filter(u => u.isAdmin).length;
     const filteredJobSeekers = filteredUsers.filter(u => !u.isAdmin).length;
+    const filteredRecruiter = filteredUsers.filter(u => !u.isAdmin).length;
 
     const filteredPieData = [
         { name: 'Verified', value: filteredVerified },
@@ -194,7 +201,7 @@ const Search = () => {
     ];
 
     const filteredRoleData = [
-        { name: 'Admin', value: filteredAdmins },
+        { name: 'Recruiter', value: recruiterCount },
         { name: 'JobSeeker', value: filteredJobSeekers },
     ];
 
@@ -263,7 +270,7 @@ const Search = () => {
                     className="p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 >
                     <option>All</option>
-                    <option>Admin</option>
+                    <option>Recruiter</option>
                     <option>JobSeeker</option>
                 </select>
 
@@ -295,7 +302,7 @@ const Search = () => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.5, delay: 0.4 }}
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8"
             >
                 {/* Total Users */}
                 <motion.div
@@ -369,36 +376,7 @@ const Search = () => {
                 </motion.div>
 
                 {/* Filtered Verification */}
-                <motion.div
-                    animate={{
-                        scale: isHighlighted('unverified') ? 1.05 : 1,
-                        boxShadow: isHighlighted('unverified')
-                            ? '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
-                            : '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)'
-                    }}
-                    transition={{ duration: 0.3 }}
-                    className={`bg-white p-4 rounded-xl ${isHighlighted('unverified') ? 'ring-2 ring-yellow-500' : ''}`}
-                >
-                    <h3 className="text-center font-medium text-gray-700 mb-2">Filtered Verification</h3>
-                    <div className="h-64">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={filteredPieData}>
-                                <XAxis dataKey="name" />
-                                <YAxis />
-                                <Tooltip formatter={(value) => [`${value} users`, 'Count']} />
-                                <Bar dataKey="value" fill="#8884d8">
-                                    {filteredPieData.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                    ))}
-                                </Bar>
-                            </BarChart>
-                        </ResponsiveContainer>
-                    </div>
-                    <p className="text-center text-gray-600">
-                        <span className="font-bold">{filteredVerified}</span> Verified •
-                        <span className="font-bold"> {filteredUnverified}</span> Unverified
-                    </p>
-                </motion.div>
+
 
                 {/* Roles */}
                 <motion.div
@@ -419,7 +397,7 @@ const Search = () => {
                                 <YAxis />
                                 <Tooltip formatter={(value) => [`${value} users`, 'Count']} />
                                 <Bar dataKey="value" fill="#8884d8">
-                                    {filteredRoleData.map((entry, index) => (
+                                    {roleData.map((entry, index) => (
                                         <Cell key={`cell-${index}`} fill={index === 0 ? '#7C3AED' : '#3B82F6'} />
                                     ))}
                                 </Bar>
@@ -427,8 +405,8 @@ const Search = () => {
                         </ResponsiveContainer>
                     </div>
                     <p className="text-center text-gray-600">
-                        <span className="font-bold text-purple-600">{filteredAdmins}</span> Admins •
-                        <span className="font-bold text-blue-600"> {filteredJobSeekers}</span> JobSeekers
+                        <span className="font-bold text-purple-600">{recruiterCount}</span> Recruiter •
+                        <span className="font-bold text-blue-600"> {filteredJobSeekers}</span> JobSeekersss
                     </p>
                 </motion.div>
             </motion.div>
