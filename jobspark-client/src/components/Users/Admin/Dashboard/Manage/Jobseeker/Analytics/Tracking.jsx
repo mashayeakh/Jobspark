@@ -129,8 +129,8 @@ const CustomPieTooltip = ({ active, payload }) => {
 const Tracking = () => {
     const [tab, setTab] = useState("activity");
 
-    const { jActivity } = useContext(JobSeekerActivityContext);
-    console.log("ACCCCCCCCCCC ", jActivity);
+    const { jActivity, jInActive } = useContext(JobSeekerActivityContext);
+    console.log("ACCCCCCCCCCC ", jInActive);
     const topJobSeekers = jActivity;
 
     const tabVariants = {
@@ -279,11 +279,10 @@ const Tracking = () => {
                                                     <th className="text-left py-3 text-gray-600 font-medium">Name</th>
                                                     <th className="text-left py-3 text-gray-600 font-medium">Last Active</th>
                                                     <th className="text-left py-3 text-gray-600 font-medium">Email</th>
-                                                    <th className="text-left py-3 text-gray-600 font-medium">Action</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {inactiveUsers.map((user, idx) => (
+                                                {jInActive?.data?.map((user, idx) => (
                                                     <motion.tr
                                                         key={idx}
                                                         initial={{ opacity: 0 }}
@@ -291,14 +290,9 @@ const Tracking = () => {
                                                         transition={{ delay: 0.1 * idx }}
                                                         className="border-b border-gray-100 hover:bg-gray-50"
                                                     >
-                                                        <td className="py-4 text-gray-900">{user.name}</td>
-                                                        <td className="py-4 text-gray-600">{user.lastActive}</td>
-                                                        <td className="py-4 text-gray-600">{user.email}</td>
-                                                        <td className="py-4">
-                                                            <button className="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-lg text-sm hover:bg-indigo-200">
-                                                                Remind
-                                                            </button>
-                                                        </td>
+                                                        <td className="py-4 text-gray-900">{user?.name}</td>
+                                                        <td className="py-4 text-gray-600">{user?.inactiveDays}</td>
+                                                        <td className="py-4 text-gray-600">{user?.email}</td>
                                                     </motion.tr>
                                                 ))}
                                             </tbody>

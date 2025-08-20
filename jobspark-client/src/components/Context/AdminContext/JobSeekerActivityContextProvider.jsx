@@ -18,18 +18,32 @@ const JobSeekerActivityContextProvider = ({ children }) => {
         return res;
     }
 
+    //inActive Activity
+    const [jInActive, setJInActive] = useState([]);
+    const jobSeekerInAcitivit = async () => {
+        const url = `http://localhost:5000/api/v1/admin/jobseeker/inactivity`;
+
+        const res = await getMethod(url);
+        console.log("REs from iiiiiiiiiiiiiiiiiactivityu ", res?.data);
+        setJInActive(res);
+        return res;
+    }
 
 
     useEffect(() => {
         jobSeekerAcitivity();
+        jobSeekerInAcitivit();
     }, [])
 
 
     const addInfo = {
         jobSeekerAcitivity,
+        jobSeekerInAcitivit,
 
         jActivity,
-        setJActivity
+        setJActivity,
+        jInActive,
+        setJInActive
     }
 
     return (
