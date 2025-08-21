@@ -13,7 +13,7 @@ const JobSeekerActivityContextProvider = ({ children }) => {
         const url = `http://localhost:5000/api/v1/admin/jobseeker/activity`;
 
         const res = await getMethod(url);
-        console.log("REs from activityu ", res);
+        // console.log("REs from activityu ", res);
         setJActivity(res);
         return res;
     }
@@ -24,26 +24,54 @@ const JobSeekerActivityContextProvider = ({ children }) => {
         const url = `http://localhost:5000/api/v1/admin/jobseeker/inactivity`;
 
         const res = await getMethod(url);
-        console.log("REs from iiiiiiiiiiiiiiiiiactivityu ", res?.data);
         setJInActive(res);
         return res;
     }
 
+    //daily Activity
+    const [daily, setDaily] = useState([]);
+    const jobSeekerDailyActivity = async () => {
+        const url = `http://localhost:5000/api/v1/admin/jobseeker/daily`;
+
+        const res = await getMethod(url);
+        // console.log("REs from Dailllllyyyyyy ", res?.data);
+        setDaily(res);
+        return res;
+    }
+
+    //skills
+    const [skills, setSkills] = useState([]);
+    const jobSeekerTopSkills = async () => {
+        const url = `http://localhost:5000/api/v1/admin/jobseeker/top-skills`;
+
+        const res = await getMethod(url);
+        console.log("REs from top skills ", res?.data);
+        setSkills(res);
+        return res;
+    }
 
     useEffect(() => {
         jobSeekerAcitivity();
         jobSeekerInAcitivit();
+        jobSeekerDailyActivity();
+        jobSeekerTopSkills();
     }, [])
 
 
     const addInfo = {
         jobSeekerAcitivity,
         jobSeekerInAcitivit,
+        jobSeekerDailyActivity,
+        jobSeekerTopSkills,
 
         jActivity,
         setJActivity,
         jInActive,
-        setJInActive
+        setJInActive,
+        daily,
+        setDaily,
+        skills,
+        setSkills
     }
 
     return (

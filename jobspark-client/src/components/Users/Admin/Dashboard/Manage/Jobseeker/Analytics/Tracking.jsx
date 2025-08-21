@@ -24,10 +24,6 @@ import { JobSeekerActivityContext } from "../../../../../../Context/AdminContext
 
 // const topJobSeekers = 0;
 
-
-
-
-
 const dailyActiveSeekers = [
     { day: "Mon", active: 120, avgTime: 45 },
     { day: "Tue", active: 180, avgTime: 52 },
@@ -46,13 +42,13 @@ const inactiveUsers = [
     { name: "Shakil Hossain", lastActive: "42 days ago", email: "shakil@example.com" },
 ];
 
-const skillsData = [
-    { name: "React", value: 400, demand: 12 },
-    { name: "Node.js", value: 300, demand: 9 },
-    { name: "Python", value: 250, demand: 15 },
-    { name: "AI/ML", value: 200, demand: 18 },
-    { name: "SQL", value: 150, demand: 8 },
-];
+// const skillsData = [
+//     { name: "React", value: 400, demand: 12 },
+//     { name: "Node.js", value: 300, demand: 9 },
+//     { name: "Python", value: 250, demand: 15 },
+//     { name: "AI/ML", value: 200, demand: 18 },
+//     { name: "SQL", value: 150, demand: 8 },
+// ];
 
 const qualificationsData = [
     { name: "Bachelor's", value: 500, avgSalary: 55000 },
@@ -129,8 +125,8 @@ const CustomPieTooltip = ({ active, payload }) => {
 const Tracking = () => {
     const [tab, setTab] = useState("activity");
 
-    const { jActivity, jInActive } = useContext(JobSeekerActivityContext);
-    console.log("ACCCCCCCCCCC ", jInActive);
+    const { jActivity, jInActive, daily, skills } = useContext(JobSeekerActivityContext);
+    console.log("SSSSSSSSs", skills);
     const topJobSeekers = jActivity;
 
     const tabVariants = {
@@ -235,7 +231,7 @@ const Tracking = () => {
                                         Daily Active Job Seekers
                                     </h2>
                                     <ResponsiveContainer width="100%" height={300}>
-                                        <LineChart data={dailyActiveSeekers}>
+                                        <LineChart data={daily.data}>
                                             <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
                                             <XAxis dataKey="day" stroke="#6B7280" />
                                             <YAxis stroke="#6B7280" />
@@ -329,17 +325,18 @@ const Tracking = () => {
                                     <ResponsiveContainer width="100%" height={300}>
                                         <PieChart>
                                             <Pie
-                                                data={skillsData}
-                                                dataKey="value"
-                                                nameKey="name"
+                                                data={skills.data}
+                                                dataKey="count"
+                                                nameKey="skill"
                                                 outerRadius={100}
                                                 label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
                                                 labelLine={false}
                                             >
-                                                {skillsData.map((entry, index) => (
+                                                {skills?.data?.map((entry, index) => (
                                                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                                 ))}
                                             </Pie>
+
                                             <Tooltip content={<CustomPieTooltip />} />
                                             <Legend />
                                         </PieChart>

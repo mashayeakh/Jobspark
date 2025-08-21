@@ -1,5 +1,6 @@
 const UserModel = require("../../../../../Model/AccountModel/UserModel");
 const JobApplicationModel = require("../../../../../Model/JobApplicationModel/JobApplicationModel");
+const ActiveJobs = require("../../../../../Model/RecruiterModel/ActiveJobsModel");
 
 // GET - admin/jobseeker/active
 const jobSeekerActivity = async (req, res) => {
@@ -108,6 +109,108 @@ const getInactiveSeekers = async (req, res) => {
     }
 };
 
+//daily activity - week wise
+// get - admin/jobseeker/daily
+const getDailyActiveSeekers = async (req, res) => {
+    try {
+        const dailyStats = await JobApplicationModel.aggregate([
+            {
+                $group: {
+                    _id: {
+                        dayOfWeek: { $dayOfWeek: "$appliedAt" } // 1 = Sunday, 7 = Saturday
+                    },
+                    active: { $addToSet: "$user" }, // unique active seekers
+                    totalApps: { $sum: 1 }, // total applications
+                    avgTime: { $avg: { $hour: "$appliedAt" } } // example: avg applied hour
+                }
+            },
+            {
+                $project: {
+                    dayOfWeek: "$_id.dayOfWeek",
+                    active: { $size: "$active" }, // convert users set to count
+                    avgTime: 1,
+                    totalApps: 1,
+                    _id: 0
+                }
+            },
+            { $sort: { dayOfWeek: 1 } }
+        ]);
+
+        // Map numeric day → string label
+        const daysMap = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+        const formatted = dailyStats.map(stat => ({
+            day: daysMap[stat.dayOfWeek - 1],
+            active: stat.active,
+            avgTime: Math.round(stat.avgTime) || 0, // avg application hour as placeholder
+            totalApps: stat.totalApps
+        }));
+
+        res.status(200).json({
+            success: true,
+            message: "Daily active seekers",
+            data: formatted
+        });
+    } catch (err) {
+        console.error("Error fetching daily activity:", err);
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+};
+
+//get top most skills
+//get - jobseeker/top-skills
+const topSkills = async (req, res) => {
+    try {
+        const jobs = await ActiveJobs.find({}, "skills");
+
+        if (!jobs || jobs.length === 0) {
+            return res.status(404).json({ success: false, message: "No jobs found" });
+        }
+
+        // Step 1: Flatten all skills into one array
+        let allSkills = [];
+        jobs.forEach(job => {
+            if (job.skills) {
+                const all = job.skills.split(",").map(s => s.trim().toLowerCase())
+                allSkills.push(...all);
+            }
+        })
+
+        console.log("ALLLLL ", allSkills);
+
+        // Step 2: Count frequencies
+        const skillCount = {};
+        allSkills.forEach(skill => {
+            skillCount[skill] = (skillCount[skill] || 0) + 1;
+        });
+
+        // Step 3: Convert to sorted array
+        const sortedSkills = Object.entries(skillCount)
+            .map(([skill, count]) => ({ skill, count }))
+            .sort((a, b) => b.count - a.count);
+
+        res.status(200).json({
+            success: true,
+            message: "Top skills",
+            data: sortedSkills.slice(0, 10) // top 10
+        });
+    } catch (err) {
+        console.error("Error in topSkills:", err);
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+};
+
+//get experience level
+//get - jobseeker/experience-level
+
+const getExperienceLevel = async (req, res) => {
+    const ex = await UserModel.find({}, "experienceLevel");
+    console.log("EX ", ex);
+    console.log("EX ", ex.length);
+
+    res.send("Done");
+
+}
 
 
-module.exports = { jobSeekerActivity, getInactiveSeekers };
+module.exports = { jobSeekerActivity, getInactiveSeekers, getDailyActiveSeekers, topSkills, getExperienceLevel };
