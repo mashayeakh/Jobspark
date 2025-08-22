@@ -50,12 +50,12 @@ const inactiveUsers = [
 //     { name: "SQL", value: 150, demand: 8 },
 // ];
 
-const qualificationsData = [
-    { name: "Bachelor's", value: 500, avgSalary: 55000 },
-    { name: "Master's", value: 200, avgSalary: 75000 },
-    { name: "Diploma", value: 150, avgSalary: 45000 },
-    { name: "PhD", value: 80, avgSalary: 95000 },
-];
+// const qualificationsData = [
+//     { name: "Bachelor's", value: 500, avgSalary: 55000 },
+//     { name: "Master's", value: 200, avgSalary: 75000 },
+//     { name: "Diploma", value: 150, avgSalary: 45000 },
+//     { name: "PhD", value: 80, avgSalary: 95000 },
+// ];
 
 const locationData = [
     { name: "Dhaka", value: 500, growth: 12 },
@@ -125,8 +125,8 @@ const CustomPieTooltip = ({ active, payload }) => {
 const Tracking = () => {
     const [tab, setTab] = useState("activity");
 
-    const { jActivity, jInActive, daily, skills } = useContext(JobSeekerActivityContext);
-    console.log("SSSSSSSSs", skills);
+    const { jActivity, jInActive, daily, skills, exp } = useContext(JobSeekerActivityContext);
+    console.log("EEEEEEEpp", exp);
     const topJobSeekers = jActivity;
 
     const tabVariants = {
@@ -360,13 +360,13 @@ const Tracking = () => {
                                     <ResponsiveContainer width="100%" height={300}>
                                         <PieChart>
                                             <Pie
-                                                data={qualificationsData}
-                                                dataKey="value"
-                                                nameKey="name"
+                                                data={exp?.data}
+                                                dataKey="count"
+                                                nameKey="category"
                                                 outerRadius={100}
                                                 label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
                                             >
-                                                {qualificationsData.map((entry, index) => (
+                                                {exp?.data?.map((entry, index) => (
                                                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                                 ))}
                                             </Pie>

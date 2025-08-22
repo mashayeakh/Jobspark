@@ -202,15 +202,73 @@ const topSkills = async (req, res) => {
 
 //get experience level
 //get - jobseeker/experience-level
-
 const getExperienceLevel = async (req, res) => {
-    const ex = await UserModel.find({}, "experienceLevel");
-    console.log("EX ", ex);
-    console.log("EX ", ex.length);
+    try {
+        const result = await UserModel.aggregate([
+            {
+                $group: {
+                    _id: "$experienceLevel", // group by experienceLevel
+                    count: { $sum: 1 }      // count how many
+                }
+            }
+        ]);
 
-    res.send("Done");
+        // ✅ validation: no data found
+        if (!result || result.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "No experience level data found",
+                data: []
+            });
+        }
 
-}
+        // map into categories
+        const mapped = result.map(item => {
+            let category = "Other";
+
+            if (item._id === "Junior" || item._id === "Junior Level (0-1 years)") {
+                category = "Junior level Dev";
+            } else if (item._id === "Mid" || item._id === "Mid Level (1-3 years)") {
+                category = "Mid level Dev";
+            } else if (item._id === "Senior" || item._id === "Senior Level (3-5 years)") {
+                category = "Senior level Dev";
+            }
+
+            return {
+                category,
+                count: item.count
+            };
+        });
+
+        // merge duplicates (if multiple DB labels map to same category)
+        const merged = Object.values(
+            mapped.reduce((acc, cur) => {
+                if (!acc[cur.category]) {
+                    acc[cur.category] = { category: cur.category, count: 0 };
+                }
+                acc[cur.category].count += cur.count;
+                return acc;
+            }, {})
+        );
+
+        // ✅ success response
+        return res.status(200).json({
+            success: true,
+            message: "Experience levels fetched successfully",
+            data: merged
+        });
+    } catch (err) {
+        console.error("Error fetching experience levels:", err);
+        return res.status(500).json({
+            success: false,
+            message: "Server error while fetching experience levels",
+            error: err.message
+        });
+    }
+};
+
+
+
 
 
 module.exports = { jobSeekerActivity, getInactiveSeekers, getDailyActiveSeekers, topSkills, getExperienceLevel };

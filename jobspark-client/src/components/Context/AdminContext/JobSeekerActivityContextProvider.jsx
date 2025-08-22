@@ -45,8 +45,19 @@ const JobSeekerActivityContextProvider = ({ children }) => {
         const url = `http://localhost:5000/api/v1/admin/jobseeker/top-skills`;
 
         const res = await getMethod(url);
-        console.log("REs from top skills ", res?.data);
+        // console.log("REs from top skills ", res?.data);
         setSkills(res);
+        return res;
+    }
+
+    //Experience Level
+    const [exp, setExp] = useState([]);
+    const jobSeekerExpLevel = async () => {
+        const url = `http://localhost:5000/api/v1/admin/jobseeker/experience-level`;
+
+        const res = await getMethod(url);
+        console.log("REs from exp level ", res?.data);
+        setExp(res);
         return res;
     }
 
@@ -55,6 +66,7 @@ const JobSeekerActivityContextProvider = ({ children }) => {
         jobSeekerInAcitivit();
         jobSeekerDailyActivity();
         jobSeekerTopSkills();
+        jobSeekerExpLevel();
     }, [])
 
 
@@ -63,6 +75,7 @@ const JobSeekerActivityContextProvider = ({ children }) => {
         jobSeekerInAcitivit,
         jobSeekerDailyActivity,
         jobSeekerTopSkills,
+        jobSeekerExpLevel,
 
         jActivity,
         setJActivity,
@@ -71,7 +84,9 @@ const JobSeekerActivityContextProvider = ({ children }) => {
         daily,
         setDaily,
         skills,
-        setSkills
+        setSkills,
+        exp,
+        setExp,
     }
 
     return (
