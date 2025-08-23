@@ -349,4 +349,68 @@ const popularJobCategories = async (req, res) => {
 };
 
 
-module.exports = { jobSeekerActivity, getInactiveSeekers, getDailyActiveSeekers, topSkills, getExperienceLevel, getLocations, popularJobCategories };
+//active profiles
+const activeProfiles = async (req, res) => {
+    try {
+        // Fetch profiles with non-null lastSignInTime
+        const profiles = await UserModel.find(
+            { lastSignInTime: { $ne: null } },
+            "name email experienceLevel location lastSignInTime"
+        ).lean();
+
+        if (!profiles || profiles.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "No active profiles found",
+                data: [],
+            });
+        }
+
+        const formattedProfiles = profiles.map((profile) => {
+            const lastSignIn = new Date(profile.lastSignInTime);
+
+            // Format pieces
+            const time = lastSignIn.toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+            });
+            const date = lastSignIn.toLocaleDateString([], {
+                weekday: "short",
+                month: "short",
+                day: "numeric",
+            });
+            const daysAgo = Math.floor(
+                (new Date() - lastSignIn) / (1000 * 60 * 60 * 24)
+            );
+
+            return {
+                _id: profile._id,
+                name: profile.name || "N/A",
+                email: profile.email || "N/A",
+                experienceLevel: profile.experienceLevel || "Not specified",
+                location: profile.location || "Unknown",
+                lastActive: `${time}\n${date}\n${daysAgo} days ago`,
+            };
+        });
+
+        return res.status(200).json({
+            success: true,
+            count: formattedProfiles.length,
+            data: formattedProfiles,
+        });
+    } catch (error) {
+        console.error("Error fetching active profiles:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Server error while fetching active profiles",
+        });
+    }
+};
+
+//get all the location only
+//get - allLoc
+
+
+
+
+module.exports = { jobSeekerActivity, getInactiveSeekers, getDailyActiveSeekers, topSkills, getExperienceLevel, getLocations, popularJobCategories, activeProfiles };

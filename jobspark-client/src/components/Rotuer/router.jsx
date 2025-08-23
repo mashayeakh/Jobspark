@@ -425,7 +425,7 @@ import SearchByName from "../Users/Admin/Dashboard/Manage/Jobseeker/Search&Filte
 import FilterByStatus from "../Users/Admin/Dashboard/Manage/Jobseeker/Search&Filter/FilterByStatus";
 import AdvancedSearchFilters from "../Users/Admin/Dashboard/Manage/Jobseeker/Search&Filter/AdvancedSearchFilters";
 import Tracking from "../Users/Admin/Dashboard/Manage/Jobseeker/Analytics/Tracking";
-import ExportProfiles from "../Users/Admin/Dashboard/Manage/Jobseeker/Reports/ExportProfiles";
+// import ExportProfiles from "../Users/Admin/Dashboard/Manage/Jobseeker/Reports/ExportProfiles";
 import DownloadData from "../Users/Admin/Dashboard/Manage/Jobseeker/Reports/DownloadData";
 import ApplicationReports from "../Users/Admin/Dashboard/Manage/Jobseeker/Reports/ApplicationReports";
 
@@ -449,6 +449,7 @@ import JobSeeker_Dashboard from "../Users/Admin/Dashboard/Manage/Jobseeker/Dashb
 import SuspendedProfiles from "../Users/Admin/Dashboard/Manage/Jobseeker/All_Jobseeker/SuspendedProfile/SuspendedProfiles";
 import VerifiedProfiles from "../Users/Admin/Dashboard/Manage/Jobseeker/All_Jobseeker/VerifiedProfiles/VerifiedProfiles";
 import Search from "../Users/Admin/Dashboard/Manage/Jobseeker/Search&Filter/Search";
+import ExportData from "../Users/Admin/Dashboard/Manage/Jobseeker/Reports/ExportData";
 
 // ROUTER CONFIGURATION
 const router = createBrowserRouter([
@@ -527,7 +528,7 @@ const router = createBrowserRouter([
                     // { path: "search/status", element: <FilterByStatus /> },
                     // { path: "search/advanced", element: <AdvancedSearchFilters /> },
                     { path: "analytics/activity-tracking", element: <Tracking /> },
-                    { path: "export/active-profiles", element: <ExportProfiles /> },
+                    { path: "export/export-data", element: <ExportData /> },
                     { path: "export/application-reports", element: <DownloadData /> },
                     { path: "export/downloaded-data", element: <ApplicationReports /> },
                 ],

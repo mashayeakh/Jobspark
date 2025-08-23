@@ -19,6 +19,7 @@ import AdminDashboardContextProvider from './components/Context/AdminContext/Adm
 import JobSeekerDashboardContextProvider from './components/Context/AdminContext/JobSeekerDashboardContextProvider.jsx'
 import JobSeekerVerifiedContextProvider from './components/Context/AdminContext/JobSeekerVerifiedContextProvider.jsx'
 import JobSeekerActivityContextProvider, { JobSeekerActivityContext } from './components/Context/AdminContext/JobSeekerActivityContextProvider.jsx'
+import JobSeekerExportDataContextProvider from './components/Context/AdminContext/JobSeekerExportDataContextProvider.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -26,73 +27,73 @@ createRoot(document.getElementById('root')).render(
       <AdminDashboardContextProvider>
         <JobSeekerDashboardContextProvider>
           <JobSeekerActivityContextProvider>
+            <JobSeekerExportDataContextProvider>
 
-            <JobSeekerVerifiedContextProvider>
-              <UserContextProvider>
-                <NotificationContextProvider>
+              <JobSeekerVerifiedContextProvider>
+                <UserContextProvider>
+                  <NotificationContextProvider>
 
-                  <GraphsContextProvider>
-                    <NetworkContextProvider>
-                      <CompanyContextProvider>
-                        <ActiveJobsContextProvider>
-                          <TotalApplicationProvider>
-                            <InterviewContextProvider>
+                    <GraphsContextProvider>
+                      <NetworkContextProvider>
+                        <CompanyContextProvider>
+                          <ActiveJobsContextProvider>
+                            <TotalApplicationProvider>
+                              <InterviewContextProvider>
 
-                              {/* ✅ Custom global toast notifications */}
-                              <Toaster
-                                position="top-center"
-                                reverseOrder={false}
-                                toastOptions={{
-                                  duration: 4000,
-                                  style: {
-                                    background: '#1f2937', // dark background
-                                    color: '#fff',
-                                    fontSize: '15px',
-                                    padding: '14px 22px',
-                                    borderRadius: '10px',
-                                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
-                                  },
-                                  success: {
+                                {/* ✅ Custom global toast notifications */}
+                                <Toaster
+                                  position="top-center"
+                                  reverseOrder={false}
+                                  toastOptions={{
+                                    duration: 4000,
                                     style: {
-                                      background: '#34a0a4',
+                                      background: '#1f2937', // dark background
+                                      color: '#fff',
+                                      fontSize: '15px',
+                                      padding: '14px 22px',
+                                      borderRadius: '10px',
+                                      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
                                     },
-                                    iconTheme: {
-                                      primary: '#ffffff',
-                                      secondary: '#22c55e',
+                                    success: {
+                                      style: {
+                                        background: '#34a0a4',
+                                      },
+                                      iconTheme: {
+                                        primary: '#ffffff',
+                                        secondary: '#22c55e',
+                                      },
                                     },
-                                  },
-                                  error: {
-                                    style: {
-                                      background: '#ef4444',
+                                    error: {
+                                      style: {
+                                        background: '#ef4444',
+                                      },
+                                      iconTheme: {
+                                        primary: '#ffffff',
+                                        secondary: '#ef4444',
+                                      },
                                     },
-                                    iconTheme: {
-                                      primary: '#ffffff',
-                                      secondary: '#ef4444',
-                                    },
-                                  },
-                                }}
-                              />
+                                  }}
+                                />
 
-                              {/* 👇 App routes */}
-                              <RouterProvider router={router} />
-                            </InterviewContextProvider>
-                          </TotalApplicationProvider>
-                        </ActiveJobsContextProvider>
-                      </CompanyContextProvider>
-                    </NetworkContextProvider>
-                  </GraphsContextProvider>
+                                {/* 👇 App routes */}
+                                <RouterProvider router={router} />
+                              </InterviewContextProvider>
+                            </TotalApplicationProvider>
+                          </ActiveJobsContextProvider>
+                        </CompanyContextProvider>
+                      </NetworkContextProvider>
+                    </GraphsContextProvider>
 
 
 
 
-                </NotificationContextProvider>
-              </UserContextProvider>
+                  </NotificationContextProvider>
+                </UserContextProvider>
 
-            </JobSeekerVerifiedContextProvider>
+              </JobSeekerVerifiedContextProvider>
 
+            </JobSeekerExportDataContextProvider>
           </JobSeekerActivityContextProvider>
-
-
         </JobSeekerDashboardContextProvider>
       </AdminDashboardContextProvider>
     </AuthContextProvider>

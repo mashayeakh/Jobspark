@@ -357,15 +357,15 @@ const Admin_DashboardSidebar = () => {
                                         <motion.ul className="ml-6 mt-1 space-y-1">
                                             <motion.li variants={subMenuItemVariants}>
                                                 <NavLink
-                                                    to="/admin/job-seeker/export/active-profiles"
+                                                    to="/admin/job-seeker/export/export-data"
                                                     className={({ isActive }) =>
                                                         `flex items-center p-2 rounded-lg ${isActive ? "bg-primary/10 text-primary" : "text-gray-600 hover:bg-gray-100"}`
                                                     }
                                                 >
-                                                    <span className="ml-1">Export Active Profiles</span>
+                                                    <span className="ml-1">Export Data</span>
                                                 </NavLink>
                                             </motion.li>
-                                            <motion.li variants={subMenuItemVariants}>
+                                            {/* <motion.li variants={subMenuItemVariants}>
                                                 <NavLink
                                                     to="/admin/job-seeker/export/application-reports"
                                                     className={({ isActive }) =>
@@ -374,8 +374,8 @@ const Admin_DashboardSidebar = () => {
                                                 >
                                                     <span className="ml-1">Application Reports</span>
                                                 </NavLink>
-                                            </motion.li>
-                                            <motion.li variants={subMenuItemVariants}>
+                                            </motion.li> */}
+                                            {/* <motion.li variants={subMenuItemVariants}>
                                                 <NavLink
                                                     to="/admin/job-seeker/export/downloaded-data"
                                                     className={({ isActive }) =>
@@ -385,7 +385,7 @@ const Admin_DashboardSidebar = () => {
                                                     <FiFileText className="w-4 h-4 mr-1" />
                                                     <span>Download Data</span>
                                                 </NavLink>
-                                            </motion.li>
+                                            </motion.li> */}
                                         </motion.ul>
                                     </motion.li>
                                 </motion.ul>
