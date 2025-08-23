@@ -335,7 +335,7 @@ const Admin_DashboardSidebar = () => {
                                                     <span>Activity Tracking</span>
                                                 </NavLink>
                                             </motion.li>
-                                            <motion.li variants={subMenuItemVariants}>
+                                            {/* <motion.li variants={subMenuItemVariants}>
                                                 <NavLink
                                                     to="/admin/job-seeker/skills-breakdown"
                                                     className={({ isActive }) =>
@@ -344,7 +344,7 @@ const Admin_DashboardSidebar = () => {
                                                 >
                                                     <span className="ml-1">Skills Breakdown</span>
                                                 </NavLink>
-                                            </motion.li>
+                                            </motion.li> */}
                                         </motion.ul>
                                     </motion.li>
 

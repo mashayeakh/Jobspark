@@ -267,8 +267,86 @@ const getExperienceLevel = async (req, res) => {
     }
 };
 
+//get the location 
+//get - jobseeker/locations
+const getLocations = async (req, res) => {
+    try {
+        const result = await UserModel.aggregate([
+            {
+                $group: {
+                    _id: "$location",   // group by location
+                    //count users
+                    count: {
+                        $sum: 1
+                    }
+                }
+            },
+            {
+                $sort: { count: -1 }   // optional: sort by most users
+            }
+        ]);
+
+        // map to a cleaner format
+        const locations = result.map(item => ({
+            location: item._id || "Unknown", // handle null/empty
+            count: item.count
+        }));
+
+        res.status(200).json({
+            success: true,
+            message: "fetched users based on location",
+            data: locations
+        });
+    } catch (err) {
+        console.error("Error fetching locations:", err);
+        res.status(500).json({ message: "Server error" });
+    }
+};
+
+// popular job categories
+//get - jobseeker/popular-job-categories
+const popularJobCategories = async (req, res) => {
+    try {
+        const allJobs = await ActiveJobs.aggregate([
+            {
+                $group: {
+                    _id: "$jobCategory",   // group by jobCategory
+                    count: { $sum: 1 }     // count how many jobs per category
+                }
+            },
+            {
+                $sort: { count: -1 }      // sort by most jobs
+            }
+        ]);
+
+        if (!allJobs || allJobs.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "No job categories found"
+            });
+        }
+
+        // format clean response
+        const jobs = allJobs.map(item => ({
+            category: item._id || "Unknown",  // handle null/empty
+            count: item.count
+        }));
+
+        res.status(200).json({
+            success: true,
+            message: "Job categories fetched successfully",
+            totalCategories: jobs.length,
+            data: jobs
+        });
+
+    } catch (err) {
+        console.error("Error fetching job categories:", err);
+        res.status(500).json({
+            success: false,
+            message: "Server error while fetching job categories"
+        });
+    }
+};
 
 
-
-
-module.exports = { jobSeekerActivity, getInactiveSeekers, getDailyActiveSeekers, topSkills, getExperienceLevel };
+module.exports = { jobSeekerActivity, getInactiveSeekers, getDailyActiveSeekers, topSkills, getExperienceLevel, getLocations, popularJobCategories };

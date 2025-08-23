@@ -56,8 +56,30 @@ const JobSeekerActivityContextProvider = ({ children }) => {
         const url = `http://localhost:5000/api/v1/admin/jobseeker/experience-level`;
 
         const res = await getMethod(url);
-        console.log("REs from exp level ", res?.data);
+        // console.log("REs from exp level ", res?.data);
         setExp(res);
+        return res;
+    }
+
+    //Location wise users
+    const [usersLoc, setUsersLoc] = useState([]);
+    const jobSeekerLocs = async () => {
+        const url = `http://localhost:5000/api/v1/admin/jobseeker/locations`;
+
+        const res = await getMethod(url);
+        console.log("REs from locations ", res?.data);
+        setUsersLoc(res);
+        return res;
+    }
+
+    //popular job categories
+    const [popularJobCat, setPopularJobCat] = useState([]);
+    const jobSeekerPopularJobCategories = async () => {
+        const url = `http://localhost:5000/api/v1/admin/jobseeker/popular-job-categories`;
+
+        const res = await getMethod(url);
+        console.log("REs from locations ", res?.data);
+        setPopularJobCat(res);
         return res;
     }
 
@@ -67,6 +89,8 @@ const JobSeekerActivityContextProvider = ({ children }) => {
         jobSeekerDailyActivity();
         jobSeekerTopSkills();
         jobSeekerExpLevel();
+        jobSeekerLocs();
+        jobSeekerPopularJobCategories();
     }, [])
 
 
@@ -76,6 +100,8 @@ const JobSeekerActivityContextProvider = ({ children }) => {
         jobSeekerDailyActivity,
         jobSeekerTopSkills,
         jobSeekerExpLevel,
+        jobSeekerLocs,
+        jobSeekerPopularJobCategories,
 
         jActivity,
         setJActivity,
@@ -87,6 +113,10 @@ const JobSeekerActivityContextProvider = ({ children }) => {
         setSkills,
         exp,
         setExp,
+        usersLoc,
+        setUsersLoc,
+        popularJobCat,
+        setPopularJobCat
     }
 
     return (

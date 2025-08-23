@@ -125,8 +125,8 @@ const CustomPieTooltip = ({ active, payload }) => {
 const Tracking = () => {
     const [tab, setTab] = useState("activity");
 
-    const { jActivity, jInActive, daily, skills, exp } = useContext(JobSeekerActivityContext);
-    console.log("EEEEEEEpp", exp);
+    const { jActivity, jInActive, daily, skills, exp, usersLoc, popularJobCat } = useContext(JobSeekerActivityContext);
+    console.log("popularJobCat---------------", popularJobCat);
     const topJobSeekers = jActivity;
 
     const tabVariants = {
@@ -395,20 +395,32 @@ const Tracking = () => {
                                 className="bg-white shadow-xl rounded-xl overflow-hidden border border-gray-200"
                             >
                                 <div className="p-6">
-                                    <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
-                                        <span className="bg-orange-100 p-2 rounded-lg mr-3">
-                                            📍
-                                        </span>
-                                        Top Cities by Job Seekers
-                                    </h2>
+                                    <div className="flex justify-between items-center">
+                                        <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                                            <span className="bg-orange-100 p-2 rounded-lg mr-3">
+                                                📍
+                                            </span>
+                                            Top Cities by Job Seekers
+                                        </h2>
+                                        <div className="text-sm font-bold text-gray-900">
+                                            <span>Total Locations: {usersLoc?.data?.length}</span>
+                                        </div>
+                                    </div>
                                     <ResponsiveContainer width="100%" height={400}>
-                                        <BarChart data={locationData}>
+                                        <BarChart data={usersLoc?.data}>
                                             <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-                                            <XAxis dataKey="name" stroke="#6B7280" />
+                                            <XAxis
+                                                dataKey="location"
+                                                stroke="#6B7280"
+                                                angle={-45}
+                                                textAnchor="end"
+                                                height={80}
+                                                interval={0}
+                                            />
                                             <YAxis stroke="#6B7280" />
                                             <Tooltip content={<CustomTooltip />} />
                                             <Bar
-                                                dataKey="value"
+                                                dataKey="count"
                                                 fill="url(#colorLocation)"
                                                 radius={[6, 6, 0, 0]}
                                             />
@@ -420,6 +432,7 @@ const Tracking = () => {
                                             </defs>
                                         </BarChart>
                                     </ResponsiveContainer>
+
                                 </div>
                             </motion.div>
                         </motion.div>
@@ -449,13 +462,20 @@ const Tracking = () => {
                                         Popular Job Categories
                                     </h2>
                                     <ResponsiveContainer width="100%" height={300}>
-                                        <BarChart data={jobPrefData}>
+                                        <BarChart data={popularJobCat?.data}>
                                             <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-                                            <XAxis dataKey="category" stroke="#6B7280" />
+                                            <XAxis
+                                                dataKey="category"
+                                                stroke="#6B7280"
+                                                angle={-45}
+                                                textAnchor="end"
+                                                height={80}
+                                                interval={0}
+                                            />
                                             <YAxis stroke="#6B7280" />
                                             <Tooltip content={<CustomTooltip />} />
                                             <Bar
-                                                dataKey="applications"
+                                                dataKey="count"
                                                 fill="url(#colorCategory)"
                                                 radius={[6, 6, 0, 0]}
                                             />
