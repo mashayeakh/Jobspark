@@ -3,11 +3,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import useJobSeekerProfiles from "../../../../../../Hooks/userJobSeekerProfile";
 import { FiClock, FiMail, FiUser } from "react-icons/fi";
 import { JobSeekerExportDataContext } from "../../../../../../Context/AdminContext/JobSeekerExportDataContextProvider";
+import { getMethod } from "../../../../../../Utils/Api";
 
 const ExportData = () => {
     const [activeTab, setActiveTab] = useState("profiles");
     const [search, setSearch] = useState("");
-    const [locationFilter, setLocationFilter] = useState("All");
+    const [locationFilter, setLocationFilter] = useState("All Locations");
     const [exporting, setExporting] = useState(false);
     const [downloading, setDownloading] = useState(null);
 
@@ -22,9 +23,9 @@ const ExportData = () => {
 
     // const { profiles } = useJobSeekerProfiles();
 
-    const { activeProfile } = useContext(JobSeekerExportDataContext);
+    const { activeProfile, allLoc } = useContext(JobSeekerExportDataContext);
 
-    console.log("AAAAAAA ", activeProfile)
+    console.log("AAAAAAA ", allLoc)
     const profiles = activeProfile?.data || [];
 
     // Dummy Applications
@@ -47,19 +48,60 @@ const ExportData = () => {
     const filteredProfiles = profiles.filter(
         (p) =>
             p.name.toLowerCase().includes(search.toLowerCase()) &&
-            (locationFilter === "All" || p.location === locationFilter)
+            (locationFilter === "All Locations" || p.location === locationFilter)
     );
 
     // Handle export action
-    const handleExport = (type) => {
+    // const handleExport = (type) => {
+    //     setExporting(true);
+    //     // Simulate export process
+    //     setTimeout(() => {
+    //         setExporting(false);
+    //         // Show success notification (you could use a toast library here)
+    //         alert(`${type} export completed successfully!`);
+    //     }, 1500);
+    // };
+    const handleExport = async (type) => {
         setExporting(true);
-        // Simulate export process
-        setTimeout(() => {
+
+        try {
+            if (type === "CSV") {
+                // Use native fetch for blob
+                const response = await fetch(
+                    "http://localhost:5000/api/v1/admin/jobseeker/exports/csv",
+                    {
+                        method: "GET",
+                        credentials: "include",
+                    }
+                );
+
+                if (!response.ok) throw new Error("Failed to fetch CSV");
+
+                const blob = await response.blob(); // get CSV as blob
+                const url = URL.createObjectURL(blob);
+
+                const link = document.createElement("a");
+                link.href = url;
+                link.setAttribute("download", "active_profiles.csv");
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                // Optional: show backend message from headers
+                const successMsg = response.headers.get("X-Message") || "CSV export completed!";
+                alert(successMsg);
+            } else if (type === "PDF") {
+                alert("PDF export coming soon...");
+            }
+        } catch (err) {
+            console.error("CSV export failed:", err);
+            alert("Something went wrong while exporting CSV.");
+        } finally {
             setExporting(false);
-            // Show success notification (you could use a toast library here)
-            alert(`${type} export completed successfully!`);
-        }, 1500);
+        }
     };
+
+
 
     // Handle download action
     const handleDownload = (id) => {
@@ -210,10 +252,11 @@ const ExportData = () => {
                                         onChange={(e) => setLocationFilter(e.target.value)}
                                     >
                                         <option>All Locations</option>
-                                        <option>Dhaka</option>
-                                        <option>Chattogram</option>
-                                        <option>Sylhet</option>
-                                        <option>Rajshahi</option>
+                                        {allLoc?.data?.map((loc, index) => (
+                                            <option key={index} value={loc}>
+                                                {loc}
+                                            </option>
+                                        ))}
                                     </select>
                                 </div>
 

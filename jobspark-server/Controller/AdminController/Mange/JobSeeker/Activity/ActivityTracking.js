@@ -1,3 +1,4 @@
+const { Parser } = require("json2csv");
 const UserModel = require("../../../../../Model/AccountModel/UserModel");
 const JobApplicationModel = require("../../../../../Model/JobApplicationModel/JobApplicationModel");
 const ActiveJobs = require("../../../../../Model/RecruiterModel/ActiveJobsModel");
@@ -349,49 +350,114 @@ const popularJobCategories = async (req, res) => {
 };
 
 
+
+//creating a function that returns active profiles info that can be reused for multiple apis
+const getActiveProfileData = async () => {
+    const profiles = await UserModel.find(
+        { lastSignInTime: { $ne: null } },
+        "name email experienceLevel location lastSignInTime"
+    ).lean();
+
+
+    if (!profiles || profiles.length === 0) return [];
+
+
+    return profiles.map((profile) => {
+        const lastSignIn = new Date(profile.lastSignInTime);
+
+        const time = lastSignIn.toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+        });
+        const date = lastSignIn.toLocaleDateString([], {
+            weekday: "short",
+            month: "short",
+            day: "numeric",
+        });
+        const daysAgo = Math.floor(
+            (new Date() - lastSignIn) / (1000 * 60 * 60 * 24)
+        );
+
+        return {
+            _id: profile._id,
+            name: profile.name || "N/A",
+            email: profile.email || "N/A",
+            experienceLevel: profile.experienceLevel || "Not specified",
+            location: profile.location || "Unknown",
+            lastActive: `${time}\n${date}\n${daysAgo} days ago`,
+        };
+    });
+}
+
+
+
 //active profiles
 const activeProfiles = async (req, res) => {
-    try {
-        // Fetch profiles with non-null lastSignInTime
-        const profiles = await UserModel.find(
-            { lastSignInTime: { $ne: null } },
-            "name email experienceLevel location lastSignInTime"
-        ).lean();
+    // try {
+    //     // Fetch profiles with non-null lastSignInTime
+    //     const profiles = await UserModel.find(
+    //         { lastSignInTime: { $ne: null } },
+    //         "name email experienceLevel location lastSignInTime"
+    //     ).lean();
 
-        if (!profiles || profiles.length === 0) {
+    //     if (!profiles || profiles.length === 0) {
+    //         return res.status(404).json({
+    //             success: false,
+    //             message: "No active profiles found",
+    //             data: [],
+    //         });
+    //     }
+
+    //     const formattedProfiles = profiles.map((profile) => {
+    //         const lastSignIn = new Date(profile.lastSignInTime);
+
+    //         // Format pieces
+    //         const time = lastSignIn.toLocaleTimeString([], {
+    //             hour: "2-digit",
+    //             minute: "2-digit",
+    //         });
+    //         const date = lastSignIn.toLocaleDateString([], {
+    //             weekday: "short",
+    //             month: "short",
+    //             day: "numeric",
+    //         });
+    //         const daysAgo = Math.floor(
+    //             (new Date() - lastSignIn) / (1000 * 60 * 60 * 24)
+    //         );
+
+    //         return {
+    //             _id: profile._id,
+    //             name: profile.name || "N/A",
+    //             email: profile.email || "N/A",
+    //             experienceLevel: profile.experienceLevel || "Not specified",
+    //             location: profile.location || "Unknown",
+    //             lastActive: `${time}\n${date}\n${daysAgo} days ago`,
+    //         };
+    //     });
+
+    //     return res.status(200).json({
+    //         success: true,
+    //         count: formattedProfiles.length,
+    //         data: formattedProfiles,
+    //     });
+    // } catch (error) {
+    //     console.error("Error fetching active profiles:", error);
+    //     return res.status(500).json({
+    //         success: false,
+    //         message: "Server error while fetching active profiles",
+    //     });
+    // }
+    try {
+        //calling the getActiveProfileData function to render active profiles
+        const formattedProfiles = await getActiveProfileData();
+
+        if (formattedProfiles.length === 0) {
             return res.status(404).json({
                 success: false,
                 message: "No active profiles found",
                 data: [],
             });
         }
-
-        const formattedProfiles = profiles.map((profile) => {
-            const lastSignIn = new Date(profile.lastSignInTime);
-
-            // Format pieces
-            const time = lastSignIn.toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-            });
-            const date = lastSignIn.toLocaleDateString([], {
-                weekday: "short",
-                month: "short",
-                day: "numeric",
-            });
-            const daysAgo = Math.floor(
-                (new Date() - lastSignIn) / (1000 * 60 * 60 * 24)
-            );
-
-            return {
-                _id: profile._id,
-                name: profile.name || "N/A",
-                email: profile.email || "N/A",
-                experienceLevel: profile.experienceLevel || "Not specified",
-                location: profile.location || "Unknown",
-                lastActive: `${time}\n${date}\n${daysAgo} days ago`,
-            };
-        });
 
         return res.status(200).json({
             success: true,
@@ -407,10 +473,65 @@ const activeProfiles = async (req, res) => {
     }
 };
 
+
+//csv export api
+//get - jobseeker/exports/csv
+const exportCsv = async (req, res) => {
+    try {
+        const formattedProfiles = await getActiveProfileData();
+        if (formattedProfiles.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "No active profiles found to export",
+            });
+        }
+        //parser
+        const json2vsvParser = new Parser();
+        const csv = json2vsvParser.parse(formattedProfiles);
+
+        res.setHeader("Content-Type", "text/csv");
+        res.setHeader("Content-Disposition", "attachment; filename=active_profiles.csv");
+        res.setHeader("X-Success", "true");
+        res.setHeader("X-Message", "CSV exported successfully");
+
+        return res.send(csv);
+
+    } catch (error) {
+        console.error("Error exporting active profiles CSV:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Server error while exporting CSV",
+        });
+    }
+}
+
+
 //get all the location only
 //get - allLoc
+const allLoc = async (req, res) => {
+    try {
+        const locations = await UserModel.distinct("location").lean();
 
+        if (!locations || locations.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "No locations found",
+                data: [],
+            });
+        }
 
+        return res.status(200).json({
+            success: true,
+            count: locations.length,
+            data: locations,
+        });
+    } catch (error) {
+        console.error("Error fetching locations:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Server error while fetching locations",
+        });
+    }
+};
 
-
-module.exports = { jobSeekerActivity, getInactiveSeekers, getDailyActiveSeekers, topSkills, getExperienceLevel, getLocations, popularJobCategories, activeProfiles };
+module.exports = { jobSeekerActivity, getInactiveSeekers, getDailyActiveSeekers, topSkills, getExperienceLevel, getLocations, popularJobCategories, activeProfiles, allLoc, exportCsv };
