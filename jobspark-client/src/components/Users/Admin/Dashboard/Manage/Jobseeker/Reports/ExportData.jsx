@@ -65,41 +65,43 @@ const ExportData = () => {
         setExporting(true);
 
         try {
+            let url = "";
+            let fileName = "";
+
             if (type === "CSV") {
-                // Use native fetch for blob
-                const response = await fetch(
-                    "http://localhost:5000/api/v1/admin/jobseeker/exports/csv",
-                    {
-                        method: "GET",
-                        credentials: "include",
-                    }
-                );
-
-                if (!response.ok) throw new Error("Failed to fetch CSV");
-
-                const blob = await response.blob(); // get CSV as blob
-                const url = URL.createObjectURL(blob);
-
-                const link = document.createElement("a");
-                link.href = url;
-                link.setAttribute("download", "active_profiles.csv");
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-
-                // Optional: show backend message from headers
-                const successMsg = response.headers.get("X-Message") || "CSV export completed!";
-                alert(successMsg);
+                url = "http://localhost:5000/api/v1/admin/jobseeker/exports/csv";
+                fileName = "active_profiles.csv";
             } else if (type === "PDF") {
-                alert("PDF export coming soon...");
+                url = "http://localhost:5000/api/v1/admin/jobseeker/exports/pdf";
+                fileName = "active_profiles.pdf";
+            } else {
+                throw new Error("Unknown export type");
             }
+
+            const response = await fetch(url, { method: "GET", credentials: "include" });
+
+            if (!response.ok) throw new Error(`Failed to fetch ${type}`);
+
+            const blob = await response.blob();
+            const downloadUrl = URL.createObjectURL(blob);
+
+            const link = document.createElement("a");
+            link.href = downloadUrl;
+            link.setAttribute("download", fileName);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            const successMsg = response.headers.get("X-Message") || `${type} export completed successfully!`;
+            alert(successMsg);
         } catch (err) {
-            console.error("CSV export failed:", err);
-            alert("Something went wrong while exporting CSV.");
+            console.error(`${type} export failed:`, err);
+            // alert(`Something went wrong while exporting ${type}.`);
         } finally {
             setExporting(false);
         }
     };
+
 
 
 

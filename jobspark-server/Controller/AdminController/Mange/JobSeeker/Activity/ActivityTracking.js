@@ -1,7 +1,12 @@
-const { Parser } = require("json2csv");
-const UserModel = require("../../../../../Model/AccountModel/UserModel");
-const JobApplicationModel = require("../../../../../Model/JobApplicationModel/JobApplicationModel");
-const ActiveJobs = require("../../../../../Model/RecruiterModel/ActiveJobsModel");
+// Correct ESM imports
+import { Parser } from 'json2csv';
+import PDFDocument from 'pdfkit';
+
+// Correct ESM imports
+import UserModel from "../../../../../Model/AccountModel/UserModel.js";
+import JobApplicationModel from "../../../../../Model/JobApplicationModel/JobApplicationModel.js";
+import ActiveJobs from "../../../../../Model/RecruiterModel/ActiveJobsModel.js";
+
 
 // GET - admin/jobseeker/active
 const jobSeekerActivity = async (req, res) => {
@@ -505,6 +510,115 @@ const exportCsv = async (req, res) => {
     }
 }
 
+//export pdf
+//get - jobseeker/exports/pdf
+const exportPdf = async (req, res) => {
+    try {
+        const profiles = await getActiveProfileData();
+
+        if (!profiles || profiles.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "No active profiles found to export",
+            });
+        }
+
+        // Setup PDF
+        const doc = new PDFDocument({ margin: 30, size: "A4" });
+
+        res.setHeader("Content-Type", "application/pdf");
+        res.setHeader("Content-Disposition", "attachment; filename=active_profiles.pdf");
+        res.setHeader("X-Success", "true");
+        res.setHeader("X-Message", "PDF exported successfully");
+
+        doc.pipe(res);
+
+        doc.fontSize(20).text("Active Profiles Report", { align: "center" });
+        doc.moveDown(2);
+
+        // Table config
+        const startX = doc.x;
+        let y = doc.y;
+        const rowPadding = 5;
+        const pageHeight = doc.page.height - doc.page.margins.bottom;
+        const colWidths = [100, 150, 120, 100, 120]; // Adjust widths
+
+        const headers = ["Name", "Email", "Experience Level", "Location", "Last Active"];
+
+        // Draw table header
+        let x = startX;
+        headers.forEach((header, i) => {
+            doc.rect(x, y, colWidths[i], 20).fillAndStroke("#f0f0f0", "#000");
+            doc.fillColor("#000").fontSize(12).text(header, x + rowPadding, y + rowPadding, {
+                width: colWidths[i] - rowPadding * 2,
+                align: "left",
+            });
+            x += colWidths[i];
+        });
+
+        y += 20;
+
+        // Draw table rows
+        profiles.forEach((p) => {
+            const rowData = [
+                p.name,
+                p.email,
+                p.experienceLevel,
+                p.location,
+                p.lastActive,
+            ];
+
+            // Calculate dynamic row height
+            const cellHeights = rowData.map((text, i) =>
+                doc.heightOfString(text, { width: colWidths[i] - rowPadding * 2 })
+            );
+            const maxHeight = Math.max(...cellHeights) + rowPadding * 2;
+
+            // Page break check
+            if (y + maxHeight > pageHeight) {
+                doc.addPage();
+                y = doc.y;
+
+                // redraw headers on new page
+                let xHeader = startX;
+                headers.forEach((header, i) => {
+                    doc.rect(xHeader, y, colWidths[i], 20).fillAndStroke("#f0f0f0", "#000");
+                    doc.fillColor("#000").fontSize(12).text(header, xHeader + rowPadding, y + rowPadding, {
+                        width: colWidths[i] - rowPadding * 2,
+                        align: "left",
+                    });
+                    xHeader += colWidths[i];
+                });
+                y += 20;
+            }
+
+            // Draw row
+            let x = startX;
+            rowData.forEach((text, i) => {
+                doc.rect(x, y, colWidths[i], maxHeight).stroke();
+                doc.fillColor("#000").fontSize(10).text(text, x + rowPadding, y + rowPadding, {
+                    width: colWidths[i] - rowPadding * 2,
+                    align: "left",
+                });
+                x += colWidths[i];
+            });
+
+            y += maxHeight;
+        });
+
+        doc.end();
+    } catch (error) {
+        console.error("Error exporting PDF:", error);
+        res.status(500).json({
+            success: false,
+            message: "Server error while exporting PDF",
+        });
+    }
+};
+
+
+
+
 
 //get all the location only
 //get - allLoc
@@ -534,4 +648,18 @@ const allLoc = async (req, res) => {
     }
 };
 
-module.exports = { jobSeekerActivity, getInactiveSeekers, getDailyActiveSeekers, topSkills, getExperienceLevel, getLocations, popularJobCategories, activeProfiles, allLoc, exportCsv };
+// Export multiple functions in ESM
+export {
+    jobSeekerActivity,
+    getInactiveSeekers,
+    getDailyActiveSeekers,
+    topSkills,
+    getExperienceLevel,
+    getLocations,
+    popularJobCategories,
+    activeProfiles,
+    allLoc,
+    exportCsv,
+    exportPdf
+};
+
