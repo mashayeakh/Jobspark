@@ -44,7 +44,7 @@ const JobSeekingForm = () => {
             c_password: e.target.c_password.value,
             location: e.target.location.value,
             university: e.target.university.value,
-            skills: skillsArray, // <-- send as array now
+            skills: skillsArray, 
             roles: e.target.roles.value,
             experienceLevel: e.target.experienceLevel.value,
             role,
