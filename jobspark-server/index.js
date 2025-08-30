@@ -18,7 +18,6 @@ app.use(cors({
     credentials: true,
 }));
 
-// Session middleware - Ensure it's added above routes
 const secretKey = process.env.SESSION_SECRET_KEY;  // Load from .env file
 
 app.use(session({
