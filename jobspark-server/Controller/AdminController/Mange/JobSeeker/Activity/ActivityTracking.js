@@ -617,7 +617,76 @@ const exportPdf = async (req, res) => {
 };
 
 
+//exported csv
 
+const exportApplicationsCsv = async (req, res) => {
+    try {
+        const applications = await JobApplicationModel.find()
+            .populate("user", "fullName email")
+            .populate("job", "jobTitle companyName");
+
+        if (!applications.length) {
+            return res.status(404).json({
+                success: false,
+                message: "No applications found",
+            });
+        }
+
+        // 🔹 Group applications by user ID
+        const grouped = {};
+        applications.forEach((app) => {
+            const userId = app.user?._id?.toString() || "N/A";
+
+            if (!grouped[userId]) {
+                grouped[userId] = {
+                    id: userId,
+                    jobSeeker: app.user?.fullName || "N/A",
+                    email: app.user?.email || "N/A",
+                    applied: [], // will hold { job, time }
+                };
+            }
+
+            grouped[userId].applied.push({
+                job: app.job
+                    ? `${app.job.jobTitle} (${app.job.companyName})`
+                    : "N/A",
+                time: app.appliedAt
+                    ? new Date(app.appliedAt).toLocaleString()
+                    : "N/A",
+            });
+        });
+
+        // 🔹 Flatten into exportable rows
+        const data = Object.values(grouped).map((u) => ({
+            id: u.id,
+            jobSeeker: u.jobSeeker,
+            email: u.email,
+            appliedJobs: u.applied.map((a) => a.job).join(" | "),
+            appliedTimes: u.applied.map((a) => a.time).join(" | "),
+        }));
+
+        // 🔹 Convert JSON to CSV
+        const json2csvParser = new Parser({
+            fields: ["id", "jobSeeker", "email", "appliedJobs", "appliedTimes"],
+        });
+        const csv = json2csvParser.parse(data);
+
+        // 🔹 Send CSV file
+        res.setHeader(
+            "Content-Disposition",
+            "attachment; filename=job_applications.csv"
+        );
+        res.setHeader("Content-Type", "text/csv");
+        res.setHeader("X-Message", "Applications exported successfully!");
+
+        res.status(200).end(csv);
+    } catch (err) {
+        console.error("CSV export error:", err);
+        res
+            .status(500)
+            .json({ success: false, message: "Failed to export applications" });
+    }
+};
 
 
 //get all the location only
@@ -660,6 +729,7 @@ export {
     activeProfiles,
     allLoc,
     exportCsv,
-    exportPdf
+    exportPdf,
+    exportApplicationsCsv
 };
 
