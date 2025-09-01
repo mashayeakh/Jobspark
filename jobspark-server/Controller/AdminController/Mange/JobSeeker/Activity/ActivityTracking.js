@@ -618,7 +618,6 @@ const exportPdf = async (req, res) => {
 
 
 //exported csv
-
 const exportApplicationsCsv = async (req, res) => {
     try {
         const applications = await JobApplicationModel.find()
@@ -689,6 +688,57 @@ const exportApplicationsCsv = async (req, res) => {
 };
 
 
+const applicationsCsvInfo = async (req, res) => {
+    try {
+        // Populate job + user details from references
+        const applications = await JobApplicationModel.find()
+            .populate("user", "fullName email")
+            .populate("job", "jobTitle companyName");
+
+        if (!applications.length) {
+            return res
+                .status(404)
+                .json({ success: false, message: "No applications found" });
+        }
+
+        // Transform into export-friendly format
+        const data = applications.map((app) => ({
+            jobSeeker: app.user?.fullName || "N/A",
+            email: app.user?.email || "N/A",
+            appliedJob: app.job
+                ? `${app.job.jobTitle} (${app.job.companyName})`
+                : "N/A",
+            appliedAt: app.appliedAt
+                ? new Date(app.appliedAt).toLocaleString()
+                : "N/A",
+        }));
+
+        // Convert JSON -> CSV
+        const json2csvParser = new Parser({
+            fields: ["jobSeeker", "email", "appliedJob", "appliedAt"],
+        });
+        const csv = json2csvParser.parse(data);
+
+        // Headers for file download
+        res.setHeader(
+            "Content-Disposition",
+            "attachment; filename=job_applications.csv"
+        );
+        res.setHeader("Content-Type", "text/csv; charset=utf-8");
+        res.setHeader("X-Message", "Applications exported successfully!");
+
+        // Send CSV content
+        res.status(200).send(csv);
+        // or: res.send(Buffer.from(csv, "utf-8"));
+    } catch (err) {
+        console.error("CSV export error:", err);
+        res
+            .status(500)
+            .json({ success: false, message: "Failed to export applications" });
+    }
+};
+
+
 //get all the location only
 //get - allLoc
 const allLoc = async (req, res) => {
@@ -730,6 +780,7 @@ export {
     allLoc,
     exportCsv,
     exportPdf,
-    exportApplicationsCsv
+    exportApplicationsCsv,
+    applicationsCsvInfo
 };
 

@@ -21,10 +21,12 @@ const JobSeekerExportDataContextProvider = ({ children }) => {
     const allLocSeekerProfile = async () => {
         const url = `http://localhost:5000/api/v1/admin/jobseeker/allLoc`;
         const res = await getMethod(url);
-        console.log("Calling from Data Context ", res);
+        // console.log("Calling from Data Context ", res);
         setAllLoc(res);
         return res;
     }
+
+    //
 
     useEffect(() => {
         activeJobSeekerProfile();

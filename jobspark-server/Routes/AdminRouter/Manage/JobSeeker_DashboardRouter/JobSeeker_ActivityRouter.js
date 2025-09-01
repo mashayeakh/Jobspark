@@ -1,5 +1,5 @@
 const express = require("express");
-const { jobSeekerActivity, getInactiveSeekers, getDailyActiveSeekers, topSkills, getExperienceLevel, getLocations, popularJobCategories, activeProfiles, allLoc, exportCsv, exportPdf, exportApplicationsCsv } = require("../../../../Controller/AdminController/Mange/JobSeeker/Activity/ActivityTracking");
+const { jobSeekerActivity, getInactiveSeekers, getDailyActiveSeekers, topSkills, getExperienceLevel, getLocations, popularJobCategories, activeProfiles, allLoc, exportCsv, exportPdf, exportApplicationsCsv, applicationsCsvInfo } = require("../../../../Controller/AdminController/Mange/JobSeeker/Activity/ActivityTracking");
 
 const router = express.Router();
 
@@ -14,6 +14,7 @@ router.get("/jobseeker/activeProfiles", activeProfiles);
 router.get("/jobseeker/exports/csv", exportCsv);
 router.get("/jobseeker/exports/applications-csv", exportApplicationsCsv);
 router.get("/jobseeker/exports/pdf", exportPdf);
+router.get("/jobseeker/appliInfo", applicationsCsvInfo);
 router.get("/jobseeker/allLoc", allLoc);
 
 module.exports = router;

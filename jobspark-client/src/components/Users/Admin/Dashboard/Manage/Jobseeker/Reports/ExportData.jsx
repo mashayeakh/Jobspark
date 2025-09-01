@@ -61,6 +61,49 @@ const ExportData = () => {
     //         alert(`${type} export completed successfully!`);
     //     }, 1500);
     // };
+    // const handleExport = async (type) => {
+    //     setExporting(true);
+
+    //     try {
+    //         let url = "";
+    //         let fileName = "";
+
+    //         if (type === "CSV") {
+    //             url = "http://localhost:5000/api/v1/admin/jobseeker/exports/csv";
+    //             fileName = "active_profiles.csv";
+    //         } else if (type === "PDF") {
+    //             url = "http://localhost:5000/api/v1/admin/jobseeker/exports/pdf";
+    //             fileName = "active_profiles.pdf";
+    //         } else {
+    //             throw new Error("Unknown export type");
+    //         }
+
+    //         const response = await fetch(url, { method: "GET", credentials: "include" });
+
+    //         if (!response.ok) throw new Error(`Failed to fetch ${type}`);
+
+    //         const blob = await response.blob();
+    //         const downloadUrl = URL.createObjectURL(blob);
+
+    //         const link = document.createElement("a");
+    //         link.href = downloadUrl;
+    //         link.setAttribute("download", fileName);
+    //         document.body.appendChild(link);
+    //         link.click();
+    //         document.body.removeChild(link);
+
+    //         const successMsg = response.headers.get("X-Message") || `${type} export completed successfully!`;
+    //         alert(successMsg);
+    //     } catch (err) {
+    //         console.error(`${type} export failed:`, err);
+    //         // alert(`Something went wrong while exporting ${type}.`);
+    //     } finally {
+    //         setExporting(false);
+    //     }
+    // };
+
+
+    // Your existing export handler
     const handleExport = async (type) => {
         setExporting(true);
 
@@ -74,6 +117,9 @@ const ExportData = () => {
             } else if (type === "PDF") {
                 url = "http://localhost:5000/api/v1/admin/jobseeker/exports/pdf";
                 fileName = "active_profiles.pdf";
+            } else if (type === "APPLICATIONS_CSV") {
+                url = "http://localhost:5000/api/v1/admin/jobseeker/exports/applications-csv";
+                fileName = "job_applications.csv";
             } else {
                 throw new Error("Unknown export type");
             }
@@ -92,16 +138,28 @@ const ExportData = () => {
             link.click();
             document.body.removeChild(link);
 
-            const successMsg = response.headers.get("X-Message") || `${type} export completed successfully!`;
+            const successMsg =
+                response.headers.get("X-Message") ||
+                `${type} export completed successfully!`;
             alert(successMsg);
         } catch (err) {
             console.error(`${type} export failed:`, err);
-            // alert(`Something went wrong while exporting ${type}.`);
+            alert(`Something went wrong while exporting ${type}.`);
         } finally {
             setExporting(false);
         }
     };
 
+    // Button click handler
+    const handleAppExport = () => {
+        handleExport("APPLICATIONS_CSV");
+    };
+
+
+
+    // const handleAppExport = () => {
+    //     console.log("Clciked");
+    // }
 
 
 
@@ -398,14 +456,15 @@ const ExportData = () => {
                                         Application Reports
                                     </h3>
                                     <div className="flex gap-3">
-                                        <motion.button
+                                        {/* <motion.button
                                             whileHover={{ scale: 1.03 }}
                                             whileTap={{ scale: 0.97 }}
                                             className="px-4 py-2 bg-blue-500 text-white rounded-lg font-medium"
                                         >
                                             Generate Full Report
-                                        </motion.button>
+                                        </motion.button> */}
                                         <motion.button
+                                            onClick={handleAppExport}
                                             whileHover={{ scale: 1.03 }}
                                             whileTap={{ scale: 0.97 }}
                                             className="px-4 py-2 bg-indigo-500 text-white rounded-lg font-medium"
