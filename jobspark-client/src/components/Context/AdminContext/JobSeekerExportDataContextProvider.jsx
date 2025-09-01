@@ -26,21 +26,35 @@ const JobSeekerExportDataContextProvider = ({ children }) => {
         return res;
     }
 
-    //
+    //aplication info taken from csv
+    const [applicationCsv, setApplicationCsv] = useState([]);
+    const applicationCsvInfo = async () => {
+        const url = `http://localhost:5000/api/v1/admin/jobseeker/appliInfo`;
+        const res = await getMethod(url);
+        console.log("Calling from Data Context ", res);
+        setApplicationCsv(res);
+        return res;
+    }
+
+
 
     useEffect(() => {
         activeJobSeekerProfile();
         allLocSeekerProfile();
+        applicationCsvInfo();
     }, [])
 
     const addInfo = {
         activeJobSeekerProfile,
         allLocSeekerProfile,
+        applicationCsvInfo,
 
         activeProfile,
         setActiveProfile,
         allLoc,
-        setAllLoc
+        setAllLoc,
+        applicationCsv,
+        setApplicationCsv
     }
 
 

@@ -23,9 +23,9 @@ const ExportData = () => {
 
     // const { profiles } = useJobSeekerProfiles();
 
-    const { activeProfile, allLoc } = useContext(JobSeekerExportDataContext);
+    const { activeProfile, allLoc, applicationCsv } = useContext(JobSeekerExportDataContext);
 
-    console.log("AAAAAAA ", allLoc)
+    console.log("AAAAAAAPPPPPPPPPPP ", applicationCsv)
     const profiles = activeProfile?.data || [];
 
     // Dummy Applications
@@ -474,7 +474,7 @@ const ExportData = () => {
                                     </div>
                                 </div>
 
-                                <p className="mb-4 text-sm text-gray-500">Total Applications: <b>{applications.length}</b></p>
+                                <p className="mb-4 text-sm text-gray-500">Total Applications: <b>{applicationCsv?.count}</b></p>
 
                                 <motion.div
                                     className="overflow-x-auto rounded-lg border border-gray-200"
@@ -488,32 +488,46 @@ const ExportData = () => {
                                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Seeker</th>
                                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Applied Job</th>
                                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Applied On</th>
-                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                                {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th> */}
                                             </tr>
                                         </thead>
                                         <tbody className="bg-white divide-y divide-gray-200">
-                                            {applications.map((a, index) => (
+                                            {applicationCsv?.data?.map((a, index) => (
                                                 <motion.tr
-                                                    key={a.id}
+                                                    key={index}
                                                     variants={itemVariants}
                                                     transition={{ delay: index * 0.05 }}
                                                     className="hover:bg-gray-50"
                                                 >
-                                                    <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">{a.seeker}</td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-gray-700">{a.job}</td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-gray-700">{a.appliedOn}</td>
-                                                    <td className="px-6 py-4 whitespace-nowrap">
-                                                        {a.status === "Approved" ? (
-                                                            <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Approved</span>
-                                                        ) : a.status === "Rejected" ? (
-                                                            <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Rejected</span>
-                                                        ) : (
-                                                            <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Pending</span>
-                                                        )}
+                                                    <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
+                                                        {a.jobSeeker} <br />
+                                                        <span className="text-sm text-gray-500">{a.email}</span>
                                                     </td>
+                                                    <td className="px-6 py-4 whitespace-nowrap text-gray-700">
+                                                        {a.appliedJob}
+                                                    </td>
+                                                    <td className="px-6 py-4 whitespace-nowrap text-gray-700">
+                                                        {a.appliedAt}
+                                                    </td>
+                                                    {/* <td className="px-6 py-4 whitespace-nowrap">
+                                                        {a.status === "Approved" ? (
+                                                            <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                                                Approved
+                                                            </span>
+                                                        ) : a.status === "Rejected" ? (
+                                                            <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                                                Rejected
+                                                            </span>
+                                                        ) : (
+                                                            <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                                                Pending
+                                                            </span>
+                                                        )}
+                                                    </td> */}
                                                 </motion.tr>
                                             ))}
                                         </tbody>
+
                                     </table>
                                 </motion.div>
                             </div>

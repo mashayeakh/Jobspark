@@ -687,12 +687,12 @@ const exportApplicationsCsv = async (req, res) => {
     }
 };
 
-
+// application csv info to render in tab..
 const applicationsCsvInfo = async (req, res) => {
     try {
         // Populate job + user details from references
         const applications = await JobApplicationModel.find()
-            .populate("user", "fullName email")
+            .populate("user", "name email")
             .populate("job", "jobTitle companyName");
 
         if (!applications.length) {
@@ -703,7 +703,7 @@ const applicationsCsvInfo = async (req, res) => {
 
         // Transform into export-friendly format
         const data = applications.map((app) => ({
-            jobSeeker: app.user?.fullName || "N/A",
+            jobSeeker: app.user?.name || "N/A",
             email: app.user?.email || "N/A",
             appliedJob: app.job
                 ? `${app.job.jobTitle} (${app.job.companyName})`
@@ -713,22 +713,15 @@ const applicationsCsvInfo = async (req, res) => {
                 : "N/A",
         }));
 
-        // Convert JSON -> CSV
-        const json2csvParser = new Parser({
-            fields: ["jobSeeker", "email", "appliedJob", "appliedAt"],
-        });
-        const csv = json2csvParser.parse(data);
 
-        // Headers for file download
-        res.setHeader(
-            "Content-Disposition",
-            "attachment; filename=job_applications.csv"
-        );
-        res.setHeader("Content-Type", "text/csv; charset=utf-8");
-        res.setHeader("X-Message", "Applications exported successfully!");
 
         // Send CSV content
-        res.status(200).send(csv);
+        res.status(200).json({
+            success: true,
+            count: data.length,
+            data: data,
+            message: "Applications fetched successfully",
+        })
         // or: res.send(Buffer.from(csv, "utf-8"));
     } catch (err) {
         console.error("CSV export error:", err);
