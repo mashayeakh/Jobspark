@@ -126,19 +126,25 @@ const JobSeeker_Dashboard = () => {
                         color="#e15759"
                     />
                 </Grid>
-                <Grid item xs={12} md={6}>
-                    <motion.div variants={itemVariants}>
+                <Grid item xs={12}>
+                    <motion.div variants={itemVariants} style={{ width: '100%' }}>
                         <Box sx={{
                             bgcolor: 'background.paper',
                             p: 3,
                             borderRadius: 2,
                             boxShadow: 1,
-                            height: '100%'
+                            width: '100%',
+                            minHeight: 220,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'flex-start',
                         }}>
                             <Typography variant="h6" sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
                                 <StarIcon color="primary" sx={{ mr: 1 }} /> Top Skills
                             </Typography>
-                            <TopSkillsChart data={topSkills} />
+                            <Box sx={{ width: '100%' }}>
+                                <TopSkillsChart data={topSkills} />
+                            </Box>
                         </Box>
                     </motion.div>
                 </Grid>
@@ -212,35 +218,45 @@ const JobSeeker_Dashboard = () => {
 
             {/* Visualizations Row 2 */}
             <Grid container spacing={3}>
-                <Grid item xs={12} md={6}>
-                    <motion.div variants={itemVariants}>
+                <Grid item xs={12} md={6} sx={{ width: '100%' }}>
+                    <motion.div variants={itemVariants} style={{ width: '100%' }}>
                         <Box sx={{
                             bgcolor: 'background.paper',
                             p: 3,
                             borderRadius: 2,
                             boxShadow: 1,
-                            height: '100%'
+                            width: '100%',
+                            minHeight: 350,
+                            display: 'flex',
+                            flexDirection: 'column',
                         }}>
                             <Typography variant="h6" sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
                                 <CategoryIcon color="primary" sx={{ mr: 1 }} /> Job Categories Popularity
                             </Typography>
-                            <JobCategoriesChart data={categoriesData} />
+                            <Box sx={{ flex: 1, width: '100%' }}>
+                                <JobCategoriesChart data={categoriesData} />
+                            </Box>
                         </Box>
                     </motion.div>
                 </Grid>
-                <Grid item xs={12} md={6}>
-                    <motion.div variants={itemVariants}>
+                <Grid item xs={12} md={6} sx={{ width: '100%' }}>
+                    <motion.div variants={itemVariants} style={{ width: '100%' }}>
                         <Box sx={{
                             bgcolor: 'background.paper',
                             p: 3,
                             borderRadius: 2,
                             boxShadow: 1,
-                            height: '100%'
+                            width: '100%',
+                            minHeight: 350,
+                            display: 'flex',
+                            flexDirection: 'column',
                         }}>
                             <Typography variant="h6" sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
                                 <TrendingUpIcon color="primary" sx={{ mr: 1 }} /> Activity Trends
                             </Typography>
-                            <MiniBarChart />
+                            <Box sx={{ flex: 1, width: '100%' }}>
+                                <MiniBarChart />
+                            </Box>
                         </Box>
                     </motion.div>
                 </Grid>
