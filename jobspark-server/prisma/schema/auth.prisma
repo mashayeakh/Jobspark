@@ -9,6 +9,8 @@ model User {
   role          UserRole  @default(JOB_SEEKER)
   
   // Soft delete support
+  isDeleted     Boolean   @default(false)
+  status        String    @default("ACTIVE")
   deletedAt     DateTime?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
@@ -39,6 +41,8 @@ model Session {
   ipAddress String?
   userAgent String?
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([userId])
 }
@@ -53,6 +57,8 @@ model Account {
   expiresAt             DateTime?
   password              String?
   user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
 
   @@unique([providerId, accountId])
 }

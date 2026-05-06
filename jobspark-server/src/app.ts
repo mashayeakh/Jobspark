@@ -28,56 +28,58 @@ const secretKey = process.env.SESSION_SECRET_KEY;  // Load from .env file
 //     }  // Set to true if using HTTPS
 // }));
 
-// app.use("/api/v1/", router);
+import router from './app/module';
+
+app.use("/api/v2/", router);
 
 
 app.get('/', (req: Request, res: Response) => {
     res.send('Hello JobPark!')
 })
 
-app.get('/api/test-db', async (req: Request, res: Response) => {
-    try {
-        const testUser = await prisma.user.create({
-            data: {
-                name: "Test Recruiter",
-                email: `recruiter-${Date.now()}@test.com`,
-                role: "RECRUITER",
-                recruiterProfile: {
-                    create: {
-                        position: "HR Manager",
-                        company: {
-                            create: {
-                                name: "Test Corp",
-                                industry: "Technology",
-                                location: "Remote"
-                            }
-                        }
-                    }
-                }
-            },
-            include: {
-                recruiterProfile: {
-                    include: {
-                        company: true
-                    }
-                }
-            }
-        });
+// app.get('/api/test-db', async (req: Request, res: Response) => {
+//     try {
+//         const testUser = await prisma.user.create({
+//             data: {
+//                 name: "Test Recruiter",
+//                 email: `recruiter-${Date.now()}@test.com`,
+//                 role: "RECRUITER",
+//                 recruiterProfile: {
+//                     create: {
+//                         position: "HR Manager",
+//                         company: {
+//                             create: {
+//                                 name: "Test Corp",
+//                                 industry: "Technology",
+//                                 location: "Remote"
+//                             }
+//                         }
+//                     }
+//                 }
+//             },
+//             include: {
+//                 recruiterProfile: {
+//                     include: {
+//                         company: true
+//                     }
+//                 }
+//             }
+//         });
 
-        res.json({
-            success: true,
-            message: "Database connection verified. Data pushed to Neon DB.",
-            data: testUser
-        });
-    } catch (error: any) {
-        console.error("Test DB Error:", error);
-        res.status(500).json({
-            success: false,
-            message: "Failed to push data to database.",
-            error: error.message
-        });
-    }
-});
+//         res.json({
+//             success: true,
+//             message: "Database connection verified. Data pushed to Neon DB.",
+//             data: testUser
+//         });
+//     } catch (error: any) {
+//         console.error("Test DB Error:", error);
+//         res.status(500).json({
+//             success: false,
+//             message: "Failed to push data to database.",
+//             error: error.message
+//         });
+//     }
+// });
 
 
 
