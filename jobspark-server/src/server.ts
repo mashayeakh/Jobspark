@@ -7,7 +7,7 @@ import dotenv from 'dotenv'
 dotenv.config();
 
 const port = process.env.PORT
-console.log("port -= ", process.env.PORT)
+// console.log("port = ", process.env.PORT)
 
 const bootstrap = async () => {
     try {

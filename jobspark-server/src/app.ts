@@ -1,12 +1,14 @@
 import express, { Application, NextFunction, Request, Response } from 'express';
-const cors = require("cors");
-const dotenv = require("dotenv");
-const mongoose = require("mongoose");
-const session = require('express-session');
+// const cors = require("cors");
+// const dotenv = require("dotenv");
+// const mongoose = require("mongoose");
+// const session = require('express-session');
 // const crypto = require('crypto');
-const cron = require("node-cron");
+// const cron = require("node-cron");
+import cors from 'cors';
 
-dotenv.config();  // Load environment variables
+
+// dotenv.config();  // Load environment variables
 
 export const app: Application = express()
 
@@ -21,17 +23,17 @@ app.use(cors({
 
 const secretKey = process.env.SESSION_SECRET_KEY;  // Load from .env file
 
-app.use(session({
-    secret: secretKey, // A secret key for encryption
-    resave: false,             // Forces the session to be saved even if it wasn't modified
-    saveUninitialized: false,   // Save uninitialized session
-    cookie: {
-        // Make sure cookie is set correctly for localhost
-        secure: false,    // secure: true only for https
-        httpOnly: true,
-        maxAge: 1000 * 60 * 60 * 24,
-    }  // Set to true if using HTTPS
-}));
+// app.use(session({
+//     secret: secretKey, // A secret key for encryption
+//     resave: false,             // Forces the session to be saved even if it wasn't modified
+//     saveUninitialized: false,   // Save uninitialized session
+//     cookie: {
+//         // Make sure cookie is set correctly for localhost
+//         secure: false,    // secure: true only for https
+//         httpOnly: true,
+//         maxAge: 1000 * 60 * 60 * 24,
+//     }  // Set to true if using HTTPS
+// }));
 
 // app.use("/api/v1/", router);
 

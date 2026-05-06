@@ -1,13 +1,14 @@
-# Ignore environment files
+node_modules
 .env
+.env.*
+!.env.example
+!.env.production
+dist
+/src/generated
 
-# Node dependencies
-node_modules/
+/generated/prisma
 
-# Logs
-logs
-*.log
+logs/
 
-# IDE files
-.vscode/
-.DS_Store
+
+/generated/prisma
