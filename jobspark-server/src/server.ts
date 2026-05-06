@@ -7,13 +7,11 @@ import dotenv from 'dotenv'
 dotenv.config();
 
 const port = process.env.PORT
-// console.log("port = ", process.env.PORT)
 
 const bootstrap = async () => {
     try {
-        // seeding admin and optional demo user
+        // seeding admin
         // await seedAdmin();
-        // await seedDemoUser();
         app.listen(port, () => {
             console.log(`Server is running on http://localhost:${port}`);
         });
@@ -32,5 +30,4 @@ const bootstrap = async () => {
 
 bootstrap();
 
-// Required export for Vercel serverless
 export default app;

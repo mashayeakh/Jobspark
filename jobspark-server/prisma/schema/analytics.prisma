@@ -1,0 +1,8 @@
+model PlatformSnapshot {
+  id                String   @id @default(cuid())
+  date              DateTime @unique @default(now())
+  totalUsers        Int
+  totalJobs         Int
+  totalApplications Int
+  matchesGenerated  Int
+}

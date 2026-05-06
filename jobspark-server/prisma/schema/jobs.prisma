@@ -1,0 +1,65 @@
+
+model Job {
+  id              String          @id @default(cuid())
+  title           String
+  description     String          @db.Text
+  status          JobStatus       @default(DRAFT)
+  type            JobType         @default(FULL_TIME)
+  locationType    LocationType    @default(ONSITE)
+  experienceLevel ExperienceLevel @default(ENTRY)
+  
+  salaryMin       Int?
+  salaryMax       Int?
+  location        String?
+  
+  // Analytics denormalization
+  applicationCount Int            @default(0)
+  viewCount       Int            @default(0)
+
+  // Relations
+  companyId       String
+  company         Company         @relation(fields: [companyId], references: [id])
+  recruiterId     String
+  recruiter       RecruiterProfile @relation(fields: [recruiterId], references: [id])
+  
+  skills          JobSkill[]
+  applications    Application[]
+  matchScores     MatchScore[]
+  recommendations RecommendationLog[]
+
+  deletedAt       DateTime?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@index([status, type, locationType])
+  @@index([companyId])
+  @@index([recruiterId])
+}
+
+model Skill {
+  id        String           @id @default(cuid())
+  name      String           @unique
+  jobs      JobSkill[]
+  candidates CandidateSkill[]
+}
+
+model JobSkill {
+  jobId      String
+  skillId    String
+  isRequired Boolean @default(true)
+  job        Job     @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  skill      Skill   @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@id([jobId, skillId])
+}
+
+model CandidateSkill {
+  profileId String
+  skillId   String
+  level     Int     @default(1) // 1-5
+  yearsExp  Int     @default(0)
+  profile   JobSeekerProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  skill     Skill            @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@id([profileId, skillId])
+}

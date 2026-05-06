@@ -13,11 +13,13 @@
     "baseUrl": ".",                    
     "paths": {                          
       "@/*": ["src/*"]
-    }
+    },
+    "types": ["node"]
   },
   "include": [
     "src/**/*", 
-    "prisma/generated/**/*"
+    "prisma/generated/**/*",
+    "prisma.config.ts"
   ],
   "exclude": ["node_modules", "dist"]
 }

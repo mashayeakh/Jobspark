@@ -9,8 +9,8 @@
     "prebuild": "npm install --omit=dev=false",
     "build:tsup": "tsup",
     "dev": "tsx watch src/server.ts",
-    "seed:movies": "tsx src/app/utils/seedMovies.ts",
-    "stripe:webhook": "stripe listen --forward-to localhost:5000/webhook",
+    "build": "prisma generate && prisma migrate deploy && tsup src/server.ts --format cjs --platform node --target node20 --outDir dist --external pg-native",
+    "postinstall": "prisma generate",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -46,6 +46,8 @@
     "@types/pg": "^8.20.0",
     "prisma": "^7.8.0",
     "ts-node-dev": "^2.0.0",
+    "tsup": "^8.5.1",
+    "tsx": "^4.21.0",
     "typescript": "^6.0.3"
   }
 }
