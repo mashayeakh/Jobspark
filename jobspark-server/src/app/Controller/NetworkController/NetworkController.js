@@ -1,9 +1,9 @@
 const axios = require("axios");
-const connectionRequest = require("../../Model/NetworkModel/ConnectionReqModel");
+const connectionRequest = require("../../../../Model/NetworkModel/ConnectionReqModel");
 const mongoose = require("mongoose");
 const { getRecommendedUsers } = require("../../Utils/gemini");
-const UserModel = require("../../Model/AccountModel/UserModel");
-const ConnectionReqModel = require("../../Model/NetworkModel/ConnectionReqModel");
+const UserModel = require("../../../../Model/AccountModel/UserModel");
+const ConnectionReqModel = require("../../../../Model/NetworkModel/ConnectionReqModel");
 
 
 

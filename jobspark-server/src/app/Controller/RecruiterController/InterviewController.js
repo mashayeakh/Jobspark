@@ -1,11 +1,11 @@
 
 
 const { calendar } = require("../../Utils/google");
-const ScheduledInterviewModel = require("../../Model/RecruiterModel/ScheduledInterviewModel");
-const UserModel = require("../../Model/AccountModel/UserModel");
+const ScheduledInterviewModel = require("../../../../Model/RecruiterModel/ScheduledInterviewModel");
+const UserModel = require("../../../../Model/AccountModel/UserModel");
 const sendEmail = require("../../Utils/sendEmail");
 const { formatDistanceToNow } = require("date-fns");
-const NotificationModel = require("../../Model/NotificatonModel/NotificationModel");
+const NotificationModel = require("../../../../Model/NotificatonModel/NotificationModel");
 /**
  *  Goal - send a post req to craete interview schedule having 
  * receruiter, job, applicant id, and goole meet or zoom link will be generated. 

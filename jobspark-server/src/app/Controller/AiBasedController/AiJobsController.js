@@ -1,5 +1,5 @@
-const UserModel = require("../../Model/AccountModel/UserModel");
-const ActiveJobsModel = require("../../Model/RecruiterModel/ActiveJobsModel");
+const UserModel = require("../../../../Model/AccountModel/UserModel");
+const ActiveJobsModel = require("../../../../Model/RecruiterModel/ActiveJobsModel");
 
 const { getRecommendedUsers } = require("../../Utils/gemini");
 
