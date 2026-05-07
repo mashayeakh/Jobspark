@@ -72,11 +72,11 @@ model User {
   role          UserRole @default(JOB_SEEKER)
 
   // Soft delete support
-  isDeleted Boolean   @default(false)
-  status    String    @default("ACTIVE")
+  isDeleted Boolean    @default(false)
+  status    UserStatus @default(ACTIVE)
   deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
 
   // Profile links
   jobSeekerProfile JobSeekerProfile?
@@ -158,6 +158,12 @@ enum UserRole {
   ADMIN
   RECRUITER
   JOB_SEEKER
+}
+
+enum UserStatus {
+  ACTIVE
+  BLOCKED
+  DELETED
 }
 
 enum JobStatus {

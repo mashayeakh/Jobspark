@@ -1,4 +1,4 @@
-import { UserRole } from "../../../../prisma/generated/client";
+import { UserRole, UserStatus } from "../../../../prisma/generated/client";
 
 export interface RegisterUserDto {
   name: string;

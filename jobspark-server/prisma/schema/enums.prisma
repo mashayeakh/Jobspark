@@ -4,6 +4,12 @@ enum UserRole {
   JOB_SEEKER
 }
 
+enum UserStatus {
+  ACTIVE
+  BLOCKED
+  DELETED
+}
+
 enum JobStatus {
   DRAFT
   ACTIVE

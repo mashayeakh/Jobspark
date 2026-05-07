@@ -360,6 +360,12 @@ exports.UserRole = exports.$Enums.UserRole = {
   JOB_SEEKER: 'JOB_SEEKER'
 };
 
+exports.UserStatus = exports.$Enums.UserStatus = {
+  ACTIVE: 'ACTIVE',
+  BLOCKED: 'BLOCKED',
+  DELETED: 'DELETED'
+};
+
 exports.JobStatus = exports.$Enums.JobStatus = {
   DRAFT: 'DRAFT',
   ACTIVE: 'ACTIVE',

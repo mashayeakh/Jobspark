@@ -2,6 +2,7 @@ import express, { Application, NextFunction, Request, Response } from 'express';
 import { prisma } from './app/lib/prisma';
 
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 
 
 export const app: Application = express()
@@ -13,6 +14,8 @@ app.use(cors({
     origin: 'http://localhost:5173',
     credentials: true,
 }));
+
+app.use(cookieParser());
 
 const secretKey = process.env.SESSION_SECRET_KEY;  // Load from .env file
 
@@ -29,6 +32,8 @@ const secretKey = process.env.SESSION_SECRET_KEY;  // Load from .env file
 // }));
 
 import router from './app/module';
+import { notFound } from './app/middleware/notFound';
+import { errorHandler } from './app/middleware/globalErrorHandler';
 
 app.use("/api/v2/", router);
 
@@ -101,3 +106,8 @@ app.get('/', (req: Request, res: Response) => {
 
 // };
 
+//global error handler
+app.use(errorHandler);
+
+// //not found
+app.use(notFound);
