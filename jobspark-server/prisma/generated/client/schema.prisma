@@ -36,6 +36,14 @@ model PlatformSnapshot {
   matchesGenerated  Int
 }
 
+model AnalyticsLog {
+  id        String   @id @default(cuid())
+  event     String // e.g., "USER_LOGIN", "JOB_POSTED", "APPLICATION_SUBMITTED"
+  metadata  Json? // Optional extra data
+  userId    String?
+  timestamp DateTime @default(now())
+}
+
 model Application {
   id       String            @id @default(cuid())
   jobId    String
@@ -146,6 +154,7 @@ model Company {
   industry    String
   size        String?
   location    String?
+  isVerified  Boolean @default(false)
 
   recruiters RecruiterProfile[]
   jobs       Job[]

@@ -148,6 +148,14 @@ exports.Prisma.PlatformSnapshotScalarFieldEnum = {
   matchesGenerated: 'matchesGenerated'
 };
 
+exports.Prisma.AnalyticsLogScalarFieldEnum = {
+  id: 'id',
+  event: 'event',
+  metadata: 'metadata',
+  userId: 'userId',
+  timestamp: 'timestamp'
+};
+
 exports.Prisma.ApplicationScalarFieldEnum = {
   id: 'id',
   jobId: 'jobId',
@@ -222,6 +230,7 @@ exports.Prisma.CompanyScalarFieldEnum = {
   industry: 'industry',
   size: 'size',
   location: 'location',
+  isVerified: 'isVerified',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -329,6 +338,11 @@ exports.Prisma.JsonNullValueInput = {
   JsonNull: Prisma.JsonNull
 };
 
+exports.Prisma.NullableJsonNullValueInput = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull
+};
+
 exports.Prisma.QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
@@ -405,6 +419,7 @@ exports.Prisma.ModelName = {
   MatchScore: 'MatchScore',
   RecommendationLog: 'RecommendationLog',
   PlatformSnapshot: 'PlatformSnapshot',
+  AnalyticsLog: 'AnalyticsLog',
   Application: 'Application',
   ApplicationStatusLog: 'ApplicationStatusLog',
   User: 'User',

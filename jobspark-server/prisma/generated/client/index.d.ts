@@ -29,6 +29,11 @@ export type RecommendationLog = $Result.DefaultSelection<Prisma.$RecommendationL
  */
 export type PlatformSnapshot = $Result.DefaultSelection<Prisma.$PlatformSnapshotPayload>
 /**
+ * Model AnalyticsLog
+ * 
+ */
+export type AnalyticsLog = $Result.DefaultSelection<Prisma.$AnalyticsLogPayload>
+/**
  * Model Application
  * 
  */
@@ -382,6 +387,16 @@ export class PrismaClient<
     * ```
     */
   get platformSnapshot(): Prisma.PlatformSnapshotDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.analyticsLog`: Exposes CRUD operations for the **AnalyticsLog** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more AnalyticsLogs
+    * const analyticsLogs = await prisma.analyticsLog.findMany()
+    * ```
+    */
+  get analyticsLog(): Prisma.AnalyticsLogDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.application`: Exposes CRUD operations for the **Application** model.
@@ -989,6 +1004,7 @@ export namespace Prisma {
     MatchScore: 'MatchScore',
     RecommendationLog: 'RecommendationLog',
     PlatformSnapshot: 'PlatformSnapshot',
+    AnalyticsLog: 'AnalyticsLog',
     Application: 'Application',
     ApplicationStatusLog: 'ApplicationStatusLog',
     User: 'User',
@@ -1021,7 +1037,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "matchScore" | "recommendationLog" | "platformSnapshot" | "application" | "applicationStatusLog" | "user" | "session" | "account" | "verification" | "company" | "job" | "skill" | "jobSkill" | "candidateSkill" | "connection" | "notification" | "jobSeekerProfile" | "recruiterProfile" | "workExperience" | "education"
+      modelProps: "matchScore" | "recommendationLog" | "platformSnapshot" | "analyticsLog" | "application" | "applicationStatusLog" | "user" | "session" | "account" | "verification" | "company" | "job" | "skill" | "jobSkill" | "candidateSkill" | "connection" | "notification" | "jobSeekerProfile" | "recruiterProfile" | "workExperience" | "education"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1244,6 +1260,80 @@ export namespace Prisma {
           count: {
             args: Prisma.PlatformSnapshotCountArgs<ExtArgs>
             result: $Utils.Optional<PlatformSnapshotCountAggregateOutputType> | number
+          }
+        }
+      }
+      AnalyticsLog: {
+        payload: Prisma.$AnalyticsLogPayload<ExtArgs>
+        fields: Prisma.AnalyticsLogFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AnalyticsLogFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnalyticsLogPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AnalyticsLogFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnalyticsLogPayload>
+          }
+          findFirst: {
+            args: Prisma.AnalyticsLogFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnalyticsLogPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AnalyticsLogFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnalyticsLogPayload>
+          }
+          findMany: {
+            args: Prisma.AnalyticsLogFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnalyticsLogPayload>[]
+          }
+          create: {
+            args: Prisma.AnalyticsLogCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnalyticsLogPayload>
+          }
+          createMany: {
+            args: Prisma.AnalyticsLogCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.AnalyticsLogCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnalyticsLogPayload>[]
+          }
+          delete: {
+            args: Prisma.AnalyticsLogDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnalyticsLogPayload>
+          }
+          update: {
+            args: Prisma.AnalyticsLogUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnalyticsLogPayload>
+          }
+          deleteMany: {
+            args: Prisma.AnalyticsLogDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AnalyticsLogUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.AnalyticsLogUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnalyticsLogPayload>[]
+          }
+          upsert: {
+            args: Prisma.AnalyticsLogUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnalyticsLogPayload>
+          }
+          aggregate: {
+            args: Prisma.AnalyticsLogAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAnalyticsLog>
+          }
+          groupBy: {
+            args: Prisma.AnalyticsLogGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AnalyticsLogGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AnalyticsLogCountArgs<ExtArgs>
+            result: $Utils.Optional<AnalyticsLogCountAggregateOutputType> | number
           }
         }
       }
@@ -2616,6 +2706,7 @@ export namespace Prisma {
     matchScore?: MatchScoreOmit
     recommendationLog?: RecommendationLogOmit
     platformSnapshot?: PlatformSnapshotOmit
+    analyticsLog?: AnalyticsLogOmit
     application?: ApplicationOmit
     applicationStatusLog?: ApplicationStatusLogOmit
     user?: UserOmit
@@ -6322,6 +6413,1002 @@ export namespace Prisma {
      * Omit specific fields from the PlatformSnapshot
      */
     omit?: PlatformSnapshotOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model AnalyticsLog
+   */
+
+  export type AggregateAnalyticsLog = {
+    _count: AnalyticsLogCountAggregateOutputType | null
+    _min: AnalyticsLogMinAggregateOutputType | null
+    _max: AnalyticsLogMaxAggregateOutputType | null
+  }
+
+  export type AnalyticsLogMinAggregateOutputType = {
+    id: string | null
+    event: string | null
+    userId: string | null
+    timestamp: Date | null
+  }
+
+  export type AnalyticsLogMaxAggregateOutputType = {
+    id: string | null
+    event: string | null
+    userId: string | null
+    timestamp: Date | null
+  }
+
+  export type AnalyticsLogCountAggregateOutputType = {
+    id: number
+    event: number
+    metadata: number
+    userId: number
+    timestamp: number
+    _all: number
+  }
+
+
+  export type AnalyticsLogMinAggregateInputType = {
+    id?: true
+    event?: true
+    userId?: true
+    timestamp?: true
+  }
+
+  export type AnalyticsLogMaxAggregateInputType = {
+    id?: true
+    event?: true
+    userId?: true
+    timestamp?: true
+  }
+
+  export type AnalyticsLogCountAggregateInputType = {
+    id?: true
+    event?: true
+    metadata?: true
+    userId?: true
+    timestamp?: true
+    _all?: true
+  }
+
+  export type AnalyticsLogAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AnalyticsLog to aggregate.
+     */
+    where?: AnalyticsLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AnalyticsLogs to fetch.
+     */
+    orderBy?: AnalyticsLogOrderByWithRelationInput | AnalyticsLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AnalyticsLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AnalyticsLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AnalyticsLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned AnalyticsLogs
+    **/
+    _count?: true | AnalyticsLogCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AnalyticsLogMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AnalyticsLogMaxAggregateInputType
+  }
+
+  export type GetAnalyticsLogAggregateType<T extends AnalyticsLogAggregateArgs> = {
+        [P in keyof T & keyof AggregateAnalyticsLog]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAnalyticsLog[P]>
+      : GetScalarType<T[P], AggregateAnalyticsLog[P]>
+  }
+
+
+
+
+  export type AnalyticsLogGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AnalyticsLogWhereInput
+    orderBy?: AnalyticsLogOrderByWithAggregationInput | AnalyticsLogOrderByWithAggregationInput[]
+    by: AnalyticsLogScalarFieldEnum[] | AnalyticsLogScalarFieldEnum
+    having?: AnalyticsLogScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AnalyticsLogCountAggregateInputType | true
+    _min?: AnalyticsLogMinAggregateInputType
+    _max?: AnalyticsLogMaxAggregateInputType
+  }
+
+  export type AnalyticsLogGroupByOutputType = {
+    id: string
+    event: string
+    metadata: JsonValue | null
+    userId: string | null
+    timestamp: Date
+    _count: AnalyticsLogCountAggregateOutputType | null
+    _min: AnalyticsLogMinAggregateOutputType | null
+    _max: AnalyticsLogMaxAggregateOutputType | null
+  }
+
+  type GetAnalyticsLogGroupByPayload<T extends AnalyticsLogGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AnalyticsLogGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AnalyticsLogGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AnalyticsLogGroupByOutputType[P]>
+            : GetScalarType<T[P], AnalyticsLogGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AnalyticsLogSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    event?: boolean
+    metadata?: boolean
+    userId?: boolean
+    timestamp?: boolean
+  }, ExtArgs["result"]["analyticsLog"]>
+
+  export type AnalyticsLogSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    event?: boolean
+    metadata?: boolean
+    userId?: boolean
+    timestamp?: boolean
+  }, ExtArgs["result"]["analyticsLog"]>
+
+  export type AnalyticsLogSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    event?: boolean
+    metadata?: boolean
+    userId?: boolean
+    timestamp?: boolean
+  }, ExtArgs["result"]["analyticsLog"]>
+
+  export type AnalyticsLogSelectScalar = {
+    id?: boolean
+    event?: boolean
+    metadata?: boolean
+    userId?: boolean
+    timestamp?: boolean
+  }
+
+  export type AnalyticsLogOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "event" | "metadata" | "userId" | "timestamp", ExtArgs["result"]["analyticsLog"]>
+
+  export type $AnalyticsLogPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "AnalyticsLog"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      event: string
+      metadata: Prisma.JsonValue | null
+      userId: string | null
+      timestamp: Date
+    }, ExtArgs["result"]["analyticsLog"]>
+    composites: {}
+  }
+
+  type AnalyticsLogGetPayload<S extends boolean | null | undefined | AnalyticsLogDefaultArgs> = $Result.GetResult<Prisma.$AnalyticsLogPayload, S>
+
+  type AnalyticsLogCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<AnalyticsLogFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: AnalyticsLogCountAggregateInputType | true
+    }
+
+  export interface AnalyticsLogDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AnalyticsLog'], meta: { name: 'AnalyticsLog' } }
+    /**
+     * Find zero or one AnalyticsLog that matches the filter.
+     * @param {AnalyticsLogFindUniqueArgs} args - Arguments to find a AnalyticsLog
+     * @example
+     * // Get one AnalyticsLog
+     * const analyticsLog = await prisma.analyticsLog.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AnalyticsLogFindUniqueArgs>(args: SelectSubset<T, AnalyticsLogFindUniqueArgs<ExtArgs>>): Prisma__AnalyticsLogClient<$Result.GetResult<Prisma.$AnalyticsLogPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one AnalyticsLog that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {AnalyticsLogFindUniqueOrThrowArgs} args - Arguments to find a AnalyticsLog
+     * @example
+     * // Get one AnalyticsLog
+     * const analyticsLog = await prisma.analyticsLog.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AnalyticsLogFindUniqueOrThrowArgs>(args: SelectSubset<T, AnalyticsLogFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AnalyticsLogClient<$Result.GetResult<Prisma.$AnalyticsLogPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AnalyticsLog that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AnalyticsLogFindFirstArgs} args - Arguments to find a AnalyticsLog
+     * @example
+     * // Get one AnalyticsLog
+     * const analyticsLog = await prisma.analyticsLog.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AnalyticsLogFindFirstArgs>(args?: SelectSubset<T, AnalyticsLogFindFirstArgs<ExtArgs>>): Prisma__AnalyticsLogClient<$Result.GetResult<Prisma.$AnalyticsLogPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AnalyticsLog that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AnalyticsLogFindFirstOrThrowArgs} args - Arguments to find a AnalyticsLog
+     * @example
+     * // Get one AnalyticsLog
+     * const analyticsLog = await prisma.analyticsLog.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AnalyticsLogFindFirstOrThrowArgs>(args?: SelectSubset<T, AnalyticsLogFindFirstOrThrowArgs<ExtArgs>>): Prisma__AnalyticsLogClient<$Result.GetResult<Prisma.$AnalyticsLogPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more AnalyticsLogs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AnalyticsLogFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all AnalyticsLogs
+     * const analyticsLogs = await prisma.analyticsLog.findMany()
+     * 
+     * // Get first 10 AnalyticsLogs
+     * const analyticsLogs = await prisma.analyticsLog.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const analyticsLogWithIdOnly = await prisma.analyticsLog.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends AnalyticsLogFindManyArgs>(args?: SelectSubset<T, AnalyticsLogFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AnalyticsLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a AnalyticsLog.
+     * @param {AnalyticsLogCreateArgs} args - Arguments to create a AnalyticsLog.
+     * @example
+     * // Create one AnalyticsLog
+     * const AnalyticsLog = await prisma.analyticsLog.create({
+     *   data: {
+     *     // ... data to create a AnalyticsLog
+     *   }
+     * })
+     * 
+     */
+    create<T extends AnalyticsLogCreateArgs>(args: SelectSubset<T, AnalyticsLogCreateArgs<ExtArgs>>): Prisma__AnalyticsLogClient<$Result.GetResult<Prisma.$AnalyticsLogPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many AnalyticsLogs.
+     * @param {AnalyticsLogCreateManyArgs} args - Arguments to create many AnalyticsLogs.
+     * @example
+     * // Create many AnalyticsLogs
+     * const analyticsLog = await prisma.analyticsLog.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AnalyticsLogCreateManyArgs>(args?: SelectSubset<T, AnalyticsLogCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many AnalyticsLogs and returns the data saved in the database.
+     * @param {AnalyticsLogCreateManyAndReturnArgs} args - Arguments to create many AnalyticsLogs.
+     * @example
+     * // Create many AnalyticsLogs
+     * const analyticsLog = await prisma.analyticsLog.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many AnalyticsLogs and only return the `id`
+     * const analyticsLogWithIdOnly = await prisma.analyticsLog.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends AnalyticsLogCreateManyAndReturnArgs>(args?: SelectSubset<T, AnalyticsLogCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AnalyticsLogPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a AnalyticsLog.
+     * @param {AnalyticsLogDeleteArgs} args - Arguments to delete one AnalyticsLog.
+     * @example
+     * // Delete one AnalyticsLog
+     * const AnalyticsLog = await prisma.analyticsLog.delete({
+     *   where: {
+     *     // ... filter to delete one AnalyticsLog
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AnalyticsLogDeleteArgs>(args: SelectSubset<T, AnalyticsLogDeleteArgs<ExtArgs>>): Prisma__AnalyticsLogClient<$Result.GetResult<Prisma.$AnalyticsLogPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one AnalyticsLog.
+     * @param {AnalyticsLogUpdateArgs} args - Arguments to update one AnalyticsLog.
+     * @example
+     * // Update one AnalyticsLog
+     * const analyticsLog = await prisma.analyticsLog.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AnalyticsLogUpdateArgs>(args: SelectSubset<T, AnalyticsLogUpdateArgs<ExtArgs>>): Prisma__AnalyticsLogClient<$Result.GetResult<Prisma.$AnalyticsLogPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more AnalyticsLogs.
+     * @param {AnalyticsLogDeleteManyArgs} args - Arguments to filter AnalyticsLogs to delete.
+     * @example
+     * // Delete a few AnalyticsLogs
+     * const { count } = await prisma.analyticsLog.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AnalyticsLogDeleteManyArgs>(args?: SelectSubset<T, AnalyticsLogDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AnalyticsLogs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AnalyticsLogUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many AnalyticsLogs
+     * const analyticsLog = await prisma.analyticsLog.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AnalyticsLogUpdateManyArgs>(args: SelectSubset<T, AnalyticsLogUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AnalyticsLogs and returns the data updated in the database.
+     * @param {AnalyticsLogUpdateManyAndReturnArgs} args - Arguments to update many AnalyticsLogs.
+     * @example
+     * // Update many AnalyticsLogs
+     * const analyticsLog = await prisma.analyticsLog.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more AnalyticsLogs and only return the `id`
+     * const analyticsLogWithIdOnly = await prisma.analyticsLog.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends AnalyticsLogUpdateManyAndReturnArgs>(args: SelectSubset<T, AnalyticsLogUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AnalyticsLogPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one AnalyticsLog.
+     * @param {AnalyticsLogUpsertArgs} args - Arguments to update or create a AnalyticsLog.
+     * @example
+     * // Update or create a AnalyticsLog
+     * const analyticsLog = await prisma.analyticsLog.upsert({
+     *   create: {
+     *     // ... data to create a AnalyticsLog
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the AnalyticsLog we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AnalyticsLogUpsertArgs>(args: SelectSubset<T, AnalyticsLogUpsertArgs<ExtArgs>>): Prisma__AnalyticsLogClient<$Result.GetResult<Prisma.$AnalyticsLogPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of AnalyticsLogs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AnalyticsLogCountArgs} args - Arguments to filter AnalyticsLogs to count.
+     * @example
+     * // Count the number of AnalyticsLogs
+     * const count = await prisma.analyticsLog.count({
+     *   where: {
+     *     // ... the filter for the AnalyticsLogs we want to count
+     *   }
+     * })
+    **/
+    count<T extends AnalyticsLogCountArgs>(
+      args?: Subset<T, AnalyticsLogCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AnalyticsLogCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a AnalyticsLog.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AnalyticsLogAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AnalyticsLogAggregateArgs>(args: Subset<T, AnalyticsLogAggregateArgs>): Prisma.PrismaPromise<GetAnalyticsLogAggregateType<T>>
+
+    /**
+     * Group by AnalyticsLog.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AnalyticsLogGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AnalyticsLogGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AnalyticsLogGroupByArgs['orderBy'] }
+        : { orderBy?: AnalyticsLogGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AnalyticsLogGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAnalyticsLogGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the AnalyticsLog model
+   */
+  readonly fields: AnalyticsLogFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for AnalyticsLog.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AnalyticsLogClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the AnalyticsLog model
+   */
+  interface AnalyticsLogFieldRefs {
+    readonly id: FieldRef<"AnalyticsLog", 'String'>
+    readonly event: FieldRef<"AnalyticsLog", 'String'>
+    readonly metadata: FieldRef<"AnalyticsLog", 'Json'>
+    readonly userId: FieldRef<"AnalyticsLog", 'String'>
+    readonly timestamp: FieldRef<"AnalyticsLog", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * AnalyticsLog findUnique
+   */
+  export type AnalyticsLogFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AnalyticsLog
+     */
+    select?: AnalyticsLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AnalyticsLog
+     */
+    omit?: AnalyticsLogOmit<ExtArgs> | null
+    /**
+     * Filter, which AnalyticsLog to fetch.
+     */
+    where: AnalyticsLogWhereUniqueInput
+  }
+
+  /**
+   * AnalyticsLog findUniqueOrThrow
+   */
+  export type AnalyticsLogFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AnalyticsLog
+     */
+    select?: AnalyticsLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AnalyticsLog
+     */
+    omit?: AnalyticsLogOmit<ExtArgs> | null
+    /**
+     * Filter, which AnalyticsLog to fetch.
+     */
+    where: AnalyticsLogWhereUniqueInput
+  }
+
+  /**
+   * AnalyticsLog findFirst
+   */
+  export type AnalyticsLogFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AnalyticsLog
+     */
+    select?: AnalyticsLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AnalyticsLog
+     */
+    omit?: AnalyticsLogOmit<ExtArgs> | null
+    /**
+     * Filter, which AnalyticsLog to fetch.
+     */
+    where?: AnalyticsLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AnalyticsLogs to fetch.
+     */
+    orderBy?: AnalyticsLogOrderByWithRelationInput | AnalyticsLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AnalyticsLogs.
+     */
+    cursor?: AnalyticsLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AnalyticsLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AnalyticsLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AnalyticsLogs.
+     */
+    distinct?: AnalyticsLogScalarFieldEnum | AnalyticsLogScalarFieldEnum[]
+  }
+
+  /**
+   * AnalyticsLog findFirstOrThrow
+   */
+  export type AnalyticsLogFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AnalyticsLog
+     */
+    select?: AnalyticsLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AnalyticsLog
+     */
+    omit?: AnalyticsLogOmit<ExtArgs> | null
+    /**
+     * Filter, which AnalyticsLog to fetch.
+     */
+    where?: AnalyticsLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AnalyticsLogs to fetch.
+     */
+    orderBy?: AnalyticsLogOrderByWithRelationInput | AnalyticsLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AnalyticsLogs.
+     */
+    cursor?: AnalyticsLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AnalyticsLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AnalyticsLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AnalyticsLogs.
+     */
+    distinct?: AnalyticsLogScalarFieldEnum | AnalyticsLogScalarFieldEnum[]
+  }
+
+  /**
+   * AnalyticsLog findMany
+   */
+  export type AnalyticsLogFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AnalyticsLog
+     */
+    select?: AnalyticsLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AnalyticsLog
+     */
+    omit?: AnalyticsLogOmit<ExtArgs> | null
+    /**
+     * Filter, which AnalyticsLogs to fetch.
+     */
+    where?: AnalyticsLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AnalyticsLogs to fetch.
+     */
+    orderBy?: AnalyticsLogOrderByWithRelationInput | AnalyticsLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing AnalyticsLogs.
+     */
+    cursor?: AnalyticsLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AnalyticsLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AnalyticsLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AnalyticsLogs.
+     */
+    distinct?: AnalyticsLogScalarFieldEnum | AnalyticsLogScalarFieldEnum[]
+  }
+
+  /**
+   * AnalyticsLog create
+   */
+  export type AnalyticsLogCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AnalyticsLog
+     */
+    select?: AnalyticsLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AnalyticsLog
+     */
+    omit?: AnalyticsLogOmit<ExtArgs> | null
+    /**
+     * The data needed to create a AnalyticsLog.
+     */
+    data: XOR<AnalyticsLogCreateInput, AnalyticsLogUncheckedCreateInput>
+  }
+
+  /**
+   * AnalyticsLog createMany
+   */
+  export type AnalyticsLogCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many AnalyticsLogs.
+     */
+    data: AnalyticsLogCreateManyInput | AnalyticsLogCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * AnalyticsLog createManyAndReturn
+   */
+  export type AnalyticsLogCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AnalyticsLog
+     */
+    select?: AnalyticsLogSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AnalyticsLog
+     */
+    omit?: AnalyticsLogOmit<ExtArgs> | null
+    /**
+     * The data used to create many AnalyticsLogs.
+     */
+    data: AnalyticsLogCreateManyInput | AnalyticsLogCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * AnalyticsLog update
+   */
+  export type AnalyticsLogUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AnalyticsLog
+     */
+    select?: AnalyticsLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AnalyticsLog
+     */
+    omit?: AnalyticsLogOmit<ExtArgs> | null
+    /**
+     * The data needed to update a AnalyticsLog.
+     */
+    data: XOR<AnalyticsLogUpdateInput, AnalyticsLogUncheckedUpdateInput>
+    /**
+     * Choose, which AnalyticsLog to update.
+     */
+    where: AnalyticsLogWhereUniqueInput
+  }
+
+  /**
+   * AnalyticsLog updateMany
+   */
+  export type AnalyticsLogUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update AnalyticsLogs.
+     */
+    data: XOR<AnalyticsLogUpdateManyMutationInput, AnalyticsLogUncheckedUpdateManyInput>
+    /**
+     * Filter which AnalyticsLogs to update
+     */
+    where?: AnalyticsLogWhereInput
+    /**
+     * Limit how many AnalyticsLogs to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * AnalyticsLog updateManyAndReturn
+   */
+  export type AnalyticsLogUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AnalyticsLog
+     */
+    select?: AnalyticsLogSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AnalyticsLog
+     */
+    omit?: AnalyticsLogOmit<ExtArgs> | null
+    /**
+     * The data used to update AnalyticsLogs.
+     */
+    data: XOR<AnalyticsLogUpdateManyMutationInput, AnalyticsLogUncheckedUpdateManyInput>
+    /**
+     * Filter which AnalyticsLogs to update
+     */
+    where?: AnalyticsLogWhereInput
+    /**
+     * Limit how many AnalyticsLogs to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * AnalyticsLog upsert
+   */
+  export type AnalyticsLogUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AnalyticsLog
+     */
+    select?: AnalyticsLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AnalyticsLog
+     */
+    omit?: AnalyticsLogOmit<ExtArgs> | null
+    /**
+     * The filter to search for the AnalyticsLog to update in case it exists.
+     */
+    where: AnalyticsLogWhereUniqueInput
+    /**
+     * In case the AnalyticsLog found by the `where` argument doesn't exist, create a new AnalyticsLog with this data.
+     */
+    create: XOR<AnalyticsLogCreateInput, AnalyticsLogUncheckedCreateInput>
+    /**
+     * In case the AnalyticsLog was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AnalyticsLogUpdateInput, AnalyticsLogUncheckedUpdateInput>
+  }
+
+  /**
+   * AnalyticsLog delete
+   */
+  export type AnalyticsLogDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AnalyticsLog
+     */
+    select?: AnalyticsLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AnalyticsLog
+     */
+    omit?: AnalyticsLogOmit<ExtArgs> | null
+    /**
+     * Filter which AnalyticsLog to delete.
+     */
+    where: AnalyticsLogWhereUniqueInput
+  }
+
+  /**
+   * AnalyticsLog deleteMany
+   */
+  export type AnalyticsLogDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AnalyticsLogs to delete
+     */
+    where?: AnalyticsLogWhereInput
+    /**
+     * Limit how many AnalyticsLogs to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * AnalyticsLog without action
+   */
+  export type AnalyticsLogDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AnalyticsLog
+     */
+    select?: AnalyticsLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AnalyticsLog
+     */
+    omit?: AnalyticsLogOmit<ExtArgs> | null
   }
 
 
@@ -13116,6 +14203,7 @@ export namespace Prisma {
     industry: string | null
     size: string | null
     location: string | null
+    isVerified: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -13129,6 +14217,7 @@ export namespace Prisma {
     industry: string | null
     size: string | null
     location: string | null
+    isVerified: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -13142,6 +14231,7 @@ export namespace Prisma {
     industry: number
     size: number
     location: number
+    isVerified: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -13157,6 +14247,7 @@ export namespace Prisma {
     industry?: true
     size?: true
     location?: true
+    isVerified?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -13170,6 +14261,7 @@ export namespace Prisma {
     industry?: true
     size?: true
     location?: true
+    isVerified?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -13183,6 +14275,7 @@ export namespace Prisma {
     industry?: true
     size?: true
     location?: true
+    isVerified?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -13269,6 +14362,7 @@ export namespace Prisma {
     industry: string
     size: string | null
     location: string | null
+    isVerified: boolean
     createdAt: Date
     updatedAt: Date
     _count: CompanyCountAggregateOutputType | null
@@ -13299,6 +14393,7 @@ export namespace Prisma {
     industry?: boolean
     size?: boolean
     location?: boolean
+    isVerified?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     recruiters?: boolean | Company$recruitersArgs<ExtArgs>
@@ -13315,6 +14410,7 @@ export namespace Prisma {
     industry?: boolean
     size?: boolean
     location?: boolean
+    isVerified?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["company"]>
@@ -13328,6 +14424,7 @@ export namespace Prisma {
     industry?: boolean
     size?: boolean
     location?: boolean
+    isVerified?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["company"]>
@@ -13341,11 +14438,12 @@ export namespace Prisma {
     industry?: boolean
     size?: boolean
     location?: boolean
+    isVerified?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type CompanyOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "logo" | "website" | "description" | "industry" | "size" | "location" | "createdAt" | "updatedAt", ExtArgs["result"]["company"]>
+  export type CompanyOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "logo" | "website" | "description" | "industry" | "size" | "location" | "isVerified" | "createdAt" | "updatedAt", ExtArgs["result"]["company"]>
   export type CompanyInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     recruiters?: boolean | Company$recruitersArgs<ExtArgs>
     jobs?: boolean | Company$jobsArgs<ExtArgs>
@@ -13369,6 +14467,7 @@ export namespace Prisma {
       industry: string
       size: string | null
       location: string | null
+      isVerified: boolean
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["company"]>
@@ -13804,6 +14903,7 @@ export namespace Prisma {
     readonly industry: FieldRef<"Company", 'String'>
     readonly size: FieldRef<"Company", 'String'>
     readonly location: FieldRef<"Company", 'String'>
+    readonly isVerified: FieldRef<"Company", 'Boolean'>
     readonly createdAt: FieldRef<"Company", 'DateTime'>
     readonly updatedAt: FieldRef<"Company", 'DateTime'>
   }
@@ -25616,6 +26716,17 @@ export namespace Prisma {
   export type PlatformSnapshotScalarFieldEnum = (typeof PlatformSnapshotScalarFieldEnum)[keyof typeof PlatformSnapshotScalarFieldEnum]
 
 
+  export const AnalyticsLogScalarFieldEnum: {
+    id: 'id',
+    event: 'event',
+    metadata: 'metadata',
+    userId: 'userId',
+    timestamp: 'timestamp'
+  };
+
+  export type AnalyticsLogScalarFieldEnum = (typeof AnalyticsLogScalarFieldEnum)[keyof typeof AnalyticsLogScalarFieldEnum]
+
+
   export const ApplicationScalarFieldEnum: {
     id: 'id',
     jobId: 'jobId',
@@ -25708,6 +26819,7 @@ export namespace Prisma {
     industry: 'industry',
     size: 'size',
     location: 'location',
+    isVerified: 'isVerified',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -25852,6 +26964,14 @@ export namespace Prisma {
   };
 
   export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
+
+
+  export const NullableJsonNullValueInput: {
+    DbNull: typeof DbNull,
+    JsonNull: typeof JsonNull
+  };
+
+  export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
   export const QueryMode: {
@@ -26266,6 +27386,58 @@ export namespace Prisma {
     totalJobs?: IntWithAggregatesFilter<"PlatformSnapshot"> | number
     totalApplications?: IntWithAggregatesFilter<"PlatformSnapshot"> | number
     matchesGenerated?: IntWithAggregatesFilter<"PlatformSnapshot"> | number
+  }
+
+  export type AnalyticsLogWhereInput = {
+    AND?: AnalyticsLogWhereInput | AnalyticsLogWhereInput[]
+    OR?: AnalyticsLogWhereInput[]
+    NOT?: AnalyticsLogWhereInput | AnalyticsLogWhereInput[]
+    id?: StringFilter<"AnalyticsLog"> | string
+    event?: StringFilter<"AnalyticsLog"> | string
+    metadata?: JsonNullableFilter<"AnalyticsLog">
+    userId?: StringNullableFilter<"AnalyticsLog"> | string | null
+    timestamp?: DateTimeFilter<"AnalyticsLog"> | Date | string
+  }
+
+  export type AnalyticsLogOrderByWithRelationInput = {
+    id?: SortOrder
+    event?: SortOrder
+    metadata?: SortOrderInput | SortOrder
+    userId?: SortOrderInput | SortOrder
+    timestamp?: SortOrder
+  }
+
+  export type AnalyticsLogWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: AnalyticsLogWhereInput | AnalyticsLogWhereInput[]
+    OR?: AnalyticsLogWhereInput[]
+    NOT?: AnalyticsLogWhereInput | AnalyticsLogWhereInput[]
+    event?: StringFilter<"AnalyticsLog"> | string
+    metadata?: JsonNullableFilter<"AnalyticsLog">
+    userId?: StringNullableFilter<"AnalyticsLog"> | string | null
+    timestamp?: DateTimeFilter<"AnalyticsLog"> | Date | string
+  }, "id">
+
+  export type AnalyticsLogOrderByWithAggregationInput = {
+    id?: SortOrder
+    event?: SortOrder
+    metadata?: SortOrderInput | SortOrder
+    userId?: SortOrderInput | SortOrder
+    timestamp?: SortOrder
+    _count?: AnalyticsLogCountOrderByAggregateInput
+    _max?: AnalyticsLogMaxOrderByAggregateInput
+    _min?: AnalyticsLogMinOrderByAggregateInput
+  }
+
+  export type AnalyticsLogScalarWhereWithAggregatesInput = {
+    AND?: AnalyticsLogScalarWhereWithAggregatesInput | AnalyticsLogScalarWhereWithAggregatesInput[]
+    OR?: AnalyticsLogScalarWhereWithAggregatesInput[]
+    NOT?: AnalyticsLogScalarWhereWithAggregatesInput | AnalyticsLogScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"AnalyticsLog"> | string
+    event?: StringWithAggregatesFilter<"AnalyticsLog"> | string
+    metadata?: JsonNullableWithAggregatesFilter<"AnalyticsLog">
+    userId?: StringNullableWithAggregatesFilter<"AnalyticsLog"> | string | null
+    timestamp?: DateTimeWithAggregatesFilter<"AnalyticsLog"> | Date | string
   }
 
   export type ApplicationWhereInput = {
@@ -26722,6 +27894,7 @@ export namespace Prisma {
     industry?: StringFilter<"Company"> | string
     size?: StringNullableFilter<"Company"> | string | null
     location?: StringNullableFilter<"Company"> | string | null
+    isVerified?: BoolFilter<"Company"> | boolean
     createdAt?: DateTimeFilter<"Company"> | Date | string
     updatedAt?: DateTimeFilter<"Company"> | Date | string
     recruiters?: RecruiterProfileListRelationFilter
@@ -26737,6 +27910,7 @@ export namespace Prisma {
     industry?: SortOrder
     size?: SortOrderInput | SortOrder
     location?: SortOrderInput | SortOrder
+    isVerified?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     recruiters?: RecruiterProfileOrderByRelationAggregateInput
@@ -26755,6 +27929,7 @@ export namespace Prisma {
     industry?: StringFilter<"Company"> | string
     size?: StringNullableFilter<"Company"> | string | null
     location?: StringNullableFilter<"Company"> | string | null
+    isVerified?: BoolFilter<"Company"> | boolean
     createdAt?: DateTimeFilter<"Company"> | Date | string
     updatedAt?: DateTimeFilter<"Company"> | Date | string
     recruiters?: RecruiterProfileListRelationFilter
@@ -26770,6 +27945,7 @@ export namespace Prisma {
     industry?: SortOrder
     size?: SortOrderInput | SortOrder
     location?: SortOrderInput | SortOrder
+    isVerified?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: CompanyCountOrderByAggregateInput
@@ -26789,6 +27965,7 @@ export namespace Prisma {
     industry?: StringWithAggregatesFilter<"Company"> | string
     size?: StringNullableWithAggregatesFilter<"Company"> | string | null
     location?: StringNullableWithAggregatesFilter<"Company"> | string | null
+    isVerified?: BoolWithAggregatesFilter<"Company"> | boolean
     createdAt?: DateTimeWithAggregatesFilter<"Company"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Company"> | Date | string
   }
@@ -27662,6 +28839,62 @@ export namespace Prisma {
     matchesGenerated?: IntFieldUpdateOperationsInput | number
   }
 
+  export type AnalyticsLogCreateInput = {
+    id?: string
+    event: string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    userId?: string | null
+    timestamp?: Date | string
+  }
+
+  export type AnalyticsLogUncheckedCreateInput = {
+    id?: string
+    event: string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    userId?: string | null
+    timestamp?: Date | string
+  }
+
+  export type AnalyticsLogUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    event?: StringFieldUpdateOperationsInput | string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AnalyticsLogUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    event?: StringFieldUpdateOperationsInput | string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AnalyticsLogCreateManyInput = {
+    id?: string
+    event: string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    userId?: string | null
+    timestamp?: Date | string
+  }
+
+  export type AnalyticsLogUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    event?: StringFieldUpdateOperationsInput | string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AnalyticsLogUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    event?: StringFieldUpdateOperationsInput | string
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type ApplicationCreateInput = {
     id?: string
     status?: $Enums.ApplicationStatus
@@ -28157,6 +29390,7 @@ export namespace Prisma {
     industry: string
     size?: string | null
     location?: string | null
+    isVerified?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     recruiters?: RecruiterProfileCreateNestedManyWithoutCompanyInput
@@ -28172,6 +29406,7 @@ export namespace Prisma {
     industry: string
     size?: string | null
     location?: string | null
+    isVerified?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     recruiters?: RecruiterProfileUncheckedCreateNestedManyWithoutCompanyInput
@@ -28187,6 +29422,7 @@ export namespace Prisma {
     industry?: StringFieldUpdateOperationsInput | string
     size?: NullableStringFieldUpdateOperationsInput | string | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     recruiters?: RecruiterProfileUpdateManyWithoutCompanyNestedInput
@@ -28202,6 +29438,7 @@ export namespace Prisma {
     industry?: StringFieldUpdateOperationsInput | string
     size?: NullableStringFieldUpdateOperationsInput | string | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     recruiters?: RecruiterProfileUncheckedUpdateManyWithoutCompanyNestedInput
@@ -28217,6 +29454,7 @@ export namespace Prisma {
     industry: string
     size?: string | null
     location?: string | null
+    isVerified?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -28230,6 +29468,7 @@ export namespace Prisma {
     industry?: StringFieldUpdateOperationsInput | string
     size?: NullableStringFieldUpdateOperationsInput | string | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -28243,6 +29482,7 @@ export namespace Prisma {
     industry?: StringFieldUpdateOperationsInput | string
     size?: NullableStringFieldUpdateOperationsInput | string | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -29231,6 +30471,115 @@ export namespace Prisma {
     _min?: NestedIntFilter<$PrismaModel>
     _max?: NestedIntFilter<$PrismaModel>
   }
+  export type JsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type StringNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
+
+  export type SortOrderInput = {
+    sort: SortOrder
+    nulls?: NullsOrder
+  }
+
+  export type AnalyticsLogCountOrderByAggregateInput = {
+    id?: SortOrder
+    event?: SortOrder
+    metadata?: SortOrder
+    userId?: SortOrder
+    timestamp?: SortOrder
+  }
+
+  export type AnalyticsLogMaxOrderByAggregateInput = {
+    id?: SortOrder
+    event?: SortOrder
+    userId?: SortOrder
+    timestamp?: SortOrder
+  }
+
+  export type AnalyticsLogMinOrderByAggregateInput = {
+    id?: SortOrder
+    event?: SortOrder
+    userId?: SortOrder
+    timestamp?: SortOrder
+  }
+  export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedJsonNullableFilter<$PrismaModel>
+    _max?: NestedJsonNullableFilter<$PrismaModel>
+  }
+
+  export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
+  }
 
   export type EnumApplicationStatusFilter<$PrismaModel = never> = {
     equals?: $Enums.ApplicationStatus | EnumApplicationStatusFieldRefInput<$PrismaModel>
@@ -29291,29 +30640,9 @@ export namespace Prisma {
     _max?: NestedEnumApplicationStatusFilter<$PrismaModel>
   }
 
-  export type StringNullableFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    contains?: string | StringFieldRefInput<$PrismaModel>
-    startsWith?: string | StringFieldRefInput<$PrismaModel>
-    endsWith?: string | StringFieldRefInput<$PrismaModel>
-    mode?: QueryMode
-    not?: NestedStringNullableFilter<$PrismaModel> | string | null
-  }
-
   export type ApplicationScalarRelationFilter = {
     is?: ApplicationWhereInput
     isNot?: ApplicationWhereInput
-  }
-
-  export type SortOrderInput = {
-    sort: SortOrder
-    nulls?: NullsOrder
   }
 
   export type ApplicationStatusLogCountOrderByAggregateInput = {
@@ -29338,24 +30667,6 @@ export namespace Prisma {
     status?: SortOrder
     reason?: SortOrder
     changedAt?: SortOrder
-  }
-
-  export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    contains?: string | StringFieldRefInput<$PrismaModel>
-    startsWith?: string | StringFieldRefInput<$PrismaModel>
-    endsWith?: string | StringFieldRefInput<$PrismaModel>
-    mode?: QueryMode
-    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedStringNullableFilter<$PrismaModel>
-    _max?: NestedStringNullableFilter<$PrismaModel>
   }
 
   export type EnumUserRoleFilter<$PrismaModel = never> = {
@@ -29660,6 +30971,7 @@ export namespace Prisma {
     industry?: SortOrder
     size?: SortOrder
     location?: SortOrder
+    isVerified?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -29673,6 +30985,7 @@ export namespace Prisma {
     industry?: SortOrder
     size?: SortOrder
     location?: SortOrder
+    isVerified?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -29686,6 +30999,7 @@ export namespace Prisma {
     industry?: SortOrder
     size?: SortOrder
     location?: SortOrder
+    isVerified?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -30292,6 +31606,10 @@ export namespace Prisma {
     divide?: number
   }
 
+  export type NullableStringFieldUpdateOperationsInput = {
+    set?: string | null
+  }
+
   export type JobCreateNestedOneWithoutApplicationsInput = {
     create?: XOR<JobCreateWithoutApplicationsInput, JobUncheckedCreateWithoutApplicationsInput>
     connectOrCreate?: JobCreateOrConnectWithoutApplicationsInput
@@ -30370,10 +31688,6 @@ export namespace Prisma {
     create?: XOR<ApplicationCreateWithoutLogsInput, ApplicationUncheckedCreateWithoutLogsInput>
     connectOrCreate?: ApplicationCreateOrConnectWithoutLogsInput
     connect?: ApplicationWhereUniqueInput
-  }
-
-  export type NullableStringFieldUpdateOperationsInput = {
-    set?: string | null
   }
 
   export type ApplicationUpdateOneRequiredWithoutLogsNestedInput = {
@@ -31698,23 +33012,6 @@ export namespace Prisma {
     _max?: NestedIntFilter<$PrismaModel>
   }
 
-  export type NestedEnumApplicationStatusFilter<$PrismaModel = never> = {
-    equals?: $Enums.ApplicationStatus | EnumApplicationStatusFieldRefInput<$PrismaModel>
-    in?: $Enums.ApplicationStatus[] | ListEnumApplicationStatusFieldRefInput<$PrismaModel>
-    notIn?: $Enums.ApplicationStatus[] | ListEnumApplicationStatusFieldRefInput<$PrismaModel>
-    not?: NestedEnumApplicationStatusFilter<$PrismaModel> | $Enums.ApplicationStatus
-  }
-
-  export type NestedEnumApplicationStatusWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.ApplicationStatus | EnumApplicationStatusFieldRefInput<$PrismaModel>
-    in?: $Enums.ApplicationStatus[] | ListEnumApplicationStatusFieldRefInput<$PrismaModel>
-    notIn?: $Enums.ApplicationStatus[] | ListEnumApplicationStatusFieldRefInput<$PrismaModel>
-    not?: NestedEnumApplicationStatusWithAggregatesFilter<$PrismaModel> | $Enums.ApplicationStatus
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumApplicationStatusFilter<$PrismaModel>
-    _max?: NestedEnumApplicationStatusFilter<$PrismaModel>
-  }
-
   export type NestedStringNullableFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel> | null
     in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
@@ -31727,6 +33024,40 @@ export namespace Prisma {
     startsWith?: string | StringFieldRefInput<$PrismaModel>
     endsWith?: string | StringFieldRefInput<$PrismaModel>
     not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
+
+  export type NestedIntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+  export type NestedJsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<NestedJsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<NestedJsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type NestedJsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
   export type NestedStringNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -31746,15 +33077,21 @@ export namespace Prisma {
     _max?: NestedStringNullableFilter<$PrismaModel>
   }
 
-  export type NestedIntNullableFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  export type NestedEnumApplicationStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.ApplicationStatus | EnumApplicationStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.ApplicationStatus[] | ListEnumApplicationStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ApplicationStatus[] | ListEnumApplicationStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumApplicationStatusFilter<$PrismaModel> | $Enums.ApplicationStatus
+  }
+
+  export type NestedEnumApplicationStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ApplicationStatus | EnumApplicationStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.ApplicationStatus[] | ListEnumApplicationStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ApplicationStatus[] | ListEnumApplicationStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumApplicationStatusWithAggregatesFilter<$PrismaModel> | $Enums.ApplicationStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumApplicationStatusFilter<$PrismaModel>
+    _max?: NestedEnumApplicationStatusFilter<$PrismaModel>
   }
 
   export type NestedEnumUserRoleFilter<$PrismaModel = never> = {
@@ -33423,6 +34760,7 @@ export namespace Prisma {
     industry: string
     size?: string | null
     location?: string | null
+    isVerified?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     recruiters?: RecruiterProfileCreateNestedManyWithoutCompanyInput
@@ -33437,6 +34775,7 @@ export namespace Prisma {
     industry: string
     size?: string | null
     location?: string | null
+    isVerified?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     recruiters?: RecruiterProfileUncheckedCreateNestedManyWithoutCompanyInput
@@ -33588,6 +34927,7 @@ export namespace Prisma {
     industry?: StringFieldUpdateOperationsInput | string
     size?: NullableStringFieldUpdateOperationsInput | string | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     recruiters?: RecruiterProfileUpdateManyWithoutCompanyNestedInput
@@ -33602,6 +34942,7 @@ export namespace Prisma {
     industry?: StringFieldUpdateOperationsInput | string
     size?: NullableStringFieldUpdateOperationsInput | string | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     recruiters?: RecruiterProfileUncheckedUpdateManyWithoutCompanyNestedInput
@@ -34792,6 +36133,7 @@ export namespace Prisma {
     industry: string
     size?: string | null
     location?: string | null
+    isVerified?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     jobs?: JobCreateNestedManyWithoutCompanyInput
@@ -34806,6 +36148,7 @@ export namespace Prisma {
     industry: string
     size?: string | null
     location?: string | null
+    isVerified?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     jobs?: JobUncheckedCreateNestedManyWithoutCompanyInput
@@ -34947,6 +36290,7 @@ export namespace Prisma {
     industry?: StringFieldUpdateOperationsInput | string
     size?: NullableStringFieldUpdateOperationsInput | string | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     jobs?: JobUpdateManyWithoutCompanyNestedInput
@@ -34961,6 +36305,7 @@ export namespace Prisma {
     industry?: StringFieldUpdateOperationsInput | string
     size?: NullableStringFieldUpdateOperationsInput | string | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     jobs?: JobUncheckedUpdateManyWithoutCompanyNestedInput

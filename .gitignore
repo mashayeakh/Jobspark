@@ -1,1 +1,5 @@
 jobspark-server/firebase-admin-tools/serviceAccountKey.json
+jobspark-frontend/node_modules
+jobspark-frontend/.next
+**/node_modules
+**/.next
