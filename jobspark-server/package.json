@@ -2,7 +2,7 @@
   "name": "jobspark-server",
   "version": "1.0.0",
   "type": "module",
-  "main": "dist/server.cjs",
+  "main": "dist/src/server.js",
   "scripts": {
     "start": "node dist/src/server.js",
     "prebuild": "npm install --omit=dev=false",
