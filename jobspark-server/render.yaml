@@ -3,11 +3,12 @@ services:
     name: jobspark-server
     env: node
     plan: free
+    rootDir: jobspark-server
     buildCommand: npm install && npm run build
     startCommand: npx prisma migrate deploy && npm start
     envVars:
       - key: NODE_VERSION
-        value: 20.0.0
+        value: 20.19.0
       - key: PORT
         value: 5000
       - key: DATABASE_URL
