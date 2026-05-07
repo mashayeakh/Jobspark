@@ -78,7 +78,7 @@ export const AuthService = {
             throw new AppError(httpStatus.BAD_REQUEST, "Invalid email or password.");
         }
 
-        if (data.user.status === UserhttpStatus.BLOCKED) {
+        if (data.user.status === UserStatus.BLOCKED) {
             // throw new Error("User is blocked");
             throw new AppError(httpStatus.FORBIDDEN, "User is blocked")
         }

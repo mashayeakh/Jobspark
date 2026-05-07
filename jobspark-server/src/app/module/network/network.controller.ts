@@ -8,7 +8,7 @@ export const NetworkController = {
   sendConnectionRequest: catchAsyc(async (req: Request, res: Response) => {
     const senderId = (req as any).user.userId;
     const { userId: receiverId } = req.params;
-    const result = await NetworkService.sendConnectionRequest(senderId, receiverId);
+    const result = await NetworkService.sendConnectionRequest(senderId, receiverId as string);
 
     sendResponse(res, {
       httpStatusCode: httpStatus.CREATED,
@@ -21,7 +21,7 @@ export const NetworkController = {
   acceptConnection: catchAsyc(async (req: Request, res: Response) => {
     const userId = (req as any).user.userId;
     const { id } = req.params;
-    const result = await NetworkService.updateConnectionStatus(userId, id, "ACCEPTED");
+    const result = await NetworkService.updateConnectionStatus(userId, id as string, "ACCEPTED");
 
     sendResponse(res, {
       httpStatusCode: httpStatus.OK,
@@ -34,7 +34,7 @@ export const NetworkController = {
   rejectConnection: catchAsyc(async (req: Request, res: Response) => {
     const userId = (req as any).user.userId;
     const { id } = req.params;
-    const result = await NetworkService.updateConnectionStatus(userId, id, "REJECTED");
+    const result = await NetworkService.updateConnectionStatus(userId, id as string, "REJECTED");
 
     sendResponse(res, {
       httpStatusCode: httpStatus.OK,
@@ -85,7 +85,7 @@ export const NotificationController = {
   markAsRead: catchAsyc(async (req: Request, res: Response) => {
     const userId = (req as any).user.userId;
     const { id } = req.params;
-    const result = await NotificationService.markAsRead(userId, id);
+    const result = await NotificationService.markAsRead(userId, id as string);
 
     sendResponse(res, {
       httpStatusCode: httpStatus.OK,

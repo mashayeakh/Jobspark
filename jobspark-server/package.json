@@ -8,7 +8,7 @@
     "prebuild": "npm install --omit=dev=false",
     "build:tsup": "tsup",
     "dev": "tsx watch src/server.ts",
-    "build": "prisma generate && tsup",
+    "build": "prisma generate && tsc",
     "postinstall": "prisma generate",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

@@ -37,7 +37,7 @@ export const NetworkService = {
       data: {
         senderId,
         receiverId,
-        status: ConnectionhttpStatus.PENDING,
+        status: ConnectionStatus.PENDING,
       },
     });
 
@@ -71,7 +71,7 @@ export const NetworkService = {
       );
     }
 
-    if (connection.status !== ConnectionhttpStatus.PENDING) {
+    if (connection.status !== ConnectionStatus.PENDING) {
       throw new AppError(httpStatus.BAD_REQUEST, "This connection request has already been responded to.");
     }
 
@@ -86,8 +86,8 @@ export const NetworkService = {
     return await prisma.connection.findMany({
       where: {
         OR: [
-          { senderId: userId, status: ConnectionhttpStatus.ACCEPTED },
-          { receiverId: userId, status: ConnectionhttpStatus.ACCEPTED },
+          { senderId: userId, status: ConnectionStatus.ACCEPTED },
+          { receiverId: userId, status: ConnectionStatus.ACCEPTED },
         ],
       },
       include: {
@@ -103,7 +103,7 @@ export const NetworkService = {
     return await prisma.connection.findMany({
       where: {
         receiverId: userId,
-        status: ConnectionhttpStatus.PENDING,
+        status: ConnectionStatus.PENDING,
       },
       include: {
         sender: { select: { id: true, name: true, email: true, image: true } },

@@ -51,7 +51,7 @@ export const ApplicationService = {
         data: {
           jobId,
           seekerId: seekerProfile.id,
-          status: ApplicationhttpStatus.PENDING,
+          status: ApplicationStatus.PENDING,
         },
       });
 
@@ -59,7 +59,7 @@ export const ApplicationService = {
       await tx.applicationStatusLog.create({
         data: {
           applicationId: application.id,
-          status: ApplicationhttpStatus.PENDING,
+          status: ApplicationStatus.PENDING,
           reason: "Application submitted",
         },
       });

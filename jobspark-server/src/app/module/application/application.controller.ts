@@ -32,7 +32,7 @@ export const ApplicationController = {
   getApplicantsForJob: catchAsyc(async (req: Request, res: Response) => {
     const userId = (req as any).user.userId;
     const { jobId } = req.params;
-    const result = await ApplicationService.getApplicantsForJob(userId, jobId);
+    const result = await ApplicationService.getApplicantsForJob(userId, jobId as string);
 
     sendResponse(res, {
       httpStatusCode: httpStatus.OK,
@@ -45,7 +45,7 @@ export const ApplicationController = {
   updateApplicationStatus: catchAsyc(async (req: Request, res: Response) => {
     const userId = (req as any).user.userId;
     const { applicationId } = req.params;
-    const result = await ApplicationService.updateApplicationStatus(userId, applicationId, req.body);
+    const result = await ApplicationService.updateApplicationStatus(userId, applicationId as string, req.body);
 
     sendResponse(res, {
       httpStatusCode: httpStatus.OK,

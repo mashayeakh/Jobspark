@@ -51,7 +51,7 @@ export const AdminController = {
   }),
 
   blockUser: catchAsyc(async (req: Request, res: Response) => {
-    const result = await AdminService.updateUserStatus(req.params.userId, UserhttpStatus.BLOCKED);
+    const result = await AdminService.updateUserStatus(req.params.userId as string, UserStatus.BLOCKED);
     sendResponse(res, {
       httpStatusCode: httpStatus.OK,
       success: true,
@@ -61,7 +61,7 @@ export const AdminController = {
   }),
 
   unblockUser: catchAsyc(async (req: Request, res: Response) => {
-    const result = await AdminService.updateUserStatus(req.params.userId, UserhttpStatus.ACTIVE);
+    const result = await AdminService.updateUserStatus(req.params.userId as string, UserStatus.ACTIVE);
     sendResponse(res, {
       httpStatusCode: httpStatus.OK,
       success: true,
@@ -71,7 +71,7 @@ export const AdminController = {
   }),
 
   deleteUser: catchAsyc(async (req: Request, res: Response) => {
-    const result = await AdminService.deleteUser(req.params.userId);
+    const result = await AdminService.deleteUser(req.params.userId as string);
     sendResponse(res, {
       httpStatusCode: httpStatus.OK,
       success: true,
@@ -94,7 +94,7 @@ export const AdminController = {
   verifyCompany: catchAsyc(async (req: Request, res: Response) => {
     const { companyId } = req.params;
     const { isVerified } = req.body;
-    const result = await AdminService.verifyCompany(companyId, isVerified);
+    const result = await AdminService.verifyCompany(companyId as string, isVerified);
     sendResponse(res, {
       httpStatusCode: httpStatus.OK,
       success: true,
@@ -117,7 +117,7 @@ export const AdminController = {
   forceUpdateJobStatus: catchAsyc(async (req: Request, res: Response) => {
     const { jobId } = req.params;
     const { status: newStatus } = req.body;
-    const result = await AdminService.forceUpdateJobStatus(jobId, newStatus);
+    const result = await AdminService.forceUpdateJobStatus(jobId as string, newStatus);
     sendResponse(res, {
       httpStatusCode: httpStatus.OK,
       success: true,
@@ -149,7 +149,7 @@ export const AdminController = {
   }),
 
   deleteSkill: catchAsyc(async (req: Request, res: Response) => {
-    const result = await AdminService.deleteSkill(req.params.skillId);
+    const result = await AdminService.deleteSkill(req.params.skillId as string);
     sendResponse(res, {
       httpStatusCode: httpStatus.OK,
       success: true,

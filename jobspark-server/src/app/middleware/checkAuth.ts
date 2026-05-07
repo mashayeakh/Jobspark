@@ -54,7 +54,7 @@ export const checkAuth = (...authRoles: UserRole[]) =>
                         console.log("Session expiring soon!!!")
                     }
 
-                    if (user.status === UserhttpStatus.BLOCKED || user.status === UserhttpStatus.DELETED) {
+                    if (user.status === UserStatus.BLOCKED || user.status === UserStatus.DELETED) {
                         throw new AppError(httpStatus.UNAUTHORIZED, "Unauthorized access! User is not active")
                     }
 
