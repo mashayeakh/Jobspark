@@ -5,6 +5,7 @@ import { RecruiterRoutes } from "./recruiter/recruiter.route";
 import { JobRoutes } from "./job/job.route";
 import { ApplicationRoutes } from "./application/application.route";
 import { NetworkRoutes } from "./network/network.route";
+import { AdminRoutes } from "./admin/admin.route";
 
 const router = express.Router();
 
@@ -25,5 +26,8 @@ router.use("/applications", ApplicationRoutes);
 
 //!Network & Notifications
 router.use("/network", NetworkRoutes);
+
+//!Admin
+router.use("/admin", AdminRoutes);
 
 export default router;

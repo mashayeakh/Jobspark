@@ -1,8 +1,6 @@
-import express, { Application, Request, Response } from "express";
 import { app } from "./app";
 import dotenv from 'dotenv'
-// import { envVars } from "./app/config/env";
-// import { seedAdmin } from "./app/scripts/seedAdmin/seedAdmin";
+import { seedAdmin } from "./app/scripts/seedAdmin";
 
 dotenv.config();
 
@@ -10,8 +8,8 @@ const port = process.env.PORT
 
 const bootstrap = async () => {
     try {
-        // seeding admin
-        // await seedAdmin();
+        // Seed admin on every startup (idempotent - safe to run multiple times)
+        await seedAdmin();
         app.listen(port, () => {
             console.log(`Server is running on http://localhost:${port}`);
         });
