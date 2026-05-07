@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { catchAsyc } from "@/app/shared/catchAsyc";
 import { sendResponse } from "@/app/Utils/sendResponse";
-import status from "http-status";
+import httpStatus from "http-status";
 import { JobService } from "./job.service";
 
 export const JobController = {
@@ -10,7 +10,7 @@ export const JobController = {
     const result = await JobService.createJob(userId, req.body);
 
     sendResponse(res, {
-      httpStatusCode: status.CREATED,
+      httpStatusCode: httpStatus.CREATED,
       success: true,
       message: "Job created successfully",
       result,
@@ -21,7 +21,7 @@ export const JobController = {
     const result = await JobService.getAllJobs(req.query);
 
     sendResponse(res, {
-      httpStatusCode: status.OK,
+      httpStatusCode: httpStatus.OK,
       success: true,
       message: "Jobs fetched successfully",
       result,
@@ -33,7 +33,7 @@ export const JobController = {
     const result = await JobService.getJobById(id as string);
 
     sendResponse(res, {
-      httpStatusCode: status.OK,
+      httpStatusCode: httpStatus.OK,
       success: true,
       message: "Job fetched successfully",
       result,
@@ -46,7 +46,7 @@ export const JobController = {
     const result = await JobService.updateJob(userId, id as string, req.body);
 
     sendResponse(res, {
-      httpStatusCode: status.OK,
+      httpStatusCode: httpStatus.OK,
       success: true,
       message: "Job updated successfully",
       result,
@@ -58,7 +58,7 @@ export const JobController = {
     const result = await JobService.getRecruiterJobs(userId);
 
     sendResponse(res, {
-      httpStatusCode: status.OK,
+      httpStatusCode: httpStatus.OK,
       success: true,
       message: "Your jobs fetched successfully",
       result,

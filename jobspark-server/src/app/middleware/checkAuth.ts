@@ -1,6 +1,6 @@
 import express, { NextFunction, Request, Response } from 'express';
 import { AppError } from "../errorHelpers/AppError";
-import status from "http-status";
+import httpStatus from "http-status";
 import { envVars } from "../config/env";
 import { prisma } from "../lib/prisma";
 import { getCookie } from '../Utils/cookies';
@@ -14,7 +14,7 @@ export const checkAuth = (...authRoles: UserRole[]) =>
             //1 - check if any user logged in or not with session
             const sessionToken = getCookie(req, "better-auth.session_token");
             if (!sessionToken) {
-                throw new AppError(status.UNAUTHORIZED, "Unauthorized access! No session token provided");
+                throw new AppError(httpStatus.UNAUTHORIZED, "Unauthorized access! No session token provided");
             }
 
             //if i have the session token then you must check wheather it exists in db or not
@@ -54,17 +54,17 @@ export const checkAuth = (...authRoles: UserRole[]) =>
                         console.log("Session expiring soon!!!")
                     }
 
-                    if (user.status === UserStatus.BLOCKED || user.status === UserStatus.DELETED) {
-                        throw new AppError(status.UNAUTHORIZED, "Unauthorized access! User is not active")
+                    if (user.status === UserhttpStatus.BLOCKED || user.status === UserhttpStatus.DELETED) {
+                        throw new AppError(httpStatus.UNAUTHORIZED, "Unauthorized access! User is not active")
                     }
 
                     if (user.isDeleted) {
-                        throw new AppError(status.UNAUTHORIZED, "Unauthorized access! User is deleted")
+                        throw new AppError(httpStatus.UNAUTHORIZED, "Unauthorized access! User is deleted")
                     }
 
                     //role
                     if (authRoles.length > 0 && !authRoles.includes(user.role as UserRole)) {
-                        throw new AppError(status.FORBIDDEN, "Forbideen access!! You do not have permission to access this resource");
+                        throw new AppError(httpStatus.FORBIDDEN, "Forbideen access!! You do not have permission to access this resource");
                     }
                     req.user = {
                         userId: user.id,
@@ -79,18 +79,18 @@ export const checkAuth = (...authRoles: UserRole[]) =>
             const accessToken = getCookie(req, "accessToken");
             console.log("----Access Token found ", accessToken)
             if (!accessToken) {
-                throw new AppError(status.UNAUTHORIZED, "Unauthorized access! No access token provided");
+                throw new AppError(httpStatus.UNAUTHORIZED, "Unauthorized access! No access token provided");
             }
             //verify the token
             const verifiedtoken = vefiryToken(accessToken, envVars.ACCESS_TOKEN_SECRET);
 
             console.log("Token to be verified = ", verifiedtoken)
             if (!verifiedtoken.success) {
-                throw new AppError(status.UNAUTHORIZED, "Unauthorized access! Invalid access token");
+                throw new AppError(httpStatus.UNAUTHORIZED, "Unauthorized access! Invalid access token");
             }
             //stop if you are not admin
             if (authRoles.length > 0 && !authRoles.includes(verifiedtoken.data!.role as UserRole)) {
-                throw new AppError(status.FORBIDDEN, "Forbidden access! You do not have permission to access this");
+                throw new AppError(httpStatus.FORBIDDEN, "Forbidden access! You do not have permission to access this");
 
             }
 

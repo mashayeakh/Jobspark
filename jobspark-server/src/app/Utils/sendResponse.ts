@@ -25,7 +25,8 @@ export const sendResponse = <T>(res: Response, responseData: IResponseData<T>) =
 
     } = responseData;
 
-    res.status(httpStatusCode).json({
+    // Fallback to 200 if status is missing, to prevent crashes
+    res.status(httpStatusCode || 200).json({
         success,
         message,
         result

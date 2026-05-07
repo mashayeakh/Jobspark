@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import status from "http-status";
+import httpStatus from "http-status";
 import { Prisma } from "prisma/generated";
 import { AppError } from "../errorHelpers/AppError";
 
@@ -9,7 +9,7 @@ export function errorHandler(err: any, req: Request, res: Response, next: NextFu
         return next(err);
     }
 
-    let statusCode: number = status.INTERNAL_SERVER_ERROR;
+    let statusCode: number = httpStatus.INTERNAL_SERVER_ERROR;
     let message: string = "Internal Server Error";
     let details: any = null;
 
@@ -23,7 +23,7 @@ export function errorHandler(err: any, req: Request, res: Response, next: NextFu
 
     // Prisma Validation Error (invalid query, missing fields, wrong types)
     else if (err instanceof Prisma.PrismaClientValidationError) {
-        statusCode = status.BAD_REQUEST;
+        statusCode = httpStatus.BAD_REQUEST;
         message = "Prisma Validation Error";
         details = err.message;
     }
@@ -34,7 +34,7 @@ export function errorHandler(err: any, req: Request, res: Response, next: NextFu
         switch (err.code) {
 
             // case "P2002": // Unique constraint failed
-            //     statusCode = status.CONFLICT;
+            //     statusCode = httpStatus.CONFLICT;
             //     message = "Duplicate field value";
             //     // details = err.meta;
             //     const fields = (err.meta as any)?.target || [];
@@ -45,7 +45,7 @@ export function errorHandler(err: any, req: Request, res: Response, next: NextFu
             //     break;
 
             case "P2002":
-                statusCode = status.CONFLICT;
+                statusCode = httpStatus.CONFLICT;
                 message = "Duplicate field value";
 
                 const targetFields =
@@ -63,7 +63,7 @@ export function errorHandler(err: any, req: Request, res: Response, next: NextFu
                 break;
 
             case "P2003":
-                statusCode = status.BAD_REQUEST;
+                statusCode = httpStatus.BAD_REQUEST;
                 message = "Invalid reference";
 
                 const fkField =
@@ -78,7 +78,7 @@ export function errorHandler(err: any, req: Request, res: Response, next: NextFu
                 };
                 break;
             case "P2025":
-                statusCode = status.NOT_FOUND;
+                statusCode = httpStatus.NOT_FOUND;
                 message = "Record not found";
                 details = {
                     message: "The requested resource does not exist"
@@ -86,7 +86,7 @@ export function errorHandler(err: any, req: Request, res: Response, next: NextFu
                 break;
 
             case "P2014":
-                statusCode = status.BAD_REQUEST;
+                statusCode = httpStatus.BAD_REQUEST;
                 message = "Invalid relation data";
                 details = {
                     message: "Relation constraint violation"
@@ -94,7 +94,7 @@ export function errorHandler(err: any, req: Request, res: Response, next: NextFu
                 break;
 
             case "P2000":
-                statusCode = status.BAD_REQUEST;
+                statusCode = httpStatus.BAD_REQUEST;
                 message = "Input too long";
 
                 const column = err?.meta?.column_name || "field";
@@ -106,7 +106,7 @@ export function errorHandler(err: any, req: Request, res: Response, next: NextFu
                 break;
 
             case "P2001":
-                statusCode = status.NOT_FOUND;
+                statusCode = httpStatus.NOT_FOUND;
                 message = "Record does not exist";
                 details = {
                     message: "No record found for the given query"
@@ -114,7 +114,7 @@ export function errorHandler(err: any, req: Request, res: Response, next: NextFu
                 break;
 
             default:
-                statusCode = status.BAD_REQUEST;
+                statusCode = httpStatus.BAD_REQUEST;
                 message = "Database error";
                 details = {
                     message: err.message
@@ -124,7 +124,7 @@ export function errorHandler(err: any, req: Request, res: Response, next: NextFu
 
     // Prisma Unknown Errors
     else if (err instanceof Prisma.PrismaClientUnknownRequestError) {
-        statusCode = status.INTERNAL_SERVER_ERROR;
+        statusCode = httpStatus.INTERNAL_SERVER_ERROR;
         message = "Unknown database error";
         details = {
             message: err.message
@@ -133,7 +133,7 @@ export function errorHandler(err: any, req: Request, res: Response, next: NextFu
 
     // Zod (future-proof, even if not using now)
     else if (err.name === "ZodError") {
-        statusCode = status.BAD_REQUEST;
+        statusCode = httpStatus.BAD_REQUEST;
         message = "Validation Error";
         details = err.errors?.map((e: any) => ({
             field: e.path.join("."),
@@ -143,7 +143,7 @@ export function errorHandler(err: any, req: Request, res: Response, next: NextFu
 
     // Fallback (any unexpected error)
     else {
-        statusCode = err.statusCode || status.INTERNAL_SERVER_ERROR;
+        statusCode = err.statusCode || httpStatus.INTERNAL_SERVER_ERROR;
         message = err.message || "Something went wrong";
         details = {
             message: err.stack || null
@@ -153,7 +153,7 @@ export function errorHandler(err: any, req: Request, res: Response, next: NextFu
     // Log for debugging
     console.error(" ERROR:", err);
 
-    res.status(statusCode).json({
+    res.status(statusCode || 500).json({
         success: false,
         message,
         details

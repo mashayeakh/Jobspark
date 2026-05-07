@@ -1,7 +1,7 @@
 import { prisma } from "../../lib/prisma";
 import { ApplyJobDto, UpdateApplicationStatusDto } from "./application.dto";
 import { AppError } from "@/app/errorHelpers/AppError";
-import status from "http-status";
+import httpStatus from "http-status";
 import { ApplicationStatus } from "prisma/generated";
 
 export const ApplicationService = {
@@ -15,7 +15,7 @@ export const ApplicationService = {
     });
 
     if (!seekerProfile) {
-      throw new AppError(status.FORBIDDEN, "Only job seekers can apply for jobs.");
+      throw new AppError(httpStatus.FORBIDDEN, "Only job seekers can apply for jobs.");
     }
 
     // 2. Validate the job is ACTIVE
@@ -24,11 +24,11 @@ export const ApplicationService = {
     });
 
     if (!job) {
-      throw new AppError(status.NOT_FOUND, "Job not found.");
+      throw new AppError(httpStatus.NOT_FOUND, "Job not found.");
     }
 
     if (job.status !== "ACTIVE") {
-      throw new AppError(status.BAD_REQUEST, "This job is no longer accepting applications.");
+      throw new AppError(httpStatus.BAD_REQUEST, "This job is no longer accepting applications.");
     }
 
     // 3. Check for duplicate application
@@ -42,7 +42,7 @@ export const ApplicationService = {
     });
 
     if (existingApplication) {
-      throw new AppError(status.CONFLICT, "You have already applied for this job.");
+      throw new AppError(httpStatus.CONFLICT, "You have already applied for this job.");
     }
 
     // 4. Atomic Transaction: Create application + log + update job counter
@@ -51,7 +51,7 @@ export const ApplicationService = {
         data: {
           jobId,
           seekerId: seekerProfile.id,
-          status: ApplicationStatus.PENDING,
+          status: ApplicationhttpStatus.PENDING,
         },
       });
 
@@ -59,7 +59,7 @@ export const ApplicationService = {
       await tx.applicationStatusLog.create({
         data: {
           applicationId: application.id,
-          status: ApplicationStatus.PENDING,
+          status: ApplicationhttpStatus.PENDING,
           reason: "Application submitted",
         },
       });
@@ -81,7 +81,7 @@ export const ApplicationService = {
     });
 
     if (!seekerProfile) {
-      throw new AppError(status.FORBIDDEN, "Job seeker profile not found.");
+      throw new AppError(httpStatus.FORBIDDEN, "Job seeker profile not found.");
     }
 
     return await prisma.application.findMany({
@@ -111,7 +111,7 @@ export const ApplicationService = {
     });
 
     if (!job) {
-      throw new AppError(status.FORBIDDEN, "You do not have access to this job's applications.");
+      throw new AppError(httpStatus.FORBIDDEN, "You do not have access to this job's applications.");
     }
 
     return await prisma.application.findMany({
@@ -152,7 +152,7 @@ export const ApplicationService = {
     });
 
     if (!application) {
-      throw new AppError(status.FORBIDDEN, "You do not have permission to update this application.");
+      throw new AppError(httpStatus.FORBIDDEN, "You do not have permission to update this application.");
     }
 
     return await prisma.$transaction(async (tx) => {

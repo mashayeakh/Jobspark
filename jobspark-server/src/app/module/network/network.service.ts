@@ -1,6 +1,6 @@
 import { prisma } from "../../lib/prisma";
 import { AppError } from "@/app/errorHelpers/AppError";
-import status from "http-status";
+import httpStatus from "http-status";
 import { ConnectionStatus } from "prisma/generated";
 
 export const NetworkService = {
@@ -8,7 +8,7 @@ export const NetworkService = {
   sendConnectionRequest: async (senderId: string, receiverId: string) => {
     // Prevent self-connection
     if (senderId === receiverId) {
-      throw new AppError(status.BAD_REQUEST, "You cannot connect with yourself.");
+      throw new AppError(httpStatus.BAD_REQUEST, "You cannot connect with yourself.");
     }
 
     // Check if receiver exists
@@ -18,7 +18,7 @@ export const NetworkService = {
     });
 
     if (!receiver) {
-      throw new AppError(status.NOT_FOUND, "User not found.");
+      throw new AppError(httpStatus.NOT_FOUND, "User not found.");
     }
 
     // Check for existing connection
@@ -29,7 +29,7 @@ export const NetworkService = {
     });
 
     if (existing) {
-      throw new AppError(status.CONFLICT, "Connection request already sent.");
+      throw new AppError(httpStatus.CONFLICT, "Connection request already sent.");
     }
 
     // Create connection request
@@ -37,7 +37,7 @@ export const NetworkService = {
       data: {
         senderId,
         receiverId,
-        status: ConnectionStatus.PENDING,
+        status: ConnectionhttpStatus.PENDING,
       },
     });
 
@@ -66,13 +66,13 @@ export const NetworkService = {
 
     if (!connection) {
       throw new AppError(
-        status.FORBIDDEN,
+        httpStatus.FORBIDDEN,
         "You can only respond to connection requests sent to you."
       );
     }
 
-    if (connection.status !== ConnectionStatus.PENDING) {
-      throw new AppError(status.BAD_REQUEST, "This connection request has already been responded to.");
+    if (connection.status !== ConnectionhttpStatus.PENDING) {
+      throw new AppError(httpStatus.BAD_REQUEST, "This connection request has already been responded to.");
     }
 
     return await prisma.connection.update({
@@ -86,8 +86,8 @@ export const NetworkService = {
     return await prisma.connection.findMany({
       where: {
         OR: [
-          { senderId: userId, status: ConnectionStatus.ACCEPTED },
-          { receiverId: userId, status: ConnectionStatus.ACCEPTED },
+          { senderId: userId, status: ConnectionhttpStatus.ACCEPTED },
+          { receiverId: userId, status: ConnectionhttpStatus.ACCEPTED },
         ],
       },
       include: {
@@ -103,7 +103,7 @@ export const NetworkService = {
     return await prisma.connection.findMany({
       where: {
         receiverId: userId,
-        status: ConnectionStatus.PENDING,
+        status: ConnectionhttpStatus.PENDING,
       },
       include: {
         sender: { select: { id: true, name: true, email: true, image: true } },
@@ -129,7 +129,7 @@ export const NotificationService = {
     });
 
     if (!notification) {
-      throw new AppError(status.NOT_FOUND, "Notification not found.");
+      throw new AppError(httpStatus.NOT_FOUND, "Notification not found.");
     }
 
     return await prisma.notification.update({

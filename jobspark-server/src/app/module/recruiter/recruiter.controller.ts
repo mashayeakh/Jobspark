@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { catchAsyc } from "@/app/shared/catchAsyc";
 import { sendResponse } from "@/app/Utils/sendResponse";
-import status from "http-status";
+import httpStatus from "http-status";
 import { RecruiterService } from "./recruiter.service";
 
 export const RecruiterController = {
@@ -10,7 +10,7 @@ export const RecruiterController = {
     const result = await RecruiterService.updateProfile(userId, req.body);
 
     sendResponse(res, {
-      httpStatusCode: status.OK,
+      httpStatusCode: httpStatus.OK,
       success: true,
       message: "Profile updated successfully",
       result,
@@ -22,7 +22,7 @@ export const RecruiterController = {
     const result = await RecruiterService.getProfile(userId);
 
     sendResponse(res, {
-      httpStatusCode: status.OK,
+      httpStatusCode: httpStatus.OK,
       success: true,
       message: "Profile fetched successfully",
       result,

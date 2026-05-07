@@ -2,7 +2,7 @@ import { prisma } from "../../lib/prisma";
 import { LoginUserDto, RegisterUserDto } from "./auth.dto";
 import { auth } from "../../lib/auth";
 import { AppError } from "@/app/errorHelpers/AppError";
-import status from "http-status";
+import httpStatus from "http-status";
 import { UserStatus } from "prisma/generated";
 import { vefiryToken } from "@/app/Utils/jwt";
 import { envVars } from "@/app/config/env";
@@ -26,7 +26,7 @@ export const AuthService = {
         });
 
         if (!result || !result.user) {
-            throw new AppError(status.BAD_REQUEST, "Registration failed.");
+            throw new AppError(httpStatus.BAD_REQUEST, "Registration failed.");
         }
 
         const newUser = result.user;
@@ -40,7 +40,7 @@ export const AuthService = {
             });
         } else if (role === "RECRUITER") {
             if (!companyName || !industry) {
-                throw new AppError(status.BAD_REQUEST, "Company name and industry are required for recruiters.");
+                throw new AppError(httpStatus.BAD_REQUEST, "Company name and industry are required for recruiters.");
             }
 
             // Create company first
@@ -75,12 +75,12 @@ export const AuthService = {
         });
 
         if (!data || !data.user) {
-            throw new AppError(status.BAD_REQUEST, "Invalid email or password.");
+            throw new AppError(httpStatus.BAD_REQUEST, "Invalid email or password.");
         }
 
-        if (data.user.status === UserStatus.BLOCKED) {
+        if (data.user.status === UserhttpStatus.BLOCKED) {
             // throw new Error("User is blocked");
-            throw new AppError(status.FORBIDDEN, "User is blocked")
+            throw new AppError(httpStatus.FORBIDDEN, "User is blocked")
         }
 
         //get the access token - short time
@@ -122,7 +122,7 @@ export const AuthService = {
         console.log("---- verifiend  refresh token ", verifiedRefreshToken)
 
         if (!verifiedRefreshToken.success && verifiedRefreshToken.error) {
-            throw new AppError(status.UNAUTHORIZED, "Invalid refresh token")
+            throw new AppError(httpStatus.UNAUTHORIZED, "Invalid refresh token")
         }
 
         const data = verifiedRefreshToken.data as JwtPayload
@@ -165,7 +165,7 @@ export const AuthService = {
         });
 
         if (!isSessionTokenExist) {
-            throw new AppError(status.UNAUTHORIZED, "Invalid session token");
+            throw new AppError(httpStatus.UNAUTHORIZED, "Invalid session token");
         }
 
         //now update the token with new expire time

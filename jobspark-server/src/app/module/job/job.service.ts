@@ -2,7 +2,7 @@ import { Prisma } from "prisma/generated";
 import { prisma } from "../../lib/prisma";
 import { CreateJobDto, JobFiltersDto, UpdateJobDto } from "./job.dto";
 import { AppError } from "@/app/errorHelpers/AppError";
-import status from "http-status";
+import httpStatus from "http-status";
 
 export const JobService = {
   createJob: async (userId: string, payload: CreateJobDto) => {
@@ -14,7 +14,7 @@ export const JobService = {
     });
 
     if (!recruiter) {
-      throw new AppError(status.FORBIDDEN, "Only recruiters can post jobs.");
+      throw new AppError(httpStatus.FORBIDDEN, "Only recruiters can post jobs.");
     }
 
     return await prisma.$transaction(async (tx) => {
@@ -108,7 +108,7 @@ export const JobService = {
     });
 
     if (!exists) {
-      throw new AppError(status.NOT_FOUND, "Job not found.");
+      throw new AppError(httpStatus.NOT_FOUND, "Job not found.");
     }
 
     // Increment viewCount and return full job data atomically
@@ -145,7 +145,7 @@ export const JobService = {
     });
 
     if (!existingJob) {
-      throw new AppError(status.FORBIDDEN, "You do not have permission to update this job.");
+      throw new AppError(httpStatus.FORBIDDEN, "You do not have permission to update this job.");
     }
 
     return await prisma.$transaction(async (tx) => {

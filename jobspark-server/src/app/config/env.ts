@@ -22,7 +22,7 @@ interface EnvConfig {
     REFRESH_TOKEN_EXPIRES_IN: string,
     BETTER_AUTH_SESSION_TOKEN_EXPIRES_IN: string,
     BETTER_AUTH_SESSION_TOKEN_UPDATE_AGE: string,
-    // FRONTEND_URL: string,
+    FRONTEND_URL: string,
     // EMAIL_SENDER: {
     //     SMTP_USER: string,
     //     SMTP_PASS: string,
@@ -60,6 +60,7 @@ const loadEnvVariables = (): EnvConfig => {
         "DATABASE_URL",
         "BETTER_AUTH_SECRET",
         "BETTER_AUTH_URL",
+        "FRONTEND_URL",
         // "BETTER_AUTH_COOKIE_DOMAIN",
         "ADMIN_EMAIL",
         "ADMIN_PASSWORD",
@@ -90,7 +91,7 @@ const loadEnvVariables = (): EnvConfig => {
         if (!(process.env[eachVari])) {
             throw new Error(`Environment variable ${eachVari} is required but not set in .env file`)
 
-            // throw new AppError(status.INTERNAL_SERVER_ERROR, `Environment variable ${eachVari} is required but set in .env fil`)
+            // throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, `Environment variable ${eachVari} is required but set in .env fil`)
         }
     })
 
@@ -147,7 +148,7 @@ const loadEnvVariables = (): EnvConfig => {
         REFRESH_TOKEN_EXPIRES_IN: process.env.REFRESH_TOKEN_EXPIRES_IN as string,
         BETTER_AUTH_SESSION_TOKEN_EXPIRES_IN: process.env.BETTER_AUTH_SESSION_TOKEN_EXPIRES_IN as string,
         BETTER_AUTH_SESSION_TOKEN_UPDATE_AGE: process.env.BETTER_AUTH_SESSION_TOKEN_UPDATE_AGE as string,
-        // FRONTEND_URL: frontendUrl,
+        FRONTEND_URL: process.env.FRONTEND_URL as string,
         // GEMINI_API_KEY: process.env.GEMINI_API_KEY as string,
         // EMAIL_SENDER: {
         //     SMTP_USER: process.env.EMAIL_SENDER_SMTP_USER as string,

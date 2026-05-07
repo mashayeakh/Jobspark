@@ -10,12 +10,47 @@ export const auth = betterAuth({
     database: prismaAdapter(prisma, {
         provider: "postgresql",
     }),
+    trustedOrigins: [
+        envVars.FRONTEND_URL,
+        envVars.BETTER_AUTH_URL,
+    ],
     emailAndPassword: {
         enabled: true,
         requireEmailVerification: false,
     },
     emailVerification: {
         sendOnSignUp: false,
+    },
+    advanced: {
+        useSecureCookies: process.env.NODE_ENV === "production",
+        cookies: {
+            sessionToken: {
+                name: "session_token",
+                attributes: {
+                    sameSite: "none",
+                    secure: process.env.NODE_ENV === "production",
+                    httpOnly: true,
+                    partitioned: true,
+                }
+            },
+            state: {
+                name: "auth_state",
+                attributes: {
+                    sameSite: "none",
+                    secure: process.env.NODE_ENV === "production",
+                    httpOnly: true,
+                    partitioned: true,
+                }
+            },
+        }
+    },
+    session: {
+        expiresIn: 60 * 60 * 24,       // fixed: was 60*60*60*24
+        updateAge: 60 * 60 * 24,
+        cookieCache: {
+            enabled: true,
+            maxAge: 60 * 60 * 24,
+        }
     },
     user: {
         additionalFields: {

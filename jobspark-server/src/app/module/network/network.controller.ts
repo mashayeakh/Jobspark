@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { catchAsyc } from "@/app/shared/catchAsyc";
 import { sendResponse } from "@/app/Utils/sendResponse";
-import status from "http-status";
+import httpStatus from "http-status";
 import { NetworkService, NotificationService } from "./network.service";
 
 export const NetworkController = {
@@ -11,7 +11,7 @@ export const NetworkController = {
     const result = await NetworkService.sendConnectionRequest(senderId, receiverId);
 
     sendResponse(res, {
-      httpStatusCode: status.CREATED,
+      httpStatusCode: httpStatus.CREATED,
       success: true,
       message: "Connection request sent successfully",
       result,
@@ -24,7 +24,7 @@ export const NetworkController = {
     const result = await NetworkService.updateConnectionStatus(userId, id, "ACCEPTED");
 
     sendResponse(res, {
-      httpStatusCode: status.OK,
+      httpStatusCode: httpStatus.OK,
       success: true,
       message: "Connection accepted",
       result,
@@ -37,7 +37,7 @@ export const NetworkController = {
     const result = await NetworkService.updateConnectionStatus(userId, id, "REJECTED");
 
     sendResponse(res, {
-      httpStatusCode: status.OK,
+      httpStatusCode: httpStatus.OK,
       success: true,
       message: "Connection rejected",
       result,
@@ -49,7 +49,7 @@ export const NetworkController = {
     const result = await NetworkService.getConnections(userId);
 
     sendResponse(res, {
-      httpStatusCode: status.OK,
+      httpStatusCode: httpStatus.OK,
       success: true,
       message: "Connections fetched successfully",
       result,
@@ -61,7 +61,7 @@ export const NetworkController = {
     const result = await NetworkService.getPendingRequests(userId);
 
     sendResponse(res, {
-      httpStatusCode: status.OK,
+      httpStatusCode: httpStatus.OK,
       success: true,
       message: "Pending requests fetched successfully",
       result,
@@ -75,7 +75,7 @@ export const NotificationController = {
     const result = await NotificationService.getNotifications(userId);
 
     sendResponse(res, {
-      httpStatusCode: status.OK,
+      httpStatusCode: httpStatus.OK,
       success: true,
       message: "Notifications fetched successfully",
       result,
@@ -88,7 +88,7 @@ export const NotificationController = {
     const result = await NotificationService.markAsRead(userId, id);
 
     sendResponse(res, {
-      httpStatusCode: status.OK,
+      httpStatusCode: httpStatus.OK,
       success: true,
       message: "Notification marked as read",
       result,
@@ -100,7 +100,7 @@ export const NotificationController = {
     const result = await NotificationService.markAllAsRead(userId);
 
     sendResponse(res, {
-      httpStatusCode: status.OK,
+      httpStatusCode: httpStatus.OK,
       success: true,
       message: "All notifications marked as read",
       result,

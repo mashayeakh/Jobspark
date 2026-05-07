@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { AuthService } from "./auth.service";
 import { catchAsyc } from "@/app/shared/catchAsyc";
 import { sendResponse } from "@/app/Utils/sendResponse";
-import status from "http-status";
+import httpStatus from "http-status";
 import { AppError } from "@/app/errorHelpers/AppError";
 import { setAccessTokenCookie, setBetterAuthSessionCookie, setRefreshTokenCookie } from "@/app/Utils/token";
 import { clearCookie } from "@/app/Utils/cookies";
@@ -13,7 +13,7 @@ export const AuthController = {
         async (req: Request, res: Response) => {
             const data = await AuthService.registerUser(req.body)
             sendResponse(res, {
-                httpStatusCode: status.CREATED,
+                httpStatusCode: httpStatus.CREATED,
                 success: true,
                 message: "User Registered successfully",
                 result: { ...data }
@@ -38,7 +38,7 @@ export const AuthController = {
 
 
             sendResponse(res, {
-                httpStatusCode: status.OK,
+                httpStatusCode: httpStatus.OK,
                 success: true,
                 message: "User logged in successfully",
                 result: {
@@ -57,7 +57,7 @@ export const AuthController = {
             const betterAuthSessionToken = req.cookies['better-auth.session_token'];
 
             if (!refreshToken) {
-                throw new AppError(status.UNAUTHORIZED, "Refresh token is missing");
+                throw new AppError(httpStatus.UNAUTHORIZED, "Refresh token is missing");
             }
             const result = await AuthService.getNewToken(refreshToken, betterAuthSessionToken);
 
@@ -72,7 +72,7 @@ export const AuthController = {
             setBetterAuthSessionCookie(res, sessionToken);
 
             sendResponse(res, {
-                httpStatusCode: status.OK,
+                httpStatusCode: httpStatus.OK,
                 success: true,
                 message: "New access token generated successfully",
                 result: {
@@ -111,7 +111,7 @@ export const AuthController = {
             });
 
             sendResponse(res, {
-                httpStatusCode: status.OK,
+                httpStatusCode: httpStatus.OK,
                 success: true,
                 message: "You logged out successfully",
                 result

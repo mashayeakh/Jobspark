@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { catchAsyc } from "@/app/shared/catchAsyc";
 import { sendResponse } from "@/app/Utils/sendResponse";
-import status from "http-status";
+import httpStatus from "http-status";
 import { ApplicationService } from "./application.service";
 
 export const ApplicationController = {
@@ -10,7 +10,7 @@ export const ApplicationController = {
     const result = await ApplicationService.applyForJob(userId, req.body);
 
     sendResponse(res, {
-      httpStatusCode: status.CREATED,
+      httpStatusCode: httpStatus.CREATED,
       success: true,
       message: "Application submitted successfully",
       result,
@@ -22,7 +22,7 @@ export const ApplicationController = {
     const result = await ApplicationService.getMyApplications(userId);
 
     sendResponse(res, {
-      httpStatusCode: status.OK,
+      httpStatusCode: httpStatus.OK,
       success: true,
       message: "Applications fetched successfully",
       result,
@@ -35,7 +35,7 @@ export const ApplicationController = {
     const result = await ApplicationService.getApplicantsForJob(userId, jobId);
 
     sendResponse(res, {
-      httpStatusCode: status.OK,
+      httpStatusCode: httpStatus.OK,
       success: true,
       message: "Applicants fetched successfully",
       result,
@@ -48,7 +48,7 @@ export const ApplicationController = {
     const result = await ApplicationService.updateApplicationStatus(userId, applicationId, req.body);
 
     sendResponse(res, {
-      httpStatusCode: status.OK,
+      httpStatusCode: httpStatus.OK,
       success: true,
       message: "Application status updated successfully",
       result,

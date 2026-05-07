@@ -1,7 +1,7 @@
 // import { app } from "@/app";
 // import express, { Application, NextFunction, Request, Response } from 'express';
 // import { envVars } from "../config/env";
-// import status from "http-status";
+// import httpStatus from "http-status";
 // import z from "zod";
 // import { statusCodes } from "better-auth";
 // // import { TErrorResponse, TErrorSources } from "../interfaces/error.interfaces";
@@ -19,7 +19,7 @@
 
 //     let errorSource: TErrorSources[] = []
 
-//     let stautsCode: number = status.INTERNAL_SERVER_ERROR;
+//     let stautsCode: number = httpStatus.INTERNAL_SERVER_ERROR;
 //     let message: string = "Internal Server Error";
 //     let stack: string | undefined = undefined
 
@@ -60,7 +60,7 @@
 
 
 //     else if (err instanceof Error) {
-//         stautsCode = status.INTERNAL_SERVER_ERROR,
+//         stautsCode = httpStatus.INTERNAL_SERVER_ERROR,
 //             message = err.message,
 //             stack = err.stack,
 //             errorSource = [{

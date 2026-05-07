@@ -1,6 +1,6 @@
 import { prisma } from "../../lib/prisma";
 import { AppError } from "@/app/errorHelpers/AppError";
-import status from "http-status";
+import httpStatus from "http-status";
 
 import { UserStatus } from "prisma/generated";
 
@@ -132,11 +132,11 @@ export const AdminService = {
     const user = await prisma.user.findUnique({ where: { id: targetUserId } });
 
     if (!user) {
-      throw new AppError(status.NOT_FOUND, "User not found.");
+      throw new AppError(httpStatus.NOT_FOUND, "User not found.");
     }
 
     if (user.role === "ADMIN") {
-      throw new AppError(status.FORBIDDEN, "Cannot modify another admin's status.");
+      throw new AppError(httpStatus.FORBIDDEN, "Cannot modify another admin's httpStatus.");
     }
 
     return await prisma.user.update({
@@ -150,8 +150,8 @@ export const AdminService = {
   deleteUser: async (targetUserId: string) => {
     const user = await prisma.user.findUnique({ where: { id: targetUserId } });
 
-    if (!user) throw new AppError(status.NOT_FOUND, "User not found.");
-    if (user.role === "ADMIN") throw new AppError(status.FORBIDDEN, "Cannot delete an admin.");
+    if (!user) throw new AppError(httpStatus.NOT_FOUND, "User not found.");
+    if (user.role === "ADMIN") throw new AppError(httpStatus.FORBIDDEN, "Cannot delete an admin.");
 
     return await prisma.user.update({
       where: { id: targetUserId },
@@ -173,7 +173,7 @@ export const AdminService = {
 
   verifyCompany: async (companyId: string, newStatus: boolean) => {
     const company = await prisma.company.findUnique({ where: { id: companyId } });
-    if (!company) throw new AppError(status.NOT_FOUND, "Company not found.");
+    if (!company) throw new AppError(httpStatus.NOT_FOUND, "Company not found.");
 
     return await prisma.company.update({
       where: { id: companyId },
@@ -213,7 +213,7 @@ export const AdminService = {
 
   createSkill: async (name: string) => {
     const existing = await prisma.skill.findUnique({ where: { name } });
-    if (existing) throw new AppError(status.CONFLICT, "Skill already exists.");
+    if (existing) throw new AppError(httpStatus.CONFLICT, "Skill already exists.");
 
     return await prisma.skill.create({ data: { name } });
   },
