@@ -44,7 +44,8 @@
     "pg": "^8.20.0",
     "prisma": "^7.8.0",
     "puppeteer-core": "^24.43.0",
-    "zod": "^4.4.3"
+    "zod": "^4.4.3",
+    "iconv-lite": "^0.6.3"
   },
   "devDependencies": {
     "@types/cookie-parser": "^1.4.10",
