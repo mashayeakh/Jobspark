@@ -13,7 +13,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "engines": {
-  "node": "20.19.0"
+    "node": "20.19.0"
   },
   "author": "",
   "license": "ISC",
@@ -42,9 +42,9 @@
     "nodemailer": "^7.0.3",
     "pdfkit": "^0.17.1",
     "pg": "^8.20.0",
-    "puppeteer": "^24.14.0",
-    "zod": "^4.4.3",
-    "prisma": "^7.8.0"
+    "prisma": "^7.8.0",
+    "puppeteer-core": "^24.43.0",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/cookie-parser": "^1.4.10",
