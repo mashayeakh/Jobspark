@@ -1,4 +1,4 @@
-import { UserRole } from "prisma/generated";
+import { UserRole } from "prisma/generated/prisma/enums";
 
 export interface IRequestUser {
     userId: string,

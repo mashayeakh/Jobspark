@@ -1,4 +1,4 @@
-import { Prisma } from "prisma/generated";
+import { Prisma } from "prisma/generated/prisma/client";
 import { prisma } from "../../lib/prisma";
 import { CreateJobDto, JobFiltersDto, UpdateJobDto } from "./job.dto";
 import { AppError } from "@/app/errorHelpers/AppError";

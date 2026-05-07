@@ -1,7 +1,7 @@
 import { prisma } from "../../lib/prisma";
 import { AppError } from "@/app/errorHelpers/AppError";
 import httpStatus from "http-status";
-import { ConnectionStatus } from "prisma/generated";
+import { ConnectionStatus } from "prisma/generated/prisma/enums";
 
 export const NetworkService = {
   // --- Send a connection request ---

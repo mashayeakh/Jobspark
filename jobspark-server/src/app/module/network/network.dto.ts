@@ -1,4 +1,4 @@
-import { ConnectionStatus } from "prisma/generated";
+import { ConnectionStatus } from "prisma/generated/prisma/enums";
 
 export interface UpdateConnectionStatusDto {
   status: ConnectionStatus;

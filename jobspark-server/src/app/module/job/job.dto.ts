@@ -1,4 +1,6 @@
-import { JobStatus, JobType, LocationType, ExperienceLevel } from "prisma/generated";
+"prisma/generated";
+
+import { ExperienceLevel, JobStatus, JobType, LocationType } from "prisma/generated/prisma/enums";
 
 export interface CreateJobDto {
   title: string;

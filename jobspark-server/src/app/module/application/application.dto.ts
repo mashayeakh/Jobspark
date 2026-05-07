@@ -1,4 +1,4 @@
-import { ApplicationStatus } from "prisma/generated";
+import { ApplicationStatus } from "prisma/generated/prisma/enums";
 
 export interface ApplyJobDto {
   jobId: string;

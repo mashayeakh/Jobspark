@@ -3,11 +3,11 @@ import { LoginUserDto, RegisterUserDto } from "./auth.dto";
 import { auth } from "../../lib/auth";
 import { AppError } from "@/app/errorHelpers/AppError";
 import httpStatus from "http-status";
-import { UserStatus } from "prisma/generated";
-import { vefiryToken } from "@/app/Utils/jwt";
 import { envVars } from "@/app/config/env";
 import { JwtPayload } from "jsonwebtoken";
 import { getAccessToken, getRefreshToken } from "@/app/Utils/token";
+import { UserStatus } from "prisma/generated/prisma/enums";
+import { vefiryToken } from "@/app/Utils/jwt";
 
 export const AuthService = {
     // registration
