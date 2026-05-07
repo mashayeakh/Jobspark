@@ -6,6 +6,8 @@ export interface RegisterUserDto {
   password?: string; // Optional for OAuth, but required for manual registration
   role: UserRole;
   image?: string;
+  companyName?: string; // Required if role is RECRUITER
+  industry?: string;    // Required if role is RECRUITER
 }
 
 export interface LoginUserDto {

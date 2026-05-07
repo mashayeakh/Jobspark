@@ -12,10 +12,9 @@ import { getAccessToken, getRefreshToken } from "@/app/Utils/token";
 export const AuthService = {
     // registration
     registerUser: async (payload: RegisterUserDto) => {
-        const { email, password, name, role, image } = payload;
+        const { email, password, name, role, image, companyName, industry } = payload;
 
         // 1. Use Better Auth API for registration
-        // This handles hashing and database insertion via the Prisma adapter
         const result = await auth.api.signUpEmail({
             body: {
                 email,
@@ -27,7 +26,7 @@ export const AuthService = {
         });
 
         if (!result || !result.user) {
-            throw new Error("Registration failed.");
+            throw new AppError(status.BAD_REQUEST, "Registration failed.");
         }
 
         const newUser = result.user;
@@ -40,7 +39,25 @@ export const AuthService = {
                 },
             });
         } else if (role === "RECRUITER") {
-            // Note: RecruiterProfile requires companyId, usually handled in separate step
+            if (!companyName || !industry) {
+                throw new AppError(status.BAD_REQUEST, "Company name and industry are required for recruiters.");
+            }
+
+            // Create company first
+            const company = await prisma.company.create({
+                data: {
+                    name: companyName,
+                    industry: industry,
+                }
+            });
+
+            // Then create profile linked to the company
+            await prisma.recruiterProfile.create({
+                data: {
+                    userId: newUser.id,
+                    companyId: company.id,
+                },
+            });
         }
 
         return newUser;
