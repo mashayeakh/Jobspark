@@ -4,13 +4,17 @@ services:
     env: node
     plan: free
     rootDir: jobspark-server
-    buildCommand: npm install && npm run build
+    buildCommand: PUPPETEER_SKIP_DOWNLOAD=true PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true npm install && npm run build
     startCommand: npx prisma migrate deploy && npm start
     envVars:
       - key: NODE_VERSION
-        value: 20.19.0
+        value: "20.19.0"
+      - key: PUPPETEER_SKIP_DOWNLOAD
+        value: "true"
+      - key: PUPPETEER_SKIP_CHROMIUM_DOWNLOAD
+        value: "true"
       - key: PORT
-        value: 5000
+        value: "5000"
       - key: DATABASE_URL
         sync: false
       - key: FRONTEND_URL
@@ -27,7 +31,3 @@ services:
         sync: false
       - key: EMAIL_PASS
         sync: false
-      - key: PUPPETEER_SKIP_DOWNLOAD
-        value: "true"
-      - key: PUPPETEER_SKIP_CHROMIUM_DOWNLOAD
-        value: "true"
