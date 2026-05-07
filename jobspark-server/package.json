@@ -2,16 +2,16 @@
   "name": "jobspark-server",
   "version": "1.0.0",
   "type": "module",
-  "main": "dist/src/server.js",
+  "main": "dist/server.js",
   "scripts": {
-    "start": "node dist/src/server.js",
+    "start": "node dist/server.js",
     "prebuild": "npm install --omit=dev=false",
     "build:tsup": "tsup",
     "dev": "tsx watch src/server.ts",
-    "build": "prisma generate && tsc ",
+    "build": "prisma generate && tsup",
     "postinstall": "prisma generate",
     "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  },  
   "engines": {
     "node": "20.19.0"
   },

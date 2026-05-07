@@ -4,17 +4,19 @@ import { seedAdmin } from "./app/scripts/seedAdmin";
 
 dotenv.config();
 
-const port = process.env.PORT
+const port = process.env.PORT || 5000;
 
 const bootstrap = async () => {
     try {
+        console.log(`🚀 Starting server in ${process.env.NODE_ENV} mode...`);
         // Seed admin on every startup (idempotent - safe to run multiple times)
         await seedAdmin();
         app.listen(port, () => {
             console.log(`Server is running on http://localhost:${port}`);
         });
     } catch (error) {
-        console.log("Failed to start server", error)
+        console.error("💥 Failed to start server:", error)
+        process.exit(1);
     }
 }
 
