@@ -4,8 +4,8 @@ import httpStatus from "http-status";
 import { envVars } from "../config/env";
 import { prisma } from "../lib/prisma";
 import { getCookie } from '../Utils/cookies';
-import { UserRole, UserStatus } from "prisma/generated";
 import { vefiryToken } from '../Utils/jwt';
+import { UserRole, UserStatus } from 'prisma/generated/prisma/enums';
 
 export const checkAuth = (...authRoles: UserRole[]) =>
     async (req: Request, res: Response, next: NextFunction) => {

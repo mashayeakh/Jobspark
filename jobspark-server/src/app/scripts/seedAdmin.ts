@@ -1,7 +1,7 @@
-import { UserRole } from "prisma/generated";
 import { envVars } from "../config/env";
 import { prisma } from "../lib/prisma";
 import { auth } from "../lib/auth";
+import { UserRole } from "prisma/generated/prisma/enums";
 
 
 export const seedAdmin = async () => {

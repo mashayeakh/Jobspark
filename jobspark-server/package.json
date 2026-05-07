@@ -4,11 +4,11 @@
   "type": "module",
   "main": "dist/server.cjs",
   "scripts": {
-    "start": "node dist/server.cjs",
+    "start": "node dist/src/server.js",
     "prebuild": "npm install --omit=dev=false",
     "build:tsup": "tsup",
     "dev": "tsx watch src/server.ts",
-    "build": "prisma generate && tsc",
+    "build": "prisma generate && tsc ",
     "postinstall": "prisma generate",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

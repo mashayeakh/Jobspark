@@ -1,4 +1,5 @@
-import { UserRole, UserStatus } from "prisma/generated";
+import { UserRole } from "prisma/generated/prisma/enums";
+
 
 export interface RegisterUserDto {
   name: string;

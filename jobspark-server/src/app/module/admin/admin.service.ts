@@ -1,8 +1,8 @@
 import { prisma } from "../../lib/prisma";
 import { AppError } from "@/app/errorHelpers/AppError";
 import httpStatus from "http-status";
+import { UserStatus } from "prisma/generated/prisma/enums";
 
-import { UserStatus } from "prisma/generated";
 
 export const AdminService = {
   // --- Platform Overview / Analytics Dashboard ---
