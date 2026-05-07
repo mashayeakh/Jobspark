@@ -3,7 +3,7 @@ import { LoginUserDto, RegisterUserDto } from "./auth.dto";
 import { auth } from "../../lib/auth";
 import { AppError } from "@/app/errorHelpers/AppError";
 import status from "http-status";
-import { UserStatus } from "prisma/generated/client";
+import { UserStatus } from "prisma/generated";
 import { vefiryToken } from "@/app/Utils/jwt";
 import { envVars } from "@/app/config/env";
 import { JwtPayload } from "jsonwebtoken";

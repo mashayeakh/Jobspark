@@ -7,4 +7,5 @@ export default defineConfig({
     target: 'node20',
     outDir: 'dist',
     external: ['pg-native'],
+    noExternal: ['prisma/generated'],
 })

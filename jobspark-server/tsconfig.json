@@ -12,14 +12,13 @@
     "ignoreDeprecations": "5.0",
     "baseUrl": ".",                    
     "paths": {                          
-      "@/*": ["src/*"]
-    },
-    "types": ["node"]
+      "@/*": ["src/*"],
+      "prisma/*": ["prisma/*"]
+    }
   },
   "include": [
     "src/**/*", 
-    "prisma/generated/**/*",
-    "prisma.config.ts"
+    "prisma/generated/**/*"
   ],
   "exclude": ["node_modules", "dist"]
 }

@@ -1,4 +1,4 @@
-import { UserRole } from "prisma/generated/client";
+import { UserRole } from "prisma/generated";
 import { envVars } from "../config/env";
 import { prisma } from "../lib/prisma";
 import { auth } from "../lib/auth";

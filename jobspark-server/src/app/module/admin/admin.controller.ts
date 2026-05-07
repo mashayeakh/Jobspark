@@ -3,7 +3,7 @@ import { catchAsyc } from "@/app/shared/catchAsyc";
 import { sendResponse } from "@/app/Utils/sendResponse";
 import status from "http-status";
 import { AdminService } from "./admin.service";
-import { UserStatus } from "prisma/generated/client";
+import { UserStatus } from "prisma/generated";
 
 export const AdminController = {
   // Analytics Dashboard

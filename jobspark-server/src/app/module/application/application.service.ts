@@ -2,7 +2,7 @@ import { prisma } from "../../lib/prisma";
 import { ApplyJobDto, UpdateApplicationStatusDto } from "./application.dto";
 import { AppError } from "@/app/errorHelpers/AppError";
 import status from "http-status";
-import { ApplicationStatus } from "prisma/generated/client";
+import { ApplicationStatus } from "prisma/generated";
 
 export const ApplicationService = {
   // --- SEEKER: Apply for a Job ---
