@@ -101,8 +101,20 @@ export const JobService = {
   },
 
   getJobById: async (id: string) => {
-    const job = await prisma.job.findUnique({
+    // Check if job exists first
+    const exists = await prisma.job.findUnique({
       where: { id, deletedAt: null },
+      select: { id: true },
+    });
+
+    if (!exists) {
+      throw new AppError(status.NOT_FOUND, "Job not found.");
+    }
+
+    // Increment viewCount and return full job data atomically
+    const job = await prisma.job.update({
+      where: { id },
+      data: { viewCount: { increment: 1 } },
       include: {
         company: true,
         recruiter: {
@@ -117,10 +129,6 @@ export const JobService = {
         },
       },
     });
-
-    if (!job) {
-      throw new AppError(status.NOT_FOUND, "Job not found.");
-    }
 
     return job;
   },

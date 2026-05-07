@@ -3,6 +3,8 @@ import { AuthRoutes } from "./auth/auth.route";
 import { JobSeekerRoutes } from "./jobSeeker/jobSeeker.route";
 import { RecruiterRoutes } from "./recruiter/recruiter.route";
 import { JobRoutes } from "./job/job.route";
+import { ApplicationRoutes } from "./application/application.route";
+import { NetworkRoutes } from "./network/network.route";
 
 const router = express.Router();
 
@@ -17,5 +19,11 @@ router.use("/recruiter", RecruiterRoutes);
 
 //!Jobs
 router.use("/jobs", JobRoutes);
+
+//!Applications
+router.use("/applications", ApplicationRoutes);
+
+//!Network & Notifications
+router.use("/network", NetworkRoutes);
 
 export default router;

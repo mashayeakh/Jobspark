@@ -10,5 +10,7 @@ dist
 
 logs/
 
+generated/
+
 
 /generated/prisma
