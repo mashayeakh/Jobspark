@@ -11,7 +11,20 @@ export const app: Application = express()
 app.use(express.json());
 
 app.use(cors({
-    origin: 'http://localhost:5173',
+    origin: (origin, callback) => {
+        const allowedOrigins = [
+            'http://localhost:5173',
+            'http://localhost:3000',
+            process.env.FRONTEND_URL,
+            process.env.RENDER_EXTERNAL_URL
+        ].filter(Boolean);
+        
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true,
 }));
 
@@ -40,6 +53,10 @@ app.use("/api/v2/", router);
 
 app.get('/', (req: Request, res: Response) => {
     res.send('Hello JobPark!')
+})
+
+app.get('/health', (req: Request, res: Response) => {
+    res.status(200).json({ status: 'OK', uptime: process.uptime() });
 })
 
 // app.get('/api/test-db', async (req: Request, res: Response) => {

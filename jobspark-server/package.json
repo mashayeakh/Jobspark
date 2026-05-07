@@ -2,15 +2,18 @@
   "name": "jobspark-server",
   "version": "1.0.0",
   "type": "module",
-  "main": "dist/src/server.js",
+  "main": "dist/server.cjs",
   "scripts": {
-    "start": "node dist/src/server.js",
+    "start": "node dist/server.cjs",
     "prebuild": "npm install --omit=dev=false",
     "build:tsup": "tsup",
     "dev": "tsx watch src/server.ts",
-    "build": "prisma generate && prisma migrate deploy && tsup src/server.ts --format cjs --platform node --target node20 --outDir dist --external pg-native",
+    "build": "prisma generate && tsup src/server.ts --format cjs --platform node --target node20 --outDir dist --external pg-native",
     "postinstall": "prisma generate",
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "engines": {
+    "node": ">=20.0.0"
   },
   "author": "",
   "license": "ISC",
@@ -40,7 +43,8 @@
     "pdfkit": "^0.17.1",
     "pg": "^8.20.0",
     "puppeteer": "^24.14.0",
-    "zod": "^4.4.3"
+    "zod": "^4.4.3",
+    "prisma": "^7.8.0"
   },
   "devDependencies": {
     "@types/cookie-parser": "^1.4.10",
@@ -49,7 +53,6 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^25.6.0",
     "@types/pg": "^8.20.0",
-    "prisma": "^7.8.0",
     "prisma-generator-typescript-interfaces": "^3.1.0",
     "ts-node-dev": "^2.0.0",
     "tsup": "^8.5.1",
