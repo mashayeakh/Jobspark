@@ -2,7 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { X, Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { authService } from '@/services/authService';
 
 interface AnimatedCircle {
   id: number;
@@ -15,10 +17,20 @@ interface AnimatedCircle {
 }
 
 const LoginPage = () => {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  // Test localStorage
+  console.log('localStorage test:', {
+    setItem: (key: string, value: string) => {
+      localStorage.setItem(key, value);
+      console.log(`Set ${key}:`, localStorage.getItem(key));
+    }
+  });
 
   const circles: AnimatedCircle[] = [
     {
@@ -72,31 +84,38 @@ const LoginPage = () => {
 
   useEffect(() => {
     setMounted(true);
+
+    // Test localStorage immediately
+    console.log('Testing localStorage on mount...');
+    localStorage.setItem('test', 'working');
+    console.log('Test item:', localStorage.getItem('test'));
+    localStorage.removeItem('test');
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setError('');
 
     try {
-      // Simulate login process
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
+      const response = await authService.login({ email, password });
 
-      if (response.ok) {
-        // Redirect to dashboard on success
-        window.location.href = '/dashboard';
+      if (response.success && response.data) {
+        const user = response.data.result.user;
+
+        // Redirect based on user role
+        if (user.role === 'RECRUITER') {
+          router.push('/dashboard');
+        } else if (user.role === 'JOB_SEEKER') {
+          router.push('/jobs');
+        } else {
+          router.push('/dashboard');
+        }
       } else {
-        // Handle error
-        console.error('Login failed');
+        setError(response.error || 'Login failed. Please check your credentials.');
       }
-    } catch (error) {
-      console.error('Login error:', error);
+    } catch (error: any) {
+      setError(error?.message || 'Login failed. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -192,6 +211,13 @@ const LoginPage = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Error Message */}
+            {error && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-red-800 text-sm">{error}</p>
+              </div>
+            )}
+
             {/* Email Field */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
@@ -283,16 +309,7 @@ const LoginPage = () => {
           </div>
 
           {/* Logo with decorative elements */}
-          <div className="flex justify-center mb-6">
-            <div className="relative">
-              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center">
-                <span className="text-white font-bold text-2xl">JS</span>
-              </div>
-              {/* Decorative lines */}
-              <div className="absolute -top-2 -right-2 w-4 h-4 bg-blue-300 rounded-full"></div>
-              <div className="absolute -bottom-2 -left-2 w-3 h-3 bg-purple-300 rounded-full"></div>
-            </div>
-          </div>
+
 
           {/* Sign Up Section */}
           <div className="text-center">
@@ -305,12 +322,12 @@ const LoginPage = () => {
                 Create an account
               </Link>
             </p>
-            <Link
-              href="/signup"
+            <p
+
               className="inline-flex items-center justify-center px-6 py-3 border border-blue-600 text-blue-600 rounded-lg font-medium hover:bg-blue-50 transition-colors duration-200"
             >
               Request a demo credential
-            </Link>
+            </p>
           </div>
         </div>
       </div >

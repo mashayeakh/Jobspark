@@ -2,23 +2,19 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { DollarSign, Briefcase } from 'lucide-react';
 import { jobService } from '@/services/jobService';
 import { workStyleService } from '@/services/workStyleService';
-import { categoryService } from '@/services/categoryService';
 import { useApi } from '@/hooks/useApi';
 
 export default function PostJobPage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
 
   // Fetch filter options
   const { data: jobTypesData } = useApi(() => workStyleService.getActiveJobTypes());
   const { data: locationTypesData } = useApi(() => workStyleService.getActiveLocationTypes());
   const { data: experienceLevelsData } = useApi(() => workStyleService.getActiveExperienceLevels());
-  const { data: categoriesData } = useApi(() => categoryService.getActiveCategories());
 
   const [formData, setFormData] = useState({
     title: '',
@@ -33,21 +29,13 @@ export default function PostJobPage() {
     benefits: '',
     responsibilities: '',
     requirements: '',
-    category: '',
-    subCategory: '',
+    categoryId: '',
+    subCategoryId: '',
     skills: [] as string[],
   });
 
   const handleInputChange = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const handleCategoryChange = (categoryName: string) => {
-    setFormData(prev => ({
-      ...prev,
-      category: categoryName,
-      subCategory: '' // Reset subcategory when category changes
-    }));
   };
 
   const handleSkillToggle = (skillName: string) => {
@@ -63,7 +51,6 @@ export default function PostJobPage() {
     e.preventDefault();
     setIsSubmitting(true);
     setSubmitMessage('');
-    setErrorMessage('');
 
     try {
       const jobData = {
@@ -79,38 +66,27 @@ export default function PostJobPage() {
         benefits: formData.benefits,
         responsibilities: formData.responsibilities,
         requirements: formData.requirements,
-        category: formData.category || undefined,
-        subCategory: formData.subCategory || undefined,
+        categoryId: formData.categoryId || undefined,
+        subCategoryId: formData.subCategoryId || undefined,
         skills: formData.skills,
       };
 
       const response = await jobService.createJob(jobData);
-
+      
       if (response.success) {
         setSubmitMessage('Job posted successfully!');
         setTimeout(() => {
           router.push('/jobs');
         }, 2000);
       } else {
-        const errorMsg = response.error || 'Failed to post job';
-        if (errorMsg.includes('login') || errorMsg.includes('recruiter')) {
-          setErrorMessage(errorMsg);
-        } else {
-          setSubmitMessage(errorMsg);
-        }
+        setSubmitMessage(response.error || 'Failed to post job');
       }
-    } catch (error: any) {
-      const errorMsg = error?.message || 'An error occurred while posting job';
-      if (errorMsg.includes('login') || errorMsg.includes('recruiter') || errorMsg.includes('Unauthorized')) {
-        setErrorMessage(errorMsg);
-      } else {
-        setSubmitMessage(errorMsg);
-      }
+    } catch (error) {
+      setSubmitMessage('An error occurred while posting job');
     } finally {
       setIsSubmitting(false);
     }
   };
-
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -121,13 +97,6 @@ export default function PostJobPage() {
               <h1 className="text-3xl font-bold text-gray-900 mb-2">Post a New Job</h1>
               <p className="text-gray-600">Create a new job opening to find the perfect candidate</p>
             </div>
-
-            {/* Error Message at Top */}
-            {errorMessage && (
-              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-red-800 font-medium">{errorMessage}</p>
-              </div>
-            )}
 
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Basic Information */}
@@ -262,7 +231,7 @@ export default function PostJobPage() {
               </div>
 
               {/* Additional Details */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Number of Positions
@@ -280,39 +249,13 @@ export default function PostJobPage() {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Category
                   </label>
-                  <select
-                    value={formData.category}
-                    onChange={(e) => handleCategoryChange(e.target.value)}
+                  <input
+                    type="text"
+                    value={formData.categoryId}
+                    onChange={(e) => handleInputChange('categoryId', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  >
-                    <option value="">Select a category (optional)</option>
-                    {categoriesData?.map(category => (
-                      <option key={category.id} value={category.name}>
-                        {category.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Sub-category
-                  </label>
-                  <select
-                    value={formData.subCategory}
-                    onChange={(e) => handleInputChange('subCategory', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    disabled={!formData.category}
-                  >
-                    <option value="">
-                      {formData.category ? 'Select a sub-category (optional)' : 'Select a category first'}
-                    </option>
-                    {formData.category && categoriesData?.find(cat => cat.name === formData.category)?.subcategories.map(subcategory => (
-                      <option key={subcategory.id} value={subcategory.name}>
-                        {subcategory.name}
-                      </option>
-                    ))}
-                  </select>
+                    placeholder="Category ID (optional)"
+                  />
                 </div>
               </div>
 
@@ -326,9 +269,9 @@ export default function PostJobPage() {
                   value={formData.responsibilities}
                   onChange={(e) => handleInputChange('responsibilities', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="Justify technical solutions to business tasks; Create scalable systems from scratch; Handle client calls with professionalism; Onboard quickly; Maintain trust through consistent delivery."
-                />
-              </div>
+                    placeholder="Justify technical solutions to business tasks; Create scalable systems from scratch; Handle client calls with professionalism; Onboard quickly; Maintain trust through consistent delivery."
+                  />
+                </div>
 
               {/* Requirements */}
               <div>
@@ -340,9 +283,9 @@ export default function PostJobPage() {
                   value={formData.requirements}
                   onChange={(e) => handleInputChange('requirements', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="4+ years software development experience. Expertise in: (Symfony/Vue) OR (Symfony/Angular) OR (Symfony/Next.js/JS-TS). Advanced English fluency. Strong self-organizational skills and full reliability."
-                />
-              </div>
+                    placeholder="4+ years software development experience. Expertise in: (Symfony/Vue) OR (Symfony/Angular) OR (Symfony/Next.js/JS-TS). Advanced English fluency. Strong self-organizational skills and full reliability."
+                  />
+                </div>
 
               {/* Benefits */}
               <div>
@@ -354,9 +297,9 @@ export default function PostJobPage() {
                   value={formData.benefits}
                   onChange={(e) => handleInputChange('benefits', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="Performance-based Equity; Paid Certification Courses; Annual Wellness Stipend; Dynamic Remote Team; No-meeting Thursdays."
-                />
-              </div>
+                    placeholder="Performance-based Equity; Paid Certification Courses; Annual Wellness Stipend; Dynamic Remote Team; No-meeting Thursdays."
+                  />
+                </div>
 
               {/* Skills */}
               <div>

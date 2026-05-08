@@ -27,7 +27,7 @@ const poppins = Poppins({
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const hidePublicChrome = pathname === "/signup" || pathname === "/forgetPassword" || pathname === "/verify-email";
+  const hidePublicChrome = pathname === "/signup" || pathname === "/login" || pathname === "/forgetPassword" || pathname === "/verify-email";
   const [notificationCount, setNotificationCount] = useState(0);
 
   useEffect(() => {

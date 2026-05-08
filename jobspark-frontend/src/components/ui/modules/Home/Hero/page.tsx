@@ -72,7 +72,7 @@ const HeroSection = (props: Props) => {
                         {/* Icon */}
                         {icon && (
                             <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-2xl mb-4 lg:mb-6">
-                                <div className="text-blue-600">
+                                <div className="text-blue-600 animate-pulse">
                                     {icon}
                                 </div>
                             </div>

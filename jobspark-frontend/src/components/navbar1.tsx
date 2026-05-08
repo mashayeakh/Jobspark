@@ -3,6 +3,7 @@
 
 import { Book, Menu, Sunset, Trees, Zap, Bell } from "lucide-react";
 import { useState, useEffect } from "react";
+import { authService } from "@/services/authService";
 
 import {
   Accordion,
@@ -108,6 +109,37 @@ const Navbar = ({
   className,
 }: Navbar1Props) => {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    // Check authentication status on mount and when storage changes
+    const checkAuth = () => {
+      const userData = authService.getUser();
+      const isAuthenticated = authService.isAuthenticated();
+      setUser(userData);
+      console.log('Auth status:', { user: userData, isAuthenticated });
+    };
+
+    // Initial check
+    checkAuth();
+
+    // Listen for storage changes
+    const handleStorageChange = () => {
+      checkAuth();
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -121,8 +153,8 @@ const Navbar = ({
     default: {
       container: cn(
         "sticky top-0 z-50 w-full transition-all duration-300",
-        isScrolled 
-          ? "bg-blue-50/80 backdrop-blur-lg shadow-sm" 
+        isScrolled
+          ? "bg-blue-50/80 backdrop-blur-lg shadow-sm"
           : "bg-blue-50"
       ),
       nav: "hidden items-center justify-between py-3 lg:flex",
@@ -132,8 +164,8 @@ const Navbar = ({
     compact: {
       container: cn(
         "sticky top-0 z-50 w-full transition-all duration-300",
-        isScrolled 
-          ? "bg-blue-50/80 backdrop-blur-md" 
+        isScrolled
+          ? "bg-blue-50/80 backdrop-blur-md"
           : "bg-blue-50"
       ),
       nav: "hidden items-center justify-between py-2 lg:flex",
@@ -175,50 +207,61 @@ const Navbar = ({
             </div>
           </div>
           <div className={cn("flex items-center", styles.gap)}>
-            <Button asChild variant="ghost" size="sm" className="text-gray-600 hover:text-gray-900">
-              <a href={auth.login.url}>{auth.login.title}</a>
-            </Button>
-            <Button asChild size="sm" className="bg-blue-600 hover:bg-blue-700">
-              <a href={auth.signup.url}>{auth.signup.title}</a>
-            </Button>
-            {/* Notification Icon with Badge */}
-            <Button asChild variant="ghost" size="icon" className="relative">
-              <a href="/notifications">
-                <Bell className="size-4" />
-                {notificationCount > 0 && (
-                  <span className="absolute -top-1 -right-1 h-5 w-5 bg-red-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
-                    {notificationCount > 9 ? "9+" : notificationCount}
-                  </span>
-                )}
-              </a>
-            </Button>
-            {/* Profile Dropdown */}
-            <NavigationMenu>
-              <NavigationMenuList>
-                <NavigationMenuItem>
-                  <NavigationMenuTrigger className="h-8 w-8 rounded-full bg-gray-100 p-0">
-                    <div className="h-full w-full rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-sm font-medium">
-                      U
-                    </div>
-                  </NavigationMenuTrigger>
-                  <NavigationMenuContent className="w-64">
-                    <div className="p-4">
-                      <div className="border-b pb-3 mb-3">
-                        <p className="font-medium">John Doe</p>
-                        <p className="text-sm text-gray-500">john@example.com</p>
-                      </div>
-                      <div className="space-y-2">
-                        <a href="/profile" className="block px-3 py-2 text-sm rounded-md hover:bg-gray-100">Profile</a>
-                        <a href="/settings" className="block px-3 py-2 text-sm rounded-md hover:bg-gray-100">Settings</a>
-                        <a href="/applications" className="block px-3 py-2 text-sm rounded-md hover:bg-gray-100">My Applications</a>
-                        <hr className="my-2" />
-                        <a href="/logout" className="block px-3 py-2 text-sm rounded-md hover:bg-gray-100 text-red-600">Log out</a>
-                      </div>
-                    </div>
-                  </NavigationMenuContent>
-                </NavigationMenuItem>
-              </NavigationMenuList>
-            </NavigationMenu>
+            {/* Show login/signup when not authenticated */}
+            {!user && (
+              <>
+                <Button asChild variant="ghost" size="sm" className="text-gray-600 hover:text-gray-900">
+                  <a href={auth.login.url}>{auth.login.title}</a>
+                </Button>
+                <Button asChild size="sm" className="bg-blue-600 hover:bg-blue-700">
+                  <a href={auth.signup.url}>{auth.signup.title}</a>
+                </Button>
+              </>
+            )}
+
+            {/* Show authenticated user navigation */}
+            {user && (
+              <>
+                {/* Notification Icon with Badge */}
+                <Button asChild variant="ghost" size="icon" className="relative">
+                  <a href="/notifications">
+                    <Bell className="size-4" />
+                    {notificationCount > 0 && (
+                      <span className="absolute -top-1 -right-1 h-5 w-5 bg-red-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                        {notificationCount > 9 ? "9+" : notificationCount}
+                      </span>
+                    )}
+                  </a>
+                </Button>
+                {/* Profile Dropdown */}
+                <NavigationMenu>
+                  <NavigationMenuList>
+                    <NavigationMenuItem>
+                      <NavigationMenuTrigger className="h-8 w-8 rounded-full bg-gray-100 p-0">
+                        <div className="h-full w-full rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-sm font-medium">
+                          {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                        </div>
+                      </NavigationMenuTrigger>
+                      <NavigationMenuContent className="w-64">
+                        <div className="p-4">
+                          <div className="border-b pb-3 mb-3">
+                            <p className="font-medium">{user.name || 'User'}</p>
+                            <p className="text-sm text-gray-500">{user.email || 'user@example.com'}</p>
+                          </div>
+                          <div className="space-y-2">
+                            <a href="/profile" className="block px-3 py-2 text-sm rounded-md hover:bg-gray-100">Profile</a>
+                            <a href="/settings" className="block px-3 py-2 text-sm rounded-md hover:bg-gray-100">Settings</a>
+                            <a href="/applications" className="block px-3 py-2 text-sm rounded-md hover:bg-gray-100">My Applications</a>
+                            <hr className="my-2" />
+                            <a href="/logout" className="block px-3 py-2 text-sm rounded-md hover:bg-gray-100 text-red-600">Log out</a>
+                          </div>
+                        </div>
+                      </NavigationMenuContent>
+                    </NavigationMenuItem>
+                  </NavigationMenuList>
+                </NavigationMenu>
+              </>
+            )}
           </div>
         </nav>
 
@@ -277,12 +320,24 @@ const Navbar = ({
                     </Accordion>
 
                     <div className="flex flex-col gap-3">
-                      <Button asChild variant="outline" className="w-full">
-                        <a href={auth.login.url}>{auth.login.title}</a>
-                      </Button>
-                      <Button asChild className="w-full bg-blue-600 hover:bg-blue-700">
-                        <a href={auth.signup.url}>{auth.signup.title}</a>
-                      </Button>
+                      {/* Show login/signup when not authenticated */}
+                      {!user && (
+                        <>
+                          <Button asChild variant="outline" className="w-full">
+                            <a href={auth.login.url}>{auth.login.title}</a>
+                          </Button>
+                          <Button asChild className="w-full bg-blue-600 hover:bg-blue-700">
+                            <a href={auth.signup.url}>{auth.signup.title}</a>
+                          </Button>
+                        </>
+                      )}
+
+                      {/* Show logout when authenticated */}
+                      {user && (
+                        <Button asChild variant="outline" className="w-full bg-red-600 hover:bg-red-700">
+                          <a href="/logout">Log out</a>
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </SheetContent>
@@ -291,7 +346,7 @@ const Navbar = ({
           </div>
         </div>
       </div>
-    </section>
+    </section >
   );
 };
 

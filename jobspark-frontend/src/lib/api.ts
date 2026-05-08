@@ -39,9 +39,19 @@ class ApiClient {
       }
 
       const data = await response.json();
+      console.log('Raw API Response:', data); // Debug log
+
+      // Backend returns response directly, not wrapped
+      if (data.success === false) {
+        return {
+          success: false,
+          error: data.message,
+        };
+      }
+
       return {
         success: true,
-        data,
+        data: data,
       };
     } catch (error) {
       return {
