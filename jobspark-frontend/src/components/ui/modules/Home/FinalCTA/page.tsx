@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { ArrowRight, Star, Shield, Zap, Users } from 'lucide-react';
+import Link from 'next/link';
 
 const FinalCTA = () => {
   const stats = [
@@ -62,7 +63,7 @@ const FinalCTA = () => {
                 Start Your Journey Today
               </h3>
               <p className="text-lg text-blue-100 mb-8 max-w-2xl mx-auto">
-                Whether you're looking for your next opportunity or seeking top talent, HireNova is your platform for success.
+                Whether you&apos;re looking for your next opportunity or seeking top talent, HireNova is your platform for success.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
@@ -111,18 +112,18 @@ const FinalCTA = () => {
               <Users className="w-6 h-6 text-blue-400" />
             </div>
             <h4 className="text-xl font-bold mb-3">
-              I'm Looking for a Job
+              I&apos;m Looking for a Job
             </h4>
             <p className="text-gray-300 mb-6">
               Create your profile and get matched with top companies worldwide
             </p>
-            <a
+            <Link
               href="/jobs"
               className="inline-flex items-center gap-2 text-blue-400 font-semibold hover:text-blue-300 transition-colors duration-300"
             >
               Browse Jobs
               <ArrowRight className="w-4 h-4" />
-            </a>
+            </Link>
           </div>
 
           <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 sm:p-8 border border-white/10 hover:bg-white/10 transition-all duration-300">
@@ -130,7 +131,7 @@ const FinalCTA = () => {
               <Shield className="w-6 h-6 text-purple-400" />
             </div>
             <h4 className="text-xl font-bold mb-3">
-              I'm Looking to Hire
+              I&apos;m Looking to Hire
             </h4>
             <p className="text-gray-300 mb-6">
               Post jobs and connect with pre-vetted, qualified candidates

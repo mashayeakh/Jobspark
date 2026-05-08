@@ -108,7 +108,7 @@ const Testimonials = () => {
             {/* Content */}
             <div className="relative z-10 text-center sm:text-left">
               <p className="text-lg sm:text-xl lg:text-2xl text-gray-800 mb-8 leading-relaxed font-medium">
-                "{currentTestimonial.content}"
+                {currentTestimonial.content}
               </p>
 
               {/* Author Info */}
@@ -185,7 +185,7 @@ const Testimonials = () => {
                 {renderStars(testimonial.rating)}
               </div>
               <p className="text-gray-700 mb-4 line-clamp-3">
-                "{testimonial.content}"
+                {testimonial.content}
               </p>
               <div className="flex items-center gap-3">
                 <img

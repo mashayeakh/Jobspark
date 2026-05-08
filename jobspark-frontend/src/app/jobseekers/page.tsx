@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import React from 'react';
@@ -276,7 +277,7 @@ const JobSeekersPage = () => {
                   </div>
                 </div>
                 <blockquote className="text-gray-700 italic leading-relaxed">
-                  "{testimonial.quote}"
+                  {testimonial.quote}
                 </blockquote>
               </div>
             ))}
