@@ -14,7 +14,7 @@ export const checkAuth = (...authRoles: UserRole[]) =>
             //1 - check if any user logged in or not with session
             const sessionToken = getCookie(req, "better-auth.session_token");
             if (!sessionToken) {
-                throw new AppError(httpStatus.UNAUTHORIZED, "Unauthorized access! No session token provided");
+                throw new AppError(httpStatus.UNAUTHORIZED, "Please login as a recruiter to post a job");
             }
 
             //if i have the session token then you must check wheather it exists in db or not
