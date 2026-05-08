@@ -74,10 +74,10 @@ const Navbar = ({
       url: "/jobs",
       items: [
         { title: "Job Seekers", url: "/jobseekers", description: "Resources for candidates" },
-        { title: "Remote Jobs", url: "/jobs/remote", description: "Work from anywhere" },
-        { title: "Tech Jobs", url: "/jobs/tech", description: "Engineering & development" },
-        { title: "Design Jobs", url: "/jobs/design", description: "UI/UX & product design" },
-        { title: "Marketing Jobs", url: "/jobs/marketing", description: "Growth & marketing" },
+        { title: "Remote Jobs", url: "/remote-jobs", description: "Work from anywhere" },
+        { title: "Tech Jobs", url: "/tech-jobs", description: "Engineering & development" },
+        { title: "Design Jobs", url: "/design-jobs", description: "UI/UX & product design" },
+        { title: "Marketing Jobs", url: "/marketing-jobs", description: "Growth & marketing" },
       ]
     },
     {
