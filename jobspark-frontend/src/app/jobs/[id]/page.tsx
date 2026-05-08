@@ -3,56 +3,31 @@
 import React, { use, useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, MapPin, Briefcase, Clock, DollarSign, Calendar, Users, Building, Share2, Heart, CheckCircle, X } from 'lucide-react';
-
-interface Job {
-  id: number;
-  title: string;
-  company: string;
-  location: string;
-  type: 'full-time' | 'part-time' | 'contract' | 'remote';
-  salary: string;
-  posted: string;
-  description: string;
-  requirements: string[];
-  benefits: string[];
-  logo: string;
-  category: string;
-  experience: string;
-  aboutCompany: string;
-  responsibilities: string[];
-  skills: string[];
-}
+import { getJobById } from '@/components/jobs/data';
 
 const JobDetailsPage = ({ params }: { params: Promise<{ id: string }> }) => {
   const { id } = use(params);
   const [saved, setSaved] = useState(false);
   const [applied, setApplied] = useState(false);
 
-  // Dummy job data - in real app this would come from API
-  const job: Job = {
-    id: parseInt(id),
-    title: 'Senior Frontend Developer',
-    company: 'TechCorp Solutions',
-    location: 'San Francisco, CA',
-    type: 'full-time',
-    salary: '$120,000 - $160,000',
-    posted: '2 days ago',
-    description: 'We are looking for an experienced frontend developer to join our growing team and help us build amazing user experiences. You will work closely with our design and backend teams to create responsive, performant web applications.',
-    requirements: ['5+ years experience', 'React/TypeScript', 'Node.js knowledge', 'Portfolio required'],
-    benefits: ['Health insurance', '401k', 'Remote work options', 'Professional development budget'],
-    logo: 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=64&h=64&fit=crop&crop=face',
-    category: 'Engineering',
-    experience: 'Senior',
-    aboutCompany: 'TechCorp Solutions is a leading technology company specializing in innovative web applications and digital solutions. We believe in fostering creativity, collaboration, and continuous learning.',
-    responsibilities: [
-      'Develop and maintain responsive web applications using React and TypeScript',
-      'Collaborate with UX designers and backend developers',
-      'Optimize applications for maximum speed and scalability',
-      'Write clean, maintainable, and well-documented code',
-      'Participate in code reviews and provide constructive feedback'
-    ],
-    skills: ['React', 'TypeScript', 'JavaScript', 'HTML/CSS', 'Node.js', 'Git', 'REST APIs', 'GraphQL']
-  };
+  const job = getJobById(parseInt(id));
+
+  if (!job) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Job Not Found</h1>
+          <p className="text-gray-600 mb-8">The job you're looking for doesn't exist.</p>
+          <Link
+            href="/jobs"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Browse Jobs
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   const handleApply = () => {
     setApplied(true);
@@ -123,11 +98,10 @@ const JobDetailsPage = ({ params }: { params: Promise<{ id: string }> }) => {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={handleSave}
-                    className={`p-2 rounded-lg transition-colors ${
-                      saved 
-                        ? 'bg-red-100 text-red-600 hover:bg-red-200' 
+                    className={`p-2 rounded-lg transition-colors ${saved
+                        ? 'bg-red-100 text-red-600 hover:bg-red-200'
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`}
+                      }`}
                   >
                     <Heart className={`w-5 h-5 ${saved ? 'fill-current' : ''}`} />
                   </button>
@@ -142,15 +116,14 @@ const JobDetailsPage = ({ params }: { params: Promise<{ id: string }> }) => {
 
               {/* Job Meta */}
               <div className="flex flex-wrap items-center gap-3 mt-4">
-                <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                  job.type === 'remote' 
+                <span className={`px-3 py-1 rounded-full text-sm font-medium ${job.type === 'remote'
                     ? 'bg-green-100 text-green-800'
                     : job.type === 'full-time'
-                    ? 'bg-blue-100 text-blue-800'
-                    : job.type === 'part-time'
-                    ? 'bg-yellow-100 text-yellow-800'
-                    : 'bg-gray-100 text-gray-800'
-                }`}>
+                      ? 'bg-blue-100 text-blue-800'
+                      : job.type === 'part-time'
+                        ? 'bg-yellow-100 text-yellow-800'
+                        : 'bg-gray-100 text-gray-800'
+                  }`}>
                   {job.type}
                 </span>
                 <span className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-medium">
@@ -222,11 +195,10 @@ const JobDetailsPage = ({ params }: { params: Promise<{ id: string }> }) => {
               <button
                 onClick={handleApply}
                 disabled={applied}
-                className={`w-full py-3 px-4 rounded-lg font-semibold transition-colors ${
-                  applied
+                className={`w-full py-3 px-4 rounded-lg font-semibold transition-colors ${applied
                     ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                     : 'bg-blue-600 text-white hover:bg-blue-700'
-                }`}
+                  }`}
               >
                 {applied ? 'Applied' : 'Apply Now'}
               </button>

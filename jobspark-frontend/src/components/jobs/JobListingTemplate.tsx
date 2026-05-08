@@ -124,11 +124,15 @@ export default function JobListingTemplate({
   const heroRef = useRef<HTMLDivElement>(null);
   const [heroVisible, setHeroVisible] = useState(true);
 
-  // Filter states
+  const [mounted, setMounted] = useState(false);
   const [workStyle, setWorkStyle] = useState('All');
   const [jobType, setJobType] = useState('All');
   const [experience, setExperience] = useState('All');
   const [sortBy, setSortBy] = useState('Newest');
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -176,9 +180,15 @@ export default function JobListingTemplate({
 
   // Sort
   if (sortBy === 'Newest') {
-    filtered = [...filtered].sort((a, b) =>
-      a.posted === 'today' ? -1 : b.posted === 'today' ? 1 : 0
-    );
+    filtered = [...filtered].sort((a, b) => {
+      if (a.posted === 'today' && b.posted !== 'today') return -1;
+      if (a.posted !== 'today' && b.posted === 'today') return 1;
+      return b.id - a.id; // Stable tie-breaker
+    });
+  } else if (sortBy === 'Highest Salary') {
+    // Basic salary sort (extracting first number from string)
+    const getSal = (s: string) => parseInt(s.replace(/[^0-9]/g, '')) || 0;
+    filtered = [...filtered].sort((a, b) => getSal(b.salary) - getSal(a.salary) || b.id - a.id);
   }
 
   const inputClass = 'flex-1 text-sm text-gray-800 placeholder-gray-400 outline-none bg-transparent';
@@ -329,7 +339,13 @@ export default function JobListingTemplate({
         </div>
 
         {/* Job list */}
-        {filtered.length > 0 ? (
+        {!mounted ? (
+          <div className="space-y-4">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="h-20 bg-gray-100 rounded-xl animate-pulse" />
+            ))}
+          </div>
+        ) : filtered.length > 0 ? (
           <div className="bg-white border border-gray-200 rounded-xl px-4">
             {filtered.map((job) => (
               <JobRow key={job.id} job={job} basePath={basePath} />
