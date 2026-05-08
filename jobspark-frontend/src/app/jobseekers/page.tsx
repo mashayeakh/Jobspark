@@ -2,76 +2,134 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Search, Briefcase, Users, TrendingUp, Star, ArrowRight, Zap, Shield, Globe } from 'lucide-react';
+import { Search, Users, TrendingUp, Briefcase, Star, ArrowRight, Zap, Shield, Globe, CheckCircle, BarChart, Target, Award } from 'lucide-react';
 
 const JobSeekersPage = () => {
-  const resources = [
+  const stats = [
+    { value: '2M+', label: 'Active Jobs', icon: Briefcase },
+    { value: '50K+', label: 'Companies', icon: Globe },
+    { value: '85%', label: 'Success Rate', icon: TrendingUp },
+    { value: '4.8★', label: 'User Rating', icon: Star }
+  ];
+
+  const features = [
     {
       icon: Search,
-      title: 'Job Search',
-      description: 'Browse thousands of job opportunities from top companies worldwide',
-      features: ['Advanced filters', 'AI matching', 'Real-time updates', 'Saved searches'],
-      cta: 'Browse Jobs',
+      title: 'Smart Job Search',
+      description: 'Advanced AI-powered search that matches you with perfect opportunities',
+      features: ['Real-time filtering', 'Salary insights', 'Company reviews', 'Skill matching'],
+      cta: 'Start Searching',
       href: '/jobs'
     },
     {
       icon: Users,
-      title: 'Profile Builder',
-      description: 'Create a professional profile that showcases your skills and experience',
-      features: ['Resume upload', 'Skills assessment', 'Portfolio integration', 'Profile analytics'],
+      title: 'Professional Profile',
+      description: 'Create a standout profile that showcases your skills and experience',
+      features: ['Resume builder', 'Portfolio showcase', 'Skills assessment', 'Profile analytics'],
       cta: 'Build Profile',
-      href: '/profile/build'
+      href: '/profile'
     },
     {
-      icon: TrendingUp,
-      title: 'Career Insights',
-      description: 'Get data-driven insights about salary trends and market demand',
-      features: ['Salary calculator', 'Market trends', 'Skill demand', 'Career paths'],
-      cta: 'Explore Insights',
-      href: '/resources/career'
+      icon: BarChart,
+      title: 'Career Analytics',
+      description: 'Track your job search progress and get data-driven insights',
+      features: ['Application tracking', 'Interview analytics', 'Market trends', 'Salary benchmarks'],
+      cta: 'View Analytics',
+      href: '/analytics'
     },
     {
-      icon: Briefcase,
-      title: 'Application Tools',
-      description: 'Streamline your job application process with smart tools',
-      features: ['One-click apply', 'Application tracker', 'Interview prep', 'Follow-up reminders'],
-      cta: 'Manage Applications',
-      href: '/applications'
+      icon: Target,
+      title: 'Skill Development',
+      description: 'Identify skill gaps and access personalized learning resources',
+      features: ['Skill assessment', 'Course recommendations', 'Certification tracking', 'Progress monitoring'],
+      cta: 'Improve Skills',
+      href: '/skills'
     }
   ];
 
-  const stats = [
-    { value: '2M+', label: 'Active Jobs' },
-    { value: '50K+', label: 'Companies' },
-    { value: '85%', label: 'Response Rate' },
-    { value: '4.8★', label: 'User Rating' }
+  const testimonials = [
+    {
+      name: 'Sarah Johnson',
+      role: 'Frontend Developer',
+      company: 'TechCorp',
+      image: 'https://images.unsplash.com/photo-1494790108750-851a5d8b0b8?w=64&h=64&fit=crop&crop=face',
+      quote: 'JobSpark helped me land my dream job in just 3 weeks! The AI matching is incredible.',
+      rating: 5
+    },
+    {
+      name: 'Michael Chen',
+      role: 'Product Manager',
+      company: 'InnovateCo',
+      image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=64&h=64&fit=crop&crop=face',
+      quote: 'The profile builder and analytics tools gave me confidence to apply for senior roles.',
+      rating: 5
+    }
+  ];
+
+  const howItWorks = [
+    {
+      step: 1,
+      title: 'Create Profile',
+      description: 'Build your professional profile with our AI-powered resume builder',
+      icon: Users
+    },
+    {
+      step: 2,
+      title: 'Get Matches',
+      description: 'Receive personalized job recommendations based on your skills',
+      icon: Target
+    },
+    {
+      step: 3,
+      title: 'Apply Smart',
+      description: 'One-click applications with tracking and analytics',
+      icon: Briefcase
+    },
+    {
+      step: 4,
+      title: 'Land Dream Job',
+      description: 'Connect directly with hiring managers and negotiate offers',
+      icon: Award
+    }
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-blue-600 to-purple-700 text-white py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="relative overflow-hidden bg-gradient-to-br from-blue-600 via-purple-600 to-blue-700 text-white">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute inset-0" style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+            backgroundSize: '60px 60px'
+          }}></div>
+        </div>
+
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="text-center">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6">
-              Resources for Job Seekers
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
+              Find Your Dream Job
+              <span className="block text-blue-200 text-3xl sm:text-4xl lg:text-5xl mt-2">
+                with JobSpark
+              </span>
             </h1>
-            <p className="text-xl sm:text-2xl text-blue-100 mb-8 max-w-3xl mx-auto">
-              Everything you need to land your dream job in one place
+            <p className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto leading-relaxed">
+              Join millions of job seekers who've found their perfect match through our AI-powered platform
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
                 href="/jobs"
-                className="px-8 py-4 bg-white text-blue-600 font-semibold rounded-xl hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2"
+                className="group inline-flex items-center gap-3 px-8 py-4 bg-white text-blue-600 font-bold rounded-xl hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 shadow-lg"
               >
-                Start Job Search
-                <Search className="w-5 h-5" />
+                Browse Jobs
+                <Search className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Link>
               <Link
                 href="/signup"
-                className="px-8 py-4 bg-blue-700 text-white font-semibold rounded-xl hover:bg-blue-800 transition-all duration-300 border-2 border-blue-500"
+                className="group inline-flex items-center gap-3 px-8 py-4 bg-blue-700 text-white font-bold rounded-xl hover:bg-blue-800 transition-all duration-300 border-2 border-blue-500 shadow-lg"
               >
-                Create Free Account
+                Get Started Free
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Link>
             </div>
           </div>
@@ -79,12 +137,15 @@ const JobSeekersPage = () => {
       </section>
 
       {/* Stats Section */}
-      <section className="py-16 bg-white">
+      <section className="py-16 bg-white shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {stats.map((stat, index) => (
-              <div key={index} className="text-center">
-                <div className="text-3xl sm:text-4xl font-bold text-blue-600 mb-2">
+              <div key={index} className="text-center group">
+                <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:bg-blue-200 transition-colors">
+                  <stat.icon className="w-8 h-8 text-blue-600" />
+                </div>
+                <div className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">
                   {stat.value}
                 </div>
                 <div className="text-gray-600 font-medium">
@@ -96,88 +157,85 @@ const JobSeekersPage = () => {
         </div>
       </section>
 
-      {/* Resources Grid */}
-      <section className="py-16 bg-gray-50">
+      {/* Features Grid */}
+      <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
+          <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-              Your Career Toolkit
+              Everything You Need to Succeed
             </h2>
-            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-              Powerful tools and resources designed to accelerate your job search and career growth
+            <p className="text-xl text-gray-600 max-w-4xl mx-auto">
+              Powerful tools and resources designed to accelerate your career growth
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-8">
-            {resources.map((resource, index) => {
-              const Icon = resource.icon;
-              return (
-                <div key={index} className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100">
-                  {/* Icon */}
-                  <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mb-6">
-                    <Icon className="w-8 h-8 text-blue-600" />
-                  </div>
-
-                  {/* Content */}
-                  <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                    {resource.title}
-                  </h3>
-                  <p className="text-gray-600 mb-6 leading-relaxed">
-                    {resource.description}
-                  </p>
-
-                  {/* Features */}
-                  <div className="space-y-2 mb-8">
-                    {resource.features.map((feature, featureIndex) => (
-                      <div key={featureIndex} className="flex items-center gap-2">
-                        <Star className="w-4 h-4 text-green-500 fill-current" />
-                        <span className="text-gray-700">{feature}</span>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* CTA */}
-                  <Link
-                    href={resource.href}
-                    className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors duration-300"
-                  >
-                    {resource.cta}
-                    <ArrowRight className="w-4 h-4" />
-                  </Link>
+            {features.map((feature: any, index: number) => (
+              <div key={index} className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 group">
+                {/* Icon */}
+                <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                  <feature.icon className="w-10 h-10 text-white" />
                 </div>
-              );
-            })}
+
+                {/* Content */}
+                <h3 className="text-2xl font-bold text-gray-900 mb-4">
+                  {feature.title}
+                </h3>
+                <p className="text-gray-600 mb-6 leading-relaxed">
+                  {feature.description}
+                </p>
+
+                {/* Features List */}
+                <div className="space-y-3 mb-8">
+                  {feature.features.map((item: string, itemIndex: number) => (
+                    <div key={itemIndex} className="flex items-center gap-3">
+                      <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
+                      <span className="text-gray-700">{item}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* CTA */}
+                <Link
+                  href={feature.href}
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors duration-300 group-hover:scale-105"
+                >
+                  {feature.cta}
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </Link>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
       {/* How It Works */}
-      <section className="py-16 bg-white">
+      <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
+          <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-              How JobSpark Works for Job Seekers
+              How JobSpark Works
             </h2>
-            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+            <p className="text-xl text-gray-600 max-w-4xl mx-auto">
               Get started in minutes and find your perfect match
             </p>
           </div>
 
           <div className="grid md:grid-cols-4 gap-8">
-            {[
-              { step: 1, title: 'Create Profile', description: 'Sign up and build your professional profile in minutes' },
-              { step: 2, title: 'Get Matches', description: 'Our AI matches you with relevant opportunities' },
-              { step: 3, title: 'Apply Easily', description: 'One-click applications to multiple jobs' },
-              { step: 4, title: 'Land Dream Job', description: 'Connect directly with hiring managers' }
-            ].map((item, index) => (
-              <div key={index} className="text-center">
-                <div className="w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center mx-auto mb-4 font-bold text-lg">
-                  {item.step}
+            {howItWorks.map((item: any, index: number) => (
+              <div key={index} className="text-center group">
+                <div className="relative mb-6">
+                  <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 text-white rounded-2xl flex items-center justify-center mx-auto group-hover:scale-110 transition-transform">
+                    <item.icon className="w-10 h-10" />
+                  </div>
+                  <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                    {item.step}
+                  </div>
                 </div>
-                <h3 className="font-semibold text-gray-900 mb-2">
+                <h3 className="font-bold text-gray-900 mb-3 text-lg">
                   {item.title}
                 </h3>
-                <p className="text-gray-600 text-sm">
+                <p className="text-gray-600 text-sm leading-relaxed">
                   {item.description}
                 </p>
               </div>
@@ -186,27 +244,77 @@ const JobSeekersPage = () => {
         </div>
       </section>
 
+      {/* Testimonials */}
+      <section className="py-20 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+              Success Stories
+            </h2>
+            <p className="text-xl text-gray-600 max-w-4xl mx-auto">
+              See how JobSpark has helped thousands land their dream jobs
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8">
+            {testimonials.map((testimonial: any, index: number) => (
+              <div key={index} className="bg-white rounded-2xl p-8 shadow-lg">
+                <div className="flex items-start gap-4 mb-4">
+                  <img
+                    src={testimonial.image}
+                    alt={testimonial.name}
+                    className="w-16 h-16 rounded-full object-cover"
+                  />
+                  <div>
+                    <h4 className="font-bold text-gray-900">{testimonial.name}</h4>
+                    <p className="text-gray-600">{testimonial.role} at {testimonial.company}</p>
+                    <div className="flex items-center gap-1 mt-1">
+                      {[...Array(testimonial.rating)].map((_: any, i: number) => (
+                        <Star key={i} className="w-4 h-4 text-yellow-400 fill-current" />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <blockquote className="text-gray-700 italic leading-relaxed">
+                  "{testimonial.quote}"
+                </blockquote>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <section className="py-20 bg-gradient-to-r from-blue-600 to-purple-600 text-white relative overflow-hidden">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute inset-0" style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='20' cy='20' r='1'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+            backgroundSize: '40px 40px'
+          }}></div>
+        </div>
+
+        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-            Ready to Take the Next Step?
+            Ready to Transform Your Career?
           </h2>
-          <p className="text-xl text-blue-100 mb-8">
+          <p className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto">
             Join thousands of job seekers who've found their perfect match
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/signup"
-              className="px-8 py-4 bg-white text-blue-600 font-semibold rounded-xl hover:bg-gray-100 transition-all duration-300 transform hover:scale-105"
+              className="group inline-flex items-center gap-3 px-8 py-4 bg-white text-blue-600 font-bold rounded-xl hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 shadow-xl"
             >
               Get Started Free
+              <Zap className="w-5 h-5 group-hover:scale-110 transition-transform" />
             </Link>
             <Link
               href="/jobs"
-              className="px-8 py-4 bg-transparent text-white font-semibold rounded-xl border-2 border-white hover:bg-white hover:text-blue-600 transition-all duration-300"
+              className="group inline-flex items-center gap-3 px-8 py-4 bg-transparent text-white font-bold rounded-xl border-2 border-white hover:bg-white hover:text-blue-600 transition-all duration-300"
             >
-              Browse Jobs
+              Browse Opportunities
+              <Search className="w-5 h-5 group-hover:scale-110 transition-transform" />
             </Link>
           </div>
         </div>

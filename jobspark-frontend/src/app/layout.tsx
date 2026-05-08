@@ -25,7 +25,7 @@ const poppins = Poppins({
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const hidePublicChrome = pathname === "/login" || pathname === "/signup" || pathname === "/forgetPassword" || pathname === "/verify-email";
+  const hidePublicChrome = pathname === "/signup" || pathname === "/forgetPassword" || pathname === "/verify-email";
 
   // const { data: session } = authClient.useSession();
   // const hideNavbar = !!session?.user?.role;
