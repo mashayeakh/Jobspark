@@ -89,7 +89,7 @@ const RecruiterPage = () => {
                         </p>
                         <div className="flex flex-col sm:flex-row gap-4 justify-center">
                             <Link
-                                href="/hire/post"
+                                href="/post-job"
                                 className="px-8 py-4 bg-white text-green-600 font-semibold rounded-xl hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2"
                             >
                                 Post a Job
@@ -196,8 +196,8 @@ const RecruiterPage = () => {
                             <div
                                 key={index}
                                 className={`bg-white rounded-2xl p-8 border-2 ${plan.popular
-                                        ? 'border-green-500 shadow-xl relative'
-                                        : 'border-gray-200 hover:border-gray-300'
+                                    ? 'border-green-500 shadow-xl relative'
+                                    : 'border-gray-200 hover:border-gray-300'
                                     } transition-all duration-300`}
                             >
                                 {plan.popular && (
@@ -227,8 +227,8 @@ const RecruiterPage = () => {
                                     <Link
                                         href={plan.name === 'Enterprise' ? '/contact' : '/signup'}
                                         className={`w-full px-6 py-3 font-semibold rounded-lg transition-colors duration-300 ${plan.popular
-                                                ? 'bg-green-600 text-white hover:bg-green-700'
-                                                : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
+                                            ? 'bg-green-600 text-white hover:bg-green-700'
+                                            : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
                                             }`}
                                     >
                                         {plan.cta}

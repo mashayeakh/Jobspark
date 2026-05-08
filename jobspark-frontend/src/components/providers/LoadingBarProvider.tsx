@@ -15,9 +15,12 @@ export function LoadingBarProvider({ children }: { children: React.ReactNode }) 
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
+    let interval: NodeJS.Timeout;
+    let timeout: NodeJS.Timeout;
+
     if (isLoading) {
       setProgress(0);
-      const interval = setInterval(() => {
+      interval = setInterval(() => {
         setProgress(prev => {
           if (prev >= 90) {
             clearInterval(interval);
@@ -26,13 +29,15 @@ export function LoadingBarProvider({ children }: { children: React.ReactNode }) 
           return prev + Math.random() * 10;
         });
       }, 100);
-
-      return () => clearInterval(interval);
     } else {
       setProgress(100);
-      const timeout = setTimeout(() => setProgress(0), 300);
-      return () => clearTimeout(timeout);
+      timeout = setTimeout(() => setProgress(0), 300);
     }
+
+    return () => {
+      if (interval) clearInterval(interval);
+      if (timeout) clearTimeout(timeout);
+    };
   }, [isLoading]);
 
   const startLoading = () => setIsLoading(true);
@@ -42,11 +47,15 @@ export function LoadingBarProvider({ children }: { children: React.ReactNode }) 
     <LoadingContext.Provider value={{ isLoading, startLoading, stopLoading }}>
       {children}
       {/* Loading Bar */}
-      <div className={`fixed top-0 left-0 w-full h-1 z-50 transition-all duration-300 ${
-        isLoading ? 'opacity-100' : 'opacity-0'
-      }`}>
-        <div className="h-full bg-gradient-to-r from-blue-500 to-purple-600 transition-all duration-300 ease-out"
-             style={{ width: `${progress}%` }}>
+      <div className={`fixed top-0 left-0 w-full h-1 z-[9999] transition-opacity duration-300 ${isLoading ? 'opacity-100' : 'opacity-0'
+        }`}>
+        <div
+          className="h-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 shadow-lg transition-all duration-300 ease-out"
+          style={{
+            width: `${progress}%`,
+            boxShadow: '0 0 10px rgba(59, 130, 246, 0.5)'
+          }}
+        >
         </div>
       </div>
     </LoadingContext.Provider>

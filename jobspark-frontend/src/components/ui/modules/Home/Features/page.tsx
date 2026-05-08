@@ -72,21 +72,19 @@ const Features = () => {
           <div className="inline-flex rounded-lg border border-gray-200 p-1 bg-gray-50">
             <button
               onClick={() => setActiveTab('jobseekers')}
-              className={`px-6 py-3 rounded-md font-medium transition-all duration-200 ${
-                activeTab === 'jobseekers'
+              className={`px-6 py-3 rounded-md font-medium transition-all duration-200 ${activeTab === 'jobseekers'
                   ? 'bg-white text-blue-600 shadow-sm'
                   : 'text-gray-600 hover:text-gray-900'
-              }`}
+                }`}
             >
               For Job Seekers
             </button>
             <button
               onClick={() => setActiveTab('recruiters')}
-              className={`px-6 py-3 rounded-md font-medium transition-all duration-200 ${
-                activeTab === 'recruiters'
+              className={`px-6 py-3 rounded-md font-medium transition-all duration-200 ${activeTab === 'recruiters'
                   ? 'bg-white text-blue-600 shadow-sm'
                   : 'text-gray-600 hover:text-gray-900'
-              }`}
+                }`}
             >
               For Recruiters
             </button>
@@ -128,7 +126,7 @@ const Features = () => {
               Ready to get started?
             </h3>
             <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
-              Join thousands of professionals who've already found their perfect match through JobSpark
+              Join thousands of professionals who've already found their perfect match through HireNova
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a

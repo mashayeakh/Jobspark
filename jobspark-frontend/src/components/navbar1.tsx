@@ -1,7 +1,8 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { Book, Menu, Sunset, Trees, Zap } from "lucide-react";
+import { Book, Menu, Sunset, Trees, Zap, Bell } from "lucide-react";
+import { useState, useEffect } from "react";
 
 import {
   Accordion,
@@ -35,8 +36,12 @@ interface MenuItem {
   items?: MenuItem[];
 }
 
+type NavbarVariant = "default" | "compact" | "minimal";
+
 interface Navbar1Props {
   className?: string;
+  variant?: NavbarVariant;
+  notificationCount?: number;
   logo?: {
     url: string;
     src: string;
@@ -61,8 +66,8 @@ const Navbar = ({
   logo = {
     url: "/",
     src: "https://deifkwefumgah.cloudfront.net/shadcnblocks/block/logos/shadcnblockscom-icon.svg",
-    alt: "JobSpark Logo",
-    title: "JobSpark",
+    alt: "HireNova Logo",
+    title: "HireNova",
   },
   menu = [
     {
@@ -98,13 +103,57 @@ const Navbar = ({
     login: { title: "Log in", url: "/login" },
     signup: { title: "Sign up", url: "/signup" },
   },
+  variant = "default",
+  notificationCount = 0,
   className,
 }: Navbar1Props) => {
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const variantStyles = {
+    default: {
+      container: cn(
+        "sticky top-0 z-50 w-full transition-all duration-300",
+        isScrolled 
+          ? "bg-blue-50/80 backdrop-blur-lg shadow-sm" 
+          : "bg-blue-50"
+      ),
+      nav: "hidden items-center justify-between py-3 lg:flex",
+      gap: "gap-3",
+      logoSize: "text-xl",
+    },
+    compact: {
+      container: cn(
+        "sticky top-0 z-50 w-full transition-all duration-300",
+        isScrolled 
+          ? "bg-blue-50/80 backdrop-blur-md" 
+          : "bg-blue-50"
+      ),
+      nav: "hidden items-center justify-between py-2 lg:flex",
+      gap: "gap-2",
+      logoSize: "text-lg",
+    },
+    minimal: {
+      container: "sticky top-0 z-50 w-full bg-transparent",
+      nav: "hidden items-center justify-between py-2 lg:flex",
+      gap: "gap-4",
+      logoSize: "text-lg",
+    },
+  };
+
+  const styles = variantStyles[variant];
   return (
-    <section className={cn("sticky top-0 z-50 w-full bg-white/95 backdrop-blur-sm border-b border-gray-200", className)}>
+    <section className={cn(styles.container, className)}>
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Desktop Menu */}
-        <nav className="hidden items-center justify-between py-3 lg:flex">
+        <nav className={styles.nav}>
           <div className="flex items-center gap-8">
             {/* Logo */}
             <a href={logo.url} className="flex items-center gap-2">
@@ -113,7 +162,7 @@ const Navbar = ({
                 className="max-h-8 dark:invert"
                 alt={logo.alt}
               />
-              <span className="text-xl font-bold tracking-tighter text-gray-900">
+              <span className={cn("font-bold tracking-tighter text-gray-900", styles.logoSize)}>
                 {logo.title}
               </span>
             </a>
@@ -125,12 +174,23 @@ const Navbar = ({
               </NavigationMenu>
             </div>
           </div>
-          <div className="flex items-center gap-3">
+          <div className={cn("flex items-center", styles.gap)}>
             <Button asChild variant="ghost" size="sm" className="text-gray-600 hover:text-gray-900">
               <a href={auth.login.url}>{auth.login.title}</a>
             </Button>
             <Button asChild size="sm" className="bg-blue-600 hover:bg-blue-700">
               <a href={auth.signup.url}>{auth.signup.title}</a>
+            </Button>
+            {/* Notification Icon with Badge */}
+            <Button asChild variant="ghost" size="icon" className="relative">
+              <a href="/notifications">
+                <Bell className="size-4" />
+                {notificationCount > 0 && (
+                  <span className="absolute -top-1 -right-1 h-5 w-5 bg-red-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                    {notificationCount > 9 ? "9+" : notificationCount}
+                  </span>
+                )}
+              </a>
             </Button>
             {/* Profile Dropdown */}
             <NavigationMenu>
@@ -176,45 +236,58 @@ const Navbar = ({
                 {logo.title}
               </span>
             </a>
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="outline" size="icon">
-                  <Menu className="size-4" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent className="overflow-y-auto">
-                <SheetHeader>
-                  <SheetTitle>
-                    <a href={logo.url} className="flex items-center gap-2">
-                      <img
-                        src={logo.src}
-                        className="max-h-8 dark:invert"
-                        alt={logo.alt}
-                      />
-                      <span className="text-lg font-bold">{logo.title}</span>
-                    </a>
-                  </SheetTitle>
-                </SheetHeader>
-                <div className="flex flex-col gap-6 p-4">
-                  <Accordion
-                    type="single"
-                    collapsible
-                    className="flex w-full flex-col gap-4"
-                  >
-                    {menu.map((item) => renderMobileMenuItem(item))}
-                  </Accordion>
+            <div className="flex items-center gap-2">
+              {/* Notification Icon with Badge */}
+              <Button asChild variant="ghost" size="icon" className="relative">
+                <a href="/notifications">
+                  <Bell className="size-4" />
+                  {notificationCount > 0 && (
+                    <span className="absolute -top-1 -right-1 h-5 w-5 bg-red-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                      {notificationCount > 9 ? "9+" : notificationCount}
+                    </span>
+                  )}
+                </a>
+              </Button>
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Button variant="outline" size="icon">
+                    <Menu className="size-4" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent className="overflow-y-auto">
+                  <SheetHeader>
+                    <SheetTitle>
+                      <a href={logo.url} className="flex items-center gap-2">
+                        <img
+                          src={logo.src}
+                          className="max-h-8 dark:invert"
+                          alt={logo.alt}
+                        />
+                        <span className="text-lg font-bold">{logo.title}</span>
+                      </a>
+                    </SheetTitle>
+                  </SheetHeader>
+                  <div className="flex flex-col gap-6 p-4">
+                    <Accordion
+                      type="single"
+                      collapsible
+                      className="flex w-full flex-col gap-4"
+                    >
+                      {menu.map((item) => renderMobileMenuItem(item))}
+                    </Accordion>
 
-                  <div className="flex flex-col gap-3">
-                    <Button asChild variant="outline" className="w-full">
-                      <a href={auth.login.url}>{auth.login.title}</a>
-                    </Button>
-                    <Button asChild className="w-full bg-blue-600 hover:bg-blue-700">
-                      <a href={auth.signup.url}>{auth.signup.title}</a>
-                    </Button>
+                    <div className="flex flex-col gap-3">
+                      <Button asChild variant="outline" className="w-full">
+                        <a href={auth.login.url}>{auth.login.title}</a>
+                      </Button>
+                      <Button asChild className="w-full bg-blue-600 hover:bg-blue-700">
+                        <a href={auth.signup.url}>{auth.signup.title}</a>
+                      </Button>
+                    </div>
                   </div>
-                </div>
-              </SheetContent>
-            </Sheet>
+                </SheetContent>
+              </Sheet>
+            </div>
           </div>
         </div>
       </div>
@@ -242,7 +315,7 @@ const renderMenuItem = (item: MenuItem) => {
     <NavigationMenuItem key={item.title}>
       <NavigationMenuLink
         href={item.url}
-        className="group inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-muted hover:text-accent-foreground"
+        className="group inline-flex h-10 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-white/50 hover:text-accent-foreground"
       >
         {item.title}
       </NavigationMenuLink>

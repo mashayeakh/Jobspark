@@ -213,7 +213,7 @@ const JobDetailsPage = ({ params }: { params: Promise<{ id: string }> }) => {
                 {applied ? 'Applied' : 'Apply Now'}
               </button>
               <p className="text-xs text-gray-500 mt-2 text-center">
-                {applied ? 'Your application has been submitted' : 'Apply with your JobSpark profile'}
+                {applied ? 'Your application has been submitted' : 'Apply with your HireNova profile'}
               </p>
             </div>
 

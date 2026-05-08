@@ -13,10 +13,10 @@ const Newsletter = () => {
     if (!email) return;
 
     setIsLoading(true);
-    
+
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1500));
-    
+
     setIsSubscribed(true);
     setIsLoading(false);
     setEmail('');
@@ -49,7 +49,7 @@ const Newsletter = () => {
               <CheckCircle className="w-10 h-10 text-green-600" />
             </div>
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-              Welcome to JobSpark!
+              Welcome to HireNova!
             </h2>
             <p className="text-lg text-gray-600 mb-8">
               You're all set! Check your email for a confirmation link and start exploring amazing opportunities.
@@ -144,7 +144,7 @@ const Newsletter = () => {
                     required
                   />
                 </div>
-                
+
                 <div className="flex items-start gap-2">
                   <input
                     type="checkbox"
@@ -153,7 +153,7 @@ const Newsletter = () => {
                     required
                   />
                   <label htmlFor="terms" className="text-sm text-gray-600">
-                    I agree to receive job alerts and career tips from JobSpark
+                    I agree to receive job alerts and career tips from HireNova
                   </label>
                 </div>
 

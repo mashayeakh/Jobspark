@@ -27,7 +27,7 @@ const FinalCTA = () => {
             Ready to Transform Your Career?
           </h2>
           <p className="text-lg sm:text-xl text-gray-300 max-w-3xl mx-auto">
-            Join thousands of professionals and companies who've already found their perfect match through JobSpark
+            Join thousands of professionals and companies who've already found their perfect match through HireNova
           </p>
         </div>
 
@@ -56,15 +56,15 @@ const FinalCTA = () => {
           <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl p-8 sm:p-12 text-center relative overflow-hidden">
             {/* Glow Effect */}
             <div className="absolute inset-0 bg-gradient-to-r from-blue-400/20 to-purple-400/20 animate-pulse"></div>
-            
+
             <div className="relative z-10">
               <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4">
                 Start Your Journey Today
               </h3>
               <p className="text-lg text-blue-100 mb-8 max-w-2xl mx-auto">
-                Whether you're looking for your next opportunity or seeking top talent, JobSpark is your platform for success.
+                Whether you're looking for your next opportunity or seeking top talent, HireNova is your platform for success.
               </p>
-              
+
               <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
                 <a
                   href="/signup"

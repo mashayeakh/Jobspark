@@ -14,7 +14,7 @@ const Testimonials = () => {
       company: 'TechCorp',
       image: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
       rating: 5,
-      content: 'JobSpark completely changed my career trajectory. I found my dream job at a company I never would have discovered on my own. The matching algorithm is incredibly accurate, and the application process was seamless.',
+      content: 'HireNova completely changed my career trajectory. I found my dream job at a company I never would have discovered on my own. The matching algorithm is incredibly accurate, and the application process was seamless.',
       type: 'jobseeker'
     },
     {
@@ -24,7 +24,7 @@ const Testimonials = () => {
       company: 'StartupXYZ',
       image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
       rating: 5,
-      content: 'As a hiring manager, JobSpark has been a game-changer. The quality of candidates is outstanding, and we reduced our time-to-hire by 60%. The platform saves us countless hours in screening.',
+      content: 'As a hiring manager, HireNova has been a game-changer. The quality of candidates is outstanding, and we reduced our time-to-hire by 60%. The platform saves us countless hours in screening.',
       type: 'recruiter'
     },
     {
@@ -34,7 +34,7 @@ const Testimonials = () => {
       company: 'DesignHub',
       image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
       rating: 5,
-      content: 'I was skeptical at first, but JobSpark delivered beyond my expectations. I landed a remote position with a 40% salary increase. The platform really understands what candidates and companies need.',
+      content: 'I was skeptical at first, but HireNova delivered beyond my expectations. I landed a remote position with a 40% salary increase. The platform really understands what candidates and companies need.',
       type: 'jobseeker'
     },
     {
@@ -44,7 +44,7 @@ const Testimonials = () => {
       company: 'GlobalTech',
       image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
       rating: 5,
-      content: 'We\'ve been using JobSpark for 2 years now, and it\'s transformed our recruitment process. The AI-powered matching helps us find candidates that are not just qualified, but also culturally fit.',
+      content: 'We\'ve been using HireNova for 2 years now, and it\'s transformed our recruitment process. The AI-powered matching helps us find candidates that are not just qualified, but also culturally fit.',
       type: 'recruiter'
     },
     {
@@ -93,7 +93,7 @@ const Testimonials = () => {
             Success Stories
           </h2>
           <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto">
-            Hear from professionals and companies who've found their perfect match through JobSpark
+            Hear from professionals and companies who've found their perfect match through HireNova
           </p>
         </div>
 
@@ -156,8 +156,8 @@ const Testimonials = () => {
                 key={index}
                 onClick={() => goToTestimonial(index)}
                 className={`w-3 h-3 rounded-full transition-all duration-300 ${index === activeIndex
-                    ? 'bg-blue-600 w-8'
-                    : 'bg-gray-300 hover:bg-gray-400'
+                  ? 'bg-blue-600 w-8'
+                  : 'bg-gray-300 hover:bg-gray-400'
                   }`}
                 aria-label={`Go to testimonial ${index + 1}`}
               />
@@ -213,7 +213,7 @@ const Testimonials = () => {
               Ready to Write Your Success Story?
             </h3>
             <p className="text-lg mb-8 text-blue-100">
-              Join thousands of professionals who've already transformed their careers with JobSpark
+              Join thousands of professionals who've already transformed their careers with HireNova
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a

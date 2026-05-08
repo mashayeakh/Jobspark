@@ -1,6 +1,7 @@
 // app/layout.tsx
 "use client"; // needed for useSession
 
+import { useState, useEffect } from "react";
 import { Inter, Poppins } from "next/font/google";
 import { usePathname } from "next/navigation";
 import "./globals.css";
@@ -27,6 +28,14 @@ const poppins = Poppins({
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const hidePublicChrome = pathname === "/signup" || pathname === "/forgetPassword" || pathname === "/verify-email";
+  const [notificationCount, setNotificationCount] = useState(0);
+
+  useEffect(() => {
+    // Simulating fetching unread notifications count
+    // In a real app, this would fetch from your API
+    const unreadCount = 4; // Example: 4 unread notifications
+    setNotificationCount(unreadCount);
+  }, []);
 
   // const { data: session } = authClient.useSession();
   // const hideNavbar = !!session?.user?.role;
@@ -38,7 +47,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           className={`${inter.variable} ${poppins.variable} font-sans antialiased bg-background text-foreground min-h-full flex flex-col`}
         >
           <LoadingBarProvider>
-            {!hidePublicChrome && <Navbar />}
+            {!hidePublicChrome && <Navbar variant="default" notificationCount={notificationCount} />}
             {children}
           </LoadingBarProvider>
         </div>

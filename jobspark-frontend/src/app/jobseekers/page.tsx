@@ -53,7 +53,7 @@ const JobSeekersPage = () => {
       role: 'Frontend Developer',
       company: 'TechCorp',
       image: 'https://images.unsplash.com/photo-1494790108750-851a5d8b0b8?w=64&h=64&fit=crop&crop=face',
-      quote: 'JobSpark helped me land my dream job in just 3 weeks! The AI matching is incredible.',
+      quote: 'HireNova helped me land my dream job in just 3 weeks! The AI matching is incredible.',
       rating: 5
     },
     {
@@ -110,7 +110,7 @@ const JobSeekersPage = () => {
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
               Find Your Dream Job
               <span className="block text-blue-200 text-3xl sm:text-4xl lg:text-5xl mt-2">
-                with JobSpark
+                with HireNova
               </span>
             </h1>
             <p className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto leading-relaxed">
@@ -214,7 +214,7 @@ const JobSeekersPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-              How JobSpark Works
+              How HireNova Works
             </h2>
             <p className="text-xl text-gray-600 max-w-4xl mx-auto">
               Get started in minutes and find your perfect match
@@ -252,7 +252,7 @@ const JobSeekersPage = () => {
               Success Stories
             </h2>
             <p className="text-xl text-gray-600 max-w-4xl mx-auto">
-              See how JobSpark has helped thousands land their dream jobs
+              See how HireNova has helped thousands land their dream jobs
             </p>
           </div>
 

@@ -141,9 +141,9 @@ const SignupPage = () => {
         <div className="absolute top-8 left-8 z-20">
           <div className="flex items-center gap-2">
             <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
-              <span className="text-purple-600 font-bold text-xl">JS</span>
+              <span className="text-purple-600 font-bold text-xl">HN</span>
             </div>
-            <span className="text-white font-semibold text-lg">JobSpark</span>
+            <span className="text-white font-semibold text-lg">HireNova</span>
           </div>
         </div>
 
@@ -221,7 +221,7 @@ const SignupPage = () => {
 
           <div className="text-center">
             <h2 className="text-3xl font-bold text-gray-900 mb-2">Create your account</h2>
-            <p className="text-gray-600 mb-8">Join JobSpark and start your journey</p>
+            <p className="text-gray-600 mb-8">Join HireNova and start your journey</p>
           </div>
 
           {/* Account Type Selection */}
@@ -415,7 +415,7 @@ const SignupPage = () => {
           <div className="flex justify-center mb-6">
             <div className="relative">
               <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center">
-                <span className="text-white font-bold text-2xl">JS</span>
+                <span className="text-white font-bold text-2xl">HN</span>
               </div>
               {/* Decorative lines */}
               <div className="absolute -top-2 -right-2 w-4 h-4 bg-blue-300 rounded-full"></div>

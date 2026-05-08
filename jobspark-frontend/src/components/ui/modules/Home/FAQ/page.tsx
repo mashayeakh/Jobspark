@@ -14,16 +14,16 @@ const FAQ = () => {
       color: 'from-blue-500 to-blue-600',
       questions: [
         {
-          question: 'What is JobSpark?',
-          answer: 'JobSpark is a modern job platform that connects talented professionals with top companies worldwide. We use AI-powered matching to help job seekers find their perfect roles and help companies hire the best talent efficiently.'
+          question: 'What is HireNova?',
+          answer: 'HireNova is a modern job platform that connects talented professionals with top companies worldwide. We use AI-powered matching to help job seekers find their perfect roles and help companies hire the best talent efficiently.'
         },
         {
-          question: 'How is JobSpark different from other job platforms?',
-          answer: 'Unlike traditional job boards, JobSpark offers direct connections to hiring managers, AI-powered matching, verified job listings, and transparent salary information. We eliminate middlemen and focus on quality over quantity.'
+          question: 'How is HireNova different from other job platforms?',
+          answer: 'Unlike traditional job boards, HireNova offers direct connections to hiring managers, AI-powered matching, verified job listings, and transparent salary information. We eliminate middlemen and focus on quality over quantity.'
         },
         {
-          question: 'Is JobSpark free to use?',
-          answer: 'JobSpark is free for job seekers. For companies, we offer various pricing plans including a free tier with basic features and premium plans with advanced tools and unlimited job postings.'
+          question: 'Is HireNova free to use?',
+          answer: 'HireNova is free for job seekers. For companies, we offer various pricing plans including a free tier with basic features and premium plans with advanced tools and unlimited job postings.'
         }
       ]
     },
@@ -43,11 +43,11 @@ const FAQ = () => {
         },
         {
           question: 'Can I apply to multiple jobs at once?',
-          answer: 'Yes! With JobSpark\'s one-click apply feature, you can apply to multiple relevant jobs simultaneously using your profile information. No more filling out the same forms repeatedly.'
+          answer: 'Yes! With HireNova\'s one-click apply feature, you can apply to multiple relevant jobs simultaneously using your profile information. No more filling out the same forms repeatedly.'
         },
         {
           question: 'How do I know if a job is legitimate?',
-          answer: 'All job postings on JobSpark are verified by our team. We check company credentials and require detailed job information. If you encounter any suspicious activity, report it immediately.'
+          answer: 'All job postings on HireNova are verified by our team. We check company credentials and require detailed job information. If you encounter any suspicious activity, report it immediately.'
         }
       ]
     },
@@ -87,7 +87,7 @@ const FAQ = () => {
         },
         {
           question: 'Do you offer remote work opportunities?',
-          answer: 'Yes! JobSpark specializes in remote, hybrid, and on-site opportunities. You can filter jobs by work type and location preferences.'
+          answer: 'Yes! HireNova specializes in remote, hybrid, and on-site opportunities. You can filter jobs by work type and location preferences.'
         },
         {
           question: 'Is salary information transparent?',
