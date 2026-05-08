@@ -234,9 +234,10 @@ const RecruiterPage = () => {
                                         {plan.cta}
                                     </Link>
                                 </div>
-              ))}
                             </div>
-        </div>
+                        ))}
+                    </div>
+                </div>
             </section>
 
             {/* CTA Section */}
