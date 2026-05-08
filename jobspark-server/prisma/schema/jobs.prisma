@@ -6,10 +6,15 @@ model Job {
   type            JobType         @default(FULL_TIME)
   locationType    LocationType    @default(ONSITE)
   experienceLevel ExperienceLevel @default(ENTRY)
+  benefits        String?         @db.Text
+  vacancy         Int             @default(1)
 
   salaryMin Int?
   salaryMax Int?
   location  String?
+
+  responsibilities String? @db.Text
+  requirements     String? @db.Text
 
   // Analytics denormalization
   applicationCount Int @default(0)
@@ -33,6 +38,8 @@ model Job {
   categoryId    String?
   subCategory   SubCategory? @relation(fields: [subCategoryId], references: [id])
   subCategoryId String?
+  workStyle     WorkStyle?   @relation(fields: [workStyleId], references: [id])
+  workStyleId   Int?
 
   @@index([status, type, locationType])
   @@index([companyId])

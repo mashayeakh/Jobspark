@@ -22,6 +22,7 @@ export const JobService = {
       const job = await tx.job.create({
         data: {
           ...jobData,
+          vacancy: jobData.vacancy ?? 1,
           recruiterId: recruiter.id,
           companyId: recruiter.companyId,
         },
@@ -66,7 +67,7 @@ export const JobService = {
     const { searchTerm, type, locationType, experienceLevel, minSalary, maxSalary, categoryId, subCategoryId } = filters;
 
     const where: Prisma.JobWhereInput = {
-      status: "ACTIVE", // Only show active jobs to seekers
+      status: "OPEN", // Only show open jobs to seekers
       deletedAt: null,
     };
 
@@ -152,7 +153,10 @@ export const JobService = {
     return await prisma.$transaction(async (tx) => {
       const updatedJob = await tx.job.update({
         where: { id: jobId },
-        data: jobData,
+        data: {
+          ...jobData,
+          status: jobData.vacancy === 0 ? "CLOSED" : jobData.status,
+        },
       });
 
       if (skills) {

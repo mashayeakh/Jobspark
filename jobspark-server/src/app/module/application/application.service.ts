@@ -27,8 +27,12 @@ export const ApplicationService = {
       throw new AppError(httpStatus.NOT_FOUND, "Job not found.");
     }
 
-    if (job.status !== "ACTIVE") {
+    if (job.status !== "OPEN") {
       throw new AppError(httpStatus.BAD_REQUEST, "This job is no longer accepting applications.");
+    }
+
+    if (job.vacancy <= 0) {
+      throw new AppError(httpStatus.BAD_REQUEST, "No vacancies left for this position.");
     }
 
     // 3. Check for duplicate application
@@ -45,7 +49,7 @@ export const ApplicationService = {
       throw new AppError(httpStatus.CONFLICT, "You have already applied for this job.");
     }
 
-    // 4. Atomic Transaction: Create application + log + update job counter
+    // 4. Atomic Transaction: Create application + log + update job counter & vacancy
     return await prisma.$transaction(async (tx) => {
       const application = await tx.application.create({
         data: {
@@ -64,11 +68,22 @@ export const ApplicationService = {
         },
       });
 
-      // Increment job's denormalized application counter
-      await tx.job.update({
+      // Decrement vacancy and increment application count
+      const updatedJob = await tx.job.update({
         where: { id: jobId },
-        data: { applicationCount: { increment: 1 } },
+        data: {
+          applicationCount: { increment: 1 },
+          vacancy: { decrement: 1 },
+        },
       });
+
+      // Auto-close if vacancy hits 0
+      if (updatedJob.vacancy <= 0) {
+        await tx.job.update({
+          where: { id: jobId },
+          data: { status: "CLOSED" },
+        });
+      }
 
       return application;
     });

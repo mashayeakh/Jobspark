@@ -9,11 +9,15 @@ export interface CreateJobDto {
   type?: JobType;
   locationType?: LocationType;
   experienceLevel?: ExperienceLevel;
+  responsibilities?: string;
+  requirements?: string;
   salaryMin?: number;
   salaryMax?: number;
   location?: string;
   categoryId?: string;
   subCategoryId?: string;
+  benefits?: string;
+  vacancy?: number;
   skills: {
     name: string;
     isRequired?: boolean;
@@ -27,11 +31,15 @@ export interface UpdateJobDto {
   type?: JobType;
   locationType?: LocationType;
   experienceLevel?: ExperienceLevel;
+  responsibilities?: string;
+  requirements?: string;
   salaryMin?: number;
   salaryMax?: number;
   location?: string;
   categoryId?: string;
   subCategoryId?: string;
+  benefits?: string;
+  vacancy?: number;
   skills?: {
     name: string;
     isRequired?: boolean;

@@ -12,6 +12,7 @@ enum UserStatus {
 
 enum JobStatus {
   DRAFT
+  OPEN
   ACTIVE
   CLOSED
   ARCHIVED
