@@ -1,22 +1,24 @@
 // app/layout.tsx
 "use client"; // needed for useSession
 
-import { Fraunces, Plus_Jakarta_Sans } from "next/font/google";
+import { Inter, Poppins } from "next/font/google";
 import { usePathname } from "next/navigation";
 import "./globals.css";
 import { Navbar } from "@/components/navbar1";
+// import LenisProvider from "@/components/providers/LenisProvider";
 
 // import { Navbar } from "@/src/components/layout/navbar";
 
 
-const fraunces = Fraunces({
-  variable: "--font-serif",
+const inter = Inter({
+  variable: "--font-body",
   subsets: ["latin"],
   display: "swap",
 });
 
-const plusJakartaSans = Plus_Jakarta_Sans({
-  variable: "--font-sans",
+const poppins = Poppins({
+  variable: "--font-heading",
+  weight: ["400", "500", "600", "700"],
   subsets: ["latin"],
   display: "swap",
 });
@@ -32,7 +34,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body className="scroll-smooth">
         <div
-          className={`${plusJakartaSans.variable} ${fraunces.variable} font-sans antialiased bg-background text-foreground min-h-full flex flex-col`}
+          className={`${inter.variable} ${poppins.variable} font-sans antialiased bg-background text-foreground min-h-full flex flex-col`}
         >
           {!hidePublicChrome && <Navbar />}
           {children}

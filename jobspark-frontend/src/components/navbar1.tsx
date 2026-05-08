@@ -59,34 +59,59 @@ interface Navbar1Props {
 
 const Navbar = ({
   logo = {
-    url: "https://www.shadcnblocks.com",
+    url: "/",
     src: "https://deifkwefumgah.cloudfront.net/shadcnblocks/block/logos/shadcnblockscom-icon.svg",
-    alt: "logo",
-    title: "Shadcnblocks.com",
+    alt: "JobSpark Logo",
+    title: "JobSpark",
   },
   menu = [
-    { title: "Discover", url: "/" },
     {
-      title: "For Job Seekers",
-      url: "/jobseeker",
+      title: "Overview",
+      url: "/",
     },
     {
-      title: "For Recruiters",
-      url: "/recruiter",
+      title: "Find Jobs",
+      url: "/jobs",
+      items: [
+        { title: "Job Seekers", url: "/jobseekers", description: "Resources for candidates" },
+        { title: "Remote Jobs", url: "/jobs/remote", description: "Work from anywhere" },
+        { title: "Tech Jobs", url: "/jobs/tech", description: "Engineering & development" },
+        { title: "Design Jobs", url: "/jobs/design", description: "UI/UX & product design" },
+        { title: "Marketing Jobs", url: "/jobs/marketing", description: "Growth & marketing" },
+      ]
+    },
+    {
+      title: "For Companies",
+      url: "/hire",
+      items: [
+        { title: "Recruiter", url: "/recruiter", description: "Hiring tools & resources" },
+        { title: "Post a Job", url: "/hire/post", description: "Reach top talent" },
+        { title: "Pricing", url: "/hire/pricing", description: "Flexible plans" },
+        { title: "Enterprise", url: "/hire/enterprise", description: "Custom solutions" },
+      ]
+    },
+    {
+      title: "Discover",
+      url: "/",
+      items: [
+        { title: "Salary Guide", url: "/resources/salary", description: "Market insights" },
+        { title: "Career Advice", url: "/resources/career", description: "Expert tips" },
+        { title: "Blog", url: "/resources/blog", description: "Industry news" },
+      ]
     },
   ],
   auth = {
-    login: { title: "Login", url: "/login" },
+    login: { title: "Log in", url: "/login" },
     signup: { title: "Sign up", url: "/signup" },
   },
   className,
 }: Navbar1Props) => {
   return (
-    <section className={cn("py-4", className)}>
-      <div className="container">
+    <section className={cn("sticky top-0 z-50 w-full bg-white/95 backdrop-blur-sm border-b border-gray-200", className)}>
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Desktop Menu */}
-        <nav className="hidden items-center justify-between lg:flex">
-          <div className="flex items-center gap-6">
+        <nav className="hidden items-center justify-between py-3 lg:flex">
+          <div className="flex items-center gap-8">
             {/* Logo */}
             <a href={logo.url} className="flex items-center gap-2">
               <img
@@ -94,7 +119,7 @@ const Navbar = ({
                 className="max-h-8 dark:invert"
                 alt={logo.alt}
               />
-              <span className="text-lg font-semibold tracking-tighter">
+              <span className="text-xl font-bold tracking-tighter text-gray-900">
                 {logo.title}
               </span>
             </a>
@@ -106,19 +131,46 @@ const Navbar = ({
               </NavigationMenu>
             </div>
           </div>
-          <div className="flex gap-2">
-            <Button asChild variant="outline" size="sm">
+          <div className="flex items-center gap-3">
+            <Button asChild variant="ghost" size="sm" className="text-gray-600 hover:text-gray-900">
               <a href={auth.login.url}>{auth.login.title}</a>
             </Button>
-            <Button asChild size="sm">
+            <Button asChild size="sm" className="bg-blue-600 hover:bg-blue-700">
               <a href={auth.signup.url}>{auth.signup.title}</a>
             </Button>
+            {/* Profile Dropdown */}
+            <NavigationMenu>
+              <NavigationMenuList>
+                <NavigationMenuItem>
+                  <NavigationMenuTrigger className="h-8 w-8 rounded-full bg-gray-100 p-0">
+                    <div className="h-full w-full rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-sm font-medium">
+                      U
+                    </div>
+                  </NavigationMenuTrigger>
+                  <NavigationMenuContent className="w-64">
+                    <div className="p-4">
+                      <div className="border-b pb-3 mb-3">
+                        <p className="font-medium">John Doe</p>
+                        <p className="text-sm text-gray-500">john@example.com</p>
+                      </div>
+                      <div className="space-y-2">
+                        <a href="/profile" className="block px-3 py-2 text-sm rounded-md hover:bg-gray-100">Profile</a>
+                        <a href="/settings" className="block px-3 py-2 text-sm rounded-md hover:bg-gray-100">Settings</a>
+                        <a href="/applications" className="block px-3 py-2 text-sm rounded-md hover:bg-gray-100">My Applications</a>
+                        <hr className="my-2" />
+                        <a href="/logout" className="block px-3 py-2 text-sm rounded-md hover:bg-gray-100 text-red-600">Log out</a>
+                      </div>
+                    </div>
+                  </NavigationMenuContent>
+                </NavigationMenuItem>
+              </NavigationMenuList>
+            </NavigationMenu>
           </div>
         </nav>
 
         {/* Mobile Menu */}
         <div className="block lg:hidden">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between py-3">
             {/* Logo */}
             <a href={logo.url} className="flex items-center gap-2">
               <img
@@ -126,6 +178,9 @@ const Navbar = ({
                 className="max-h-8 dark:invert"
                 alt={logo.alt}
               />
+              <span className="text-lg font-bold tracking-tighter text-gray-900">
+                {logo.title}
+              </span>
             </a>
             <Sheet>
               <SheetTrigger asChild>
@@ -142,6 +197,7 @@ const Navbar = ({
                         className="max-h-8 dark:invert"
                         alt={logo.alt}
                       />
+                      <span className="text-lg font-bold">{logo.title}</span>
                     </a>
                   </SheetTitle>
                 </SheetHeader>
@@ -155,10 +211,10 @@ const Navbar = ({
                   </Accordion>
 
                   <div className="flex flex-col gap-3">
-                    <Button asChild variant="outline">
+                    <Button asChild variant="outline" className="w-full">
                       <a href={auth.login.url}>{auth.login.title}</a>
                     </Button>
-                    <Button asChild>
+                    <Button asChild className="w-full bg-blue-600 hover:bg-blue-700">
                       <a href={auth.signup.url}>{auth.signup.title}</a>
                     </Button>
                   </div>
