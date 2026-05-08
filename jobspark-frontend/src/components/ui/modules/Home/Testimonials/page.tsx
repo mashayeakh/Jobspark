@@ -93,7 +93,7 @@ const Testimonials = () => {
             Success Stories
           </h2>
           <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto">
-            Hear from professionals and companies who've found their perfect match through HireNova
+            Hear from professionals and companies who&apos;ve found their perfect match through HireNova
           </p>
         </div>
 
@@ -213,7 +213,7 @@ const Testimonials = () => {
               Ready to Write Your Success Story?
             </h3>
             <p className="text-lg mb-8 text-blue-100">
-              Join thousands of professionals who've already transformed their careers with HireNova
+              Join thousands of professionals who&apos;ve already transformed their careers with HireNova
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a

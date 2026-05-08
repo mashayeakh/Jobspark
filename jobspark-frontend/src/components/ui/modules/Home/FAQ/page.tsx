@@ -116,7 +116,7 @@ const FAQ = () => {
             Frequently Asked Questions
           </h2>
           <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto">
-            Got questions? We've got answers. Browse our comprehensive FAQ section.
+            Got questions? We&apos;ve got answers. Browse our comprehensive FAQ section.
           </p>
         </div>
 

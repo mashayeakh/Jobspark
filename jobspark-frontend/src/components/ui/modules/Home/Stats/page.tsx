@@ -77,7 +77,7 @@ const Stats = () => {
             Trusted by Leaders Worldwide
           </h2>
           <p className="text-lg sm:text-xl text-blue-100 max-w-3xl mx-auto">
-            Join the millions who've already found their perfect match through HireNova
+            Join the millions who&apos;ve already found their perfect match through HireNova
           </p>
         </div>
 

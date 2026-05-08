@@ -247,7 +247,7 @@ const RecruiterPage = () => {
                         Ready to Transform Your Hiring?
                     </h2>
                     <p className="text-xl text-green-100 mb-8">
-                        Join thousands of companies who've reduced time-to-hire by 60%
+                        Join thousands of companies who&apos;ve reduced time-to-hire by 60%
                     </p>
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
                         <Link

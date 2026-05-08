@@ -27,7 +27,7 @@ const FinalCTA = () => {
             Ready to Transform Your Career?
           </h2>
           <p className="text-lg sm:text-xl text-gray-300 max-w-3xl mx-auto">
-            Join thousands of professionals and companies who've already found their perfect match through HireNova
+            Join thousands of professionals and companies who&apos;ve already found their perfect match through HireNova
           </p>
         </div>
 

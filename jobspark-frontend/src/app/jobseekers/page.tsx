@@ -114,7 +114,7 @@ const JobSeekersPage = () => {
               </span>
             </h1>
             <p className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto leading-relaxed">
-              Join millions of job seekers who've found their perfect match through our AI-powered platform
+              Join millions of job seekers who&apos;ve found their perfect match through our AI-powered platform
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
@@ -299,7 +299,7 @@ const JobSeekersPage = () => {
             Ready to Transform Your Career?
           </h2>
           <p className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto">
-            Join thousands of job seekers who've found their perfect match
+            Join thousands of job seekers who&apos;ve found their perfect match
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link

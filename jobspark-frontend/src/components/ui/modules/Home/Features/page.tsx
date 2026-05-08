@@ -63,7 +63,7 @@ const Features = () => {
             Powerful Features for Everyone
           </h2>
           <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto">
-            Whether you're looking for your next opportunity or seeking top talent, we've got you covered
+            Whether you&apos;re looking for your next opportunity or seeking top talent, we&apos;ve got you covered
           </p>
         </div>
 
@@ -126,7 +126,7 @@ const Features = () => {
               Ready to get started?
             </h3>
             <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
-              Join thousands of professionals who've already found their perfect match through HireNova
+              Join thousands of professionals who&apos;ve already found their perfect match through HireNova
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a
