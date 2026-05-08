@@ -12,6 +12,8 @@ export interface CreateJobDto {
   salaryMin?: number;
   salaryMax?: number;
   location?: string;
+  categoryId?: string;
+  subCategoryId?: string;
   skills: {
     name: string;
     isRequired?: boolean;
@@ -28,6 +30,8 @@ export interface UpdateJobDto {
   salaryMin?: number;
   salaryMax?: number;
   location?: string;
+  categoryId?: string;
+  subCategoryId?: string;
   skills?: {
     name: string;
     isRequired?: boolean;
@@ -41,4 +45,6 @@ export interface JobFiltersDto {
   experienceLevel?: ExperienceLevel;
   minSalary?: number;
   maxSalary?: number;
+  categoryId?: string;
+  subCategoryId?: string;
 }

@@ -1,0 +1,37 @@
+model Category {
+    id        String  @id @default(cuid())
+    name      String  @unique
+    slug      String  @unique
+    icon      String? // icon name or URL (e.g. "code", "megaphone")
+    color     String? // hex or tailwind color (e.g. "#EC4899")
+    isActive  Boolean @default(true)
+    sortOrder Int     @default(0)
+
+    // Relations
+    subcategories SubCategory[]
+    jobs          Job[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@map("categories")
+}
+
+model SubCategory {
+    id        String  @id @default(cuid())
+    name      String
+    slug      String  @unique
+    isActive  Boolean @default(true)
+    sortOrder Int     @default(0)
+
+    // Relations
+    categoryId String
+    category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+    jobs       Job[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@unique([categoryId, name])
+    @@map("subcategories")
+}

@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { Search, MapPin, Bookmark, BookmarkCheck, X, ChevronDown } from 'lucide-react';
 import { Job } from './types';
+import { useLoadingBar } from '@/components/providers/LoadingBarProvider';
 
 // ─── Job Row ─────────────────────────────────────────────────────────────────
 function JobRow({ job, basePath }: { job: Job; basePath: string }) {
@@ -41,11 +42,10 @@ function JobRow({ job, basePath }: { job: Job; basePath: string }) {
       <div className="flex items-center gap-2 flex-shrink-0">
         <button
           onClick={() => setSaved(!saved)}
-          className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium border rounded transition-colors ${
-            saved
-              ? 'border-gray-900 bg-gray-900 text-white'
-              : 'border-gray-300 bg-white text-gray-700 hover:border-gray-500'
-          }`}
+          className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium border rounded transition-colors ${saved
+            ? 'border-gray-900 bg-gray-900 text-white'
+            : 'border-gray-300 bg-white text-gray-700 hover:border-gray-500'
+            }`}
         >
           {saved ? <BookmarkCheck className="w-3.5 h-3.5" /> : <Bookmark className="w-3.5 h-3.5" />}
           {saved ? 'Saved' : 'Save'}
@@ -63,17 +63,17 @@ function JobRow({ job, basePath }: { job: Job; basePath: string }) {
 
 // ─── Floating logos ───────────────────────────────────────────────────────────
 const floatingLogos = [
-  { src: 'https://logo.clearbit.com/stripe.com',   cls: 'top-5  left-[5%]   rotate-[-8deg] w-10 h-10' },
-  { src: 'https://logo.clearbit.com/notion.so',    cls: 'top-14 left-[17%]  rotate-[6deg]  w-8  h-8'  },
-  { src: 'https://logo.clearbit.com/figma.com',    cls: 'top-3  left-[33%]  rotate-[-4deg] w-9  h-9'  },
-  { src: 'https://logo.clearbit.com/discord.com',  cls: 'top-3  left-[55%]  rotate-[5deg]  w-10 h-10' },
-  { src: 'https://logo.clearbit.com/linear.app',   cls: 'top-6  left-[72%]  rotate-[-5deg] w-8  h-8'  },
-  { src: 'https://logo.clearbit.com/vercel.com',   cls: 'top-3  right-[11%] rotate-[8deg]  w-9  h-9'  },
-  { src: 'https://logo.clearbit.com/openai.com',   cls: 'top-16 right-[5%]  rotate-[-5deg] w-8  h-8'  },
-  { src: 'https://logo.clearbit.com/shopify.com',  cls: 'bottom-5 left-[7%]  rotate-[7deg]  w-8  h-8' },
-  { src: 'https://logo.clearbit.com/airbnb.com',   cls: 'bottom-7 left-[27%] rotate-[-6deg] w-9  h-9' },
+  { src: 'https://logo.clearbit.com/stripe.com', cls: 'top-5  left-[5%]   rotate-[-8deg] w-10 h-10' },
+  { src: 'https://logo.clearbit.com/notion.so', cls: 'top-14 left-[17%]  rotate-[6deg]  w-8  h-8' },
+  { src: 'https://logo.clearbit.com/figma.com', cls: 'top-3  left-[33%]  rotate-[-4deg] w-9  h-9' },
+  { src: 'https://logo.clearbit.com/discord.com', cls: 'top-3  left-[55%]  rotate-[5deg]  w-10 h-10' },
+  { src: 'https://logo.clearbit.com/linear.app', cls: 'top-6  left-[72%]  rotate-[-5deg] w-8  h-8' },
+  { src: 'https://logo.clearbit.com/vercel.com', cls: 'top-3  right-[11%] rotate-[8deg]  w-9  h-9' },
+  { src: 'https://logo.clearbit.com/openai.com', cls: 'top-16 right-[5%]  rotate-[-5deg] w-8  h-8' },
+  { src: 'https://logo.clearbit.com/shopify.com', cls: 'bottom-5 left-[7%]  rotate-[7deg]  w-8  h-8' },
+  { src: 'https://logo.clearbit.com/airbnb.com', cls: 'bottom-7 left-[27%] rotate-[-6deg] w-9  h-9' },
   { src: 'https://logo.clearbit.com/airtable.com', cls: 'bottom-4 right-[20%] rotate-[5deg] w-8  h-8' },
-  { src: 'https://logo.clearbit.com/slack.com',    cls: 'bottom-6 right-[7%]  rotate-[-8deg] w-10 h-10'},
+  { src: 'https://logo.clearbit.com/slack.com', cls: 'bottom-6 right-[7%]  rotate-[-8deg] w-10 h-10' },
 ];
 
 // ─── Filter chip ─────────────────────────────────────────────────────────────
@@ -89,11 +89,10 @@ function FilterChip({
   return (
     <button
       onClick={onClick}
-      className={`px-3.5 py-1.5 rounded-full text-sm font-medium border transition-all whitespace-nowrap ${
-        active
-          ? 'bg-gray-900 text-white border-gray-900'
-          : 'bg-white text-gray-700 border-gray-300 hover:border-gray-500'
-      }`}
+      className={`px-3.5 py-1.5 rounded-full text-sm font-medium border transition-all whitespace-nowrap ${active
+        ? 'bg-gray-900 text-white border-gray-900'
+        : 'bg-white text-gray-700 border-gray-300 hover:border-gray-500'
+        }`}
     >
       {label}
     </button>
@@ -143,9 +142,19 @@ export default function JobListingTemplate({
     return () => observer.disconnect();
   }, []);
 
+  const [isSearching, setIsSearching] = useState(false);
+  const { startLoading, stopLoading } = useLoadingBar();
+
   const handleSearch = () => {
-    setActiveTitle(titleSearch);
-    setActiveLocation(locationSearch);
+    setIsSearching(true);
+    startLoading();
+    // Small delay to show loading state
+    setTimeout(() => {
+      setActiveTitle(titleSearch);
+      setActiveLocation(locationSearch);
+      setIsSearching(false);
+      stopLoading();
+    }, 800);
   };
 
   // Derive unique filter options from data
@@ -229,18 +238,20 @@ export default function JobListingTemplate({
                 onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                 className={inputClass} />
             </div>
-            <button onClick={handleSearch}
-              className="mx-2 my-2 px-6 py-2 bg-gray-900 text-white text-sm font-semibold rounded-lg hover:bg-gray-700 transition-colors flex-shrink-0">
-              Search
+            <button onClick={handleSearch} disabled={isSearching}
+              className="mx-2 my-2 px-6 py-2 bg-gray-900 text-white text-sm font-semibold rounded-lg hover:bg-gray-700 transition-colors flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+              {isSearching && (
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              )}
+              {isSearching ? 'Searching...' : 'Search'}
             </button>
           </div>
         </div>
       </div>
 
       {/* ── STICKY COMPACT BAR ── */}
-      <div className={`bg-white border-b border-gray-200 sticky top-0 z-40 transition-all duration-200 ${
-        heroVisible ? 'opacity-0 pointer-events-none h-0 overflow-hidden' : 'opacity-100'
-      }`}>
+      <div className={`bg-white border-b border-gray-200 sticky top-0 z-40 transition-all duration-200 ${heroVisible ? 'opacity-0 pointer-events-none h-0 overflow-hidden' : 'opacity-100'
+        }`}>
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex gap-2">
           <div className="flex flex-1 items-center bg-gray-100 rounded-lg px-3 py-2 gap-2">
             <Search className="w-4 h-4 text-gray-400 flex-shrink-0" />
@@ -256,9 +267,12 @@ export default function JobListingTemplate({
               onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
               className="flex-1 text-sm bg-transparent outline-none text-gray-800 placeholder-gray-400" />
           </div>
-          <button onClick={handleSearch}
-            className="px-5 py-2 bg-gray-900 text-white text-sm font-semibold rounded-lg hover:bg-gray-700 transition-colors">
-            Search
+          <button onClick={handleSearch} disabled={isSearching}
+            className="px-5 py-2 bg-gray-900 text-white text-sm font-semibold rounded-lg hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+            {isSearching && (
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            )}
+            {isSearching ? 'Searching...' : 'Search'}
           </button>
         </div>
       </div>
@@ -339,7 +353,13 @@ export default function JobListingTemplate({
         </div>
 
         {/* Job list */}
-        {!mounted ? (
+        {isSearching ? (
+          <div className="space-y-4">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="h-20 bg-gray-100 rounded-xl animate-pulse" />
+            ))}
+          </div>
+        ) : !mounted ? (
           <div className="space-y-4">
             {[1, 2, 3].map((i) => (
               <div key={i} className="h-20 bg-gray-100 rounded-xl animate-pulse" />

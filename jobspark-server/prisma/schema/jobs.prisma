@@ -1,4 +1,3 @@
-
 model Job {
   id              String          @id @default(cuid())
   title           String
@@ -7,29 +6,33 @@ model Job {
   type            JobType         @default(FULL_TIME)
   locationType    LocationType    @default(ONSITE)
   experienceLevel ExperienceLevel @default(ENTRY)
-  
-  salaryMin       Int?
-  salaryMax       Int?
-  location        String?
-  
+
+  salaryMin Int?
+  salaryMax Int?
+  location  String?
+
   // Analytics denormalization
-  applicationCount Int            @default(0)
-  viewCount       Int            @default(0)
+  applicationCount Int @default(0)
+  viewCount        Int @default(0)
 
   // Relations
-  companyId       String
-  company         Company         @relation(fields: [companyId], references: [id])
-  recruiterId     String
-  recruiter       RecruiterProfile @relation(fields: [recruiterId], references: [id])
-  
+  companyId   String
+  company     Company          @relation(fields: [companyId], references: [id])
+  recruiterId String
+  recruiter   RecruiterProfile @relation(fields: [recruiterId], references: [id])
+
   skills          JobSkill[]
   applications    Application[]
   matchScores     MatchScore[]
   recommendations RecommendationLog[]
 
-  deletedAt       DateTime?
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
+  deletedAt     DateTime?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  category      Category?    @relation(fields: [categoryId], references: [id])
+  categoryId    String?
+  subCategory   SubCategory? @relation(fields: [subCategoryId], references: [id])
+  subCategoryId String?
 
   @@index([status, type, locationType])
   @@index([companyId])
@@ -37,9 +40,9 @@ model Job {
 }
 
 model Skill {
-  id        String           @id @default(cuid())
-  name      String           @unique
-  jobs      JobSkill[]
+  id         String           @id @default(cuid())
+  name       String           @unique
+  jobs       JobSkill[]
   candidates CandidateSkill[]
 }
 
@@ -56,8 +59,8 @@ model JobSkill {
 model CandidateSkill {
   profileId String
   skillId   String
-  level     Int     @default(1) // 1-5
-  yearsExp  Int     @default(0)
+  level     Int              @default(1) // 1-5
+  yearsExp  Int              @default(0)
   profile   JobSeekerProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
   skill     Skill            @relation(fields: [skillId], references: [id], onDelete: Cascade)
 

@@ -5,6 +5,7 @@ import { Inter, Poppins } from "next/font/google";
 import { usePathname } from "next/navigation";
 import "./globals.css";
 import { Navbar } from "@/components/navbar1";
+import { LoadingBarProvider } from "@/components/providers/LoadingBarProvider";
 // import LenisProvider from "@/components/providers/LenisProvider";
 
 // import { Navbar } from "@/src/components/layout/navbar";
@@ -36,8 +37,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <div
           className={`${inter.variable} ${poppins.variable} font-sans antialiased bg-background text-foreground min-h-full flex flex-col`}
         >
-          {!hidePublicChrome && <Navbar />}
-          {children}
+          <LoadingBarProvider>
+            {!hidePublicChrome && <Navbar />}
+            {children}
+          </LoadingBarProvider>
         </div>
       </body>
     </html>

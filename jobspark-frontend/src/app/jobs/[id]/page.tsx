@@ -4,11 +4,13 @@ import React, { use, useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, MapPin, Briefcase, Clock, DollarSign, Calendar, Users, Building, Share2, Heart, CheckCircle, X } from 'lucide-react';
 import { getJobById } from '@/components/jobs/data';
+import { useLoadingBar } from '@/components/providers/LoadingBarProvider';
 
 const JobDetailsPage = ({ params }: { params: Promise<{ id: string }> }) => {
   const { id } = use(params);
   const [saved, setSaved] = useState(false);
   const [applied, setApplied] = useState(false);
+  const { startLoading, stopLoading } = useLoadingBar();
 
   const job = getJobById(parseInt(id));
 
@@ -30,13 +32,21 @@ const JobDetailsPage = ({ params }: { params: Promise<{ id: string }> }) => {
   }
 
   const handleApply = () => {
+    startLoading();
     setApplied(true);
     // In real app, this would navigate to application form
+    setTimeout(() => {
+      stopLoading();
+    }, 1000);
   };
 
   const handleSave = () => {
+    startLoading();
     setSaved(!saved);
     // In real app, this would save job to user's saved jobs
+    setTimeout(() => {
+      stopLoading();
+    }, 500);
   };
 
   const handleShare = () => {
@@ -99,8 +109,8 @@ const JobDetailsPage = ({ params }: { params: Promise<{ id: string }> }) => {
                   <button
                     onClick={handleSave}
                     className={`p-2 rounded-lg transition-colors ${saved
-                        ? 'bg-red-100 text-red-600 hover:bg-red-200'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      ? 'bg-red-100 text-red-600 hover:bg-red-200'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                       }`}
                   >
                     <Heart className={`w-5 h-5 ${saved ? 'fill-current' : ''}`} />
@@ -117,12 +127,12 @@ const JobDetailsPage = ({ params }: { params: Promise<{ id: string }> }) => {
               {/* Job Meta */}
               <div className="flex flex-wrap items-center gap-3 mt-4">
                 <span className={`px-3 py-1 rounded-full text-sm font-medium ${job.type === 'remote'
-                    ? 'bg-green-100 text-green-800'
-                    : job.type === 'full-time'
-                      ? 'bg-blue-100 text-blue-800'
-                      : job.type === 'part-time'
-                        ? 'bg-yellow-100 text-yellow-800'
-                        : 'bg-gray-100 text-gray-800'
+                  ? 'bg-green-100 text-green-800'
+                  : job.type === 'full-time'
+                    ? 'bg-blue-100 text-blue-800'
+                    : job.type === 'part-time'
+                      ? 'bg-yellow-100 text-yellow-800'
+                      : 'bg-gray-100 text-gray-800'
                   }`}>
                   {job.type}
                 </span>
@@ -196,8 +206,8 @@ const JobDetailsPage = ({ params }: { params: Promise<{ id: string }> }) => {
                 onClick={handleApply}
                 disabled={applied}
                 className={`w-full py-3 px-4 rounded-lg font-semibold transition-colors ${applied
-                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    : 'bg-blue-600 text-white hover:bg-blue-700'
+                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  : 'bg-blue-600 text-white hover:bg-blue-700'
                   }`}
               >
                 {applied ? 'Applied' : 'Apply Now'}

@@ -83,12 +83,6 @@ const Navbar = ({
     {
       title: "For Companies",
       url: "/hire",
-      items: [
-        { title: "Recruiter", url: "/recruiter", description: "Hiring tools & resources" },
-        { title: "Post a Job", url: "/hire/post", description: "Reach top talent" },
-        { title: "Pricing", url: "/hire/pricing", description: "Flexible plans" },
-        { title: "Enterprise", url: "/hire/enterprise", description: "Custom solutions" },
-      ]
     },
     {
       title: "Discover",

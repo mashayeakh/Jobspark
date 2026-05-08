@@ -55,13 +55,15 @@ export const JobService = {
         include: {
           skills: { include: { skill: true } },
           company: true,
+          category: true,
+          subCategory: true,
         },
       });
     });
   },
 
   getAllJobs: async (filters: JobFiltersDto) => {
-    const { searchTerm, type, locationType, experienceLevel, minSalary, maxSalary } = filters;
+    const { searchTerm, type, locationType, experienceLevel, minSalary, maxSalary, categoryId, subCategoryId } = filters;
 
     const where: Prisma.JobWhereInput = {
       status: "ACTIVE", // Only show active jobs to seekers
@@ -80,21 +82,18 @@ export const JobService = {
     if (experienceLevel) where.experienceLevel = experienceLevel;
     if (minSalary) where.salaryMin = { gte: Number(minSalary) };
     if (maxSalary) where.salaryMax = { lte: Number(maxSalary) };
+    if (categoryId) where.categoryId = categoryId;
+    if (subCategoryId) where.subCategoryId = subCategoryId;
 
     return await prisma.job.findMany({
       where,
       include: {
-        company: {
-          select: {
-            name: true,
-            logo: true,
-            industry: true,
-            location: true,
-          },
-        },
+        company: true,
         skills: {
           include: { skill: true },
         },
+        category: true,
+        subCategory: true,
       },
       orderBy: { createdAt: "desc" },
     });
@@ -127,6 +126,8 @@ export const JobService = {
         skills: {
           include: { skill: true },
         },
+        category: true,
+        subCategory: true,
       },
     });
 
@@ -180,6 +181,8 @@ export const JobService = {
         include: {
           skills: { include: { skill: true } },
           company: true,
+          category: true,
+          subCategory: true,
         },
       });
     });
@@ -192,6 +195,12 @@ export const JobService = {
         deletedAt: null,
       },
       include: {
+        company: true,
+        skills: {
+          include: { skill: true },
+        },
+        category: true,
+        subCategory: true,
         _count: {
           select: { applications: true },
         },
