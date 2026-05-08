@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { Search, MapPin, Bookmark, BookmarkCheck, X, ChevronDown } from 'lucide-react';
 import { Job } from './types';
 import { useLoadingBar } from '@/components/providers/LoadingBarProvider';
+import { workStyleService } from '@/services/workStyleService';
+import { useApi } from '@/hooks/useApi';
 
 // ─── Job Row ─────────────────────────────────────────────────────────────────
 function JobRow({ job, basePath }: { job: Job; basePath: string }) {
@@ -18,17 +20,23 @@ function JobRow({ job, basePath }: { job: Job; basePath: string }) {
     <div className="flex items-center justify-between py-4 border-b border-gray-100 last:border-b-0 gap-4">
       <div className="flex items-center gap-4 min-w-0">
         <div className="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100 border border-gray-200 flex items-center justify-center">
-          <img
-            src={job.logo}
-            alt={job.company}
-            className="w-full h-full object-cover"
-            onError={(e) => {
-              const t = e.currentTarget;
-              t.style.display = 'none';
-              const p = t.parentElement!;
-              p.innerHTML = `<span style="font-size:13px;font-weight:700;color:#555">${job.company[0]}</span>`;
-            }}
-          />
+          {job.logo ? (
+            <img
+              src={job.logo}
+              alt={job.company}
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                const t = e.currentTarget;
+                t.style.display = 'none';
+                const p = t.parentElement!;
+                p.innerHTML = `<span style="font-size:13px;font-weight:700;color:#555">${job.company?.[0] || ''}</span>`;
+              }}
+            />
+          ) : (
+            <div className="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100 border border-gray-200 flex items-center justify-center">
+              <span style={{ fontSize: '13px', fontWeight: '700', color: '#555' }}>{job.company?.[0] || ''}</span>
+            </div>
+          )}
         </div>
         <div className="min-w-0">
           <Link href={`${basePath}/${job.id}`}>
@@ -106,6 +114,8 @@ interface JobListingTemplateProps {
   heroHeadline: string;
   accentColor: string;
   allJobs: Job[];
+  loading?: boolean;
+  error?: string | null;
 }
 
 // ─── Template ─────────────────────────────────────────────────────────────────
@@ -115,6 +125,8 @@ export default function JobListingTemplate({
   heroHeadline,
   accentColor,
   allJobs,
+  loading = false,
+  error = null,
 }: JobListingTemplateProps) {
   const [titleSearch, setTitleSearch] = useState('');
   const [locationSearch, setLocationSearch] = useState('');
@@ -128,6 +140,12 @@ export default function JobListingTemplate({
   const [jobType, setJobType] = useState('All');
   const [experience, setExperience] = useState('All');
   const [sortBy, setSortBy] = useState('Newest');
+
+  // Fetch filter data
+  const { data: workStylesData } = useApi(() => workStyleService.getActiveWorkStyles());
+  const { data: jobTypesData } = useApi(() => workStyleService.getActiveJobTypes());
+  const { data: experienceLevelsData } = useApi(() => workStyleService.getActiveExperienceLevels());
+  const { data: locationTypesData } = useApi(() => workStyleService.getActiveLocationTypes());
 
   useEffect(() => {
     setMounted(true);
@@ -157,10 +175,11 @@ export default function JobListingTemplate({
     }, 800);
   };
 
-  // Derive unique filter options from data
-  const workStyles = ['All', ...Array.from(new Set(allJobs.map((j) => j.workStyle)))];
-  const jobTypes = ['All', ...Array.from(new Set(allJobs.map((j) => j.type)))];
-  const experiences = ['All', ...Array.from(new Set(allJobs.map((j) => j.experience)))];
+  // Build filter options from API data
+  // Using locationTypesData for "Work Style" as it matches the Job model's locationType better
+  const workStyles = ['All', ...(locationTypesData?.map(lt => lt.label) || [])];
+  const jobTypes = ['All', ...(jobTypesData?.map(jt => jt.label) || [])];
+  const experiences = ['All', ...(experienceLevelsData?.map(el => el.label) || [])];
 
   const activeFilterCount =
     (workStyle !== 'All' ? 1 : 0) +
@@ -192,12 +211,12 @@ export default function JobListingTemplate({
     filtered = [...filtered].sort((a, b) => {
       if (a.posted === 'today' && b.posted !== 'today') return -1;
       if (a.posted !== 'today' && b.posted === 'today') return 1;
-      return b.id - a.id; // Stable tie-breaker
+      return String(b.id).localeCompare(String(a.id)); // Stable tie-breaker
     });
   } else if (sortBy === 'Highest Salary') {
     // Basic salary sort (extracting first number from string)
     const getSal = (s: string) => parseInt(s.replace(/[^0-9]/g, '')) || 0;
-    filtered = [...filtered].sort((a, b) => getSal(b.salary) - getSal(a.salary) || b.id - a.id);
+    filtered = [...filtered].sort((a, b) => getSal(b.salary) - getSal(a.salary) || String(b.id).localeCompare(String(a.id)));
   }
 
   const inputClass = 'flex-1 text-sm text-gray-800 placeholder-gray-400 outline-none bg-transparent';
@@ -353,11 +372,19 @@ export default function JobListingTemplate({
         </div>
 
         {/* Job list */}
-        {isSearching ? (
+        {loading || isSearching ? (
           <div className="space-y-4">
             {[1, 2, 3, 4, 5].map((i) => (
               <div key={i} className="h-20 bg-gray-100 rounded-xl animate-pulse" />
             ))}
+          </div>
+        ) : error ? (
+          <div className="text-center py-16 bg-white border border-gray-200 rounded-xl">
+            <p className="text-gray-900 font-semibold text-lg mb-1">Failed to load jobs</p>
+            <p className="text-gray-500 text-sm mb-4">{error}</p>
+            <button onClick={() => window.location.reload()} className="px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-700 transition-colors">
+              Try again
+            </button>
           </div>
         ) : !mounted ? (
           <div className="space-y-4">

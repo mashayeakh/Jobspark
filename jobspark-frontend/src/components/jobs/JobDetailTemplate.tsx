@@ -54,11 +54,10 @@ export default function JobDetailTemplate({ job, backPath, backLabel }: JobDetai
             </button>
             <button
               onClick={() => setSaved(!saved)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium border rounded transition-colors ${
-                saved
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium border rounded transition-colors ${saved
                   ? 'border-gray-900 bg-gray-900 text-white'
                   : 'border-gray-300 bg-white text-gray-700 hover:border-gray-500'
-              }`}
+                }`}
             >
               {saved ? <BookmarkCheck className="w-4 h-4" /> : <Bookmark className="w-4 h-4" />}
               {saved ? 'Saved' : 'Save'}
@@ -77,16 +76,20 @@ export default function JobDetailTemplate({ job, backPath, backLabel }: JobDetai
             <div className="bg-white rounded-xl border border-gray-200 p-6">
               <div className="flex items-start gap-4">
                 <div className="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0 bg-gray-100 border border-gray-200 flex items-center justify-center">
-                  <img
-                    src={job.logo}
-                    alt={job.company}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      e.currentTarget.style.display = 'none';
-                      e.currentTarget.parentElement!.innerHTML =
-                        `<span style="font-size:22px;font-weight:700;color:#555">${job.company[0]}</span>`;
-                    }}
-                  />
+                  {job.logo ? (
+                    <img
+                      src={job.logo}
+                      alt={job.company}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                        e.currentTarget.parentElement!.innerHTML =
+                          `<span style="font-size:22px;font-weight:700;color:#555">${job.company[0]}</span>`;
+                      }}
+                    />
+                  ) : (
+                    <span className="text-2xl font-bold text-gray-500">{job.company[0]}</span>
+                  )}
                 </div>
                 <div className="flex-1 min-w-0">
                   <h1 className="text-2xl font-bold text-gray-900">{job.title}</h1>
@@ -174,11 +177,10 @@ export default function JobDetailTemplate({ job, backPath, backLabel }: JobDetai
               <button
                 onClick={() => setApplied(true)}
                 disabled={applied}
-                className={`w-full py-3 px-4 rounded-lg font-semibold transition-colors text-sm ${
-                  applied
+                className={`w-full py-3 px-4 rounded-lg font-semibold transition-colors text-sm ${applied
                     ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
                     : 'bg-gray-900 text-white hover:bg-gray-700'
-                }`}
+                  }`}
               >
                 {applied ? '✓ Applied' : 'Apply Now'}
               </button>
@@ -212,6 +214,10 @@ export default function JobDetailTemplate({ job, backPath, backLabel }: JobDetai
                 <div className="flex items-center gap-2 text-gray-600">
                   <Clock className="w-4 h-4 flex-shrink-0" />
                   <span>Posted {job.posted}</span>
+                </div>
+                <div className="flex items-center gap-2 text-gray-600">
+                  <Users className="w-4 h-4 flex-shrink-0" />
+                  <span>{job.vacancy} {job.vacancy === 1 ? 'position available' : 'positions available'}</span>
                 </div>
               </div>
             </div>

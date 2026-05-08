@@ -8,6 +8,7 @@ import { NetworkRoutes } from "./network/network.route";
 import { AdminRoutes } from "./admin/admin.route";
 
 import { CategoryRoutes } from "./category/category.route";
+import { WorkStyleRoutes } from "./workstyle/workstyle.route";
 
 const router = express.Router();
 
@@ -22,6 +23,9 @@ router.use("/recruiter", RecruiterRoutes);
 
 //!Category
 router.use("/categories", CategoryRoutes);
+
+//!WorkStyle
+router.use("/workstyles", WorkStyleRoutes);
 
 //!Jobs
 router.use("/jobs", JobRoutes);

@@ -1,20 +1,21 @@
 export interface Job {
-  id: number;
+  id: string | number;
   title: string;
   company: string;
-  logo: string;
+  logo: string | null;
   workStyle: string;
   location: string;
   salary: string;
   equity?: string;
   posted: string;
   category: string;
-  type: 'full-time' | 'part-time' | 'contract' | 'remote';
+  type: string;
   experience: string;
   description: string;
   requirements: string[];
   responsibilities: string[];
   benefits: string[];
+  vacancy: number;
   skills: string[];
   aboutCompany: string;
 }

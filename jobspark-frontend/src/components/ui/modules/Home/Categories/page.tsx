@@ -1,93 +1,53 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Code, Palette, Megaphone, BarChart, Heart, Wrench, Camera, Music, Briefcase, GraduationCap } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Code, Palette, Megaphone, BarChart, Heart, Wrench, Camera, Music, Briefcase, GraduationCap, Cpu } from 'lucide-react';
+import { categoryService, Category } from '@/services/categoryService';
+import { useApi } from '@/hooks/useApi';
 
 const Categories = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
-  const categories = [
-    {
-      id: 'engineering',
-      icon: Code,
-      title: 'Engineering',
-      count: '15,234',
-      color: 'from-blue-500 to-blue-600',
-      jobs: ['Frontend Developer', 'Backend Developer', 'Full Stack Developer', 'DevOps Engineer', 'Mobile Developer']
-    },
-    {
-      id: 'design',
-      icon: Palette,
-      title: 'Design',
-      count: '8,456',
-      color: 'from-purple-500 to-purple-600',
-      jobs: ['UI/UX Designer', 'Product Designer', 'Graphic Designer', 'Motion Designer', 'Design Lead']
-    },
-    {
-      id: 'marketing',
-      icon: Megaphone,
-      title: 'Marketing',
-      count: '12,789',
-      color: 'from-pink-500 to-pink-600',
-      jobs: ['Digital Marketing', 'Content Marketing', 'Growth Marketing', 'Brand Manager', 'Marketing Director']
-    },
-    {
-      id: 'sales',
-      icon: BarChart,
-      title: 'Sales',
-      count: '9,123',
-      color: 'from-green-500 to-green-600',
-      jobs: ['Sales Representative', 'Account Executive', 'Sales Manager', 'Business Development', 'Sales Director']
-    },
-    {
-      id: 'healthcare',
-      icon: Heart,
-      title: 'Healthcare',
-      count: '6,789',
-      color: 'from-red-500 to-red-600',
-      jobs: ['Registered Nurse', 'Medical Assistant', 'Healthcare Administrator', 'Doctor', 'Therapist']
-    },
-    {
-      id: 'skilled-trades',
-      icon: Wrench,
-      title: 'Skilled Trades',
-      count: '4,567',
-      color: 'from-orange-500 to-orange-600',
-      jobs: ['Electrician', 'Plumber', 'Carpenter', 'Welder', 'HVAC Technician']
-    },
-    {
-      id: 'media',
-      icon: Camera,
-      title: 'Media',
-      count: '3,456',
-      color: 'from-indigo-500 to-indigo-600',
-      jobs: ['Video Editor', 'Photographer', 'Content Creator', 'Journalist', 'Social Media Manager']
-    },
-    {
-      id: 'entertainment',
-      icon: Music,
-      title: 'Entertainment',
-      count: '2,234',
-      color: 'from-yellow-500 to-yellow-600',
-      jobs: ['Music Producer', 'Game Developer', 'Animator', 'Voice Actor', 'Event Coordinator']
-    },
-    {
-      id: 'business',
-      icon: Briefcase,
-      title: 'Business',
-      count: '18,901',
-      color: 'from-gray-600 to-gray-700',
-      jobs: ['Project Manager', 'Business Analyst', 'Consultant', 'Operations Manager', 'Executive Assistant']
-    },
-    {
-      id: 'education',
-      icon: GraduationCap,
-      title: 'Education',
-      count: '7,890',
-      color: 'from-teal-500 to-teal-600',
-      jobs: ['Teacher', 'Professor', 'Curriculum Developer', 'Education Consultant', 'Academic Advisor']
-    }
-  ];
+  const { data: categoriesData, loading, error } = useApi(() => categoryService.getActiveCategories());
+
+  // Icon mapping for backend icons
+  const iconMap: { [key: string]: any } = {
+    'cpu': Cpu,
+    'palette': Palette,
+    'megaphone': Megaphone,
+    'bar-chart': BarChart,
+    'heart': Heart,
+    'wrench': Wrench,
+    'camera': Camera,
+    'music': Music,
+    'briefcase': Briefcase,
+    'graduation-cap': GraduationCap,
+    'code': Code,
+  };
+
+  // Color mapping from hex to Tailwind gradients (matching hardcoded version)
+  const colorMap: { [key: string]: string } = {
+    '#3b82f6': 'from-blue-500 to-blue-600',  // Technology
+    '#ec4899': 'from-purple-500 to-purple-600',  // Design
+    '#10b981': 'from-green-500 to-green-600',   // Sales/Healthcare
+    '#f59e0b': 'from-orange-500 to-orange-600', // Skilled Trades
+    '#6366f1': 'from-indigo-500 to-indigo-600', // Media
+    '#eab308': 'from-yellow-500 to-yellow-600', // Entertainment
+    '#6b7280': 'from-gray-600 to-gray-700',     // Business
+    '#14b8a6': 'from-teal-500 to-teal-600',     // Education
+    '#ef4444': 'from-red-500 to-red-600',       // Healthcare
+    '#ec4899': 'from-pink-500 to-pink-600',     // Marketing
+  };
+
+  // Transform API data to component format
+  const categories = categoriesData?.map(category => ({
+    id: category.slug,
+    icon: iconMap[category.icon] || Code,
+    title: category.name,
+    count: category._count.jobs.toString(),
+    color: colorMap[category.color] || 'from-blue-500 to-blue-600',
+    jobs: category.subcategories.map(sub => sub.name)
+  })) || [];
 
   const selectedCategoryData = categories.find(cat => cat.id === selectedCategory);
 
@@ -104,45 +64,62 @@ const Categories = () => {
           </p>
         </div>
 
+        {/* Loading State */}
+        {loading && (
+          <div className="text-center py-12">
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <p className="mt-4 text-gray-600">Loading categories...</p>
+          </div>
+        )}
+
+        {/* Error State */}
+        {error && (
+          <div className="text-center py-12">
+            <div className="text-red-600 mb-4">❌ Failed to load categories</div>
+            <p className="text-gray-600">{error}</p>
+          </div>
+        )}
+
         {/* Categories Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-6 mb-12">
-          {categories.map((category) => {
-            const Icon = category.icon;
-            return (
-              <button
-                key={category.id}
-                onClick={() => setSelectedCategory(category.id === selectedCategory ? null : category.id)}
-                className={`group relative p-6 rounded-2xl border-2 transition-all duration-300 hover:scale-105 ${
-                  selectedCategory === category.id
+        {!loading && !error && (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-6 mb-12">
+            {categories.map((category) => {
+              const Icon = category.icon;
+              return (
+                <button
+                  key={category.id}
+                  onClick={() => setSelectedCategory(category.id === selectedCategory ? null : category.id)}
+                  className={`group relative p-6 rounded-2xl border-2 transition-all duration-300 hover:scale-105 ${selectedCategory === category.id
                     ? 'border-blue-500 bg-blue-50 shadow-lg'
                     : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-md'
-                }`}
-              >
-                {/* Icon */}
-                <div className={`w-12 h-12 bg-gradient-to-br ${category.color} rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-300`}>
-                  <Icon className="w-6 h-6 text-white" />
-                </div>
-
-                {/* Title */}
-                <div className="font-semibold text-gray-900 mb-1">
-                  {category.title}
-                </div>
-
-                {/* Count */}
-                <div className="text-sm text-gray-500">
-                  {category.count} jobs
-                </div>
-
-                {/* Selected Indicator */}
-                {selectedCategory === category.id && (
-                  <div className="absolute -top-2 -right-2 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
-                    <div className="w-2 h-2 bg-white rounded-full"></div>
+                    }`}
+                >
+                  {/* Icon */}
+                  <div className={`w-12 h-12 bg-gradient-to-br ${category.color} rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-300`}>
+                    <Icon className="w-6 h-6 text-white" />
                   </div>
-                )}
-              </button>
-            );
-          })}
-        </div>
+
+                  {/* Title */}
+                  <div className="font-semibold text-gray-900 mb-1">
+                    {category.title}
+                  </div>
+
+                  {/* Count */}
+                  <div className="text-sm text-gray-500">
+                    {category.count} jobs
+                  </div>
+
+                  {/* Selected Indicator */}
+                  {selectedCategory === category.id && (
+                    <div className="absolute -top-2 -right-2 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                      <div className="w-2 h-2 bg-white rounded-full"></div>
+                    </div>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        )}
 
         {/* Selected Category Details */}
         {selectedCategoryData && (

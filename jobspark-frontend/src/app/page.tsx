@@ -9,10 +9,12 @@ import Newsletter from "@/components/ui/modules/Home/Newsletter/page";
 import FinalCTA from "@/components/ui/modules/Home/FinalCTA/page";
 import Footer from "@/components/ui/modules/Home/Footer/page";
 import Image from "next/image";
+import ApiTest from '@/components/ui/api-test';
+import JobTest from '@/components/ui/job-test';
 
 export default function Home() {
   return (
-    <div>
+    <div className="min-h-screen bg-gray-50">
       {/* Hero section */}
       <HeroSection />
 
@@ -42,6 +44,9 @@ export default function Home() {
 
       {/* Footer */}
       <Footer />
+
+      <ApiTest />
+      <JobTest />
     </div>
   );
 }
