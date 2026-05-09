@@ -36,7 +36,7 @@ const Categories = () => {
     '#6b7280': 'from-gray-600 to-gray-700',     // Business
     '#14b8a6': 'from-teal-500 to-teal-600',     // Education
     '#ef4444': 'from-red-500 to-red-600',       // Healthcare
-    '#ec4899': 'from-pink-500 to-pink-600',     // Marketing
+    // '#ec4899': 'from-pink-500 to-pink-600',     // Marketing
   };
 
   // Transform API data to component format

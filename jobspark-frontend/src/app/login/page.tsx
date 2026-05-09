@@ -105,9 +105,11 @@ const LoginPage = () => {
 
         // Redirect based on user role
         if (user.role === 'RECRUITER') {
-          router.push('/dashboard');
+          router.push('/recruiter/dashboard');
         } else if (user.role === 'JOB_SEEKER') {
-          router.push('/jobs');
+          router.push('/jobseeker/dashboard');
+        } else if (user.role === 'ADMIN') {
+          router.push('/admin/dashboard');
         } else {
           router.push('/dashboard');
         }
