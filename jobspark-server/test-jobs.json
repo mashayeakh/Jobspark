@@ -1,0 +1,86 @@
+{
+  "fraudulent_jobs": [
+    {
+      "title": "Work From Home Data Entry - $5000/month",
+      "description": "EASY MONEY! Work from home doing simple data entry. No experience needed. Start immediately! Pay small one-time fee of $50 for training materials. You can make $5000 per month working just 2 hours per day! Limited positions available!",
+      "requirements": "No experience needed, just a computer and internet connection. Must pay training fee first to get started.",
+      "responsibilities": "Enter data into spreadsheets, copy-paste information, simple online tasks, process payments",
+      "benefits": "Flexible hours, work from anywhere, unlimited earning potential, quick payments",
+      "salaryMin": 5000,
+      "salaryMax": 5000,
+      "vacancy": 50,
+      "location": "Remote",
+      "type": "PART_TIME",
+      "locationType": "REMOTE",
+      "experienceLevel": "ENTRY",
+      "categoryId": "cmoy4aiwx00049wuedvzm6685",
+      "subCategoryId": "cmoy4aoqi00059wue0gvsezmp"
+    },
+    {
+      "title": "URGENCY: Personal Assistant Needed - Send Money First",
+      "description": "IMMEDIATE HIRE! I need a personal assistant to help me with various tasks. I'm currently traveling and need someone to handle my affairs. Please send $200 via Western Union to prove you're serious. This is a refundable security deposit. You'll earn $3000 monthly!",
+      "requirements": "Must be trustworthy, able to send money quickly, have bank account for transfers, willing to pay security deposit",
+      "responsibilities": "Manage personal affairs, handle financial transactions, run errands, process payments for clients",
+      "benefits": "High salary, flexible schedule, travel opportunities, work from anywhere",
+      "salaryMin": 3000,
+      "salaryMax": 3000,
+      "vacancy": 1,
+      "location": "Remote",
+      "type": "FULL_TIME",
+      "locationType": "REMOTE",
+      "experienceLevel": "ENTRY",
+      "categoryId": "cmoy4aiwx00049wuedvzm6685",
+      "subCategoryId": "cmoy4aoqi00059wue0gvsezmp"
+    },
+    {
+      "title": "Package Forwarding Coordinator - High Pay",
+      "description": "Great opportunity! Receive packages at your home and forward them internationally. We'll pay you $100 per package plus shipping costs. All you need is a valid address and internet access. Start today! No background check required.",
+      "requirements": "Must have residential address, able to receive packages, basic computer skills, no experience needed",
+      "responsibilities": "Receive packages, inspect contents, forward to international addresses, handle customs paperwork",
+      "benefits": "Work from home, flexible schedule, good pay per package, bonuses for volume",
+      "salaryMin": 2000,
+      "salaryMax": 4000,
+      "vacancy": 10,
+      "location": "Remote",
+      "type": "CONTRACT",
+      "locationType": "REMOTE",
+      "experienceLevel": "ENTRY",
+      "categoryId": "cmoy4aiwx00049wuedvzm6685",
+      "subCategoryId": "cmoy4aoqi00059wue0gvsezmp"
+    }
+  ],
+  "legitimate_jobs": [
+    {
+      "title": "Senior Frontend Developer",
+      "description": "We are looking for an experienced Frontend Developer to join our growing team. You will be responsible for building user interfaces using React, TypeScript, and modern CSS frameworks. Our company is a well-established tech firm with over 10 years in business.",
+      "requirements": "5+ years of React experience, TypeScript expertise, strong CSS skills, experience with state management libraries, computer science degree preferred",
+      "responsibilities": "Develop responsive web applications, collaborate with UX team, optimize application performance, participate in code reviews, mentor junior developers",
+      "benefits": "Health insurance, 401k matching, remote work options, professional development budget, stock options",
+      "salaryMin": 120000,
+      "salaryMax": 160000,
+      "vacancy": 2,
+      "location": "San Francisco, CA",
+      "type": "FULL_TIME",
+      "locationType": "HYBRID",
+      "experienceLevel": "SENIOR",
+      "categoryId": "cmoy4aiwx00049wuedvzm6685",
+      "subCategoryId": "cmoy4aoqi00059wue0gvsezmp"
+    },
+    {
+      "title": "Marketing Manager",
+      "description": "Join our marketing team at a leading retail company. We are seeking a creative Marketing Manager to develop and execute marketing strategies across multiple channels. We offer competitive compensation and growth opportunities.",
+      "requirements": "Bachelor's degree in Marketing, 3+ years experience, strong analytical skills, familiarity with digital marketing tools, MBA preferred",
+      "responsibilities": "Develop marketing campaigns, manage social media presence, analyze campaign performance, coordinate with sales team, manage marketing budget",
+      "benefits": "Competitive salary, health benefits, paid time off, career growth opportunities, performance bonuses",
+      "salaryMin": 80000,
+      "salaryMax": 100000,
+      "vacancy": 1,
+      "location": "New York, NY",
+      "type": "FULL_TIME",
+      "locationType": "ONSITE",
+      "experienceLevel": "MID",
+      "categoryId": "cmoy4aiwx00049wuedvzm6685",
+      "subCategoryId": "cmoy4aoqi00059wue0gvsezmp"
+    }
+  ]
+}

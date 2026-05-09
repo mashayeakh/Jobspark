@@ -9,6 +9,7 @@ import { AdminRoutes } from "./admin/admin.route";
 
 import { CategoryRoutes } from "./category/category.route";
 import { WorkStyleRoutes } from "./workstyle/workstyle.route";
+import fraudDetectionRoutes from "./ai/fraudDetection.route";
 
 const router = express.Router();
 
@@ -38,5 +39,8 @@ router.use("/network", NetworkRoutes);
 
 //!Admin
 router.use("/admin", AdminRoutes);
+
+//!AI Fraud Detection
+router.use("/admin/fraud-shield", fraudDetectionRoutes);
 
 export default router;

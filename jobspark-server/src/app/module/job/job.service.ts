@@ -17,49 +17,51 @@ export const JobService = {
       throw new AppError(httpStatus.FORBIDDEN, "Only recruiters can post jobs.");
     }
 
-    return await prisma.$transaction(async (tx) => {
-      // 2. Create the Job
-      const job = await tx.job.create({
-        data: {
-          ...jobData,
-          vacancy: jobData.vacancy ?? 1,
-          recruiterId: recruiter.id,
-          companyId: recruiter.companyId,
-        },
-      });
+    // Create job first (outside transaction to avoid timeout)
+    const job = await prisma.job.create({
+      data: {
+        ...jobData,
+        vacancy: jobData.vacancy ?? 1,
+        recruiterId: recruiter.id,
+        companyId: recruiter.companyId,
+      },
+    });
 
-      // 3. Handle Skills
-      if (skills && skills.length > 0) {
-        // Bulk create missing skills
-        await tx.skill.createMany({
-          data: skills.map((s) => ({ name: s.name })),
-          skipDuplicates: true,
-        });
-
-        // Get IDs
-        const skillRecords = await tx.skill.findMany({
-          where: { name: { in: skills.map((s) => s.name) } },
-        });
-
-        // Create JobSkills
-        await tx.jobSkill.createMany({
-          data: skills.map((s) => ({
-            jobId: job.id,
-            skillId: skillRecords.find((sr) => sr.name === s.name)!.id,
-            isRequired: s.isRequired !== undefined ? s.isRequired : true,
-          })),
+    // Handle skills separately (outside transaction to avoid timeout)
+    if (skills && skills.length > 0) {
+      // Create missing skills
+      for (const skill of skills) {
+        await prisma.skill.upsert({
+          where: { name: skill.name },
+          create: { name: skill.name },
+          update: {}
         });
       }
 
-      return await tx.job.findUnique({
-        where: { id: job.id },
-        include: {
-          skills: { include: { skill: true } },
-          company: true,
-          category: true,
-          subCategory: true,
-        },
+      // Get all skill IDs
+      const allSkills = await prisma.skill.findMany({
+        where: { name: { in: skills.map((s) => s.name) } },
       });
+
+      // Create job skills
+      await prisma.jobSkill.createMany({
+        data: skills.map((s) => ({
+          jobId: job.id,
+          skillId: allSkills.find((sr) => sr.name === s.name)!.id,
+          isRequired: s.isRequired !== undefined ? s.isRequired : true,
+        })),
+      });
+    }
+
+    // Return job with skills
+    return await prisma.job.findUnique({
+      where: { id: job.id },
+      include: {
+        skills: { include: { skill: true } },
+        company: true,
+        category: true,
+        subCategory: true,
+      },
     });
   },
 
@@ -90,6 +92,7 @@ export const JobService = {
       where,
       include: {
         company: true,
+        recruiter: true,
         skills: {
           include: { skill: true },
         },

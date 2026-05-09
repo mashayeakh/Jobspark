@@ -5,6 +5,20 @@ import httpStatus from "http-status";
 import { RecruiterService } from "./recruiter.service";
 
 export const RecruiterController = {
+  createProfile: catchAsyc(async (req: Request, res: Response) => {
+    const userId = (req as any).user.userId;
+    const { companyName } = req.body;
+
+    const result = await RecruiterService.createProfile(userId, companyName);
+
+    sendResponse(res, {
+      httpStatusCode: httpStatus.CREATED,
+      success: true,
+      message: "Recruiter profile created successfully",
+      result,
+    });
+  }),
+
   updateProfile: catchAsyc(async (req: Request, res: Response) => {
     const userId = (req as any).user.userId;
     const result = await RecruiterService.updateProfile(userId, req.body);

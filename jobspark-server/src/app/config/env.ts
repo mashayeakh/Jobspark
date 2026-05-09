@@ -31,7 +31,8 @@ interface EnvConfig {
     //     SMTP_FROM: string,
     // },
 
-    // GEMINI_API_KEY: string,
+    GEMINI_API_KEY: string,
+    REDIS_URL: string,
 
     // STRIPE: {
     //     STRIPE_SECRET_KEY: string,
@@ -80,7 +81,8 @@ const loadEnvVariables = (): EnvConfig => {
         // "CLOUDINARY_CLOUD_NAME",
         // "CLOUDINARY_API_KEY",
         // "CLOUDINARY_API_SECRET",
-        // "GEMINI_API_KEY",
+        "GEMINI_API_KEY",
+        "REDIS_URL",
         // "BREVO_API_KEY",
         // "BREVO_FROM_EMAIL",
         // "BREVO_FROM_NAME",
@@ -149,7 +151,8 @@ const loadEnvVariables = (): EnvConfig => {
         BETTER_AUTH_SESSION_TOKEN_EXPIRES_IN: process.env.BETTER_AUTH_SESSION_TOKEN_EXPIRES_IN as string,
         BETTER_AUTH_SESSION_TOKEN_UPDATE_AGE: process.env.BETTER_AUTH_SESSION_TOKEN_UPDATE_AGE as string,
         FRONTEND_URL: process.env.FRONTEND_URL as string,
-        // GEMINI_API_KEY: process.env.GEMINI_API_KEY as string,
+        GEMINI_API_KEY: process.env.GEMINI_API_KEY as string,
+        REDIS_URL: process.env.REDIS_URL as string,
         // EMAIL_SENDER: {
         //     SMTP_USER: process.env.EMAIL_SENDER_SMTP_USER as string,
         //     SMTP_PASS: process.env.EMAIL_SENDER_SMTP_PASS as string,

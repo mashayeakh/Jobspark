@@ -1,44 +1,46 @@
 model JobSeekerProfile {
-  id                String   @id @default(cuid())
-  userId            String   @unique
-  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  headline          String?
-  bio               String?
-  resumeUrl         String?
+  id     String @id @default(cuid())
+  name   String
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  headline           String?
+  bio                String?
+  resumeUrl          String?
   preferredSalaryMin Int?
   preferredSalaryMax Int?
-  isProfileComplete Boolean  @default(false)
+  isProfileComplete  Boolean @default(false)
 
   // Normalized relations
-  workExperience    WorkExperience[]
-  education         Education[]
-  skills            CandidateSkill[]
-  applications      Application[]
-  matchScores       MatchScore[]
+  workExperience WorkExperience[]
+  education      Education[]
+  skills         CandidateSkill[]
+  applications   Application[]
+  matchScores    MatchScore[]
 
   @@index([userId])
 }
 
 model RecruiterProfile {
-  id        String   @id @default(cuid())
-  userId    String   @unique
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+  id     String @id @default(cuid())
+  name   String
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   companyId String
-  company   Company  @relation(fields: [companyId], references: [id])
+  company   Company @relation(fields: [companyId], references: [id])
   position  String?
 
-  jobs      Job[]
+  jobs Job[]
 
   @@index([companyId])
 }
 
 model WorkExperience {
-  id          String    @id @default(cuid())
-  profileId   String
-  profile     JobSeekerProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  
+  id        String           @id @default(cuid())
+  profileId String
+  profile   JobSeekerProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
   companyName String
   title       String
   startDate   DateTime
@@ -49,15 +51,15 @@ model WorkExperience {
 }
 
 model Education {
-  id          String    @id @default(cuid())
-  profileId   String
-  profile     JobSeekerProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  
-  school      String
-  degree      String
-  field       String
-  startDate   DateTime
-  endDate     DateTime?
+  id        String           @id @default(cuid())
+  profileId String
+  profile   JobSeekerProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  school    String
+  degree    String
+  field     String
+  startDate DateTime
+  endDate   DateTime?
 
   @@index([profileId])
 }

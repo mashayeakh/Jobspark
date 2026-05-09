@@ -20,6 +20,15 @@ model Job {
   applicationCount Int @default(0)
   viewCount        Int @default(0)
 
+  // Fraud detection fields
+  fraudStatus       String? // 'SAFE', 'FLAGGED', 'UNDER_REVIEW'
+  fraudScore        Float? // 0-100 risk score
+  fraudFlaggedAt    DateTime? // When job was flagged for fraud
+  fraudReviewedAt   DateTime? // When fraud review was completed
+  fraudReviewedBy   String? // Who reviewed the fraud (admin ID)
+  fraudReviewReason String? // Reason for fraud review decision
+  fraudIssues       Json? // Array of fraud issues found
+
   // Relations
   companyId   String
   company     Company          @relation(fields: [companyId], references: [id])

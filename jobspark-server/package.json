@@ -11,7 +11,7 @@
     "build": "prisma generate && tsup",
     "postinstall": "prisma generate",
     "test": "echo \"Error: no test specified\" && exit 1"
-  },  
+  },
   "engines": {
     "node": "20.19.0"
   },
@@ -25,6 +25,7 @@
     "axios": "^1.10.0",
     "bcryptjs": "^3.0.2",
     "better-auth": "^1.6.9",
+    "compromise": "^14.15.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "crypto": "^1.0.1",
@@ -36,9 +37,11 @@
     "googleapis": "^150.0.1",
     "http-status": "^2.1.0",
     "iconv-lite": "^0.6.3",
+    "ioredis": "^5.10.1",
     "json2csv": "^6.0.0-alpha.2",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^8.15.0",
+    "natural": "^8.1.1",
     "node-cron": "^4.2.1",
     "nodemailer": "^7.0.3",
     "pdfkit": "^0.17.1",
@@ -52,6 +55,7 @@
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
+    "@types/natural": "^5.1.5",
     "@types/node": "^25.6.0",
     "@types/pg": "^8.20.0",
     "prisma-generator-typescript-interfaces": "^3.1.0",

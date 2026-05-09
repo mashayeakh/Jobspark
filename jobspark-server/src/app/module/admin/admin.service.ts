@@ -93,11 +93,11 @@ export const AdminService = {
         ...(userStatus ? { status: userStatus as any } : {}),
         ...(search
           ? {
-              OR: [
-                { name: { contains: search, mode: "insensitive" } },
-                { email: { contains: search, mode: "insensitive" } },
-              ],
-            }
+            OR: [
+              { name: { contains: search, mode: "insensitive" } },
+              { email: { contains: search, mode: "insensitive" } },
+            ],
+          }
           : {}),
         isDeleted: false,
       },
@@ -185,6 +185,7 @@ export const AdminService = {
   getAllJobsForAdmin: async () => {
     return await prisma.job.findMany({
       include: {
+        recruiter: true,
         company: { select: { name: true } },
         _count: { select: { applications: true } },
       },

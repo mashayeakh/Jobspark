@@ -2,7 +2,10 @@
 CREATE TYPE "UserRole" AS ENUM ('ADMIN', 'RECRUITER', 'JOB_SEEKER');
 
 -- CreateEnum
-CREATE TYPE "JobStatus" AS ENUM ('DRAFT', 'ACTIVE', 'CLOSED', 'ARCHIVED');
+CREATE TYPE "UserStatus" AS ENUM ('ACTIVE', 'BLOCKED', 'DELETED');
+
+-- CreateEnum
+CREATE TYPE "JobStatus" AS ENUM ('DRAFT', 'OPEN', 'ACTIVE', 'CLOSED', 'ARCHIVED');
 
 -- CreateEnum
 CREATE TYPE "JobType" AS ENUM ('FULL_TIME', 'PART_TIME', 'CONTRACT', 'INTERNSHIP', 'FREELANCE');
@@ -57,6 +60,17 @@ CREATE TABLE "PlatformSnapshot" (
 );
 
 -- CreateTable
+CREATE TABLE "AnalyticsLog" (
+    "id" TEXT NOT NULL,
+    "event" TEXT NOT NULL,
+    "metadata" JSONB,
+    "userId" TEXT,
+    "timestamp" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "AnalyticsLog_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "Application" (
     "id" TEXT NOT NULL,
     "jobId" TEXT NOT NULL,
@@ -88,6 +102,8 @@ CREATE TABLE "User" (
     "image" TEXT,
     "password" TEXT,
     "role" "UserRole" NOT NULL DEFAULT 'JOB_SEEKER',
+    "isDeleted" BOOLEAN NOT NULL DEFAULT false,
+    "status" "UserStatus" NOT NULL DEFAULT 'ACTIVE',
     "deletedAt" TIMESTAMP(3),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -103,6 +119,8 @@ CREATE TABLE "Session" (
     "expiresAt" TIMESTAMP(3) NOT NULL,
     "ipAddress" TEXT,
     "userAgent" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "Session_pkey" PRIMARY KEY ("id")
 );
@@ -117,6 +135,8 @@ CREATE TABLE "Account" (
     "refreshToken" TEXT,
     "expiresAt" TIMESTAMP(3),
     "password" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "Account_pkey" PRIMARY KEY ("id")
 );
@@ -134,6 +154,35 @@ CREATE TABLE "Verification" (
 );
 
 -- CreateTable
+CREATE TABLE "categories" (
+    "id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "slug" TEXT NOT NULL,
+    "icon" TEXT,
+    "color" TEXT,
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "sortOrder" INTEGER NOT NULL DEFAULT 0,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "categories_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "subcategories" (
+    "id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "slug" TEXT NOT NULL,
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "sortOrder" INTEGER NOT NULL DEFAULT 0,
+    "categoryId" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "subcategories_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "Company" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
@@ -143,6 +192,7 @@ CREATE TABLE "Company" (
     "industry" TEXT NOT NULL,
     "size" TEXT,
     "location" TEXT,
+    "isVerified" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -158,16 +208,30 @@ CREATE TABLE "Job" (
     "type" "JobType" NOT NULL DEFAULT 'FULL_TIME',
     "locationType" "LocationType" NOT NULL DEFAULT 'ONSITE',
     "experienceLevel" "ExperienceLevel" NOT NULL DEFAULT 'ENTRY',
+    "benefits" TEXT,
+    "vacancy" INTEGER NOT NULL DEFAULT 1,
     "salaryMin" INTEGER,
     "salaryMax" INTEGER,
     "location" TEXT,
+    "responsibilities" TEXT,
+    "requirements" TEXT,
     "applicationCount" INTEGER NOT NULL DEFAULT 0,
     "viewCount" INTEGER NOT NULL DEFAULT 0,
+    "fraudStatus" TEXT,
+    "fraudScore" DOUBLE PRECISION,
+    "fraudFlaggedAt" TIMESTAMP(3),
+    "fraudReviewedAt" TIMESTAMP(3),
+    "fraudReviewedBy" TEXT,
+    "fraudReviewReason" TEXT,
+    "fraudIssues" JSONB,
     "companyId" TEXT NOT NULL,
     "recruiterId" TEXT NOT NULL,
     "deletedAt" TIMESTAMP(3),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
+    "categoryId" TEXT,
+    "subCategoryId" TEXT,
+    "workStyleId" INTEGER,
 
     CONSTRAINT "Job_pkey" PRIMARY KEY ("id")
 );
@@ -273,6 +337,15 @@ CREATE TABLE "Education" (
     CONSTRAINT "Education_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "WorkStyle" (
+    "id" SERIAL NOT NULL,
+    "label" TEXT NOT NULL,
+    "value" TEXT NOT NULL,
+
+    CONSTRAINT "WorkStyle_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE INDEX "MatchScore_profileId_score_idx" ON "MatchScore"("profileId", "score" DESC);
 
@@ -305,6 +378,18 @@ CREATE UNIQUE INDEX "Account_providerId_accountId_key" ON "Account"("providerId"
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Verification_identifier_value_key" ON "Verification"("identifier", "value");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "categories_name_key" ON "categories"("name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "categories_slug_key" ON "categories"("slug");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "subcategories_slug_key" ON "subcategories"("slug");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "subcategories_categoryId_name_key" ON "subcategories"("categoryId", "name");
 
 -- CreateIndex
 CREATE INDEX "Job_status_type_locationType_idx" ON "Job"("status", "type", "locationType");
@@ -342,6 +427,12 @@ CREATE INDEX "WorkExperience_profileId_idx" ON "WorkExperience"("profileId");
 -- CreateIndex
 CREATE INDEX "Education_profileId_idx" ON "Education"("profileId");
 
+-- CreateIndex
+CREATE UNIQUE INDEX "WorkStyle_label_key" ON "WorkStyle"("label");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "WorkStyle_value_key" ON "WorkStyle"("value");
+
 -- AddForeignKey
 ALTER TABLE "MatchScore" ADD CONSTRAINT "MatchScore_jobId_fkey" FOREIGN KEY ("jobId") REFERENCES "Job"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
@@ -370,10 +461,22 @@ ALTER TABLE "Session" ADD CONSTRAINT "Session_userId_fkey" FOREIGN KEY ("userId"
 ALTER TABLE "Account" ADD CONSTRAINT "Account_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "subcategories" ADD CONSTRAINT "subcategories_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "categories"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "Job" ADD CONSTRAINT "Job_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Job" ADD CONSTRAINT "Job_recruiterId_fkey" FOREIGN KEY ("recruiterId") REFERENCES "RecruiterProfile"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Job" ADD CONSTRAINT "Job_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "categories"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Job" ADD CONSTRAINT "Job_subCategoryId_fkey" FOREIGN KEY ("subCategoryId") REFERENCES "subcategories"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Job" ADD CONSTRAINT "Job_workStyleId_fkey" FOREIGN KEY ("workStyleId") REFERENCES "WorkStyle"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "JobSkill" ADD CONSTRAINT "JobSkill_jobId_fkey" FOREIGN KEY ("jobId") REFERENCES "Job"("id") ON DELETE CASCADE ON UPDATE CASCADE;
