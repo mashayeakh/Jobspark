@@ -12,6 +12,7 @@ const bootstrap = async () => {
         // Seed admin on every startup (idempotent - safe to run multiple times)
         await seedAdmin();
         app.listen(port, () => {
+            
             console.log(`Server is running on http://localhost:${port}`);
         });
     } catch (error) {

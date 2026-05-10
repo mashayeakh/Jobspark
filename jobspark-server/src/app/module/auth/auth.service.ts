@@ -36,6 +36,7 @@ export const AuthService = {
             await prisma.jobSeekerProfile.create({
                 data: {
                     userId: newUser.id,
+                    name: name,
                 },
             });
         } else if (role === "RECRUITER") {
@@ -56,6 +57,7 @@ export const AuthService = {
                 data: {
                     userId: newUser.id,
                     companyId: company.id,
+                    name: name,
                 },
             });
         }

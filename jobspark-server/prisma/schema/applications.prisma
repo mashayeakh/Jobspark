@@ -1,17 +1,16 @@
-
 model Application {
-  id        String            @id @default(cuid())
-  jobId     String
-  seekerId  String
-  status    ApplicationStatus @default(PENDING)
-  
-  job       Job               @relation(fields: [jobId], references: [id])
-  seeker    JobSeekerProfile  @relation(fields: [seekerId], references: [id])
-  
-  logs      ApplicationStatusLog[]
+  id       String            @id @default(cuid())
+  jobId    String
+  seekerId String
+  status   ApplicationStatus @default(PENDING)
 
-  appliedAt DateTime          @default(now())
-  updatedAt DateTime          @updatedAt
+  job    Job              @relation(fields: [jobId], references: [id])
+  seeker JobSeekerProfile @relation(fields: [seekerId], references: [id])
+
+  logs ApplicationStatusLog[]
+
+  appliedAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([jobId, seekerId]) // Prevent duplicate applications
 }

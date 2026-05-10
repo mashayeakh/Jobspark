@@ -9,7 +9,13 @@ import { AdminRoutes } from "./admin/admin.route";
 
 import { CategoryRoutes } from "./category/category.route";
 import { WorkStyleRoutes } from "./workstyle/workstyle.route";
-import fraudDetectionRoutes from "./ai/fraudDetection.route";
+
+
+import { ContentSanityRouter } from "./ai/content_sanity/contentSanity.route";
+import { SupportAgentRouter } from "./ai/support_agent/supportAgent.route";
+import { FraudDetectionRouter } from "./ai/fraud_detection/fraudDetection.route";
+import { MarketIntelligenceRouter } from "./ai/market_intelligence/marketIntelligence.route";
+import { AnomalyDetectionRouter } from "./ai/anomaly_detection/anomalyDetection.route";
 
 const router = express.Router();
 
@@ -41,6 +47,21 @@ router.use("/network", NetworkRoutes);
 router.use("/admin", AdminRoutes);
 
 //!AI Fraud Detection
-router.use("/admin/fraud-shield", fraudDetectionRoutes);
+router.use("/admin/fraud-shield", FraudDetectionRouter);
+
+//!AI Market Intelligence
+router.use("/admin/market-intelligence", MarketIntelligenceRouter);
+
+//!AI Support Agent
+router.use("/admin/support-agent", SupportAgentRouter);
+
+// Public support agent routes
+router.use("/support-agent", SupportAgentRouter);
+
+//!AI Content Sanity
+router.use("/admin/content-sanity", ContentSanityRouter);
+
+//!AI Anomaly Detection
+router.use("/admin/anomaly-detection", AnomalyDetectionRouter);
 
 export default router;

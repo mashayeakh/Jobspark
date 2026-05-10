@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
-import { AnyZodObject } from "zod";
+import { ZodObject } from "zod";
 
-const validateRequest = (schema: AnyZodObject) => {
+const validateRequest = (schema: ZodObject<any>) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       await schema.parseAsync(req.body);

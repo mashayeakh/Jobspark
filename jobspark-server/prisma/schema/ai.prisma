@@ -1,28 +1,96 @@
 model MatchScore {
-  id           String           @id @default(cuid())
+  id           String @id @default(cuid())
   jobId        String
   profileId    String
-  score        Float            // 0.0 to 1.0
-  breakdown    Json             // Storage for skillMatch, expMatch, etc.
-  modelVersion String           // For A/B testing models
-  
-  job          Job              @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  profile      JobSeekerProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  score        Float // 0.0 to 1.0
+  breakdown    Json // Storage for skillMatch, expMatch, etc.
+  modelVersion String // For A/B testing models
 
-  createdAt    DateTime         @default(now())
+  job     Job              @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  profile JobSeekerProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
 
   @@index([profileId, score(sort: Desc)])
   @@index([jobId, score(sort: Desc)])
 }
 
 model RecommendationLog {
+  id      String   @id @default(cuid())
+  userId  String
+  jobId   String
+  clicked Boolean  @default(false)
+  applied Boolean  @default(false)
+  shownAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  job  Job  @relation(fields: [jobId], references: [id], onDelete: Cascade)
+}
+
+model SupportSession {
+  id        String         @id @default(cuid())
+  userId    String?
+  status    String         @default("ACTIVE") // ACTIVE, RESOLVED, ESCALATED
+  messages  ChatMessage[]
+  ticket    SupportTicket?
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+}
+
+model ChatMessage {
+  id         String   @id @default(cuid())
+  sessionId  String
+  message    String   @db.Text
+  isUser     Boolean
+  intent     String?
+  confidence Float?
+  timestamp  DateTime @default(now())
+
+  session SupportSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+}
+
+model SupportTicket {
   id        String   @id @default(cuid())
-  userId    String
-  jobId     String
-  clicked   Boolean  @default(false)
-  applied   Boolean  @default(false)
-  shownAt   DateTime @default(now())
-  
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  job       Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  sessionId String   @unique
+  userId    String?
+  reason    String   @db.Text
+  status    String   @default("OPEN") // OPEN, IN_PROGRESS, RESOLVED
+  priority  String   @default("NORMAL") // NORMAL, HIGH, URGENT
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  session SupportSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  user    User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
+}
+
+model KnowledgeBaseArticle {
+  id        String   @id @default(cuid())
+  title     String
+  content   String   @db.Text
+  category  String
+  tags      String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SystemAnomaly {
+  id          String   @id @default(cuid())
+  type        String   // "TRAFFIC_SPIKE", "SECURITY_THREAT", "HIGH_ERROR_RATE", "UNUSUAL_ACTIVITY"
+  severity    String   // "LOW", "MEDIUM", "HIGH", "CRITICAL"
+  description String   @db.Text
+  source      String   // e.g., "API_GATEWAY", "AUTH_SERVICE", "DATABASE"
+  metrics     Json?    // Optional JSON containing raw metrics or request data
+  status      String   @default("OPEN") // "OPEN", "INVESTIGATING", "RESOLVED"
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model SystemMetric {
+  id        String   @id @default(cuid())
+  name      String   // "API_LATENCY", "ERROR_RATE", "ACTIVE_USERS", "DB_CPU"
+  value     Float
+  unit      String   // "ms", "%", "count"
+  timestamp DateTime @default(now())
 }

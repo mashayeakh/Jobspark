@@ -1,17 +1,17 @@
 model Company {
-  id          String   @id @default(cuid())
+  id          String  @id @default(cuid())
   name        String
   logo        String?
   website     String?
-  description String?  @db.Text
+  description String? @db.Text
   industry    String
   size        String?
   location    String?
-  isVerified  Boolean  @default(false)
-  
-  recruiters  RecruiterProfile[]
-  jobs        Job[]
+  isVerified  Boolean @default(false)
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  recruiters RecruiterProfile[]
+  jobs       Job[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

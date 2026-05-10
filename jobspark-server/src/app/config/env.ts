@@ -1,59 +1,8 @@
-import dotenv from 'dotenv'
-
-
+import dotenv from "dotenv";
 dotenv.config();
 
-//create an interface to config all the thigngs in env
-interface EnvConfig {
-    NODE_ENV: string,
-    PORT: string,
-    DATABASE_URL: string
-    BETTER_AUTH_SECRET: string,
-    BETTER_AUTH_URL: string,
-    // BETTER_AUTH_COOKIE_DOMAIN: string,
-    ADMIN_EMAIL: string,
-    ADMIN_PASSWORD: string,
-    // // SEED_DEMO_USER: boolean,
-    // // DEMO_USER_EMAIL: string,
-    // // DEMO_USER_PASSWORD: string,
-    ACCESS_TOKEN_SECRET: string,
-    REFRESH_TOKEN_SECRET: string,
-    ACCESS_TOKEN_EXPIRES_IN: string,
-    REFRESH_TOKEN_EXPIRES_IN: string,
-    BETTER_AUTH_SESSION_TOKEN_EXPIRES_IN: string,
-    BETTER_AUTH_SESSION_TOKEN_UPDATE_AGE: string,
-    FRONTEND_URL: string,
-    // EMAIL_SENDER: {
-    //     SMTP_USER: string,
-    //     SMTP_PASS: string,
-    //     SMTP_HOST: string,
-    //     SMTP_PORT: string,
-    //     SMTP_FROM: string,
-    // },
-
-    GEMINI_API_KEY: string,
-    REDIS_URL: string,
-
-    // STRIPE: {
-    //     STRIPE_SECRET_KEY: string,
-    //     STRIPE_WEBHOOK_SECRET: string,
-    // }
-
-    // CLOUDINARY: {
-    //     CLOUD_NAME: string,
-    //     API_KEY: string,
-    //     API_SECRET: string,
-    // },
-
-
-
-    // BREVO_API_KEY: string,
-    // BREVO_FROM_EMAIL: string,
-    // BREVO_FROM_NAME: string,
-}
-
 //load env
-const loadEnvVariables = (): EnvConfig => {
+const loadEnvVariables = () => {
 
     const requiredVariables = [
         "NODE_ENV",
@@ -71,6 +20,7 @@ const loadEnvVariables = (): EnvConfig => {
         "REFRESH_TOKEN_EXPIRES_IN",
         "BETTER_AUTH_SESSION_TOKEN_EXPIRES_IN",
         "BETTER_AUTH_SESSION_TOKEN_UPDATE_AGE",
+        "GEMINI_MODEL",
         // "EMAIL_SENDER_SMTP_USER",
         // "EMAIL_SENDER_SMTP_PASS",
         // "EMAIL_SENDER_SMTP_HOST",
@@ -82,6 +32,7 @@ const loadEnvVariables = (): EnvConfig => {
         // "CLOUDINARY_API_KEY",
         // "CLOUDINARY_API_SECRET",
         "GEMINI_API_KEY",
+        "GROQ_API_KEY",
         "REDIS_URL",
         // "BREVO_API_KEY",
         // "BREVO_FROM_EMAIL",
@@ -152,6 +103,8 @@ const loadEnvVariables = (): EnvConfig => {
         BETTER_AUTH_SESSION_TOKEN_UPDATE_AGE: process.env.BETTER_AUTH_SESSION_TOKEN_UPDATE_AGE as string,
         FRONTEND_URL: process.env.FRONTEND_URL as string,
         GEMINI_API_KEY: process.env.GEMINI_API_KEY as string,
+        GEMINI_MODEL: process.env.GEMINI_MODEL as string || "gemini-1.5-pro", // Configurable model
+        GROQ_API_KEY: process.env.GROQ_API_KEY as string,
         REDIS_URL: process.env.REDIS_URL as string,
         // EMAIL_SENDER: {
         //     SMTP_USER: process.env.EMAIL_SENDER_SMTP_USER as string,
