@@ -1,7 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useEffect, useState } from 'react';
-import { AppSidebar } from "@/components/app-sidebar"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -10,32 +10,69 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
-import { Separator } from "@/components/ui/separator"
-import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar"
 import { authService } from '@/services/authService';
 import { RecruiterDashboard } from '@/components/dashboards/RecruiterDashboard';
+import { recruiterService, RecruiterDashboardData } from '@/services/recruiterService';
 import { useRouter } from 'next/navigation';
+
+const defaultDashboardData: RecruiterDashboardData = {
+  stats: {
+    activeJobs: 0,
+    totalApplications: 0,
+    totalViews: 0,
+    interviewsScheduled: 0,
+    offersMade: 0,
+    timeToHire: 0,
+    costPerHire: 0,
+    qualityOfHire: 0,
+  },
+  pipeline: [
+    { stage: 'Applied', count: 0 },
+    { stage: 'Screening', count: 0 },
+    { stage: 'Interview', count: 0 },
+    { stage: 'Offer', count: 0 },
+    { stage: 'Hired', count: 0 },
+  ],
+  totalPipeline: 0,
+  recentJobs: [],
+  recentApplications: [],
+};
 
 export default function RecruiterDashboardPage() {
   const [user, setUser] = useState<any>(null);
+  const [dashboardData, setDashboardData] = useState<RecruiterDashboardData>(defaultDashboardData);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
     const userData = authService.getUser();
-    
-    // Check if user is authenticated and is recruiter
+
     if (!userData || userData.role !== 'RECRUITER') {
       router.push('/login');
       return;
     }
-    
-    setUser(userData);
-    setLoading(false);
+
+    const timer = setTimeout(() => {
+      setUser(userData);
+    }, 0);
+
+    recruiterService.getDashboard()
+      .then((response) => {
+        if (response.success && response.data) {
+          setDashboardData(response.data);
+        } else {
+          setError(response.error || 'Failed to load dashboard data');
+        }
+      })
+      .catch((err) => {
+        setError(err instanceof Error ? err.message : 'An error occurred');
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+
+    return () => clearTimeout(timer);
   }, [router]);
 
   if (loading) {
@@ -47,31 +84,29 @@ export default function RecruiterDashboardPage() {
   }
 
   return (
-    <SidebarProvider>
-      <AppSidebar userRole="recruiter" />
-      <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
-          <SidebarTrigger className="-ml-1" />
-          <Separator
-            orientation="vertical"
-            className="mr-2 data-vertical:h-4 data-vertical:self-auto"
-          />
-          <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href="/recruiter">Recruiter</BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator className="hidden md:block" />
-              <BreadcrumbItem>
-                <BreadcrumbPage>Dashboard</BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
-        </header>
-        <div className="flex flex-1 flex-col gap-4 p-4">
-          <RecruiterDashboard user={user} />
-        </div>
-      </SidebarInset>
-    </SidebarProvider>
+    <div className="flex flex-1 flex-col gap-6">
+      <div className="flex items-center justify-between">
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/recruiter">Recruiter</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Dashboard</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+      </div>
+
+      <div className="flex flex-1 flex-col gap-4">
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+            {error}
+          </div>
+        )}
+        <RecruiterDashboard data={dashboardData} />
+      </div>
+    </div>
   )
 }

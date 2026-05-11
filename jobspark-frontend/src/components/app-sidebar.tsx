@@ -1,6 +1,7 @@
-import * as React from "react"
+import React from 'react';
 import { authService } from '@/services/authService';
 import { useRouter, usePathname } from 'next/navigation';
+import Link from 'next/link';
 import {
   Sidebar,
   SidebarContent,
@@ -31,6 +32,8 @@ import {
   Bot,
   BrainCircuit,
   Lock,
+  Calendar,
+  Plus,
   ChevronRight
 } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -95,6 +98,13 @@ const getNavigationData = (userRole: string) => {
             { title: "Candidates", url: "/recruiter/candidates", icon: Users },
             { title: "Analytics", url: "/recruiter/analytics", icon: BarChart3 },
             { title: "Settings", url: "/recruiter/settings", icon: Settings },
+          ]
+        },
+        {
+          label: "Interview",
+          items: [
+            { title: "Schedule Interview", url: "/recruiter/schedule-interview", icon: Plus },
+            { title: "Manage Interviews", url: "/recruiter/manage-interviews", icon: Calendar },
           ]
         }
       ];
@@ -161,7 +171,7 @@ export function AppSidebar({ userRole, ...props }: AppSidebarProps) {
                             : "text-gray-500 hover:bg-gray-50 hover:text-[#4880FF]"
                         )}
                       >
-                        <a href={item.url}>
+                        <Link href={item.url}>
                           <Icon className={cn(
                             "h-5 w-5 transition-colors",
                             isActive ? "text-white" : "text-gray-400 group-hover:text-[#4880FF]"
@@ -178,7 +188,7 @@ export function AppSidebar({ userRole, ...props }: AppSidebarProps) {
                           {isActive && (
                             <ChevronRight className="h-4 w-4 opacity-50" />
                           )}
-                        </a>
+                        </Link>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   );

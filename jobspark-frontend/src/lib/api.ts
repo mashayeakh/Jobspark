@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
 export interface ApiResponse<T = any> {
@@ -23,11 +24,15 @@ class ApiClient {
       const prefix = useApiPrefix ? '/api/v2' : '';
       const url = `${this.baseURL}${prefix}${endpoint}`;
 
+      const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+
       const config: RequestInit = {
         headers: {
           'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
           ...options.headers,
         },
+        credentials: 'include',
         ...options,
       };
 
