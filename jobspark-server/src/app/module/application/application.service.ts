@@ -3,6 +3,8 @@ import { prisma } from "../../lib/prisma";
 import { ApplyJobDto, UpdateApplicationStatusDto } from "./application.dto";
 import { AppError } from "@/app/errorHelpers/AppError";
 import httpStatus from "http-status";
+import { sendEmail } from "@/app/Utils/sendEmail";
+import { generateMeetLink } from '@/app/Utils/googleCalendar';
 
 export const ApplicationService = {
   // --- SEEKER: Apply for a Job ---
@@ -118,6 +120,27 @@ export const ApplicationService = {
     });
   },
 
+  checkIfJobApplied: async (userId: string, jobId: string) => {
+    const seekerProfile = await prisma.jobSeekerProfile.findUnique({
+      where: { userId },
+    });
+
+    if (!seekerProfile) {
+      throw new AppError(httpStatus.FORBIDDEN, "Job seeker profile not found.");
+    }
+
+    const existingApplication = await prisma.application.findUnique({
+      where: {
+        jobId_seekerId: {
+          jobId,
+          seekerId: seekerProfile.id,
+        },
+      },
+    });
+
+    return Boolean(existingApplication);
+  },
+
   // --- RECRUITER: Get all applicants for a specific job ---
   getApplicantsForJob: async (userId: string, jobId: string) => {
     // Verify recruiter owns this job
@@ -164,13 +187,40 @@ export const ApplicationService = {
         id: applicationId,
         job: { recruiter: { userId } },
       },
+      include: {
+        seeker: {
+          include: {
+            user: { select: { name: true, email: true } }
+          }
+        },
+        job: {
+          include: {
+            company: { select: { name: true } }
+          }
+        }
+      }
     });
 
     if (!application) {
       throw new AppError(httpStatus.FORBIDDEN, "You do not have permission to update this application.");
     }
 
-    return await prisma.$transaction(async (tx) => {
+    // Handle Google Meet link generation before transaction if needed
+    let meetingLink = null;
+    let scheduledDate = new Date(Date.now() + 86400000); // Default tomorrow
+
+    if (newStatus === ApplicationStatus.INTERVIEWING) {
+        const interviewData = payload as any;
+        const scheduledAtStr = interviewData.scheduledAt || scheduledDate.toISOString();
+        scheduledDate = new Date(scheduledAtStr);
+
+        if (interviewData.type === "VIDEO" || !interviewData.type) {
+            console.log(`[Status Update] Generating Meet link for ${application.seeker.user.email}...`);
+            meetingLink = await generateMeetLink(`Interview: ${application.job.title}`, scheduledDate);
+        }
+    }
+
+    const result = await prisma.$transaction(async (tx) => {
       // Update the application status
       const updatedApplication = await tx.application.update({
         where: { id: applicationId },
@@ -186,7 +236,76 @@ export const ApplicationService = {
         },
       });
 
+      // Create Interview record if status is INTERVIEWING
+      if (newStatus === ApplicationStatus.INTERVIEWING) {
+        const interviewData = payload as any;
+        await tx.interview.create({
+            data: {
+                applicationId,
+                type: (interviewData.type || "VIDEO") as any,
+                scheduledAt: scheduledDate,
+                duration: 45,
+                timezone: "UTC",
+                location: interviewData.location || (meetingLink ? "Google Meet" : "Phone Call"),
+                meetingLink: meetingLink,
+                status: "SCHEDULED",
+                notes: reason || "Scheduled via application status update"
+            }
+        });
+      }
+
       return updatedApplication;
     });
+
+    // ── TRIGGER EMAIL NOTIFICATION ─────────────────────────────────
+    const emailTriggerStatuses: ApplicationStatus[] = [
+      ApplicationStatus.INTERVIEWING,
+      ApplicationStatus.ACCEPTED,
+      ApplicationStatus.REJECTED
+    ];
+
+    if (emailTriggerStatuses.includes(newStatus)) {
+      let templateName = "";
+      let subject = "";
+      let templateData: any = {
+        name: application.seeker.user.name,
+        jobTitle: application.job.title,
+        companyName: application.job.company.name,
+        nextSteps: reason
+      };
+
+      if (newStatus === ApplicationStatus.INTERVIEWING) {
+        const interviewData = payload as any;
+        templateName = "interview_invite";
+        subject = `Interview Invitation: ${application.job.title} at ${application.job.company.name}`;
+        
+        templateData = {
+          ...templateData,
+          interviewType: interviewData.type || "VIDEO",
+          date: scheduledDate.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }),
+          time: scheduledDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+          location: interviewData.location || (meetingLink ? "Google Meet" : "Phone Call"),
+          meetingLink
+        };
+
+      } else if (newStatus === ApplicationStatus.ACCEPTED) {
+        templateName = "acceptance";
+        subject = `Congratulations! Your application for ${application.job.title} was accepted`;
+      } else {
+        templateName = "rejection";
+        subject = `Update regarding your application for ${application.job.title}`;
+      }
+
+      sendEmail({
+        to: application.seeker.user.email,
+        subject,
+        templateName,
+        templateData
+      }).catch(err => {
+        console.error(`[Email Notification] Failed to send ${templateName} email to ${application.seeker.user.email}:`, err);
+      });
+    }
+
+    return result;
   },
 };

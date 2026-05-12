@@ -1,32 +1,24 @@
 model User {
-  id            String   @id @default(cuid())
-  name          String
-  email         String   @unique
-  emailVerified Boolean  @default(false)
-  image         String?
-  password      String?
-  role          UserRole @default(JOB_SEEKER)
-
-  // Soft delete support
-  isDeleted Boolean    @default(false)
-  status    UserStatus @default(ACTIVE)
-  deletedAt DateTime?
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-
-  // Profile links
-  jobSeekerProfile JobSeekerProfile?
-  recruiterProfile RecruiterProfile?
-
-  // Authentication links
-  sessions Session[]
-  accounts Account[]
-
-  // Networking
-  sentConnections     Connection[]        @relation("SentConnections")
+  id                  String              @id @default(cuid())
+  name                String
+  email               String              @unique
+  emailVerified       Boolean             @default(false)
+  image               String?
+  password            String?
+  role                UserRole            @default(JOB_SEEKER)
+  isDeleted           Boolean             @default(false)
+  status              UserStatus          @default(ACTIVE)
+  deletedAt           DateTime?
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  accounts            Account[]
   receivedConnections Connection[]        @relation("ReceivedConnections")
+  sentConnections     Connection[]        @relation("SentConnections")
+  jobSeekerProfile    JobSeekerProfile?
   notifications       Notification[]
   recommendations     RecommendationLog[]
+  recruiterProfile    RecruiterProfile?
+  sessions            Session[]
   supportSessions     SupportSession[]
   supportTickets      SupportTicket[]
 
@@ -41,9 +33,9 @@ model Session {
   expiresAt DateTime
   ipAddress String?
   userAgent String?
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
 }
@@ -57,9 +49,9 @@ model Account {
   refreshToken String?
   expiresAt    DateTime?
   password     String?
-  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([providerId, accountId])
 }

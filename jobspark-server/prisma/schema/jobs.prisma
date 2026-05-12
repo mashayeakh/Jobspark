@@ -1,55 +1,46 @@
 model Job {
-  id              String          @id @default(cuid())
-  title           String
-  description     String          @db.Text
-  status          JobStatus       @default(OPEN)
-  type            JobType         @default(FULL_TIME)   
-  locationType    LocationType    @default(ONSITE)
-  experienceLevel ExperienceLevel @default(ENTRY)
-  benefits        String?         @db.Text
-  vacancy         Int             @default(1)
+  id                  String              @id @default(cuid())
+  title               String
+  description         String
+  status              JobStatus           @default(OPEN)
+  type                JobType             @default(FULL_TIME)
+  locationType        LocationType        @default(ONSITE)
+  experienceLevel     ExperienceLevel     @default(ENTRY)
+  benefits            String?
+  vacancy             Int                 @default(1)
+  salaryMin           Int?
+  salaryMax           Int?
+  location            String?
+  responsibilities    String?
+  requirements        String?
+  applicationCount    Int                 @default(0)
+  viewCount           Int                 @default(0)
+  fraudStatus         String?
+  fraudScore          Float?
+  fraudFlaggedAt      DateTime?
+  fraudReviewedAt     DateTime?
+  fraudReviewedBy     String?
+  fraudReviewReason   String?
+  fraudIssues         Json?
+  companyId           String
+  recruiterId         String
+  deletedAt           DateTime?
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  categoryId          String?
+  subCategoryId       String?
+  workStyleId         Int?
   applicationDeadline DateTime?
-
-  salaryMin Int?
-  salaryMax Int?
-  location  String?
-
-  responsibilities String? @db.Text
-  requirements     String? @db.Text
-
-  // Analytics denormalization
-  applicationCount Int @default(0)
-  viewCount        Int @default(0)
-
-  // Fraud detection fields
-  fraudStatus       String? // 'SAFE', 'FLAGGED', 'UNDER_REVIEW'
-  fraudScore        Float? // 0-100 risk score
-  fraudFlaggedAt    DateTime? // When job was flagged for fraud
-  fraudReviewedAt   DateTime? // When fraud review was completed
-  fraudReviewedBy   String? // Who reviewed the fraud (admin ID)
-  fraudReviewReason String? // Reason for fraud review decision
-  fraudIssues       Json? // Array of fraud issues found
-
-  // Relations
-  companyId   String
-  company     Company          @relation(fields: [companyId], references: [id])
-  recruiterId String
-  recruiter   RecruiterProfile @relation(fields: [recruiterId], references: [id])
-
-  skills          JobSkill[]
-  applications    Application[]
-  matchScores     MatchScore[]
-  recommendations RecommendationLog[]
-
-  deletedAt     DateTime?
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
-  category      Category?    @relation(fields: [categoryId], references: [id])
-  categoryId    String?
-  subCategory   SubCategory? @relation(fields: [subCategoryId], references: [id])
-  subCategoryId String?
-  workStyle     WorkStyle?   @relation(fields: [workStyleId], references: [id])
-  workStyleId   Int?
+  applications        Application[]
+  category            Category?           @relation(fields: [categoryId], references: [id])
+  company             Company             @relation(fields: [companyId], references: [id])
+  recruiter           RecruiterProfile    @relation(fields: [recruiterId], references: [id])
+  subCategory         SubCategory?        @relation(fields: [subCategoryId], references: [id])
+  workStyle           WorkStyle?          @relation(fields: [workStyleId], references: [id])
+  skills              JobSkill[]
+  matchScores         MatchScore[]
+  recommendations     RecommendationLog[]
+  savedBy             SavedJob[]          @relation("SavedJobToJob")
 
   @@index([status, type, locationType])
   @@index([companyId])
@@ -59,8 +50,8 @@ model Job {
 model Skill {
   id         String           @id @default(cuid())
   name       String           @unique
-  jobs       JobSkill[]
   candidates CandidateSkill[]
+  jobs       JobSkill[]
 }
 
 model JobSkill {
@@ -76,10 +67,22 @@ model JobSkill {
 model CandidateSkill {
   profileId String
   skillId   String
-  level     Int              @default(1) // 1-5
+  level     Int              @default(1)
   yearsExp  Int              @default(0)
   profile   JobSeekerProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
   skill     Skill            @relation(fields: [skillId], references: [id], onDelete: Cascade)
 
   @@id([profileId, skillId])
+}
+
+model SavedJob {
+  id        String           @id @default(cuid())
+  jobId     String
+  seekerId  String
+  createdAt DateTime         @default(now())
+  job       Job              @relation("SavedJobToJob", fields: [jobId], references: [id], onDelete: Cascade)
+  seeker    JobSeekerProfile @relation("SavedJobToSeeker", fields: [seekerId], references: [id], onDelete: Cascade)
+
+  @@unique([jobId, seekerId])
+  @@index([seekerId])
 }

@@ -3,12 +3,10 @@ model Connection {
   senderId   String
   receiverId String
   status     ConnectionStatus @default(PENDING)
-
-  sender   User @relation("SentConnections", fields: [senderId], references: [id])
-  receiver User @relation("ReceivedConnections", fields: [receiverId], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+  receiver   User             @relation("ReceivedConnections", fields: [receiverId], references: [id])
+  sender     User             @relation("SentConnections", fields: [senderId], references: [id])
 
   @@unique([senderId, receiverId])
 }
@@ -16,11 +14,11 @@ model Connection {
 model Notification {
   id        String   @id @default(cuid())
   userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  type      String // "APPLICATION_UPDATE", "NEW_MATCH", "CONNECTION_REQ"
+  type      String
   content   String
   isRead    Boolean  @default(false)
   createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, isRead])
 }

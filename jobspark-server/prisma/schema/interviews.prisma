@@ -1,0 +1,20 @@
+model Interview {
+  id            String             @id @default(cuid())
+  applicationId String
+  type          InterviewType      @default(VIDEO)
+  status        InterviewStatus    @default(SCHEDULED)
+  scheduledAt   DateTime
+  duration      Int
+  timezone      String
+  platform      String?
+  meetingLink   String?
+  location      String?
+  phoneNumber   String?
+  notes         String?
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+  application   Application        @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  interviewers  RecruiterProfile[] @relation("InterviewToRecruiterProfile")
+
+  @@index([applicationId])
+}

@@ -48,10 +48,24 @@ enum ApplicationStatus {
   OFFERED
   REJECTED
   WITHDRAWN
+  ACCEPTED
 }
 
 enum ConnectionStatus {
   PENDING
   ACCEPTED
   REJECTED
+}
+
+enum InterviewType {
+  VIDEO
+  PHONE
+  ONSITE
+}
+
+enum InterviewStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+  RESCHEDULED
 }

@@ -9,8 +9,8 @@ model PlatformSnapshot {
 
 model AnalyticsLog {
   id        String   @id @default(cuid())
-  event     String // e.g., "USER_LOGIN", "JOB_POSTED", "APPLICATION_SUBMITTED"
-  metadata  Json? // Optional extra data
+  event     String
+  metadata  Json?
   userId    String?
   timestamp DateTime @default(now())
 }

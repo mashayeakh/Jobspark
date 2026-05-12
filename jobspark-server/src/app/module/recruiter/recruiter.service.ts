@@ -108,18 +108,18 @@ export const RecruiterService = {
     const totalApplications = applications.length;
     const totalViews = jobs.reduce((sum, j) => sum + j.viewCount, 0);
     const pendingApplications = applications.filter((a) => a.status === "PENDING").length;
-    const shortlistedCount = applications.filter((a) => a.status === "SHORTLISTED").length;
+    const shortlistedCount = applications.filter((a) => ["SHORTLISTED", "INTERVIEWING", "ACCEPTED"].includes(a.status)).length;
     const interviewingCount = applications.filter((a) => a.status === "INTERVIEWING").length;
-    const offeredCount = applications.filter((a) => a.status === "OFFERED").length;
+    const offeredCount = applications.filter((a) => ["OFFERED", "ACCEPTED"].includes(a.status)).length;
     const rejectedCount = applications.filter((a) => a.status === "REJECTED").length;
 
     // Pipeline breakdown
     const pipeline = [
       { stage: "Applied", count: applications.filter((a) => ["PENDING", "REVIEWING"].includes(a.status)).length },
-      { stage: "Screening", count: applications.filter((a) => a.status === "SHORTLISTED").length },
-      { stage: "Interview", count: applications.filter((a) => a.status === "INTERVIEWING").length },
-      { stage: "Offer", count: applications.filter((a) => a.status === "OFFERED").length },
-      { stage: "Hired", count: offeredCount },
+      { stage: "Screening", count: shortlistedCount },
+      { stage: "Interview", count: applications.filter((a) => ["INTERVIEWING", "OFFERED", "ACCEPTED"].includes(a.status)).length },
+      { stage: "Offer", count: offeredCount },
+      { stage: "Hired", count: applications.filter((a) => a.status === "ACCEPTED").length },
     ];
 
     const totalPipeline = pipeline.reduce((sum, s) => sum + s.count, 0);
@@ -213,7 +213,7 @@ export const RecruiterService = {
     return await prisma.application.findMany({
       where: { job: { recruiterId: recruiter.id } },
       include: {
-        job: { select: { title: true, id: true } },
+        job: { select: { title: true, id: true, location: true } },
         seeker: {
           include: {
             user: { select: { name: true, email: true, image: true } },
@@ -224,6 +224,30 @@ export const RecruiterService = {
         logs: { orderBy: { changedAt: "desc" }, take: 1 },
       },
       orderBy: { appliedAt: "desc" },
+    });
+  },
+
+  getApplicationById: async (applicationId: string) => {
+    return await prisma.application.findUnique({
+      where: { id: applicationId },
+      include: {
+        job: { 
+          include: { 
+            skills: { include: { skill: true } },
+            company: true
+          } 
+        },
+        seeker: {
+          include: {
+            user: { select: { name: true, email: true, image: true } },
+            skills: { include: { skill: true } },
+            workExperience: { orderBy: { startDate: "desc" } },
+            education: { orderBy: { startDate: "desc" } },
+          },
+        },
+        logs: { orderBy: { changedAt: "desc" } },
+        interviews: { orderBy: { scheduledAt: "desc" }, take: 1 },
+      },
     });
   },
 };
