@@ -6,7 +6,8 @@ import httpStatus from "http-status";
 
 export const JobService = {
   createJob: async (userId: string, payload: CreateJobDto) => {
-    const { skills, ...jobData } = payload;
+    const { skills, company, ...jobData } = payload;
+
 
     // 1. Get recruiter profile to get companyId
     const recruiter = await prisma.recruiterProfile.findUnique({
@@ -22,34 +23,56 @@ export const JobService = {
       data: {
         ...jobData,
         vacancy: jobData.vacancy ?? 1,
+        applicationDeadline: jobData.applicationDeadline ? new Date(jobData.applicationDeadline).toISOString() : null,
         recruiterId: recruiter.id,
         companyId: recruiter.companyId,
       },
     });
 
+
     // Handle skills separately (outside transaction to avoid timeout)
     if (skills && skills.length > 0) {
+      console.log('Skills received:', skills);
+
       // Create missing skills
       for (const skill of skills) {
+        // Handle both string and object formats
+        const skillName = typeof skill === 'string' ? skill : skill.name;
+
+        if (!skillName || skillName.trim() === '') {
+          console.warn('Skipping empty skill:', skill);
+          continue;
+        }
+
         await prisma.skill.upsert({
-          where: { name: skill.name },
-          create: { name: skill.name },
+          where: { name: skillName.trim() },
+          create: { name: skillName.trim() },
           update: {}
         });
       }
 
       // Get all skill IDs
+      const skillNames = skills.map((s: any) => typeof s === 'string' ? s : s.name).filter(Boolean);
+
       const allSkills = await prisma.skill.findMany({
-        where: { name: { in: skills.map((s) => s.name) } },
+        where: { name: { in: skillNames } },
       });
 
       // Create job skills
       await prisma.jobSkill.createMany({
-        data: skills.map((s) => ({
-          jobId: job.id,
-          skillId: allSkills.find((sr) => sr.name === s.name)!.id,
-          isRequired: s.isRequired !== undefined ? s.isRequired : true,
-        })),
+        data: skills.map((s: any) => {
+
+          const skillName = typeof s === 'string' ? s : s.name;
+          const skillRecord = allSkills.find((sr) => sr.name === skillName);
+          if (!skillRecord) {
+            throw new Error(`Skill not found: ${skillName}`);
+          }
+          return {
+            jobId: job.id,
+            skillId: skillRecord.id,
+            isRequired: typeof s === 'string' ? true : (s.isRequired !== undefined ? s.isRequired : true),
+          };
+        }),
       });
     }
 

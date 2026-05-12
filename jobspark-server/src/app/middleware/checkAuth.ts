@@ -11,7 +11,10 @@ export const checkAuth = (...authRoles: UserRole[]) =>
     async (req: Request, res: Response, next: NextFunction) => {
         try {
             const sessionToken = getCookie(req, "better-auth.session_token");
-            const accessToken = getCookie(req, "accessToken");
+            const accessTokenCookie = getCookie(req, "accessToken");
+            const authHeader = req.headers.authorization;
+            const bearerToken = authHeader?.startsWith("Bearer ") ? authHeader.split(" ")[1] : undefined;
+            const accessToken = accessTokenCookie || bearerToken;
 
             if (!sessionToken && !accessToken) {
                 throw new AppError(httpStatus.UNAUTHORIZED, "Unauthorized access! Please login to continue.");

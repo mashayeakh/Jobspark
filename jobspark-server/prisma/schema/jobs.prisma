@@ -2,12 +2,13 @@ model Job {
   id              String          @id @default(cuid())
   title           String
   description     String          @db.Text
-  status          JobStatus       @default(DRAFT)
-  type            JobType         @default(FULL_TIME)
+  status          JobStatus       @default(OPEN)
+  type            JobType         @default(FULL_TIME)   
   locationType    LocationType    @default(ONSITE)
   experienceLevel ExperienceLevel @default(ENTRY)
   benefits        String?         @db.Text
   vacancy         Int             @default(1)
+  applicationDeadline DateTime?
 
   salaryMin Int?
   salaryMax Int?

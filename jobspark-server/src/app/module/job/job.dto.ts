@@ -18,11 +18,14 @@ export interface CreateJobDto {
   subCategoryId?: string;
   benefits?: string;
   vacancy?: number;
+  applicationDeadline?: string;
   skills: {
     name: string;
     isRequired?: boolean;
   }[];
+  company?: string;
 }
+
 
 export interface UpdateJobDto {
   title?: string;
@@ -40,7 +43,9 @@ export interface UpdateJobDto {
   subCategoryId?: string;
   benefits?: string;
   vacancy?: number;
+  applicationDeadline?: string;
   skills?: {
+
     name: string;
     isRequired?: boolean;
   }[];
