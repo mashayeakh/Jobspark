@@ -46,7 +46,73 @@ export default function Page() {
       case 'JOB_SEEKER':
         return <JobSeekerDashboard user={user} />;
       case 'RECRUITER':
-        return <RecruiterDashboard user={user} />;
+        const recruiterData = {
+          stats: {
+            activeJobs: 5,
+            totalApplications: 23,
+            totalViews: 1450,
+            interviewsScheduled: 8,
+            offersMade: 3,
+            timeToHire: 21,
+            costPerHire: 4500,
+            qualityOfHire: 85
+          },
+          pipeline: [
+            { stage: 'Applied', count: 23 },
+            { stage: 'Screening', count: 15 },
+            { stage: 'Interview', count: 8 },
+            { stage: 'Offer', count: 3 },
+            { stage: 'Hired', count: 2 }
+          ],
+          totalPipeline: 23,
+          recentJobs: [
+            {
+              id: '1',
+              title: 'Senior Frontend Developer',
+              status: 'ACTIVE',
+              applications: 12,
+              views: 450,
+              posted: '2024-01-10',
+              expires: '2024-02-10',
+              type: 'FULL_TIME',
+              location: 'San Francisco, CA'
+            },
+            {
+              id: '2',
+              title: 'React Developer',
+              status: 'DRAFT',
+              applications: 0,
+              views: 0,
+              posted: '2024-01-15',
+              expires: '2024-02-15',
+              type: 'FULL_TIME',
+              location: 'Remote'
+            }
+          ],
+          recentApplications: [
+            {
+              id: '1',
+              candidateName: 'John Doe',
+              jobTitle: 'Senior Frontend Developer',
+              status: 'REVIEWING',
+              applied: '2024-01-14',
+              experience: '5 years',
+              location: 'San Francisco, CA',
+              match: 92
+            },
+            {
+              id: '2',
+              candidateName: 'Jane Smith',
+              jobTitle: 'Senior Frontend Developer',
+              status: 'INTERVIEWING',
+              applied: '2024-01-13',
+              experience: '3 years',
+              location: 'Remote',
+              match: 85
+            }
+          ]
+        };
+        return <RecruiterDashboard data={recruiterData} />;
       default:
         return <div className="p-8 text-center">Invalid user role</div>;
     }

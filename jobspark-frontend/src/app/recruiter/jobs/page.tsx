@@ -39,8 +39,8 @@ import {
 interface EditFormData {
   title: string;
   description: string;
-  type: string;
-  status: string;
+  type: Job['type'];
+  status: Job['status'];
   location: string;
   salaryMin: string;
   salaryMax: string;
@@ -48,32 +48,35 @@ interface EditFormData {
   responsibilities: string;
   requirements: string;
   skills: string[];
+  vacancy: string;
+  applicationDeadline: string;
 }
+
+
 
 // ---------------------------------------------------------------------------
 // Constants
 // ---------------------------------------------------------------------------
 
-const MOCK_JOBS = [
-  { id: '1', title: 'Senior React Developer', status: 'OPEN', applicationCount: 45, viewCount: 892, createdAt: '2024-01-10', updatedAt: '2024-02-10', type: 'FULL_TIME', location: 'San Francisco, CA' },
-  { id: '2', title: 'Product Manager', status: 'OPEN', applicationCount: 67, viewCount: 1234, createdAt: '2024-01-08', updatedAt: '2024-02-08', type: 'HYBRID', location: 'Remote' },
-  { id: '3', title: 'UX Designer', status: 'DRAFT', applicationCount: 0, viewCount: 0, createdAt: '2024-01-15', updatedAt: '2024-02-15', type: 'FULL_TIME', location: 'New York, NY' },
-  { id: '4', title: 'Data Scientist', status: 'CLOSED', applicationCount: 23, viewCount: 456, createdAt: '2023-12-20', updatedAt: '2024-01-20', type: 'REMOTE', location: 'Austin, TX' },
-  { id: '5', title: 'DevOps Engineer', status: 'OPEN', applicationCount: 34, viewCount: 678, createdAt: '2024-01-12', updatedAt: '2024-02-12', type: 'FULL_TIME', location: 'Seattle, WA' },
-  { id: '6', title: 'Marketing Specialist', status: 'CLOSED', applicationCount: 12, viewCount: 234, createdAt: '2024-01-05', updatedAt: '2024-02-05', type: 'CONTRACT', location: 'Chicago, IL' },
-];
+const CATEGORY_SKILLS: Record<string, string[]> = {
+  'Development': ['React', 'Node.js', 'TypeScript', 'Next.js', 'Vue.js', 'Angular', 'Symfony', 'Python', 'Docker', 'AWS', 'Azure', 'PostgreSQL', 'MongoDB', 'GraphQL', 'Mobile Development'],
+  'Design': ['UI/UX Design', 'Figma', 'Adobe XD', 'Photoshop', 'Illustrator', 'Graphic Design', 'Product Design', 'Motion Design', 'Brand Identity'],
+  'Marketing': ['SEO', 'SEM', 'Digital Marketing', 'Content Writing', 'Social Media Management', 'Email Marketing', 'Google Analytics', 'Brand Strategy'],
+  'Business': ['Project Management', 'Business Development', 'Sales', 'Operations', 'Strategy', 'CRM', 'Agile Methodology', 'Financial Modeling'],
+  'Data & AI': ['Python', 'Machine Learning', 'Data Analysis', 'Deep Learning', 'PyTorch', 'TensorFlow', 'Data Engineering', 'Artificial Intelligence', 'SQL'],
+  'Customer Support': ['Communication', 'Troubleshooting', 'Customer Success', 'ZenDesk', 'Technical Support', 'CRM', 'Intercom', 'Problem Solving'],
+  'Finance': ['Accounting', 'Financial Analysis', 'Excel', 'Audit', 'Taxation', 'Corporate Finance', 'Budgeting', 'QuickBooks'],
+  'Human Resources': ['Recruitment', 'Talent Management', 'Employee Relations', 'Payroll', 'Training & Development', 'HRIS', 'Onboarding'],
+};
 
-const SKILL_OPTIONS = [
-  'React', 'Node.js', 'TypeScript', 'Python',
-  'Docker', 'AWS', 'Vue.js', 'Angular',
-  'PostgreSQL', 'MongoDB', 'GraphQL',
-];
+const DEFAULT_SKILLS = ['Communication', 'Teamwork', 'Problem Solving', 'Adaptability', 'Time Management'];
+
 
 const EMPTY_FORM: EditFormData = {
   title: '',
   description: '',
   type: 'FULL_TIME',
-  status: 'DRAFT',
+  status: 'ACTIVE',
   location: '',
   salaryMin: '',
   salaryMax: '',
@@ -81,13 +84,14 @@ const EMPTY_FORM: EditFormData = {
   responsibilities: '',
   requirements: '',
   skills: [],
+  vacancy: '1',
+  applicationDeadline: '',
 };
 
+
 const STATUS_OPTIONS = [
-  { value: 'DRAFT', label: 'Draft', color: 'border-gray-400 text-gray-700 bg-gray-50 hover:bg-gray-100' },
-  { value: 'OPEN', label: 'Open', color: 'border-green-500 text-green-700 bg-green-50 hover:bg-green-100' },
+  { value: 'ACTIVE', label: 'Active', color: 'border-blue-500 text-blue-700 bg-blue-50 hover:bg-blue-100' },
   { value: 'CLOSED', label: 'Closed', color: 'border-red-400 text-red-700 bg-red-50 hover:bg-red-100' },
-  { value: 'ARCHIVED', label: 'Archived', color: 'border-orange-400 text-orange-700 bg-orange-50 hover:bg-orange-100' },
 ];
 
 // ---------------------------------------------------------------------------
@@ -96,31 +100,37 @@ const STATUS_OPTIONS = [
 
 function getStatusColor(status: string): string {
   switch (status) {
+    case 'ACTIVE':
     case 'OPEN':
-    case 'ACTIVE': return 'bg-green-100 text-green-800 border-green-200';
-    case 'DRAFT': return 'bg-gray-100 text-gray-800 border-gray-200';
+      return 'bg-green-100 text-green-800 border-green-200';
     case 'CLOSED':
-    case 'ARCHIVED': return 'bg-red-100 text-red-800 border-red-200';
-    case 'PAUSED': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-    default: return 'bg-gray-100 text-gray-800';
+      return 'bg-red-100 text-red-800 border-red-200';
+    default:
+      return 'bg-gray-100 text-gray-800';
   }
 }
 
-function jobToFormData(job: any): EditFormData {
+
+function jobToFormData(job: Job): EditFormData {
   return {
     title: job.title ?? '',
     description: job.description ?? '',
     type: job.type ?? 'FULL_TIME',
-    status: job.status ?? 'DRAFT',
+    status: job.status === 'ACTIVE' || job.status === 'CLOSED'
+      ? job.status
+      : 'ACTIVE',
     location: job.location ?? '',
-    salaryMin: job.salaryMin ?? '',
-    salaryMax: job.salaryMax ?? '',
+    salaryMin: job.salaryMin?.toString() ?? '',
+    salaryMax: job.salaryMax?.toString() ?? '',
     benefits: job.benefits ?? '',
     responsibilities: job.responsibilities ?? '',
     requirements: job.requirements ?? '',
-    skills: job.skills ?? [],
+    skills: job.skills?.map(skill => skill.skill.name) ?? [],
+    vacancy: job.vacancy?.toString() ?? '1',
+    applicationDeadline: job.applicationDeadline ? new Date(job.applicationDeadline).toISOString().split('T')[0] : '',
   };
 }
+
 
 // ---------------------------------------------------------------------------
 // Sub-components
@@ -159,7 +169,9 @@ interface EditModalProps {
   onSkillToggle: (skill: string) => void;
   onSave: () => void;
   onClose: () => void;
+  job: Job | null;
 }
+
 
 // Confirmation Dialog Component
 function ConfirmDialog({ isVisible, onConfirm, onCancel }: { isVisible: boolean; onConfirm: () => void; onCancel: () => void }) {
@@ -240,8 +252,18 @@ function SuccessAlert({ isVisible, onClose }: { isVisible: boolean; onClose: () 
   );
 }
 
-function EditModal({ formData, onChange, onSkillToggle, onSave, onClose }: EditModalProps) {
+function EditModal({ formData, onChange, onSkillToggle, onSave, onClose, job }: EditModalProps) {
+  // Get category name from job
+  const categoryName = job?.category?.name || '';
+  
+  // Get skills for this category
+  const categorySkills = CATEGORY_SKILLS[categoryName] || DEFAULT_SKILLS;
+  
+  // Combine with any currently selected skills that might not be in the list
+  const allOptions = Array.from(new Set([...categorySkills, ...formData.skills]));
+
   return (
+
     <div className="fixed inset-0 bg-gray-500/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
 
@@ -372,8 +394,9 @@ function EditModal({ formData, onChange, onSkillToggle, onSave, onClose }: EditM
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Skills</label>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-              {SKILL_OPTIONS.map((skill) => (
+              {allOptions.map((skill) => (
                 <label key={skill} className="flex items-center gap-2 cursor-pointer p-2 rounded hover:bg-gray-50">
+
                   <input
                     type="checkbox"
                     checked={formData.skills.includes(skill)}
@@ -431,13 +454,15 @@ export default function JobPostingsPage() {
     return () => clearTimeout(timer);
   }, [router]);
 
-  // Use real data when available, otherwise fall back to mock data
-  const displayJobs = jobs.length > 0 ? jobs : (MOCK_JOBS as any[]);
+  // Use real data from API
+  const displayJobs = jobs;
 
-  const activeCount = displayJobs.filter((j) => j.status === 'OPEN' || j.status === 'ACTIVE').length;
+  const activeCount = displayJobs.filter((j) => j.status === 'ACTIVE' || j.status === 'OPEN').length;
+
   const draftCount = displayJobs.filter((j) => j.status === 'DRAFT').length;
-  const closedCount = displayJobs.filter((j) => j.status === 'CLOSED' || j.status === 'ARCHIVED').length;
-  const totalApps = displayJobs.reduce((sum, j) => sum + (j.applicationCount ?? j.applications ?? 0), 0);
+
+  const closedCount = displayJobs.filter((j) => j.status === 'CLOSED').length;
+  const totalApps = displayJobs.reduce((sum, j) => sum + (j.applicationCount ?? 0), 0);
 
   const stats = [
     { label: 'Active Jobs', value: activeCount, icon: Briefcase, color: 'text-green-600', bg: 'bg-green-50' },
@@ -474,11 +499,39 @@ export default function JobPostingsPage() {
     setShowConfirmDialog(true);
   };
 
-  const handleConfirmSave = () => {
-    setShowConfirmDialog(false);
-    setShowSuccessAlert(true);
-    setEditingJob(null);
+  const handleConfirmSave = async () => {
+    if (!editingJob) return;
+
+    // Prepare data for API
+    const updateData: any = {
+      ...editFormData,
+      salaryMin: editFormData.salaryMin ? parseInt(editFormData.salaryMin) : undefined,
+      salaryMax: editFormData.salaryMax ? parseInt(editFormData.salaryMax) : undefined,
+      vacancy: editFormData.vacancy ? parseInt(editFormData.vacancy) : undefined,
+      skills: editFormData.skills.map(skill => ({ name: skill })),
+      applicationDeadline: editFormData.applicationDeadline ? new Date(editFormData.applicationDeadline).toISOString() : null,
+    };
+
+    try {
+      const res = await jobService.updateJob(editingJob.id, updateData);
+      if (res.success) {
+        setShowConfirmDialog(false);
+        setShowSuccessAlert(true);
+        setEditingJob(null);
+        // Refresh jobs from server
+        const refreshedJobs = await jobService.getRecruiterJobs();
+        if (refreshedJobs.success && refreshedJobs.data) {
+          setJobs(refreshedJobs.data);
+        }
+      } else {
+        alert(res.error || 'Failed to update job');
+      }
+    } catch (error) {
+      console.error('Update error:', error);
+      alert('An unexpected error occurred while updating the job');
+    }
   };
+
 
   const handleCancelSave = () => {
     setShowConfirmDialog(false);
@@ -612,15 +665,16 @@ export default function JobPostingsPage() {
                   <div className="flex items-center gap-4 sm:justify-end">
                     <div className="flex items-center gap-1 text-sm text-gray-500">
                       <Users className="h-4 w-4" />
-                      <span>{job.applicationCount ?? job.applications ?? 0}</span>
+                      <span>{job.applicationCount ?? 0}</span>
                     </div>
                     <div className="flex items-center gap-1 text-sm text-gray-500">
                       <Eye className="h-4 w-4" />
-                      <span>{job.viewCount ?? job.views ?? 0}</span>
+                      <span>{job.viewCount ?? 0}</span>
                     </div>
                     <Badge variant="outline" className={getStatusColor(job.status)}>
-                      {job.status}
+                      {job.status === 'OPEN' ? 'ACTIVE' : job.status}
                     </Badge>
+
                     <div className="flex gap-1">
                       <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEditClick(job)}>
                         <Edit className="h-4 w-4 text-gray-400" />
@@ -651,7 +705,9 @@ export default function JobPostingsPage() {
           onSkillToggle={handleSkillToggle}
           onSave={handleSave}
           onClose={handleCloseModal}
+          job={editingJob}
         />
+
       )}
     </div>
   );

@@ -91,14 +91,15 @@ export default function AnalyticsPage() {
     daysOpen: Math.floor((Date.now() - new Date(job.posted || '2024-01-15').getTime()) / (1000 * 60 * 60 * 24)),
   }));
 
-  const monthlyData = [
-    { month: 'Aug', jobs: 4, applications: 180 },
-    { month: 'Sep', jobs: 6, applications: 210 },
-    { month: 'Oct', jobs: 5, applications: 195 },
-    { month: 'Nov', jobs: 7, applications: 245 },
-    { month: 'Dec', jobs: 8, applications: 220 },
-    { month: 'Jan', jobs: stats?.activeJobs ?? 6, applications: stats?.totalApplications ?? 0 },
+  const monthlyData = dashboardData?.monthlyActivity ?? [
+    { month: 'May', jobs: 0, applications: 0 },
+    { month: 'Jun', jobs: 0, applications: 0 },
+    { month: 'Jul', jobs: 0, applications: 0 },
+    { month: 'Aug', jobs: 0, applications: 0 },
+    { month: 'Sep', jobs: 0, applications: 0 },
   ];
+
+
 
   const maxApplications = Math.max(...monthlyData.map(d => d.applications));
 
@@ -222,14 +223,15 @@ export default function AnalyticsPage() {
                         </div>
                       </div>
                       <Badge
-                        variant={job.status === 'OPEN' ? 'default' : 'secondary'}
-                        className={job.status === 'OPEN'
+                        variant={(job.status === 'OPEN' || job.status === 'ACTIVE') ? 'default' : 'secondary'}
+                        className={(job.status === 'OPEN' || job.status === 'ACTIVE')
                           ? 'bg-green-100 text-green-800 border-green-200'
                           : 'bg-gray-100 text-gray-800 border-gray-200'
                         }
                       >
-                        {job.status}
+                        {job.status === 'OPEN' ? 'ACTIVE' : job.status}
                       </Badge>
+
                     </div>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4 text-sm">

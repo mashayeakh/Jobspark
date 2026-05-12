@@ -12,9 +12,17 @@ import { useApi } from '@/hooks/useApi';
 function JobRow({ job, basePath }: { job: Job; basePath: string }) {
   const [saved, setSaved] = useState(false);
 
-  const meta = [job.workStyle, job.location, job.salary, job.equity, job.posted]
+  const meta = [
+    job.workStyle,
+    job.location,
+    job.salary,
+    job.equity,
+    job.posted,
+    job.deadline ? `Deadline: ${new Date(job.deadline).toLocaleDateString()}` : null
+  ]
     .filter(Boolean)
     .join(' • ');
+
 
   return (
     <div className="flex items-center justify-between py-4 border-b border-gray-100 last:border-b-0 gap-4">

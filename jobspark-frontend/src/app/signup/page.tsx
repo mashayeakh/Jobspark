@@ -1,8 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { X, Mail, Lock, Eye, EyeOff, User, Building, Briefcase } from 'lucide-react';
+import { X, Mail, Lock, Eye, EyeOff, User, Building, Briefcase, ChevronRight } from 'lucide-react';
+import { apiClient } from '@/lib/api';
+
 
 interface AnimatedCircle {
   id: number;
@@ -24,8 +27,11 @@ const SignupPage = () => {
     email: '',
     password: '',
     confirmPassword: '',
-    accountType: 'jobseeker' as 'jobseeker' | 'recruiter'
+    accountType: 'jobseeker' as 'jobseeker' | 'recruiter',
+    companyName: '',
+    industry: ''
   });
+
   const [isLoading, setIsLoading] = useState(false);
 
   const circles: AnimatedCircle[] = [
@@ -89,8 +95,12 @@ const SignupPage = () => {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
+    const frame = requestAnimationFrame(() => {
+      setMounted(true);
+    });
+    return () => cancelAnimationFrame(frame);
   }, []);
+
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -112,25 +122,24 @@ const SignupPage = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch('/api/auth/signup', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
+      const response = await apiClient.post<any>('/auth/register', {
+        ...formData,
+        role: formData.accountType === 'recruiter' ? 'RECRUITER' : 'JOB_SEEKER',
       });
-
-      if (response.ok) {
+      
+      if (response.success) {
         // Redirect to login on success
         window.location.href = '/login';
       } else {
-        console.error('Signup failed');
+        alert(response.error || 'Signup failed. Please try again.');
       }
     } catch (error) {
       console.error('Signup error:', error);
+      alert('An unexpected error occurred. Please try again.');
     } finally {
       setIsLoading(false);
     }
+
   };
 
   return (
@@ -228,26 +237,35 @@ const SignupPage = () => {
           <div className="mb-6">
             <div className="grid grid-cols-2 gap-4">
               <button
+                type="button"
                 onClick={() => handleAccountTypeChange('jobseeker')}
-                className={`p-4 rounded-lg border-2 transition-all duration-200 ${formData.accountType === 'jobseeker'
-                  ? 'border-blue-500 bg-blue-50 text-blue-600'
-                  : 'border-gray-300 hover:border-gray-400'
+                className={`p-4 rounded-xl border-2 transition-all duration-300 group ${formData.accountType === 'jobseeker'
+                  ? 'border-blue-500 bg-blue-50 shadow-md transform scale-[1.02]'
+                  : 'border-gray-100 hover:border-blue-200 hover:bg-gray-50'
                   }`}
               >
-                <User className="w-6 h-6 mx-auto mb-2" />
-                <span className="text-sm font-medium">Job Seeker</span>
+                <div className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3 transition-colors ${formData.accountType === 'jobseeker' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-500 group-hover:bg-blue-100'}`}>
+                  <User className="w-6 h-6" />
+                </div>
+                <span className={`block text-sm font-semibold ${formData.accountType === 'jobseeker' ? 'text-blue-700' : 'text-gray-600'}`}>Job Seeker</span>
+                <p className="text-[10px] text-gray-400 mt-1">I want to find a job</p>
               </button>
               <button
+                type="button"
                 onClick={() => handleAccountTypeChange('recruiter')}
-                className={`p-4 rounded-lg border-2 transition-all duration-200 ${formData.accountType === 'recruiter'
-                  ? 'border-purple-500 bg-purple-50 text-purple-600'
-                  : 'border-gray-300 hover:border-gray-400'
+                className={`p-4 rounded-xl border-2 transition-all duration-300 group ${formData.accountType === 'recruiter'
+                  ? 'border-purple-500 bg-purple-50 shadow-md transform scale-[1.02]'
+                  : 'border-gray-100 hover:border-purple-200 hover:bg-gray-50'
                   }`}
               >
-                <Building className="w-6 h-6 mx-auto mb-2" />
-                <span className="text-sm font-medium">Recruiter</span>
+                <div className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3 transition-colors ${formData.accountType === 'recruiter' ? 'bg-purple-500 text-white' : 'bg-gray-100 text-gray-500 group-hover:bg-purple-100'}`}>
+                  <Building className="w-6 h-6" />
+                </div>
+                <span className={`block text-sm font-semibold ${formData.accountType === 'recruiter' ? 'text-purple-700' : 'text-gray-600'}`}>Recruiter</span>
+                <p className="text-[10px] text-gray-400 mt-1">I want to hire talent</p>
               </button>
             </div>
+
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -361,6 +379,54 @@ const SignupPage = () => {
               </div>
             </div>
 
+            {/* Recruiter Specific Fields */}
+            {formData.accountType === 'recruiter' && (
+              <>
+                <div>
+                  <label htmlFor="companyName" className="block text-sm font-medium text-gray-700 mb-2">
+                    Company Name
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <Building className="h-5 w-5 text-gray-400" />
+                    </div>
+                    <input
+                      id="companyName"
+                      type="text"
+                      name="companyName"
+                      value={formData.companyName}
+                      onChange={handleInputChange}
+                      placeholder="Enter your company name"
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-colors"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label htmlFor="industry" className="block text-sm font-medium text-gray-700 mb-2">
+                    Industry
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <Briefcase className="h-5 w-5 text-gray-400" />
+                    </div>
+                    <input
+                      id="industry"
+                      type="text"
+                      name="industry"
+                      value={formData.industry}
+                      onChange={handleInputChange}
+                      placeholder="e.g. Software, Healthcare"
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-colors"
+                      required
+                    />
+                  </div>
+                </div>
+              </>
+            )}
+
+
             {/* Terms Checkbox */}
             <div className="flex items-start">
               <input
@@ -385,20 +451,21 @@ const SignupPage = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-4 rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center gap-2"
+              className={`w-full bg-gradient-to-r ${formData.accountType === 'recruiter' ? 'from-purple-600 to-indigo-600' : 'from-blue-600 to-cyan-600'} text-white py-4 px-4 rounded-xl font-bold hover:shadow-lg hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 flex items-center justify-center gap-3 group`}
             >
               {isLoading ? (
                 <>
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  Creating account...
+                  <span>Creating your account...</span>
                 </>
               ) : (
                 <>
-                  Create Account
-                  <div className="w-5 h-5 border-l-2 border-white transform rotate-90"></div>
+                  <span>Get Started Now</span>
+                  <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </>
               )}
             </button>
+
           </form>
 
           {/* Divider */}

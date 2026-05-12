@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { apiClient, ApiResponse } from '@/lib/api';
 
 export interface RecruiterDashboardData {
@@ -37,7 +38,13 @@ export interface RecruiterDashboardData {
     location: string;
     match: number;
   }>;
+  monthlyActivity: Array<{
+    month: string;
+    jobs: number;
+    applications: number;
+  }>;
 }
+
 
 export interface Application {
   id: string;
@@ -86,14 +93,22 @@ export interface RecruiterProfile {
     name: string;
     logo?: string;
     website?: string;
+    email?: string;
+    phone?: string;
     description?: string;
+    tagline?: string;
+    mission?: string;
+    values?: string;
+    benefits?: string;
     industry: string;
     size?: string;
     location?: string;
+    socialLinks?: any;
     isVerified: boolean;
     createdAt: string;
     updatedAt: string;
   };
+
   user: {
     name: string;
     email: string;

@@ -8,7 +8,9 @@ export interface Job {
   salary: string;
   equity?: string;
   posted: string;
+  deadline?: string;
   category: string;
+
   type: string;
   experience: string;
   description: string;

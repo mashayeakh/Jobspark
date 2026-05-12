@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { apiClient, ApiResponse } from '@/lib/api';
 
 export interface Skill {
@@ -30,7 +31,8 @@ export interface Job {
   id: string;
   title: string;
   description: string;
-  status: 'ACTIVE' | 'CLOSED';
+  status: 'OPEN' | 'ACTIVE' | 'CLOSED' | 'DRAFT' | 'ARCHIVED';
+
   type: 'FULL_TIME' | 'PART_TIME' | 'CONTRACT' | 'INTERNSHIP';
   locationType: 'REMOTE' | 'ONSITE' | 'HYBRID';
   experienceLevel: 'ENTRY' | 'MID' | 'SENIOR' | 'EXECUTIVE';
@@ -41,7 +43,9 @@ export interface Job {
   requirements?: string;
   benefits?: string;
   vacancy?: number;
+  applicationDeadline?: string;
   applicationCount: number;
+
   viewCount: number;
   companyId: string;
   recruiterId: string;
@@ -67,7 +71,18 @@ export interface CreateJobData {
   location: string;
   categoryId?: string;
   subCategoryId?: string;
-  skills?: string[]; // Array of skill IDs
+  responsibilities?: string;
+  requirements?: string;
+  benefits?: string;
+  vacancy?: number;
+  applicationDeadline?: string;
+  company?: string;
+  department?: string;
+  status?: string;
+  skills?: {
+    name: string;
+    isRequired?: boolean;
+  }[];
 }
 
 export interface JobFilters {
@@ -139,7 +154,8 @@ export class JobService {
   }
 
   async updateJob(id: string, data: Partial<CreateJobData>): Promise<ApiResponse<Job>> {
-    const response = await apiClient.put<{ success: boolean; result: Job }>(`/jobs/${id}`, data);
+    const response = await apiClient.patch<{ success: boolean; result: Job }>(`/jobs/${id}`, data);
+
 
     if (response.success && response.data) {
       return {

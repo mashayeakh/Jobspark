@@ -327,7 +327,7 @@ export function RecruiterDashboard({ data }: RecruiterDashboardProps) {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Button className="flex items-center space-x-2 bg-[#4880FF] hover:bg-[#3d72eb]">
+            <Button className="flex items-center space-x-2 bg-[#4880FF] hover:bg-[#3d72eb]" onClick={() => router.push('/recruiter/post-job')}>
               <Briefcase className="h-4 w-4" />
               <span>Post New Job</span>
             </Button>

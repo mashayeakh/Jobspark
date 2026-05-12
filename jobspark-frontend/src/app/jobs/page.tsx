@@ -27,7 +27,9 @@ export default function JobsPage() {
     benefits: job.benefits ? job.benefits.split(';').map(b => b.trim()).filter(b => b) : [], // Parse from API response
     vacancy: job.vacancy || 1,
     skills: job.skills.map(skill => skill.skill.name),
+    deadline: job.applicationDeadline,
     aboutCompany: job.company.description || job.company.name,
+
   })) || [];
 
   return (

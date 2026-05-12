@@ -1,19 +1,62 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+
 import { useRouter } from 'next/navigation';
 import { DollarSign, Briefcase, Bot, Sparkles, Edit3, Plus, ArrowLeft } from 'lucide-react';
-import { jobService } from '@/services/jobService';
+import { jobService, CreateJobData, Job } from '@/services/jobService';
 import { workStyleService } from '@/services/workStyleService';
 import { categoryService } from '@/services/categoryService';
 import { useApi } from '@/hooks/useApi';
+import { recruiterService } from '@/services/recruiterService';
 import { Button } from '@/components/ui/button';
+
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 
+interface JobFormData {
+  title: string;
+  description: string;
+  type: string;
+  locationType: string;
+  experienceLevel: string;
+  salaryMin: string;
+  salaryMax: string;
+  location: string;
+  company: string;
+  vacancy: string;
+  applicationDeadline: string;
+  benefits: string;
+
+
+
+  responsibilities: string;
+  requirements: string;
+  category: string;
+  subCategory: string;
+  skills: string[];
+}
+
+
+const CATEGORY_SKILLS: Record<string, string[]> = {
+  'Development': ['React', 'Node.js', 'TypeScript', 'Next.js', 'Vue.js', 'Angular', 'Symfony', 'Python', 'Docker', 'AWS', 'Azure', 'PostgreSQL', 'MongoDB', 'GraphQL', 'Mobile Development'],
+  'Design': ['UI/UX Design', 'Figma', 'Adobe XD', 'Photoshop', 'Illustrator', 'Graphic Design', 'Product Design', 'Motion Design', 'Brand Identity'],
+  'Marketing': ['SEO', 'SEM', 'Digital Marketing', 'Content Writing', 'Social Media Management', 'Email Marketing', 'Google Analytics', 'Brand Strategy'],
+  'Business': ['Project Management', 'Business Development', 'Sales', 'Operations', 'Strategy', 'CRM', 'Agile Methodology', 'Financial Modeling'],
+  'Data & AI': ['Python', 'Machine Learning', 'Data Analysis', 'Deep Learning', 'PyTorch', 'TensorFlow', 'Data Engineering', 'Artificial Intelligence', 'SQL'],
+  'Customer Support': ['Communication', 'Troubleshooting', 'Customer Success', 'ZenDesk', 'Technical Support', 'CRM', 'Intercom', 'Problem Solving'],
+  'Finance': ['Accounting', 'Financial Analysis', 'Excel', 'Audit', 'Taxation', 'Corporate Finance', 'Budgeting', 'QuickBooks'],
+  'Human Resources': ['Recruitment', 'Talent Management', 'Employee Relations', 'Payroll', 'Training & Development', 'HRIS', 'Onboarding'],
+};
+
+const DEFAULT_SKILLS = ['Communication', 'Teamwork', 'Problem Solving', 'Adaptability', 'Time Management'];
+
 export default function PostJobPage() {
+
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState('');
@@ -31,36 +74,54 @@ export default function PostJobPage() {
   const { data: locationTypesData } = useApi(() => workStyleService.getActiveLocationTypes());
   const { data: experienceLevelsData } = useApi(() => workStyleService.getActiveExperienceLevels());
   const { data: categoriesData } = useApi(() => categoryService.getActiveCategories());
+  const { data: profileData } = useApi(() => recruiterService.getProfile());
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<JobFormData>({
     title: '',
     description: '',
-    type: 'FULL_TIME' as const,
-    locationType: 'REMOTE' as const,
-    experienceLevel: 'MID' as const,
+    type: 'FULL_TIME',
+    locationType: 'HYBRID',
+    experienceLevel: 'SENIOR',
     salaryMin: '',
     salaryMax: '',
     location: '',
-    vacancy: 1,
+    company: '',
+    vacancy: '1',
+    applicationDeadline: '',
     benefits: '',
     responsibilities: '',
     requirements: '',
     category: '',
     subCategory: '',
-    skills: [] as string[],
+    skills: [],
   });
+
+  useEffect(() => {
+    if (profileData?.company?.name) {
+      requestAnimationFrame(() => {
+        setFormData(prev => ({ ...prev, company: profileData.company.name }));
+      });
+    }
+  }, [profileData]);
+
+
+
 
   const handleInputChange = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleCategoryChange = (categoryName: string) => {
+  const handleCategoryChange = (categoryId: string) => {
+    // Find category name from data
+    const category = categoriesData?.find(c => c.id === categoryId);
     setFormData(prev => ({
       ...prev,
-      category: categoryName,
-      subCategory: '' // Reset subcategory when category changes
+      category: categoryId,
+      subCategory: '',
+      skills: [] // Reset skills when category changes
     }));
   };
+
 
   const handleSkillToggle = (skillName: string) => {
     setFormData(prev => ({
@@ -83,7 +144,7 @@ export default function PostJobPage() {
     try {
       // Simulate AI API call
       await new Promise(resolve => setTimeout(resolve, 1500));
-      
+
       const experienceLevel = {
         JUNIOR: '0-2 years of experience',
         MID: '2-5 years of experience',
@@ -130,25 +191,42 @@ We offer a competitive salary, flexible work environment, and opportunities for 
     setErrorMessage('');
 
     try {
-      const jobData = {
+      const jobData: CreateJobData = {
         title: formData.title,
         description: formData.description,
-        type: formData.type,
-        locationType: formData.locationType,
-        experienceLevel: formData.experienceLevel,
+        type: formData.type as Job['type'],
+        locationType: formData.locationType as Job['locationType'],
+        experienceLevel: formData.experienceLevel as Job['experienceLevel'],
         salaryMin: formData.salaryMin ? parseInt(formData.salaryMin) : undefined,
         salaryMax: formData.salaryMax ? parseInt(formData.salaryMax) : undefined,
         location: formData.location,
-        vacancy: formData.vacancy,
+        company: formData.company,
+        vacancy: formData.vacancy ? parseInt(formData.vacancy) : 1,
+        applicationDeadline: formData.applicationDeadline || undefined,
         benefits: formData.benefits,
+
+
         responsibilities: formData.responsibilities,
         requirements: formData.requirements,
-        category: formData.category || undefined,
-        subCategory: formData.subCategory || undefined,
-        skills: formData.skills,
+        categoryId: formData.category || undefined,
+        subCategoryId: formData.subCategory || undefined,
+        skills: formData.skills.map(skill => ({ name: skill })),
       };
 
+      if (formData.applicationDeadline) {
+        const deadline = new Date(formData.applicationDeadline);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        if (deadline < today) {
+          setErrorMessage('Application deadline cannot be in the past');
+          setIsSubmitting(false);
+          return;
+        }
+      }
+
       const response = await jobService.createJob(jobData);
+
+
 
       if (response.success) {
         setSubmitMessage('Job posted successfully!');
@@ -174,6 +252,50 @@ We offer a competitive salary, flexible work environment, and opportunities for 
       setIsSubmitting(false);
     }
   };
+
+  const handleSaveDraft = async () => {
+    setIsSubmitting(true);
+    setErrorMessage('');
+    
+    try {
+      const jobData: CreateJobData = {
+        title: formData.title || 'Untitled Draft',
+        description: formData.description || 'No description provided',
+        type: (formData.type as Job['type']) || 'FULL_TIME',
+        locationType: (formData.locationType as Job['locationType']) || 'REMOTE',
+        experienceLevel: (formData.experienceLevel as Job['experienceLevel']) || 'ENTRY',
+        salaryMin: formData.salaryMin ? parseInt(formData.salaryMin) : undefined,
+        salaryMax: formData.salaryMax ? parseInt(formData.salaryMax) : undefined,
+        location: formData.location || 'Remote',
+        company: formData.company,
+        vacancy: formData.vacancy ? parseInt(formData.vacancy) : 1,
+        applicationDeadline: formData.applicationDeadline || undefined,
+        benefits: formData.benefits,
+        responsibilities: formData.responsibilities,
+        requirements: formData.requirements,
+        categoryId: formData.category || undefined,
+        subCategoryId: formData.subCategory || undefined,
+        skills: formData.skills.map(skill => ({ name: skill })),
+        status: 'DRAFT',
+      };
+
+      const response = await jobService.createJob(jobData);
+
+      if (response.success) {
+        setSubmitMessage('Draft saved successfully!');
+        setTimeout(() => {
+          router.push('/recruiter/jobs');
+        }, 2000);
+      } else {
+        setSubmitMessage(response.error || 'Failed to save draft');
+      }
+    } catch (error: any) {
+      setSubmitMessage(error?.message || 'An error occurred while saving draft');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
 
 
   return (
@@ -239,13 +361,14 @@ We offer a competitive salary, flexible work environment, and opportunities for 
                         Company Name *
                       </label>
                       <Input
-                        required
-                        value={formData.location}
-                        onChange={(e) => handleInputChange('location', e.target.value)}
+                        value={formData.company}
+                        onChange={(e) => handleInputChange('company', e.target.value)}
                         placeholder="e.g. Tech Corp Inc."
-                        className="h-11"
+                        className={`h-11 ${profileData?.company?.name ? 'bg-gray-50 text-gray-500 cursor-not-allowed' : ''}`}
+                        readOnly={!!profileData?.company?.name}
                       />
                     </div>
+
                   </div>
 
                   {/* Job Description */}
@@ -364,6 +487,20 @@ We offer a competitive salary, flexible work environment, and opportunities for 
                         className="h-11"
                       />
                     </div>
+ 
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Application Deadline
+                      </label>
+                      <Input
+                        type="date"
+                        min={new Date().toISOString().split('T')[0]}
+                        value={formData.applicationDeadline}
+                        onChange={(e) => handleInputChange('applicationDeadline', e.target.value)}
+                        className="h-11"
+                      />
+
+                    </div>
                   </div>
 
                   {/* Additional Details */}
@@ -376,8 +513,9 @@ We offer a competitive salary, flexible work environment, and opportunities for 
                         type="number"
                         min="1"
                         value={formData.vacancy}
-                        onChange={(e) => handleInputChange('vacancy', parseInt(e.target.value))}
+                        onChange={(e) => handleInputChange('vacancy', e.target.value)}
                         className="h-11"
+
                       />
                     </div>
 
@@ -392,55 +530,56 @@ We offer a competitive salary, flexible work environment, and opportunities for 
                       >
                         <option value="">Select a category (optional)</option>
                         {categoriesData?.map(category => (
-                          <option key={category.id} value={category.name}>
+                          <option key={category.id} value={category.id}>
                             {category.name}
                           </option>
                         ))}
+
                       </select>
                     </div>
                   </div>
 
-              {/* Responsibilities */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Responsibilities
-                </label>
-                <textarea
-                  rows={4}
-                  value={formData.responsibilities}
-                  onChange={(e) => handleInputChange('responsibilities', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="Justify technical solutions to business tasks; Create scalable systems from scratch; Handle client calls with professionalism; Onboard quickly; Maintain trust through consistent delivery."
-                />
-              </div>
+                  {/* Responsibilities */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Responsibilities
+                    </label>
+                    <textarea
+                      rows={4}
+                      value={formData.responsibilities}
+                      onChange={(e) => handleInputChange('responsibilities', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="Justify technical solutions to business tasks; Create scalable systems from scratch; Handle client calls with professionalism; Onboard quickly; Maintain trust through consistent delivery."
+                    />
+                  </div>
 
-              {/* Requirements */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Requirements
-                </label>
-                <textarea
-                  rows={4}
-                  value={formData.requirements}
-                  onChange={(e) => handleInputChange('requirements', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="4+ years software development experience. Expertise in: (Symfony/Vue) OR (Symfony/Angular) OR (Symfony/Next.js/JS-TS). Advanced English fluency. Strong self-organizational skills and full reliability."
-                />
-              </div>
+                  {/* Requirements */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Requirements
+                    </label>
+                    <textarea
+                      rows={4}
+                      value={formData.requirements}
+                      onChange={(e) => handleInputChange('requirements', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="4+ years software development experience. Expertise in: (Symfony/Vue) OR (Symfony/Angular) OR (Symfony/Next.js/JS-TS). Advanced English fluency. Strong self-organizational skills and full reliability."
+                    />
+                  </div>
 
-              {/* Benefits */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Benefits
-                </label>
-                <textarea
-                  rows={3}
-                  value={formData.benefits}
-                  onChange={(e) => handleInputChange('benefits', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="Performance-based Equity; Paid Certification Courses; Annual Wellness Stipend; Dynamic Remote Team; No-meeting Thursdays."
-                />
-              </div>
+                  {/* Benefits */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Benefits
+                    </label>
+                    <textarea
+                      rows={3}
+                      value={formData.benefits}
+                      onChange={(e) => handleInputChange('benefits', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="Performance-based Equity; Paid Certification Courses; Annual Wellness Stipend; Dynamic Remote Team; No-meeting Thursdays."
+                    />
+                  </div>
 
                   {/* Skills */}
                   <div>
@@ -462,7 +601,10 @@ We offer a competitive salary, flexible work environment, and opportunities for 
                       ))}
                     </div>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                      {['Symfony', 'Next.js', 'TypeScript', 'Vue.js', 'Angular', 'React', 'Node.js', 'Python', 'Docker', 'AWS', 'Azure'].map(skill => (
+                      {(formData.category 
+                        ? CATEGORY_SKILLS[categoriesData?.find(c => c.id === formData.category)?.name || ''] || DEFAULT_SKILLS
+                        : DEFAULT_SKILLS
+                      ).map(skill => (
                         <label key={skill} className="flex items-center gap-2 cursor-pointer p-2 rounded hover:bg-gray-50">
                           <input
                             type="checkbox"
@@ -474,6 +616,7 @@ We offer a competitive salary, flexible work environment, and opportunities for 
                         </label>
                       ))}
                     </div>
+
                   </div>
 
                   {/* Submit Buttons */}
@@ -481,14 +624,12 @@ We offer a competitive salary, flexible work environment, and opportunities for 
                     <Button
                       type="button"
                       variant="outline"
-                      onClick={() => {
-                        localStorage.setItem('jobDraft', JSON.stringify(formData));
-                        setSubmitMessage('Draft saved successfully!');
-                        setTimeout(() => setSubmitMessage(''), 3000);
-                      }}
+                      disabled={isSubmitting}
+                      onClick={handleSaveDraft}
                     >
-                      Save as Draft
+                      {isSubmitting ? 'Saving...' : 'Save as Draft'}
                     </Button>
+
                     <Button
                       type="submit"
                       disabled={isSubmitting}
@@ -610,9 +751,8 @@ We offer a competitive salary, flexible work environment, and opportunities for 
                           <div
                             contentEditable={isEditingAi}
                             suppressContentEditableWarning={true}
-                            className={`min-h-[120px] text-sm text-gray-700 whitespace-pre-wrap ${
-                              isEditingAi ? 'outline-none border-2 border-blue-500 rounded p-2' : ''
-                            }`}
+                            className={`min-h-[120px] text-sm text-gray-700 whitespace-pre-wrap ${isEditingAi ? 'outline-none border-2 border-blue-500 rounded p-2' : ''
+                              }`}
                             onBlur={(e) => {
                               if (isEditingAi) {
                                 setAiGeneratedDescription(e.currentTarget.textContent || '');

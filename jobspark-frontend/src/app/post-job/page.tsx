@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import React, { useState } from 'react';
@@ -13,7 +14,21 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 
+const CATEGORY_SKILLS: Record<string, string[]> = {
+  'Development': ['React', 'Node.js', 'TypeScript', 'Next.js', 'Vue.js', 'Angular', 'Symfony', 'Python', 'Docker', 'AWS', 'Azure', 'PostgreSQL', 'MongoDB', 'GraphQL', 'Mobile Development'],
+  'Design': ['UI/UX Design', 'Figma', 'Adobe XD', 'Photoshop', 'Illustrator', 'Graphic Design', 'Product Design', 'Motion Design', 'Brand Identity'],
+  'Marketing': ['SEO', 'SEM', 'Digital Marketing', 'Content Writing', 'Social Media Management', 'Email Marketing', 'Google Analytics', 'Brand Strategy'],
+  'Business': ['Project Management', 'Business Development', 'Sales', 'Operations', 'Strategy', 'CRM', 'Agile Methodology', 'Financial Modeling'],
+  'Data & AI': ['Python', 'Machine Learning', 'Data Analysis', 'Deep Learning', 'PyTorch', 'TensorFlow', 'Data Engineering', 'Artificial Intelligence', 'SQL'],
+  'Customer Support': ['Communication', 'Troubleshooting', 'Customer Success', 'ZenDesk', 'Technical Support', 'CRM', 'Intercom', 'Problem Solving'],
+  'Finance': ['Accounting', 'Financial Analysis', 'Excel', 'Audit', 'Taxation', 'Corporate Finance', 'Budgeting', 'QuickBooks'],
+  'Human Resources': ['Recruitment', 'Talent Management', 'Employee Relations', 'Payroll', 'Training & Development', 'HRIS', 'Onboarding'],
+};
+
+const DEFAULT_SKILLS = ['Communication', 'Teamwork', 'Problem Solving', 'Adaptability', 'Time Management'];
+
 export default function PostJobPage() {
+
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState('');
@@ -54,13 +69,17 @@ export default function PostJobPage() {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleCategoryChange = (categoryName: string) => {
+  const handleCategoryChange = (categoryId: string) => {
+    // Find category name from data
+    const category = categoriesData?.find(c => c.id === categoryId);
     setFormData(prev => ({
       ...prev,
-      category: categoryName,
-      subCategory: '' // Reset subcategory when category changes
+      category: categoryId,
+      subCategory: '',
+      skills: [] // Reset skills when category changes
     }));
   };
+
 
   const handleSkillToggle = (skillName: string) => {
     setFormData(prev => ({
@@ -145,7 +164,7 @@ We offer a competitive salary, flexible work environment, and opportunities for 
         requirements: formData.requirements,
         category: formData.category || undefined,
         subCategory: formData.subCategory || undefined,
-        skills: formData.skills,
+        skills: formData.skills.map(skill => ({ name: skill })),
       };
 
       const response = await jobService.createJob(jobData);
@@ -392,10 +411,11 @@ We offer a competitive salary, flexible work environment, and opportunities for 
                       >
                         <option value="">Select a category (optional)</option>
                         {categoriesData?.map(category => (
-                          <option key={category.id} value={category.name}>
+                          <option key={category.id} value={category.id}>
                             {category.name}
                           </option>
                         ))}
+
                       </select>
                     </div>
                   </div>
@@ -462,9 +482,13 @@ We offer a competitive salary, flexible work environment, and opportunities for 
                       ))}
                     </div>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                      {['Symfony', 'Next.js', 'TypeScript', 'Vue.js', 'Angular', 'React', 'Node.js', 'Python', 'Docker', 'AWS', 'Azure'].map(skill => (
+                      {(formData.category 
+                        ? CATEGORY_SKILLS[categoriesData?.find(c => c.id === formData.category)?.name || ''] || DEFAULT_SKILLS
+                        : DEFAULT_SKILLS
+                      ).map(skill => (
                         <label key={skill} className="flex items-center gap-2 cursor-pointer p-2 rounded hover:bg-gray-50">
                           <input
+
                             type="checkbox"
                             checked={formData.skills.includes(skill)}
                             onChange={() => handleSkillToggle(skill)}

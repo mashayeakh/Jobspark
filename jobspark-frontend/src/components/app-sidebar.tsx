@@ -176,7 +176,7 @@ export function AppSidebar({ userRole, ...props }: AppSidebarProps) {
                             "h-5 w-5 transition-colors",
                             isActive ? "text-white" : "text-gray-400 group-hover:text-[#4880FF]"
                           )} />
-                          <span className="flex-1 font-bold">{item.title}</span>
+                          <span className="flex-1 font-bold whitespace-nowrap">{item.title}</span>
                           {item.badge && (
                             <span className={cn(
                               "rounded-md px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-tighter",

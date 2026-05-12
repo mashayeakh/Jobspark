@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -11,6 +12,9 @@ import {
 } from "@/components/ui/breadcrumb"
 import { authService } from '@/services/authService';
 import { useRouter } from 'next/navigation';
+import { useApi } from '@/hooks/useApi';
+import { recruiterService } from '@/services/recruiterService';
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -35,35 +39,65 @@ export default function CompanyProfilePage() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
+
   const router = useRouter();
 
   const [companyData, setCompanyData] = useState({
-    name: 'TechCorp Solutions',
-    tagline: 'Building the future of digital innovation',
-    description: 'We are a leading technology company specializing in cloud infrastructure, AI-powered analytics, and enterprise software solutions. Founded in 2015, we have grown to a team of 500+ professionals across 12 countries.',
-    industry: 'Information Technology',
-    companySize: '500-1000',
-    foundedYear: '2015',
-    website: 'www.techcorpsolutions.com',
-    email: 'careers@techcorpsolutions.com',
-    phone: '+1 (555) 123-4567',
-    location: 'San Francisco, CA, United States',
-    headquarters: 'San Francisco, CA',
-    employees: '500+',
-    type: 'Technology',
-    revenue: '$50M+',
-    mission: 'To empower businesses with innovative technology solutions that drive growth and transformation.',
-    values: 'Innovation, Integrity, Collaboration, Excellence',
-    benefits: 'Health Insurance, Remote Work, Stock Options, Flexible Hours, Learning Budget',
+    name: '',
+    tagline: '',
+    description: '',
+    industry: '',
+    companySize: '',
+    foundedYear: '',
+    website: '',
+    email: '',
+    phone: '',
+    location: '',
+    headquarters: '',
+    employees: '',
+    type: '',
+    revenue: '',
+    mission: '',
+    values: '',
+    benefits: '',
     socialLinks: {
-      linkedin: 'linkedin.com/company/techcorp',
-      twitter: '@techcorp',
-      facebook: 'facebook.com/techcorp'
+      linkedin: '',
+      twitter: '',
+      facebook: ''
     },
     profileImage: null as string | null,
     backgroundImage: null as string | null
   });
+
+  const { data: profileData, loading: profileLoading } = useApi(() => recruiterService.getProfile());
+
+  useEffect(() => {
+    if (profileData?.company) {
+      const comp = profileData.company;
+      requestAnimationFrame(() => {
+        setCompanyData(prev => ({
+          ...prev,
+          name: comp.name || '',
+          industry: comp.industry || '',
+          description: comp.description || '',
+          website: comp.website || '',
+          location: comp.location || '',
+          companySize: comp.size || '',
+          tagline: comp.tagline || '',
+          email: comp.email || '',
+          phone: comp.phone || '',
+          mission: comp.mission || '',
+          values: comp.values || '',
+          benefits: comp.benefits || '',
+          socialLinks: comp.socialLinks || prev.socialLinks,
+        }));
+      });
+    }
+  }, [profileData]);
+
+
 
   useEffect(() => {
     const userData = authService.getUser();
@@ -71,9 +105,12 @@ export default function CompanyProfilePage() {
       router.push('/login');
       return;
     }
-    setUser(userData);
-    setLoading(false);
+    requestAnimationFrame(() => {
+      setUser(userData);
+      setLoading(false);
+    });
   }, [router]);
+
 
   const handleInputChange = (field: string, value: string) => {
     setCompanyData(prev => ({
@@ -134,12 +171,42 @@ export default function CompanyProfilePage() {
     }));
   };
 
-  const handleSave = () => {
-    // Simulate save operation
-    setShowSuccessAlert(true);
-    setEditing(false);
-    setTimeout(() => setShowSuccessAlert(false), 3000);
+  const handleSave = async () => {
+    try {
+      setIsSaving(true);
+      const response = await recruiterService.updateProfile({
+        company: {
+          name: companyData.name,
+          tagline: companyData.tagline,
+          description: companyData.description,
+          industry: companyData.industry,
+          website: companyData.website,
+          email: companyData.email,
+          phone: companyData.phone,
+          location: companyData.location,
+          size: companyData.companySize,
+          mission: companyData.mission,
+          values: companyData.values,
+          benefits: companyData.benefits,
+          socialLinks: companyData.socialLinks,
+        }
+      });
+      
+      if (response.success) {
+        setShowSuccessAlert(true);
+        setEditing(false);
+        setTimeout(() => setShowSuccessAlert(false), 3000);
+      } else {
+        alert(response.error || 'Failed to update profile');
+      }
+    } catch (error) {
+      console.error('Error saving profile:', error);
+      alert('An unexpected error occurred');
+    } finally {
+      setIsSaving(false);
+    }
   };
+
 
   const handleCancel = () => {
     setEditing(false);
@@ -200,6 +267,7 @@ export default function CompanyProfilePage() {
                 <Button
                   variant="outline"
                   onClick={handleCancel}
+                  disabled={isSaving}
                   size="lg"
                   className="h-12 px-6 border-2 border-gray-300 hover:border-red-400 hover:bg-red-50 transition-all duration-200 font-semibold"
                 >
@@ -209,14 +277,31 @@ export default function CompanyProfilePage() {
               )}
               <Button
                 onClick={editing ? handleSave : () => setEditing(true)}
+                disabled={isSaving}
                 size="lg"
                 className={`h-12 px-7 font-bold text-white shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 ${editing
                     ? "bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700"
                     : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
                   }`}
               >
-                {editing ? <Save className="h-4 w-4 mr-2" /> : <Edit className="h-4 w-4 mr-2" />}
-                {editing ? 'Save Changes' : 'Edit Profile'}
+
+                {isSaving ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                    Saving...
+                  </>
+                ) : editing ? (
+                  <>
+                    <Save className="h-4 w-4 mr-2" />
+                    Save Changes
+                  </>
+                ) : (
+                  <>
+                    <Edit className="h-4 w-4 mr-2" />
+                    Edit Profile
+                  </>
+                )}
+
               </Button>
             </div>
           </div>
@@ -334,16 +419,17 @@ export default function CompanyProfilePage() {
                 <div className="flex flex-wrap gap-3">
                   <Badge className="bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800 border-0 px-4 py-2 text-sm font-bold">
                     <Building className="h-4 w-4 mr-2" />
-                    {companyData.industry}
+                    {companyData.industry || 'Not provided'}
                   </Badge>
                   <Badge className="bg-gradient-to-r from-green-100 to-green-200 text-green-800 border-0 px-4 py-2 text-sm font-bold">
                     <Users className="h-4 w-4 mr-2" />
-                    {companyData.companySize} employees
+                    {companyData.companySize ? `${companyData.companySize} employees` : 'Size not set'}
                   </Badge>
                   <Badge className="bg-gradient-to-r from-purple-100 to-purple-200 text-purple-800 border-0 px-4 py-2 text-sm font-bold">
                     <Calendar className="h-4 w-4 mr-2" />
-                    Founded {companyData.foundedYear}
+                    {companyData.foundedYear ? `Founded ${companyData.foundedYear}` : 'Founded date not set'}
                   </Badge>
+
                 </div>
               </div>
             </div>
@@ -370,8 +456,9 @@ export default function CompanyProfilePage() {
                         className="h-12 border-2 border-gray-200 focus:border-blue-500 rounded-xl"
                       />
                     ) : (
-                      <p className="text-gray-900 text-lg font-medium bg-gray-50 p-3 rounded-xl">{companyData.industry}</p>
+                      <p className="text-gray-900 text-lg font-medium bg-gray-50 p-3 rounded-xl">{companyData.industry || 'Not provided'}</p>
                     )}
+
                   </div>
                   <div className="space-y-3">
                     <Label className="text-sm font-bold text-gray-700 uppercase tracking-wider">Company Size</Label>
@@ -382,8 +469,9 @@ export default function CompanyProfilePage() {
                         className="h-12 border-2 border-gray-200 focus:border-blue-500 rounded-xl"
                       />
                     ) : (
-                      <p className="text-gray-900 text-lg font-medium bg-gray-50 p-3 rounded-xl">{companyData.companySize} employees</p>
+                      <p className="text-gray-900 text-lg font-medium bg-gray-50 p-3 rounded-xl">{companyData.companySize ? `${companyData.companySize} employees` : 'Not provided'}</p>
                     )}
+
                   </div>
                   <div className="space-y-3">
                     <Label className="text-sm font-bold text-gray-700 uppercase tracking-wider">Founded Year</Label>
@@ -394,8 +482,9 @@ export default function CompanyProfilePage() {
                         className="h-12 border-2 border-gray-200 focus:border-blue-500 rounded-xl"
                       />
                     ) : (
-                      <p className="text-gray-900 text-lg font-medium bg-gray-50 p-3 rounded-xl">{companyData.foundedYear}</p>
+                      <p className="text-gray-900 text-lg font-medium bg-gray-50 p-3 rounded-xl">{companyData.foundedYear || 'Not provided'}</p>
                     )}
+
                   </div>
                   <div className="space-y-3">
                     <Label className="text-sm font-bold text-gray-700 uppercase tracking-wider">Headquarters</Label>
@@ -406,8 +495,9 @@ export default function CompanyProfilePage() {
                         className="h-12 border-2 border-gray-200 focus:border-blue-500 rounded-xl"
                       />
                     ) : (
-                      <p className="text-gray-900 text-lg font-medium bg-gray-50 p-3 rounded-xl">{companyData.headquarters}</p>
+                      <p className="text-gray-900 text-lg font-medium bg-gray-50 p-3 rounded-xl">{companyData.headquarters || 'Not provided'}</p>
                     )}
+
                   </div>
                 </div>
 
@@ -422,8 +512,9 @@ export default function CompanyProfilePage() {
                     />
                   ) : (
                     <div className="bg-gray-50 p-5 rounded-xl">
-                      <p className="text-gray-700 leading-relaxed text-lg">{companyData.description}</p>
+                      <p className="text-gray-700 leading-relaxed text-lg">{companyData.description || 'No description provided yet.'}</p>
                     </div>
+
                   )}
                 </div>
 
@@ -438,8 +529,9 @@ export default function CompanyProfilePage() {
                     />
                   ) : (
                     <div className="bg-gray-50 p-5 rounded-xl">
-                      <p className="text-gray-700 leading-relaxed text-lg">{companyData.mission}</p>
+                      <p className="text-gray-700 leading-relaxed text-lg">{companyData.mission || 'No mission statement provided yet.'}</p>
                     </div>
+
                   )}
                 </div>
 
@@ -454,8 +546,9 @@ export default function CompanyProfilePage() {
                     />
                   ) : (
                     <div className="bg-gray-50 p-5 rounded-xl">
-                      <p className="text-gray-700 text-lg">{companyData.values}</p>
+                      <p className="text-gray-700 text-lg">{companyData.values || 'No values listed yet.'}</p>
                     </div>
+
                   )}
                 </div>
 
@@ -470,12 +563,13 @@ export default function CompanyProfilePage() {
                     />
                   ) : (
                     <div className="flex flex-wrap gap-3">
-                      {companyData.benefits.split(',').map((benefit, index) => (
+                      {companyData.benefits ? companyData.benefits.split(',').map((benefit, index) => (
                         <Badge key={index} className="bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800 border-0 px-4 py-2 font-bold">
                           {benefit.trim()}
                         </Badge>
-                      ))}
+                      )) : <p className="text-gray-500 italic">No benefits listed yet.</p>}
                     </div>
+
                   )}
                 </div>
               </div>
@@ -505,8 +599,9 @@ export default function CompanyProfilePage() {
                       <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-600">
                         <Globe className="h-5 w-5 text-white" />
                       </div>
-                      <span className="text-gray-900 text-lg font-medium">{companyData.website}</span>
+                      <span className="text-gray-900 text-lg font-medium">{companyData.website || 'Not provided'}</span>
                     </div>
+
                   )}
                 </div>
 
@@ -524,8 +619,9 @@ export default function CompanyProfilePage() {
                       <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-600">
                         <Mail className="h-5 w-5 text-white" />
                       </div>
-                      <span className="text-gray-900 text-lg font-medium">{companyData.email}</span>
+                      <span className="text-gray-900 text-lg font-medium">{companyData.email || 'Not provided'}</span>
                     </div>
+
                   )}
                 </div>
 
@@ -543,8 +639,9 @@ export default function CompanyProfilePage() {
                       <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-600">
                         <Phone className="h-5 w-5 text-white" />
                       </div>
-                      <span className="text-gray-900 text-lg font-medium">{companyData.phone}</span>
+                      <span className="text-gray-900 text-lg font-medium">{companyData.phone || 'Not provided'}</span>
                     </div>
+
                   )}
                 </div>
 
@@ -562,8 +659,9 @@ export default function CompanyProfilePage() {
                       <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-600">
                         <MapPin className="h-5 w-5 text-white" />
                       </div>
-                      <span className="text-gray-900 text-lg font-medium">{companyData.location}</span>
+                      <span className="text-gray-900 text-lg font-medium">{companyData.location || 'Not provided'}</span>
                     </div>
+
                   )}
                 </div>
 
