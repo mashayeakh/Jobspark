@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: 'Inter', sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 12px; }
+        .header { text-align: center; padding-bottom: 20px; }
+        .content { padding: 20px; background-color: #f9f9f9; border-radius: 8px; }
+        .footer { text-align: center; font-size: 12px; color: #888; margin-top: 20px; }
+        .status-badge { display: inline-block; padding: 4px 12px; background-color: #fff5f5; color: #fa5252; border-radius: 20px; font-size: 12px; font-weight: bold; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 style="color: #333;">Update regarding your application</h1>
+        </div>
+        <div class="content">
+            <div class="status-badge">Application Update</div>
+            <p>Hi <strong><%= name %></strong>,</p>
+            <p>Thank you very much for your interest in the <strong><%= jobTitle %></strong> position at <strong><%= companyName %></strong> and for taking the time to apply.</p>
+            <p>After careful review of all applications, we have decided to move forward with other candidates who more closely match our current needs. While your qualifications are impressive, we will not be proceeding with your application at this time.</p>
+            <p>We appreciate your interest in <strong><%= companyName %></strong> and wish you the best of luck in your job search and future professional endeavors.</p>
+            <p>Please feel free to apply for other roles in the future that match your skill set.</p>
+        </div>
+        <div class="footer">
+            <p>Best regards,<br>The <%= companyName %> Recruitment Team<br>via JobSpark</p>
+        </div>
+    </div>
+</body>
+</html>

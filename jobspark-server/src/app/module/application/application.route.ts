@@ -8,6 +8,7 @@ const router = express.Router();
 // --- Seeker Routes ---
 router.post("/apply", checkAuth(UserRole.JOB_SEEKER), ApplicationController.applyForJob);
 router.get("/my-applications", checkAuth(UserRole.JOB_SEEKER), ApplicationController.getMyApplications);
+router.get("/status/:jobId", checkAuth(UserRole.JOB_SEEKER), ApplicationController.checkIfJobApplied);
 
 // --- Recruiter Routes ---
 router.get("/job/:jobId", checkAuth(UserRole.RECRUITER), ApplicationController.getApplicantsForJob);

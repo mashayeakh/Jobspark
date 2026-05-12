@@ -29,6 +29,19 @@ export const ApplicationController = {
     });
   }),
 
+  checkIfJobApplied: catchAsyc(async (req: Request, res: Response) => {
+    const userId = (req as any).user.userId;
+    const { jobId } = req.params;
+    const result = await ApplicationService.checkIfJobApplied(userId, jobId as string);
+
+    sendResponse(res, {
+      httpStatusCode: httpStatus.OK,
+      success: true,
+      message: "Application status fetched successfully",
+      result: { isApplied: result },
+    });
+  }),
+
   getApplicantsForJob: catchAsyc(async (req: Request, res: Response) => {
     const userId = (req as any).user.userId;
     const { jobId } = req.params;
@@ -50,7 +63,7 @@ export const ApplicationController = {
     sendResponse(res, {
       httpStatusCode: httpStatus.OK,
       success: true,
-      message: "Application status updated successfully",
+      message: "Application status updated and notification sent successfully",
       result,
     });
   }),

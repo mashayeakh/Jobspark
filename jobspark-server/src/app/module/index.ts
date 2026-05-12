@@ -16,6 +16,7 @@ import { SupportAgentRouter } from "./ai/support_agent/supportAgent.route";
 import { FraudDetectionRouter } from "./ai/fraud_detection/fraudDetection.route";
 import { MarketIntelligenceRouter } from "./ai/market_intelligence/marketIntelligence.route";
 import { AnomalyDetectionRouter } from "./ai/anomaly_detection/anomalyDetection.route";
+import { InterviewRoutes } from "./interview/interview.route";
 
 const router = express.Router();
 
@@ -45,6 +46,9 @@ router.use("/network", NetworkRoutes);
 
 //!Admin
 router.use("/admin", AdminRoutes);
+
+//!Interviews
+router.use("/interviews", InterviewRoutes);
 
 //!AI Fraud Detection
 router.use("/admin/fraud-shield", FraudDetectionRouter);

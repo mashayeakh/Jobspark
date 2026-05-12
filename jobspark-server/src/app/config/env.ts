@@ -34,9 +34,12 @@ const loadEnvVariables = () => {
         "GEMINI_API_KEY",
         "GROQ_API_KEY",
         "REDIS_URL",
-        // "BREVO_API_KEY",
-        // "BREVO_FROM_EMAIL",
-        // "BREVO_FROM_NAME",
+        "BREVO_API_KEY",
+        "BREVO_FROM_EMAIL",
+        "BREVO_FROM_NAME",
+        "GOOGLE_CLIENT_ID",
+        "GOOGLE_CLIENT_SECRET",
+        "GOOGLE_REFRESH_TOKEN"
     ]
 
     // check for validation, if something is missing, throw new err
@@ -124,11 +127,14 @@ const loadEnvVariables = () => {
         //     API_SECRET: process.env.CLOUDINARY_API_SECRET as string,
         // },
 
+        GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID as string,
+        GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET as string,
+        GOOGLE_REFRESH_TOKEN: process.env.GOOGLE_REFRESH_TOKEN as string,
 
 
-        // BREVO_API_KEY: process.env.BREVO_API_KEY as string,
-        // BREVO_FROM_EMAIL: process.env.BREVO_FROM_EMAIL as string,
-        // BREVO_FROM_NAME: process.env.BREVO_FROM_NAME as string,
+        BREVO_API_KEY: process.env.BREVO_API_KEY as string,
+        BREVO_FROM_EMAIL: process.env.BREVO_FROM_EMAIL as string,
+        BREVO_FROM_NAME: process.env.BREVO_FROM_NAME as string,
 
     }
 }

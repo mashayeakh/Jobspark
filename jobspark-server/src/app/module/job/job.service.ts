@@ -92,7 +92,7 @@ export const JobService = {
     const { searchTerm, type, locationType, experienceLevel, minSalary, maxSalary, categoryId, subCategoryId } = filters;
 
     const where: Prisma.JobWhereInput = {
-      status: "OPEN", // Only show open jobs to seekers
+      status: { in: ["OPEN", "ACTIVE"] }, // Only show open and active jobs to seekers
       deletedAt: null,
     };
 
@@ -238,4 +238,121 @@ export const JobService = {
       orderBy: { createdAt: "desc" },
     });
   },
+
+  // --- SEEKER: Save/Unsave Jobs ---
+  saveJob: async (userId: string, jobId: string) => {
+    // 1. Get the seeker's profile
+    const seekerProfile = await prisma.jobSeekerProfile.findUnique({
+      where: { userId },
+    });
+
+    if (!seekerProfile) {
+      throw new AppError(httpStatus.FORBIDDEN, "Only job seekers can save jobs.");
+    }
+
+    // 2. Validate the job exists
+    const job = await prisma.job.findUnique({
+      where: { id: jobId },
+    });
+
+    if (!job) {
+      throw new AppError(httpStatus.NOT_FOUND, "Job not found.");
+    }
+
+    // 3. Check if already saved
+    const existingSaved = await prisma.savedJob.findUnique({
+      where: {
+        jobId_seekerId: {
+          jobId,
+          seekerId: seekerProfile.id,
+        },
+      },
+    });
+
+    if (existingSaved) {
+      throw new AppError(httpStatus.CONFLICT, "You have already saved this job.");
+    }
+
+    // 4. Create saved job record
+    return await prisma.savedJob.create({
+      data: {
+        jobId,
+        seekerId: seekerProfile.id,
+      },
+    });
+  },
+
+  unsaveJob: async (userId: string, jobId: string) => {
+    // 1. Get the seeker's profile
+    const seekerProfile = await prisma.jobSeekerProfile.findUnique({
+      where: { userId },
+    });
+
+    if (!seekerProfile) {
+      throw new AppError(httpStatus.FORBIDDEN, "Only job seekers can unsave jobs.");
+    }
+
+    // 2. Delete saved job record
+    const result = await prisma.savedJob.deleteMany({
+      where: {
+        jobId: jobId as string,
+        seekerId: seekerProfile.id,
+      },
+    });
+
+    if (result.count === 0) {
+      throw new AppError(httpStatus.NOT_FOUND, "This job was not saved.");
+    }
+
+    return result;
+  },
+
+  getSavedJobs: async (userId: string) => {
+    const seekerProfile = await prisma.jobSeekerProfile.findUnique({
+      where: { userId },
+    });
+
+    if (!seekerProfile) {
+      throw new AppError(httpStatus.FORBIDDEN, "Only job seekers can view saved jobs.");
+    }
+
+    return await prisma.savedJob.findMany({
+      where: { seekerId: seekerProfile.id },
+      include: {
+        job: {
+          include: {
+            company: true,
+            skills: {
+              include: { skill: true },
+            },
+            category: true,
+            subCategory: true,
+          },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+  },
+
+  checkIfJobSaved: async (userId: string, jobId: string): Promise<boolean> => {
+    const seekerProfile = await prisma.jobSeekerProfile.findUnique({
+      where: { userId },
+    });
+
+    if (!seekerProfile) {
+      return false;
+    }
+
+    const saved = await prisma.savedJob.findUnique({
+      where: {
+        jobId_seekerId: {
+          jobId,
+          seekerId: seekerProfile.id,
+        },
+      },
+    });
+
+    return !!saved;
+  },
 };
+

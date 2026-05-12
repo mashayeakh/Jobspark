@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: 'Inter', sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 12px; }
+        .header { text-align: center; padding-bottom: 20px; }
+        .content { padding: 20px; background-color: #f9f9f9; border-radius: 8px; }
+        .footer { text-align: center; font-size: 12px; color: #888; margin-top: 20px; }
+        .btn { display: inline-block; padding: 12px 24px; background-color: #4880FF; color: white; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 20px; }
+        .status-badge { display: inline-block; padding: 4px 12px; background-color: #e7f5ff; color: #1c7ed6; border-radius: 20px; font-size: 12px; font-weight: bold; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 style="color: #4880FF;">Great News! 🚀</h1>
+        </div>
+        <div class="content">
+            <div class="status-badge">Interview Selection</div>
+            <p>Hi <strong><%= name %></strong>,</p>
+            <p>We are excited to inform you that your application for the <strong><%= jobTitle %></strong> position at <strong><%= companyName %></strong> has been selected for the interview stage!</p>
+            <p>Our team was impressed with your profile and we would like to learn more about your experience and skills.</p>
+            
+            <% if (nextSteps) { %>
+                <p><strong>Recruiter's Note:</strong><br><%= nextSteps %></p>
+            <% } %>
+
+            <p><strong>What's next?</strong><br>Our recruitment team will reach out to you shortly via the JobSpark platform to schedule a convenient time for the interview. Please keep an eye on your dashboard.</p>
+            
+            <a href="https://jobspark.com/dashboard" class="btn">View My Application</a>
+        </div>
+        <div class="footer">
+            <p>Best regards,<br>The <%= companyName %> Recruitment Team<br>via JobSpark</p>
+        </div>
+    </div>
+</body>
+</html>

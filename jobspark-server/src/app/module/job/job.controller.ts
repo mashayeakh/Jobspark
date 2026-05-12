@@ -64,4 +64,55 @@ export const JobController = {
       result,
     });
   }),
+
+  saveJob: catchAsyc(async (req: Request, res: Response) => {
+    const userId = (req as any).user.userId;
+    const { jobId } = req.params;
+    const result = await JobService.saveJob(userId, jobId as string);
+
+    sendResponse(res, {
+      httpStatusCode: httpStatus.CREATED,
+      success: true,
+      message: "Job saved successfully",
+      result,
+    });
+  }),
+
+  unsaveJob: catchAsyc(async (req: Request, res: Response) => {
+    const userId = (req as any).user.userId;
+    const { jobId } = req.params;
+    const result = await JobService.unsaveJob(userId, jobId as string);
+
+    sendResponse(res, {
+      httpStatusCode: httpStatus.OK,
+      success: true,
+      message: "Job unsaved successfully",
+      result,
+    });
+  }),
+
+  getSavedJobs: catchAsyc(async (req: Request, res: Response) => {
+    const userId = (req as any).user.userId;
+    const result = await JobService.getSavedJobs(userId);
+
+    sendResponse(res, {
+      httpStatusCode: httpStatus.OK,
+      success: true,
+      message: "Saved jobs fetched successfully",
+      result,
+    });
+  }),
+
+  checkIfJobSaved: catchAsyc(async (req: Request, res: Response) => {
+    const userId = (req as any).user.userId;
+    const { jobId } = req.params;
+    const isSaved = await JobService.checkIfJobSaved(userId, jobId as string);
+
+    sendResponse(res, {
+      httpStatusCode: httpStatus.OK,
+      success: true,
+      message: "Job save status checked",
+      result: { isSaved },
+    });
+  }),
 };

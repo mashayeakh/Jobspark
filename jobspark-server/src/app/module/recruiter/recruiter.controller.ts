@@ -68,4 +68,20 @@ export const RecruiterController = {
       result,
     });
   }),
+
+  getApplicationDetails: catchAsyc(async (req: Request, res: Response) => {
+    const { applicationId } = req.params;
+    const result = await RecruiterService.getApplicationById(applicationId);
+
+    if (!result) {
+      throw new AppError(httpStatus.NOT_FOUND, "Application not found");
+    }
+
+    sendResponse(res, {
+      httpStatusCode: httpStatus.OK,
+      success: true,
+      message: "Application details fetched successfully",
+      result,
+    });
+  }),
 };
