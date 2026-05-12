@@ -10,6 +10,8 @@
     "dev": "tsx watch src/server.ts",
     "build": "prisma generate && tsup",
     "postinstall": "prisma generate",
+    "db:seed": "tsx prisma/seed.ts",
+    "db:reset": "prisma migrate reset --force && npm run db:seed",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "engines": {
@@ -19,6 +21,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@google/genai": "^2.0.1",
     "@google/generative-ai": "^0.24.1",
     "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
@@ -35,6 +38,7 @@
     "express": "^5.2.1",
     "express-session": "^1.18.2",
     "googleapis": "^150.0.1",
+    "groq-sdk": "^1.1.2",
     "http-status": "^2.1.0",
     "iconv-lite": "^0.6.3",
     "ioredis": "^5.10.1",

@@ -174,12 +174,64 @@ export class JobService {
     return apiClient.delete<void>(`/jobs/${id}`);
   }
 
-  async applyToJob(jobId: string, data: { coverLetter?: string; resumeUrl?: string }): Promise<ApiResponse<void>> {
-    return apiClient.post<void>(`/jobs/${jobId}/apply`, data);
+  async applyToJob(jobId: string, data?: { coverLetter?: string; resumeUrl?: string }): Promise<ApiResponse<void>> {
+    return apiClient.post<void>(`/applications/apply`, { jobId, ...(data || {}) });
   }
 
-  async getMyApplications(): Promise<ApiResponse<any[]>> {
-    return apiClient.get<any[]>('/applications/my');
+  async saveJob(jobId: string): Promise<ApiResponse<void>> {
+    return apiClient.post<void>(`/jobs/${jobId}/save`);
+  }
+
+  async unsaveJob(jobId: string): Promise<ApiResponse<void>> {
+    return apiClient.delete<void>(`/jobs/${jobId}/save`);
+  }
+
+  async getSavedJobs(): Promise<ApiResponse<Job[]>> {
+    const response = await apiClient.get<JobResponse>('/jobs/saved');
+
+    if (response.success && response.data) {
+      return {
+        success: true,
+        data: response.data.result,
+      };
+    }
+
+    return {
+      success: false,
+      error: response.error || 'Failed to fetch saved jobs',
+    };
+  }
+
+  async checkIfJobSaved(jobId: string): Promise<ApiResponse<{ isSaved: boolean }>> {
+    const response = await apiClient.get<{ result: { isSaved: boolean } }>(`/jobs/${jobId}/saved-status`);
+
+    if (response.success && response.data) {
+      return {
+        success: true,
+        data: response.data.result,
+      };
+    }
+
+    return {
+      success: false,
+      error: response.error || 'Failed to check save status',
+    };
+  }
+
+  async checkIfJobApplied(jobId: string): Promise<ApiResponse<{ isApplied: boolean }>> {
+    const response = await apiClient.get<{ result: { isApplied: boolean } }>(`/applications/status/${jobId}`);
+
+    if (response.success && response.data) {
+      return {
+        success: true,
+        data: response.data.result,
+      };
+    }
+
+    return {
+      success: false,
+      error: response.error || 'Failed to check application status',
+    };
   }
 
   async getRecruiterJobs(): Promise<ApiResponse<Job[]>> {

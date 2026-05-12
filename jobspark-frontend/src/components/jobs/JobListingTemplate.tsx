@@ -6,11 +6,81 @@ import { Search, MapPin, Bookmark, BookmarkCheck, X, ChevronDown } from 'lucide-
 import { Job } from './types';
 import { useLoadingBar } from '@/components/providers/LoadingBarProvider';
 import { workStyleService } from '@/services/workStyleService';
+import { jobService } from '@/services/jobService';
+import { apiClient } from '@/lib/api';
 import { useApi } from '@/hooks/useApi';
 
 // ─── Job Row ─────────────────────────────────────────────────────────────────
-function JobRow({ job, basePath }: { job: Job; basePath: string }) {
+function JobRow({ job, basePath, onApplied }: { job: Job; basePath: string; onApplied?: (jobId: string) => void }) {
   const [saved, setSaved] = useState(false);
+  const [applied, setApplied] = useState(false);
+  const [loadingSave, setLoadingSave] = useState(false);
+  const [loadingApply, setLoadingApply] = useState(false);
+
+  useEffect(() => {
+    checkSaveStatus();
+    checkApplyStatus();
+  }, [job.id]);
+
+  const checkSaveStatus = async () => {
+    try {
+      const response = await jobService.checkIfJobSaved(job.id);
+      if (response.success && response.data) {
+        setSaved(response.data.isSaved);
+      }
+    } catch (error) {
+      console.error('Error checking save status:', error);
+    }
+  };
+
+  const checkApplyStatus = async () => {
+    try {
+      const response = await jobService.checkIfJobApplied(job.id);
+      if (response.success && response.data) {
+        setApplied(response.data.isApplied);
+      }
+    } catch (error) {
+      console.error('Error checking apply status:', error);
+    }
+  };
+
+  const handleSave = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    setLoadingSave(true);
+    try {
+      if (saved) {
+        const response = await jobService.unsaveJob(job.id);
+        if (response.success) {
+          setSaved(false);
+        }
+      } else {
+        const response = await jobService.saveJob(job.id);
+        if (response.success) {
+          setSaved(true);
+        }
+      }
+    } catch (error) {
+      console.error('Error toggling save:', error);
+    } finally {
+      setLoadingSave(false);
+    }
+  };
+
+  const handleApply = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    setLoadingApply(true);
+    try {
+      const response = await jobService.applyToJob(job.id);
+      if (response.success) {
+        setApplied(true);
+        onApplied?.(job.id);
+      }
+    } catch (error) {
+      console.error('Error applying:', error);
+    } finally {
+      setLoadingApply(false);
+    }
+  };
 
   const meta = [
     job.workStyle,
@@ -22,7 +92,6 @@ function JobRow({ job, basePath }: { job: Job; basePath: string }) {
   ]
     .filter(Boolean)
     .join(' • ');
-
 
   return (
     <div className="flex items-center justify-between py-4 border-b border-gray-100 last:border-b-0 gap-4">
@@ -57,8 +126,9 @@ function JobRow({ job, basePath }: { job: Job; basePath: string }) {
       </div>
       <div className="flex items-center gap-2 flex-shrink-0">
         <button
-          onClick={() => setSaved(!saved)}
-          className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium border rounded transition-colors ${saved
+          onClick={handleSave}
+          disabled={loadingSave}
+          className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium border rounded transition-colors disabled:opacity-50 ${saved
             ? 'border-gray-900 bg-gray-900 text-white'
             : 'border-gray-300 bg-white text-gray-700 hover:border-gray-500'
             }`}
@@ -66,12 +136,16 @@ function JobRow({ job, basePath }: { job: Job; basePath: string }) {
           {saved ? <BookmarkCheck className="w-3.5 h-3.5" /> : <Bookmark className="w-3.5 h-3.5" />}
           {saved ? 'Saved' : 'Save'}
         </button>
-        <Link
-          href={`${basePath}/${job.id}`}
-          className="px-3 py-1.5 text-sm font-medium bg-gray-900 text-white rounded hover:bg-gray-700 transition-colors"
+        <button
+          onClick={handleApply}
+          disabled={loadingApply || applied}
+          className={`px-3 py-1.5 text-sm font-medium rounded transition-colors disabled:opacity-50 ${applied
+            ? 'bg-gray-300 text-gray-600 cursor-not-allowed'
+            : 'bg-gray-900 text-white hover:bg-gray-700'
+            }`}
         >
-          Apply
-        </Link>
+          {applied ? '✓ Applied' : 'Apply'}
+        </button>
       </div>
     </div>
   );
@@ -138,6 +212,7 @@ export default function JobListingTemplate({
 }: JobListingTemplateProps) {
   const [titleSearch, setTitleSearch] = useState('');
   const [locationSearch, setLocationSearch] = useState('');
+  const inputClass = "flex-1 text-sm bg-transparent outline-none text-gray-800 placeholder-gray-400";
   const [activeTitle, setActiveTitle] = useState('');
   const [activeLocation, setActiveLocation] = useState('');
   const heroRef = useRef<HTMLDivElement>(null);
@@ -148,6 +223,7 @@ export default function JobListingTemplate({
   const [jobType, setJobType] = useState('All');
   const [experience, setExperience] = useState('All');
   const [sortBy, setSortBy] = useState('Newest');
+  const [appliedJobIds, setAppliedJobIds] = useState<Set<string>>(new Set());
 
   // Fetch filter data
   const { data: workStylesData } = useApi(() => workStyleService.getActiveWorkStyles());
@@ -157,7 +233,21 @@ export default function JobListingTemplate({
 
   useEffect(() => {
     setMounted(true);
+    // Load applied jobs
+    loadAppliedJobs();
   }, []);
+
+  const loadAppliedJobs = async () => {
+    try {
+      const response = await apiClient.get<{ result: any[] }>('/applications/my-applications');
+      if (response.success && response.data?.result) {
+        const appliedIds = new Set(response.data.result.map((app: any) => app.jobId || app.job?.id));
+        setAppliedJobIds(appliedIds);
+      }
+    } catch (error) {
+      console.error('Error loading applied jobs:', error);
+    }
+  };
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -211,7 +301,8 @@ export default function JobListingTemplate({
     const matchWorkStyle = workStyle === 'All' || j.workStyle === workStyle;
     const matchType = jobType === 'All' || j.type === jobType;
     const matchExp = experience === 'All' || j.experience === experience;
-    return matchTitle && matchLocation && matchWorkStyle && matchType && matchExp;
+    const notApplied = !appliedJobIds.has(j.id);
+    return matchTitle && matchLocation && matchWorkStyle && matchType && matchExp && notApplied;
   });
 
   // Sort
@@ -227,7 +318,9 @@ export default function JobListingTemplate({
     filtered = [...filtered].sort((a, b) => getSal(b.salary) - getSal(a.salary) || String(b.id).localeCompare(String(a.id)));
   }
 
-  const inputClass = 'flex-1 text-sm text-gray-800 placeholder-gray-400 outline-none bg-transparent';
+  const handleJobApplied = (jobId: string) => {
+    setAppliedJobIds(prev => new Set(prev).add(jobId));
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -403,7 +496,7 @@ export default function JobListingTemplate({
         ) : filtered.length > 0 ? (
           <div className="bg-white border border-gray-200 rounded-xl px-4">
             {filtered.map((job) => (
-              <JobRow key={job.id} job={job} basePath={basePath} />
+              <JobRow key={job.id} job={job} basePath={basePath} onApplied={handleJobApplied} />
             ))}
           </div>
         ) : (

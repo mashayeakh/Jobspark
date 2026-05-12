@@ -424,7 +424,7 @@ ${user?.email || 'recruitment@company.com'}
       <div className="flex flex-1 min-h-0">
         <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
           {selectedTab === 'schedule' ? (
-            <div className="max-w-5xl mx-auto space-y-8 pb-10">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 pb-10">
               <div>
                 <h1 className="text-3xl font-bold tracking-tight text-gray-900">Schedule Interview</h1>
                 <p className="text-gray-500">Set up and manage interview appointments with candidates</p>

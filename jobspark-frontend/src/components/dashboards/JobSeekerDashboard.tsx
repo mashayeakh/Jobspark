@@ -1,29 +1,25 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
-import { 
-  Briefcase, 
-  FileText, 
-  TrendingUp, 
-  Heart, 
-  Clock,
-  CheckCircle,
-  XCircle,
-  AlertCircle,
+import {
+  Briefcase,
+  FileText,
+  TrendingUp,
   MapPin,
   DollarSign,
   Calendar,
   Eye,
   Bookmark
 } from 'lucide-react';
+import { jobService, Job } from '@/services/jobService';
 
 interface JobSeekerDashboardProps {
-  user: any;
+  user: { name?: string } | null;
 }
 
 export function JobSeekerDashboard({ user }: JobSeekerDashboardProps) {
@@ -38,40 +34,40 @@ export function JobSeekerDashboard({ user }: JobSeekerDashboardProps) {
   };
 
   const recentApplications = [
-    { 
-      id: 1, 
-      title: 'Senior React Developer', 
-      company: 'TechCorp', 
+    {
+      id: 1,
+      title: 'Senior React Developer',
+      company: 'TechCorp',
       location: 'San Francisco, CA',
       salary: '$120k - $160k',
       status: 'INTERVIEW_SCHEDULED',
       applied: '2024-01-15',
       type: 'FULL_TIME'
     },
-    { 
-      id: 2, 
-      title: 'Frontend Developer', 
-      company: 'StartupXYZ', 
+    {
+      id: 2,
+      title: 'Frontend Developer',
+      company: 'StartupXYZ',
       location: 'Remote',
       salary: '$90k - $120k',
       status: 'UNDER_REVIEW',
       applied: '2024-01-14',
       type: 'HYBRID'
     },
-    { 
-      id: 3, 
-      title: 'UX Designer', 
-      company: 'DesignHub', 
+    {
+      id: 3,
+      title: 'UX Designer',
+      company: 'DesignHub',
       location: 'New York, NY',
       salary: '$100k - $140k',
       status: 'REJECTED',
       applied: '2024-01-13',
       type: 'ONSITE'
     },
-    { 
-      id: 4, 
-      title: 'Full Stack Developer', 
-      company: 'DataCo', 
+    {
+      id: 4,
+      title: 'Full Stack Developer',
+      company: 'DataCo',
       location: 'Austin, TX',
       salary: '$110k - $150k',
       status: 'SHORTLISTED',
@@ -80,59 +76,107 @@ export function JobSeekerDashboard({ user }: JobSeekerDashboardProps) {
     },
   ];
 
-  const recommendedJobs = [
-    { 
-      id: 1, 
-      title: 'Senior Software Engineer', 
-      company: 'Google',
-      location: 'Mountain View, CA',
-      salary: '$150k - $200k',
-      type: 'FULL_TIME',
-      match: 92,
-      posted: '2 days ago'
-    },
-    { 
-      id: 2, 
-      title: 'React Developer', 
-      company: 'Meta',
-      location: 'Remote',
-      salary: '$130k - $180k',
-      type: 'REMOTE',
-      match: 88,
-      posted: '3 days ago'
-    },
-    { 
-      id: 3, 
-      title: 'Frontend Engineer', 
-      company: 'Amazon',
-      location: 'Seattle, WA',
-      salary: '$120k - $160k',
-      type: 'HYBRID',
-      match: 85,
-      posted: '1 week ago'
-    },
-  ];
+  const [recommendedJobs, setRecommendedJobs] = useState<Job[]>([]);
+  const [savedJobs, setSavedJobs] = useState<Job[]>([]);
+  const [jobsLoading, setJobsLoading] = useState(false);
+  const [jobsError, setJobsError] = useState<string | null>(null);
+  const [savingJobIds, setSavingJobIds] = useState<Record<string, boolean>>({});
+  const [applyingJobIds, setApplyingJobIds] = useState<Record<string, boolean>>({});
+  const [savedJobIds, setSavedJobIds] = useState<Record<string, boolean>>({});
+  const [appliedJobIds, setAppliedJobIds] = useState<Record<string, boolean>>({});
 
-  const savedJobs = [
-    { 
-      id: 1, 
-      title: 'Product Manager', 
-      company: 'Microsoft',
-      location: 'Redmond, WA',
-      salary: '$140k - $180k',
-      type: 'FULL_TIME',
-      saved: '2024-01-10'
-    },
-    { 
-      id: 2, 
-      title: 'DevOps Engineer', 
-      company: 'Netflix',
-      location: 'Los Angeles, CA',
-      salary: '$130k - $170k',
-      type: 'REMOTE',
-      saved: '2024-01-08'
-    },
-  ];
+  const formatSalary = (job: Job) => {
+    if (job.salaryMin && job.salaryMax) {
+      return `$${job.salaryMin.toLocaleString()} - $${job.salaryMax.toLocaleString()}`;
+    }
+
+    if (job.salaryMin) {
+      return `$${job.salaryMin.toLocaleString()}+`;
+    }
+
+    if (job.salaryMax) {
+      return `Up to $${job.salaryMax.toLocaleString()}`;
+    }
+
+    return 'Salary not specified';
+  };
+
+  const loadDashboardJobs = async () => {
+    setJobsLoading(true);
+    setJobsError(null);
+
+    try {
+      const [jobsResponse, savedResponse] = await Promise.all([jobService.getJobs(), jobService.getSavedJobs()]);
+
+      if (jobsResponse.success && jobsResponse.data) {
+        setRecommendedJobs(jobsResponse.data.slice(0, 4));
+      } else {
+        setJobsError(jobsResponse.error || 'Failed to load recommended jobs.');
+      }
+
+      if (savedResponse.success && savedResponse.data) {
+        setSavedJobs(savedResponse.data);
+        const savedIds = savedResponse.data.reduce<Record<string, boolean>>((acc, job) => {
+          acc[job.id] = true;
+          return acc;
+        }, {});
+        setSavedJobIds(savedIds);
+      }
+    } catch (error) {
+      setJobsError(error instanceof Error ? error.message : 'Failed to load jobs.');
+    } finally {
+      setJobsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const fetchJobs = async () => {
+      await loadDashboardJobs();
+    };
+    void fetchJobs();
+  }, []);
+
+  const handleToggleSave = async (jobId: string) => {
+    setSavingJobIds((prev) => ({ ...prev, [jobId]: true }));
+
+    try {
+      if (savedJobIds[jobId]) {
+        const response = await jobService.unsaveJob(jobId);
+        if (response.success) {
+          setSavedJobIds((prev) => ({ ...prev, [jobId]: false }));
+          setSavedJobs((prev) => prev.filter((job) => job.id !== jobId));
+        }
+      } else {
+        const response = await jobService.saveJob(jobId);
+        if (response.success) {
+          setSavedJobIds((prev) => ({ ...prev, [jobId]: true }));
+          const savedJob = recommendedJobs.find((job) => job.id === jobId);
+          if (savedJob) {
+            setSavedJobs((prev) => [savedJob, ...prev]);
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Save job error:', error);
+    } finally {
+      setSavingJobIds((prev) => ({ ...prev, [jobId]: false }));
+    }
+  };
+
+  const handleApply = async (jobId: string) => {
+    setApplyingJobIds((prev) => ({ ...prev, [jobId]: true }));
+
+    try {
+      const response = await jobService.applyToJob(jobId);
+      if (response.success) {
+        setAppliedJobIds((prev) => ({ ...prev, [jobId]: true }));
+      }
+    } catch (error) {
+      console.error('Apply job error:', error);
+    } finally {
+      setApplyingJobIds((prev) => ({ ...prev, [jobId]: false }));
+    }
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -143,13 +187,6 @@ export function JobSeekerDashboard({ user }: JobSeekerDashboardProps) {
       case 'OFFER_EXTENDED': return 'bg-purple-100 text-purple-800';
       default: return 'bg-gray-100 text-gray-800';
     }
-  };
-
-  const getMatchColor = (match: number) => {
-    if (match >= 90) return 'bg-green-100 text-green-800';
-    if (match >= 80) return 'bg-blue-100 text-blue-800';
-    if (match >= 70) return 'bg-yellow-100 text-yellow-800';
-    return 'bg-gray-100 text-gray-800';
   };
 
   const formatStatus = (status: string) => {
@@ -279,96 +316,123 @@ export function JobSeekerDashboard({ user }: JobSeekerDashboardProps) {
           <CardDescription>Jobs that match your profile</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {recommendedJobs.map((job) => (
-              <div key={job.id} className="flex items-center justify-between p-4 border rounded-lg">
-                <div className="flex-1">
-                  <div className="flex items-center space-x-2">
-                    <h4 className="font-medium">{job.title}</h4>
-                    <Badge className={getMatchColor(job.match)}>
-                      {job.match}% Match
-                    </Badge>
+          {jobsLoading ? (
+            <div className="space-y-4">
+              {[1, 2, 3].map((index) => (
+                <div key={index} className="h-24 bg-gray-100 rounded-xl animate-pulse" />
+              ))}
+            </div>
+          ) : jobsError ? (
+            <div className="text-sm text-red-600">{jobsError}</div>
+          ) : recommendedJobs.length > 0 ? (
+            <div className="space-y-4">
+              {recommendedJobs.map((job) => (
+                <div key={job.id} className="flex items-center justify-between p-4 border rounded-lg">
+                  <div className="flex-1">
+                    <h4 className="font-medium text-lg">{job.title}</h4>
+                    <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
+                      <span className="flex items-center gap-1">
+                        <Briefcase className="h-3 w-3" />
+                        {job.company?.name}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <MapPin className="h-3 w-3" />
+                        {job.location}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <DollarSign className="h-3 w-3" />
+                        {formatSalary(job)}
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex items-center space-x-4 mt-1 text-sm text-gray-500">
-                    <span className="flex items-center">
-                      <Briefcase className="h-3 w-3 mr-1" />
-                      {job.company}
-                    </span>
-                    <span className="flex items-center">
-                      <MapPin className="h-3 w-3 mr-1" />
-                      {job.location}
-                    </span>
-                    <span className="flex items-center">
-                      <DollarSign className="h-3 w-3 mr-1" />
-                      {job.salary}
-                    </span>
-                    <span className="flex items-center">
-                      <Clock className="h-3 w-3 mr-1" />
-                      {job.posted}
-                    </span>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={savingJobIds[job.id]}
+                      onClick={() => handleToggleSave(job.id)}
+                    >
+                      <Bookmark className="h-3 w-3 mr-1" />
+                      {savedJobIds[job.id] ? 'Saved' : 'Save'}
+                    </Button>
+                    <Button
+                      size="sm"
+                      disabled={applyingJobIds[job.id] || appliedJobIds[job.id]}
+                      onClick={() => handleApply(job.id)}
+                    >
+                      {appliedJobIds[job.id] ? 'Applied' : 'Apply Now'}
+                    </Button>
                   </div>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <Button variant="outline" size="sm">
-                    <Bookmark className="h-3 w-3 mr-1" />
-                    Save
-                  </Button>
-                  <Button size="sm">
-                    Apply Now
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-sm text-gray-600">No recommended jobs available right now.</div>
+          )}
           <Separator className="mt-4" />
           <Button variant="outline" className="w-full mt-4">
             View More Recommendations
           </Button>
         </CardContent>
-      </Card>
-
+      </Card> 
+ 
       {/* Saved Jobs */}
       <Card>
         <CardHeader>
           <CardTitle>Saved Jobs</CardTitle>
-          <CardDescription>Jobs you've saved for later</CardDescription>
+          <CardDescription>Jobs you&apos;ve saved for later</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {savedJobs.map((job) => (
-              <div key={job.id} className="flex items-center justify-between p-4 border rounded-lg">
-                <div className="flex-1">
-                  <h4 className="font-medium">{job.title}</h4>
-                  <div className="flex items-center space-x-4 mt-1 text-sm text-gray-500">
-                    <span className="flex items-center">
-                      <Briefcase className="h-3 w-3 mr-1" />
-                      {job.company}
-                    </span>
-                    <span className="flex items-center">
-                      <MapPin className="h-3 w-3 mr-1" />
-                      {job.location}
-                    </span>
-                    <span className="flex items-center">
-                      <DollarSign className="h-3 w-3 mr-1" />
-                      {job.salary}
-                    </span>
-                    <span className="flex items-center">
-                      <Clock className="h-3 w-3 mr-1" />
-                      Saved {job.saved}
-                    </span>
+          {jobsLoading ? (
+            <div className="space-y-4">
+              {[1, 2].map((index) => (
+                <div key={index} className="h-24 bg-gray-100 rounded-xl animate-pulse" />
+              ))}
+            </div>
+          ) : savedJobs.length > 0 ? (
+            <div className="space-y-4">
+              {savedJobs.map((job) => (
+                <div key={job.id} className="flex items-center justify-between p-4 border rounded-lg">
+                  <div className="flex-1">
+                    <h4 className="font-medium text-lg">{job.title}</h4>
+                    <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
+                      <span className="flex items-center gap-1">
+                        <Briefcase className="h-3 w-3" />
+                        {job.company?.name}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <MapPin className="h-3 w-3" />
+                        {job.location}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <DollarSign className="h-3 w-3" />
+                        {formatSalary(job)}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={savingJobIds[job.id]}
+                      onClick={() => handleToggleSave(job.id)}
+                    >
+                      Remove
+                    </Button>
+                    <Button
+                      size="sm"
+                      disabled={applyingJobIds[job.id] || appliedJobIds[job.id]}
+                      onClick={() => handleApply(job.id)}
+                    >
+                      {appliedJobIds[job.id] ? 'Applied' : 'Apply Now'}
+                    </Button>
                   </div>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <Button variant="outline" size="sm">
-                    Remove
-                  </Button>
-                  <Button size="sm">
-                    Apply Now
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-sm text-gray-600">You haven&apos;t saved any jobs yet.</div>
+          )}
           <Separator className="mt-4" />
           <Button variant="outline" className="w-full mt-4">
             View All Saved Jobs

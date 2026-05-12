@@ -10,7 +10,6 @@ import {
   SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
-  SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
   SidebarFooter,
@@ -103,7 +102,6 @@ const getNavigationData = (userRole: string) => {
         {
           label: "Interview",
           items: [
-            { title: "Schedule Interview", url: "/recruiter/schedule-interview", icon: Plus },
             { title: "Manage Interviews", url: "/recruiter/manage-interviews", icon: Calendar },
           ]
         }
@@ -162,34 +160,32 @@ export function AppSidebar({ userRole, ...props }: AppSidebarProps) {
                   const Icon = item.icon;
                   return (
                     <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton
-                        asChild
+                      <Link
+                        href={item.url}
                         className={cn(
                           "group relative flex items-center gap-3 rounded-xl px-3 py-6 transition-all duration-200",
-                          isActive 
-                            ? "bg-[#4880FF] text-white shadow-md shadow-blue-100 hover:bg-[#3d72eb] hover:text-white" 
+                          isActive
+                            ? "bg-[#4880FF] text-white shadow-md shadow-blue-100 hover:bg-[#3d72eb] hover:text-white"
                             : "text-gray-500 hover:bg-gray-50 hover:text-[#4880FF]"
                         )}
                       >
-                        <Link href={item.url}>
-                          <Icon className={cn(
-                            "h-5 w-5 transition-colors",
-                            isActive ? "text-white" : "text-gray-400 group-hover:text-[#4880FF]"
-                          )} />
-                          <span className="flex-1 font-bold whitespace-nowrap">{item.title}</span>
-                          {item.badge && (
-                            <span className={cn(
-                              "rounded-md px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-tighter",
-                              isActive ? "bg-white/20 text-white" : "bg-blue-50 text-[#4880FF]"
-                            )}>
-                              {item.badge}
-                            </span>
-                          )}
-                          {isActive && (
-                            <ChevronRight className="h-4 w-4 opacity-50" />
-                          )}
-                        </Link>
-                      </SidebarMenuButton>
+                        <Icon className={cn(
+                          "h-5 w-5 transition-colors",
+                          isActive ? "text-white" : "text-gray-400 group-hover:text-[#4880FF]"
+                        )} />
+                        <span className="flex-1 font-bold whitespace-nowrap">{item.title}</span>
+                        {item.badge && (
+                          <span className={cn(
+                            "rounded-md px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-tighter",
+                            isActive ? "bg-white/20 text-white" : "bg-blue-50 text-[#4880FF]"
+                          )}>
+                            {item.badge}
+                          </span>
+                        )}
+                        {isActive && (
+                          <ChevronRight className="h-4 w-4 opacity-50" />
+                        )}
+                      </Link>
                     </SidebarMenuItem>
                   );
                 })}
@@ -210,8 +206,8 @@ export function AppSidebar({ userRole, ...props }: AppSidebarProps) {
             <p className="truncate text-sm font-bold text-gray-900 leading-none mb-1">{user?.name || 'Administrator'}</p>
             <p className="truncate text-[10px] font-bold uppercase text-gray-400 leading-none">{userRole || 'Admin'}</p>
           </div>
-          <Button 
-            variant="ghost" 
+          <Button
+            variant="ghost"
             size="icon"
             className="h-8 w-8 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
             onClick={handleLogout}

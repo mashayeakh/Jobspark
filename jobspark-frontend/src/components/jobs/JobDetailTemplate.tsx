@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
   ArrowLeft, MapPin, Briefcase, Clock, DollarSign,
   CheckCircle, Bookmark, BookmarkCheck, Share2, Building, Users, TrendingUp
 } from 'lucide-react';
 import { Job } from './types';
+import { jobService } from '@/services/jobService';
 
 interface JobDetailTemplateProps {
   job: Job;
@@ -17,12 +18,72 @@ interface JobDetailTemplateProps {
 export default function JobDetailTemplate({ job, backPath, backLabel }: JobDetailTemplateProps) {
   const [saved, setSaved] = useState(false);
   const [applied, setApplied] = useState(false);
+  const [loadingSave, setLoadingSave] = useState(false);
+  const [loadingApply, setLoadingApply] = useState(false);
+
+  useEffect(() => {
+    checkSaveAndAppliedStatus();
+  }, [job.id]);
+
+  const checkSaveAndAppliedStatus = async () => {
+    try {
+      const [saveResponse, appliedResponse] = await Promise.all([
+        jobService.checkIfJobSaved(job.id),
+        jobService.checkIfJobApplied(job.id),
+      ]);
+
+      if (saveResponse.success && saveResponse.data) {
+        setSaved(saveResponse.data.isSaved);
+      }
+
+      if (appliedResponse.success && appliedResponse.data) {
+        setApplied(appliedResponse.data.isApplied);
+      }
+    } catch (error) {
+      console.error('Error checking save/applied status:', error);
+    }
+  };
 
   const handleShare = () => {
     if (navigator.share) {
       navigator.share({ title: job.title, url: window.location.href });
     } else {
       navigator.clipboard.writeText(window.location.href);
+    }
+  };
+
+  const handleSave = async () => {
+    setLoadingSave(true);
+    try {
+      if (saved) {
+        const response = await jobService.unsaveJob(job.id);
+        if (response.success) {
+          setSaved(false);
+        }
+      } else {
+        const response = await jobService.saveJob(job.id);
+        if (response.success) {
+          setSaved(true);
+        }
+      }
+    } catch (error) {
+      console.error('Error toggling save:', error);
+    } finally {
+      setLoadingSave(false);
+    }
+  };
+
+  const handleApply = async () => {
+    setLoadingApply(true);
+    try {
+      const response = await jobService.applyToJob(job.id);
+      if (response.success) {
+        setApplied(true);
+      }
+    } catch (error) {
+      console.error('Error applying:', error);
+    } finally {
+      setLoadingApply(false);
     }
   };
 
@@ -53,10 +114,11 @@ export default function JobDetailTemplate({ job, backPath, backLabel }: JobDetai
               <Share2 className="w-4 h-4" />
             </button>
             <button
-              onClick={() => setSaved(!saved)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium border rounded transition-colors ${saved
-                  ? 'border-gray-900 bg-gray-900 text-white'
-                  : 'border-gray-300 bg-white text-gray-700 hover:border-gray-500'
+              onClick={handleSave}
+              disabled={loadingSave}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium border rounded transition-colors disabled:opacity-50 ${saved
+                ? 'border-gray-900 bg-gray-900 text-white'
+                : 'border-gray-300 bg-white text-gray-700 hover:border-gray-500'
                 }`}
             >
               {saved ? <BookmarkCheck className="w-4 h-4" /> : <Bookmark className="w-4 h-4" />}
@@ -175,11 +237,11 @@ export default function JobDetailTemplate({ job, backPath, backLabel }: JobDetai
             {/* Apply card */}
             <div className="bg-white rounded-xl border border-gray-200 p-6">
               <button
-                onClick={() => setApplied(true)}
-                disabled={applied}
+                onClick={handleApply}
+                disabled={applied || loadingApply}
                 className={`w-full py-3 px-4 rounded-lg font-semibold transition-colors text-sm ${applied
-                    ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                    : 'bg-gray-900 text-white hover:bg-gray-700'
+                  ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                  : 'bg-gray-900 text-white hover:bg-gray-700'
                   }`}
               >
                 {applied ? '✓ Applied' : 'Apply Now'}

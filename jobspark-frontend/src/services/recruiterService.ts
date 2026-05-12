@@ -56,6 +56,7 @@ export interface Application {
   job: {
     title: string;
     id: string;
+    location?: string;
   };
   seeker: {
     user: {
@@ -165,6 +166,34 @@ class RecruiterService {
     };
   }
 
+  async getApplicationDetails(applicationId: string): Promise<ApiResponse<Application>> {
+    const response = await apiClient.get<any>(`/recruiter/applications/${applicationId}`);
+    if (response.success && response.data?.result) {
+      return {
+        success: true,
+        data: response.data.result,
+      };
+    }
+    return {
+      success: false,
+      error: response.error || 'Failed to fetch application details',
+    };
+  }
+
+  async analyzePotential(applicationId: string): Promise<ApiResponse<any>> {
+    const response = await apiClient.get<any>(`/recruiter/applications/${applicationId}/analyze`);
+    if (response.success && response.data?.result) {
+      return {
+        success: true,
+        data: response.data.result,
+      };
+    }
+    return {
+      success: false,
+      error: response.error || 'Failed to analyze potential',
+    };
+  }
+
   async updateProfile(data: { position?: string; company?: any }): Promise<ApiResponse<RecruiterProfile>> {
     const response = await apiClient.patch<any>('/recruiter/update', data);
     if (response.success && response.data?.result) {
@@ -176,6 +205,20 @@ class RecruiterService {
     return {
       success: false,
       error: response.error || 'Failed to update profile',
+    };
+  }
+
+  async updateApplicationStatus(applicationId: string, data: { status: string; reason?: string; type?: string; location?: string; scheduledAt?: string }): Promise<ApiResponse<any>> {
+    const response = await apiClient.patch<any>(`/applications/${applicationId}/status`, data);
+    if (response.success && response.data?.result) {
+      return {
+        success: true,
+        data: response.data.result,
+      };
+    }
+    return {
+      success: false,
+      error: response.error || 'Failed to update application status',
     };
   }
 }
