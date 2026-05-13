@@ -28,4 +28,16 @@ export const JobSeekerController = {
       result,
     });
   }),
+
+  getDashboard: catchAsyc(async (req: Request, res: Response) => {
+    const userId = (req as any).user.userId;
+    const result = await JobSeekerService.getDashboardData(userId);
+
+    sendResponse(res, {
+      httpStatusCode: httpStatus.OK,
+      success: true,
+      message: "Dashboard data fetched successfully",
+      result,
+    });
+  }),
 };

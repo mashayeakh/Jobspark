@@ -12,6 +12,14 @@ export const JobSeekerService = {
         data: directFields,
       });
 
+      // Update User name if provided
+      if (directFields.name) {
+        await tx.user.update({
+          where: { id: userId },
+          data: { name: directFields.name },
+        });
+      }
+
       // 2. Update Work Experience (if provided)
       if (workExperience) {
         await tx.workExperience.deleteMany({ where: { profileId: profile.id } });
@@ -41,7 +49,7 @@ export const JobSeekerService = {
       // 4. Update Skills (if provided)
       if (skills) {
         await tx.candidateSkill.deleteMany({ where: { profileId: profile.id } });
-        
+
         // Bulk create missing skills
         await tx.skill.createMany({
           data: skills.map((s) => ({ name: s.name })),
@@ -95,9 +103,89 @@ export const JobSeekerService = {
         },
         workExperience: true,
         education: true,
-        skills: true,
+        skills: {
+          include: {
+            skill: true,
+          },
+        },
       },
     });
     return profile;
+  },
+
+  getDashboardData: async (userId: string) => {
+    const profile = await prisma.jobSeekerProfile.findUnique({
+      where: { userId },
+      include: {
+        skills: true,
+        workExperience: true,
+        education: true,
+        applications: {
+          take: 5,
+          orderBy: { appliedAt: 'desc' },
+          include: {
+            job: {
+              include: {
+                company: {
+                  select: {
+                    name: true,
+                    logo: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+        _count: {
+          select: {
+            applications: true,
+            skills: true,
+          },
+        },
+      },
+    });
+
+    if (!profile) return null;
+
+    // Calculate profile completion
+    const fields = [
+      profile.headline,
+      profile.bio,
+      profile.resumeUrl,
+      profile.preferredSalaryMin,
+      profile.name,
+    ];
+    const completedFields = fields.filter(Boolean).length;
+
+    // Add logic for arrays
+    const arrayPoints = [
+      profile.workExperience.length > 0,
+      profile.education.length > 0,
+      profile.skills.length > 0,
+    ].filter(Boolean).length;
+
+    const totalPossiblePoints = fields.length + 3;
+    const currentPoints = completedFields + arrayPoints;
+    const completionPercentage = Math.round((currentPoints / totalPossiblePoints) * 100);
+
+    const interviewCount = await prisma.application.count({
+      where: {
+        seekerId: profile.id,
+        status: 'INTERVIEWING',
+      },
+    });
+
+    return {
+      stats: {
+        profileCompletion: completionPercentage,
+        applicationsCount: profile._count.applications,
+        interviewsScheduled: interviewCount,
+        profileViews: profile?.views || 0,
+        skillsCount: profile._count.skills,
+        hasResume: !!profile.resumeUrl,
+      },
+      recentApplications: profile.applications,
+      userName: profile.name,
+    };
   },
 };

@@ -1,6 +1,9 @@
 export interface UpdateRecruiterProfileDto {
+  name?: string;
   position?: string;
-  // Optional company updates could go here or in a separate module
+  bio?: string;
+  phoneNumber?: string;
+  image?: string;
   company?: {
     name?: string;
     tagline?: string;
@@ -14,7 +17,8 @@ export interface UpdateRecruiterProfileDto {
     industry?: string;
     location?: string;
     size?: string;
+    foundedYear?: string;
+    headquarters?: string;
     socialLinks?: any;
   };
-
 }

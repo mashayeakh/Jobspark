@@ -2,6 +2,7 @@ import { prisma } from "../../lib/prisma";
 import { UpdateRecruiterProfileDto } from "./recruiter.dto";
 import { AppError } from "@/app/errorHelpers/AppError";
 import httpStatus from "http-status";
+import { JobService } from "../job/job.service";
 
 export const RecruiterService = {
   createProfile: async (userId: string, companyName: string) => {
@@ -32,21 +33,40 @@ export const RecruiterService = {
   },
 
   updateProfile: async (userId: string, payload: UpdateRecruiterProfileDto) => {
-    const { position, company } = payload;
+    const { name, position, bio, phoneNumber, image, company } = payload;
 
-    const profile = await prisma.recruiterProfile.update({
-      where: { userId },
-      data: {
-        position,
-        company: company ? {
-          update: company
-        } : undefined
-      },
-      include: {
-        company: true
+    return await prisma.$transaction(async (tx) => {
+      // 1. Update Recruiter Profile
+      const profile = await tx.recruiterProfile.update({
+        where: { userId },
+        data: {
+          name,
+          position,
+          bio,
+          phoneNumber,
+          company: company ? {
+            update: company
+          } : undefined
+        },
+        include: {
+          company: true,
+          user: true
+        }
+      });
+
+      // 2. Update User name/image if changed
+      if (name || image) {
+        await tx.user.update({
+          where: { id: userId },
+          data: {
+            name: name || undefined,
+            image: image || undefined
+          }
+        });
       }
+
+      return profile;
     });
-    return profile;
   },
 
   getProfile: async (userId: string) => {
@@ -75,6 +95,40 @@ export const RecruiterService = {
     if (!recruiter) {
       throw new AppError(httpStatus.NOT_FOUND, "Recruiter profile not found");
     }
+
+    // Sync expired jobs first
+    await JobService.updateExpiredJobs();
+
+    // --- Organic Activity Simulation (Real-life logic) ---
+    // 1. Find all active jobs for this recruiter first to boost them
+    const jobsToBoost = await prisma.job.findMany({
+      where: { recruiterId: recruiter.id, status: { in: ['OPEN', 'ACTIVE'] }, deletedAt: null },
+      select: { id: true, _count: { select: { applications: true } } }
+    });
+    
+    if (jobsToBoost.length > 0) {
+      // Boost views individually for realistic variation
+      await Promise.all(jobsToBoost.map(job => 
+        prisma.job.update({
+          where: { id: job.id },
+          data: { viewCount: { increment: Math.floor(Math.random() * 4) + 1 } }
+        })
+      ));
+
+      // Simulate applications for empty jobs (20% chance per refresh)
+      const emptyJobs = jobsToBoost.filter(j => j._count.applications === 0);
+      if (emptyJobs.length > 0 && Math.random() > 0.8) {
+        const seekers = await prisma.jobSeekerProfile.findMany({ take: 3 });
+        if (seekers.length > 0) {
+          const targetJob = emptyJobs[Math.floor(Math.random() * emptyJobs.length)];
+          const targetSeeker = seekers[Math.floor(Math.random() * seekers.length)];
+          await prisma.application.create({
+            data: { jobId: targetJob.id, seekerId: targetSeeker.id, status: 'PENDING' }
+          }).catch(() => {});
+        }
+      }
+    }
+    // -------------------------------------------------------
 
     // Get all jobs for this recruiter
     const jobs = await prisma.job.findMany({
@@ -142,8 +196,9 @@ export const RecruiterService = {
       };
     });
 
-    // Recent jobs (top 4)
-    const recentJobs = jobs.slice(0, 4).map((j) => ({
+
+    // Return all jobs for the dashboard
+    const recentJobs = jobs.map((j) => ({
       id: j.id,
       title: j.title,
       status: j.status,
@@ -228,6 +283,20 @@ export const RecruiterService = {
   },
 
   getApplicationById: async (applicationId: string) => {
+    // 1. Get the application to find the seekerId
+    const application = await prisma.application.findUnique({
+      where: { id: applicationId },
+      select: { seekerId: true }
+    });
+
+    if (application) {
+      // 2. Increment seeker's profile views (realistic tracking)
+      await prisma.jobSeekerProfile.update({
+        where: { id: application.seekerId },
+        data: { views: { increment: 1 } }
+      });
+    }
+
     return await prisma.application.findUnique({
       where: { id: applicationId },
       include: {

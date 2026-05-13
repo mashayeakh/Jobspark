@@ -17,6 +17,8 @@ model Company {
   socialLinks Json?
   tagline     String?
   values      String?
+  foundedYear String?
+  headquarters String?
   jobs        Job[]
   recruiters  RecruiterProfile[]
 }

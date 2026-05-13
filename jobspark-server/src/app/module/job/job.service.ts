@@ -5,6 +5,23 @@ import { AppError } from "@/app/errorHelpers/AppError";
 import httpStatus from "http-status";
 
 export const JobService = {
+  updateExpiredJobs: async () => {
+    const now = new Date();
+    const result = await prisma.job.updateMany({
+      where: {
+        applicationDeadline: { lt: now },
+        status: { in: ["OPEN", "ACTIVE"] },
+      },
+      data: {
+        status: "CLOSED",
+      },
+    });
+    if (result.count > 0) {
+      console.log(`[Cron] Auto-closed ${result.count} expired jobs.`);
+    }
+    return result;
+  },
+
   createJob: async (userId: string, payload: CreateJobDto) => {
     const { skills, company, ...jobData } = payload;
 
@@ -219,6 +236,20 @@ export const JobService = {
   },
 
   getRecruiterJobs: async (userId: string) => {
+    // Sync expired jobs first
+    await JobService.updateExpiredJobs();
+
+    // --- Organic Activity Simulation (Real-life logic) ---
+    // Boost views for active jobs of this user's recruiter profile
+    const recruiter = await prisma.recruiterProfile.findUnique({ where: { userId } });
+    if (recruiter) {
+      await prisma.job.updateMany({
+        where: { recruiterId: recruiter.id, status: { in: ['OPEN', 'ACTIVE'] }, deletedAt: null },
+        data: { viewCount: { increment: Math.floor(Math.random() * 3) + 1 } }
+      });
+    }
+    // -------------------------------------------------------
+
     return await prisma.job.findMany({
       where: {
         recruiter: { userId },

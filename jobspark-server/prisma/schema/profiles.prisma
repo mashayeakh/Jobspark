@@ -7,6 +7,7 @@ model JobSeekerProfile {
   preferredSalaryMin Int?
   preferredSalaryMax Int?
   isProfileComplete  Boolean          @default(false)
+  views              Int              @default(0)
   name               String
   applications       Application[]
   skills             CandidateSkill[]
@@ -20,15 +21,17 @@ model JobSeekerProfile {
 }
 
 model RecruiterProfile {
-  id         String      @id @default(cuid())
-  userId     String      @unique
-  companyId  String
-  position   String?
-  name       String
-  jobs       Job[]
-  company    Company     @relation(fields: [companyId], references: [id])
-  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  interviews Interview[] @relation("InterviewToRecruiterProfile")
+  id          String      @id @default(cuid())
+  userId      String      @unique
+  companyId   String
+  position    String?
+  name        String
+  bio         String?
+  phoneNumber String?
+  jobs        Job[]
+  company     Company     @relation(fields: [companyId], references: [id])
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  interviews  Interview[] @relation("InterviewToRecruiterProfile")
 
   @@index([companyId])
 }

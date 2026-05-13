@@ -16,6 +16,7 @@ import { SupportAgentRouter } from "./ai/support_agent/supportAgent.route";
 import { FraudDetectionRouter } from "./ai/fraud_detection/fraudDetection.route";
 import { MarketIntelligenceRouter } from "./ai/market_intelligence/marketIntelligence.route";
 import { AnomalyDetectionRouter } from "./ai/anomaly_detection/anomalyDetection.route";
+import { RecommendationRoutes } from "./ai/recommendation/recommendation.route";
 import { InterviewRoutes } from "./interview/interview.route";
 
 const router = express.Router();
@@ -24,6 +25,7 @@ const router = express.Router();
 router.use("/auth", AuthRoutes);
 
 //!JobSeeker
+router.use("/jobseeker/recommended", RecommendationRoutes);
 router.use("/jobseeker", JobSeekerRoutes);
 
 //!Recruiter

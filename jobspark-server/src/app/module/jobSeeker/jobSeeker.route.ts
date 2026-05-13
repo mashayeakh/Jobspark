@@ -6,6 +6,7 @@ import { UserRole } from "prisma/generated/prisma/enums";
 const router = express.Router();
 
 router.get("/me", checkAuth(UserRole.JOB_SEEKER), JobSeekerController.getMyProfile);
+router.get("/dashboard", checkAuth(UserRole.JOB_SEEKER), JobSeekerController.getDashboard);
 router.patch("/update", checkAuth(UserRole.JOB_SEEKER), JobSeekerController.updateProfile);
 
 export const JobSeekerRoutes = router;

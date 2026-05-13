@@ -1,6 +1,7 @@
 export interface UpdateJobSeekerProfileDto {
   headline?: string;
   bio?: string;
+  name?: string;
   resumeUrl?: string;
   preferredSalaryMin?: number;
   preferredSalaryMax?: number;
