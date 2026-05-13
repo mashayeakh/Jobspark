@@ -98,6 +98,19 @@ export interface JobFilters {
   remote?: boolean;
 }
 
+export interface AIRecommendedJob {
+  jobId: string;
+  title: string;
+  companyName: string;
+  companyLogo?: string;
+  location: string;
+  type: string;
+  salaryRange?: string;
+  score: number;
+  explanation: string;
+  matchReasons: string[];
+}
+
 export interface JobResponse {
   success: boolean;
   message: string;
@@ -247,6 +260,22 @@ export class JobService {
     return {
       success: false,
       error: response.error || 'Failed to fetch recruiter jobs',
+    };
+  }
+
+  async getAIRecommendedJobs(): Promise<ApiResponse<AIRecommendedJob[]>> {
+    const response = await apiClient.get<{ success: boolean; result: AIRecommendedJob[] }>('/jobseeker/recommended');
+
+    if (response.success && response.data) {
+      return {
+        success: true,
+        data: response.data.result,
+      };
+    }
+
+    return {
+      success: false,
+      error: response.error || 'Failed to fetch AI recommendations',
     };
   }
 }

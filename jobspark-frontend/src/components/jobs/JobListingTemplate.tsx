@@ -1,513 +1,392 @@
+/* eslint-disable @next/next/no-img-element */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import { Search, MapPin, Bookmark, BookmarkCheck, X, ChevronDown } from 'lucide-react';
-import { Job } from './types';
-import { useLoadingBar } from '@/components/providers/LoadingBarProvider';
-import { workStyleService } from '@/services/workStyleService';
-import { jobService } from '@/services/jobService';
-import { apiClient } from '@/lib/api';
-import { useApi } from '@/hooks/useApi';
+import { 
+  Search, 
+  MapPin, 
+  Bookmark, 
+  BookmarkCheck, 
+  ChevronDown, 
+  Briefcase, 
+  Clock, 
+  Filter,
+  Code,
+  Megaphone,
+  Briefcase as BusinessIcon,
+  Headset,
+  Activity,
+  Camera,
+  Coins,
+  TrendingUp,
+  Building,
+  Sparkles
+} from 'lucide-react';
+import { Job, jobService } from '@/services/jobService';
+import { applicationService } from '@/services/applicationService';
 
-// ─── Job Row ─────────────────────────────────────────────────────────────────
-function JobRow({ job, basePath, onApplied }: { job: Job; basePath: string; onApplied?: (jobId: string) => void }) {
+// ─── RocketJobs Styled Category Icon ──────────────────────────────────────────
+function CategoryIcon({ icon: Icon, label, isActive, onClick }: { icon: any, label: string, isActive: boolean, onClick: () => void }) {
+  return (
+    <button 
+      onClick={onClick}
+      className={`flex flex-col items-center gap-2 min-w-[80px] p-2 transition-all duration-200 border-b-2 ${isActive ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-900'}`}
+    >
+      <div className={`p-3 rounded-xl transition-all duration-300 ${isActive ? 'bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-200 scale-110' : 'bg-gray-100'}`}>
+        <Icon className="w-5 h-5" />
+      </div>
+      <span className={`text-[11px] font-black uppercase tracking-wider transition-colors ${isActive ? 'text-blue-600' : 'text-gray-400'}`}>{label}</span>
+    </button>
+  );
+}
+
+// ─── RocketJobs Styled Job Card ──────────────────────────────────────────────
+function JobCard({ job, basePath }: { job: Job; basePath: string }) {
   const [saved, setSaved] = useState(false);
-  const [applied, setApplied] = useState(false);
   const [loadingSave, setLoadingSave] = useState(false);
-  const [loadingApply, setLoadingApply] = useState(false);
 
   useEffect(() => {
-    checkSaveStatus();
-    checkApplyStatus();
+    let isMounted = true;
+    const checkSave = async () => {
+      try {
+        const res = await jobService.checkIfJobSaved(String(job.id));
+        if (res.success && res.data && isMounted) setSaved(res.data.isSaved);
+      } catch (e) { console.error(e); }
+    };
+    checkSave();
+    return () => { isMounted = false; };
   }, [job.id]);
-
-  const checkSaveStatus = async () => {
-    try {
-      const response = await jobService.checkIfJobSaved(job.id);
-      if (response.success && response.data) {
-        setSaved(response.data.isSaved);
-      }
-    } catch (error) {
-      console.error('Error checking save status:', error);
-    }
-  };
-
-  const checkApplyStatus = async () => {
-    try {
-      const response = await jobService.checkIfJobApplied(job.id);
-      if (response.success && response.data) {
-        setApplied(response.data.isApplied);
-      }
-    } catch (error) {
-      console.error('Error checking apply status:', error);
-    }
-  };
 
   const handleSave = async (e: React.MouseEvent) => {
     e.preventDefault();
+    if (loadingSave) return;
+    
+    // Optimistic Update
+    const previousSaved = saved;
+    setSaved(!previousSaved);
     setLoadingSave(true);
+
     try {
-      if (saved) {
-        const response = await jobService.unsaveJob(job.id);
-        if (response.success) {
-          setSaved(false);
-        }
-      } else {
-        const response = await jobService.saveJob(job.id);
-        if (response.success) {
-          setSaved(true);
-        }
+      const res = previousSaved ? await jobService.unsaveJob(String(job.id)) : await jobService.saveJob(String(job.id));
+      if (!res.success) {
+        // Rollback on failure
+        setSaved(previousSaved);
       }
-    } catch (error) {
-      console.error('Error toggling save:', error);
+    } catch (err) {
+      setSaved(previousSaved);
     } finally {
       setLoadingSave(false);
     }
   };
 
-  const handleApply = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    setLoadingApply(true);
-    try {
-      const response = await jobService.applyToJob(job.id);
-      if (response.success) {
-        setApplied(true);
-        onApplied?.(job.id);
-      }
-    } catch (error) {
-      console.error('Error applying:', error);
-    } finally {
-      setLoadingApply(false);
-    }
-  };
+  const hasSalary = !!(job.salaryMin || job.salaryMax);
+  const formattedSalary = hasSalary
+    ? (job.salaryMin && job.salaryMax 
+        ? `${(job.salaryMin/1000).toFixed(0)} - ${(job.salaryMax/1000).toFixed(0)}k`
+        : `${(job.salaryMin || 0)/1000}k+`)
+    : 'Negotiable';
 
-  const meta = [
-    job.workStyle,
-    job.location,
-    job.salary,
-    job.equity,
-    job.posted,
-    job.deadline ? `Deadline: ${new Date(job.deadline).toLocaleDateString()}` : null
-  ]
-    .filter(Boolean)
-    .join(' • ');
+  const companyName = typeof job.company === 'string' ? job.company : job.company?.name || 'Company';
+  const companyLogo = (job.company as any)?.logo;
 
   return (
-    <div className="flex items-center justify-between py-4 border-b border-gray-100 last:border-b-0 gap-4">
-      <div className="flex items-center gap-4 min-w-0">
-        <div className="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100 border border-gray-200 flex items-center justify-center">
-          {job.logo ? (
-            <img
-              src={job.logo}
-              alt={job.company}
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                const t = e.currentTarget;
-                t.style.display = 'none';
-                const p = t.parentElement!;
-                p.innerHTML = `<span style="font-size:13px;font-weight:700;color:#555">${job.company?.[0] || ''}</span>`;
-              }}
-            />
+    <div className="bg-white rounded-[2rem] p-8 hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-500 border border-transparent hover:border-blue-100 mb-6 group relative overflow-hidden">
+      {/* Decorative gradient corner */}
+      <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-blue-50/50 to-transparent -mr-16 -mt-16 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+      <Link href={`${basePath}/${job.id}`} className="flex flex-col md:flex-row items-start gap-8 relative z-10">
+        {/* Logo */}
+        <div className="w-20 h-20 bg-white border border-gray-100 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-sm overflow-hidden p-3 transition-transform duration-500 group-hover:scale-105">
+          {companyLogo ? (
+            <img src={companyLogo} alt="" className="w-full h-full object-contain" />
           ) : (
-            <div className="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100 border border-gray-200 flex items-center justify-center">
-              <span style={{ fontSize: '13px', fontWeight: '700', color: '#555' }}>{job.company?.[0] || ''}</span>
-            </div>
+            <Building className="w-10 h-10 text-gray-200" />
           )}
         </div>
-        <div className="min-w-0">
-          <Link href={`${basePath}/${job.id}`}>
-            <p className="font-semibold text-gray-900 text-sm leading-snug hover:underline">
-              {job.title}
-            </p>
-          </Link>
-          <p className="text-xs text-gray-500 mt-0.5 truncate">{meta}</p>
+
+        {/* Content Area */}
+        <div className="flex-1 min-w-0">
+          <div className="flex justify-between items-start">
+             <h3 className="text-2xl font-black text-gray-900 group-hover:text-blue-600 transition-colors truncate pr-12 tracking-tight">
+               {job.title}
+             </h3>
+             <button 
+               onClick={handleSave} 
+               className="absolute top-0 right-0 p-3 rounded-2xl bg-gray-50 text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-all shadow-sm"
+             >
+               {saved ? <BookmarkCheck className="w-6 h-6 text-blue-600 fill-current" /> : <Bookmark className="w-6 h-6" />}
+             </button>
+          </div>
+
+          <div className="mt-2 flex flex-wrap items-center gap-5">
+             <span className="text-base font-bold text-gray-500 flex items-center gap-2">
+                <Building className="w-4 h-4 text-gray-300" /> {companyName}
+             </span>
+             <span className="flex items-center gap-2 text-sm font-bold text-gray-400">
+                <MapPin className="w-4 h-4 text-gray-300" /> {job.location || 'Remote'}
+             </span>
+             <div className="flex items-center gap-2 text-[10px] font-black text-blue-600 uppercase tracking-widest bg-blue-50 px-3 py-1.5 rounded-full border border-blue-100/50">
+                <TrendingUp className="w-3.5 h-3.5" /> {job.locationType || 'Remote'}
+             </div>
+          </div>
+
+          {/* Salary & Info Row */}
+          <div className="mt-6 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+             <div className="flex items-baseline gap-1.5 bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-2 rounded-xl border border-blue-100/50 flex-shrink-0 whitespace-nowrap">
+                <span className={`text-base font-black tracking-tight ${!hasSalary ? 'bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent' : 'text-blue-600'}`}>
+                  {formattedSalary}
+                </span>
+                <span className="text-[9px] font-black text-blue-400 uppercase tracking-widest">USD/mo</span>
+             </div>
+
+             <div className="flex flex-wrap items-center gap-3">
+                {(job.skills || []).slice(0, 3).map((skill: any, i: number) => (
+                  <span key={i} className="text-[10px] font-black text-gray-400 uppercase tracking-widest bg-white border border-gray-100 px-4 py-1.5 rounded-xl group-hover:border-blue-200 transition-colors">
+                    {typeof skill === 'string' ? skill : skill.skill?.name || skill.name}
+                  </span>
+                ))}
+                <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest bg-emerald-50 px-4 py-1.5 rounded-xl border border-emerald-100">New</span>
+                
+                <div className="ml-2 h-10 w-10 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-lg shadow-blue-200 transform translate-x-4 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-500">
+                  <ChevronDown className="w-6 h-6 -rotate-90" />
+                </div>
+             </div>
+          </div>
         </div>
-      </div>
-      <div className="flex items-center gap-2 flex-shrink-0">
-        <button
-          onClick={handleSave}
-          disabled={loadingSave}
-          className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium border rounded transition-colors disabled:opacity-50 ${saved
-            ? 'border-gray-900 bg-gray-900 text-white'
-            : 'border-gray-300 bg-white text-gray-700 hover:border-gray-500'
-            }`}
-        >
-          {saved ? <BookmarkCheck className="w-3.5 h-3.5" /> : <Bookmark className="w-3.5 h-3.5" />}
-          {saved ? 'Saved' : 'Save'}
-        </button>
-        <button
-          onClick={handleApply}
-          disabled={loadingApply || applied}
-          className={`px-3 py-1.5 text-sm font-medium rounded transition-colors disabled:opacity-50 ${applied
-            ? 'bg-gray-300 text-gray-600 cursor-not-allowed'
-            : 'bg-gray-900 text-white hover:bg-gray-700'
-            }`}
-        >
-          {applied ? '✓ Applied' : 'Apply'}
-        </button>
-      </div>
+      </Link>
     </div>
   );
 }
 
-// ─── Floating logos ───────────────────────────────────────────────────────────
-const floatingLogos = [
-  { src: 'https://logo.clearbit.com/stripe.com', cls: 'top-5  left-[5%]   rotate-[-8deg] w-10 h-10' },
-  { src: 'https://logo.clearbit.com/notion.so', cls: 'top-14 left-[17%]  rotate-[6deg]  w-8  h-8' },
-  { src: 'https://logo.clearbit.com/figma.com', cls: 'top-3  left-[33%]  rotate-[-4deg] w-9  h-9' },
-  { src: 'https://logo.clearbit.com/discord.com', cls: 'top-3  left-[55%]  rotate-[5deg]  w-10 h-10' },
-  { src: 'https://logo.clearbit.com/linear.app', cls: 'top-6  left-[72%]  rotate-[-5deg] w-8  h-8' },
-  { src: 'https://logo.clearbit.com/vercel.com', cls: 'top-3  right-[11%] rotate-[8deg]  w-9  h-9' },
-  { src: 'https://logo.clearbit.com/openai.com', cls: 'top-16 right-[5%]  rotate-[-5deg] w-8  h-8' },
-  { src: 'https://logo.clearbit.com/shopify.com', cls: 'bottom-5 left-[7%]  rotate-[7deg]  w-8  h-8' },
-  { src: 'https://logo.clearbit.com/airbnb.com', cls: 'bottom-7 left-[27%] rotate-[-6deg] w-9  h-9' },
-  { src: 'https://logo.clearbit.com/airtable.com', cls: 'bottom-4 right-[20%] rotate-[5deg] w-8  h-8' },
-  { src: 'https://logo.clearbit.com/slack.com', cls: 'bottom-6 right-[7%]  rotate-[-8deg] w-10 h-10' },
-];
-
-// ─── Filter chip ─────────────────────────────────────────────────────────────
-function FilterChip({
-  label,
-  active,
-  onClick,
-}: {
-  label: string;
-  active: boolean;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className={`px-3.5 py-1.5 rounded-full text-sm font-medium border transition-all whitespace-nowrap ${active
-        ? 'bg-gray-900 text-white border-gray-900'
-        : 'bg-white text-gray-700 border-gray-300 hover:border-gray-500'
-        }`}
-    >
-      {label}
-    </button>
-  );
-}
-
-// ─── Props ────────────────────────────────────────────────────────────────────
-interface JobListingTemplateProps {
-  basePath: string;
-  heroTag: string;
-  heroHeadline: string;
-  accentColor: string;
-  allJobs: Job[];
-  loading?: boolean;
-  error?: string | null;
-}
-
-// ─── Template ─────────────────────────────────────────────────────────────────
+// ─── Main Template ────────────────────────────────────────────────────────────
 export default function JobListingTemplate({
   basePath,
-  heroTag,
-  heroHeadline,
-  accentColor,
   allJobs,
   loading = false,
   error = null,
-}: JobListingTemplateProps) {
+}: any) {
   const [titleSearch, setTitleSearch] = useState('');
   const [locationSearch, setLocationSearch] = useState('');
-  const inputClass = "flex-1 text-sm bg-transparent outline-none text-gray-800 placeholder-gray-400";
-  const [activeTitle, setActiveTitle] = useState('');
-  const [activeLocation, setActiveLocation] = useState('');
-  const heroRef = useRef<HTMLDivElement>(null);
-  const [heroVisible, setHeroVisible] = useState(true);
-
-  const [mounted, setMounted] = useState(false);
+  
+  const [activeCategory, setActiveCategory] = useState('All');
   const [workStyle, setWorkStyle] = useState('All');
-  const [jobType, setJobType] = useState('All');
-  const [experience, setExperience] = useState('All');
-  const [sortBy, setSortBy] = useState('Newest');
+  const [minSalary, setMinSalary] = useState(0);
+
   const [appliedJobIds, setAppliedJobIds] = useState<Set<string>>(new Set());
 
-  // Fetch filter data
-  const { data: workStylesData } = useApi(() => workStyleService.getActiveWorkStyles());
-  const { data: jobTypesData } = useApi(() => workStyleService.getActiveJobTypes());
-  const { data: experienceLevelsData } = useApi(() => workStyleService.getActiveExperienceLevels());
-  const { data: locationTypesData } = useApi(() => workStyleService.getActiveLocationTypes());
-
   useEffect(() => {
-    setMounted(true);
-    // Load applied jobs
-    loadAppliedJobs();
+    let isMounted = true;
+    const fetchApplied = async () => {
+      try {
+        const res = await applicationService.getMyApplications();
+        if (res.success && res.data && isMounted) {
+          const ids = new Set(res.data.map(app => app.job.id.toString()));
+          setAppliedJobIds(ids);
+        }
+      } catch (e) { console.error('Failed to fetch applications', e); }
+    };
+    fetchApplied();
+    return () => { isMounted = false; };
   }, []);
 
-  const loadAppliedJobs = async () => {
-    try {
-      const response = await apiClient.get<{ result: any[] }>('/applications/my-applications');
-      if (response.success && response.data?.result) {
-        const appliedIds = new Set(response.data.result.map((app: any) => app.jobId || app.job?.id));
-        setAppliedJobIds(appliedIds);
+  const categories = [
+    { label: 'All', icon: Search },
+    { label: 'IT', icon: Code },
+    { label: 'Marketing', icon: Megaphone },
+    { label: 'Sales', icon: Coins },
+    { label: 'Business', icon: BusinessIcon },
+    { label: 'Support', icon: Headset },
+    { label: 'Health', icon: Activity },
+    { label: 'Creative', icon: Camera },
+  ];
+
+  // REAL-TIME SEARCH LOGIC
+  const filtered = useMemo(() => {
+    return (allJobs || []).filter((j: Job) => {
+      // 1. Hide already applied jobs
+      if (appliedJobIds.has(j.id.toString())) return false;
+
+      // 2. Search filtering
+      const companyName = typeof j.company === 'string' ? j.company : j.company?.name || '';
+      const matchTitle = !titleSearch || 
+        j.title.toLowerCase().includes(titleSearch.toLowerCase()) || 
+        companyName.toLowerCase().includes(titleSearch.toLowerCase()) ||
+        (j.skills || []).some((s: any) => (typeof s === 'string' ? s : s.skill?.name || s.name || '').toLowerCase().includes(titleSearch.toLowerCase()));
+
+      const matchLocationInput = !locationSearch || (j.location || '').toLowerCase().includes(locationSearch.toLowerCase());
+      
+      // 3. Work Style Filtering (Inclusive of "Global Remote")
+      const normalizedWS = (j.locationType || '').toUpperCase();
+      const locationText = (j.location || '').toLowerCase();
+      
+      let matchWS = workStyle === 'All';
+      if (workStyle === 'Remote') {
+        matchWS = normalizedWS === 'REMOTE' || locationText.includes('remote');
+      } else if (workStyle === 'Hybrid') {
+        matchWS = normalizedWS === 'HYBRID' || locationText.includes('hybrid');
+      } else if (workStyle === 'Onsite') {
+        matchWS = normalizedWS === 'ONSITE' || normalizedWS === 'STATIONARY' || (!locationText.includes('remote') && !locationText.includes('hybrid'));
       }
-    } catch (error) {
-      console.error('Error loading applied jobs:', error);
-    }
-  };
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => setHeroVisible(entry.isIntersecting),
-      { threshold: 0.1 }
-    );
-    if (heroRef.current) observer.observe(heroRef.current);
-    return () => observer.disconnect();
-  }, []);
-
-  const [isSearching, setIsSearching] = useState(false);
-  const { startLoading, stopLoading } = useLoadingBar();
-
-  const handleSearch = () => {
-    setIsSearching(true);
-    startLoading();
-    // Small delay to show loading state
-    setTimeout(() => {
-      setActiveTitle(titleSearch);
-      setActiveLocation(locationSearch);
-      setIsSearching(false);
-      stopLoading();
-    }, 800);
-  };
-
-  // Build filter options from API data
-  // Using locationTypesData for "Work Style" as it matches the Job model's locationType better
-  const workStyles = ['All', ...(locationTypesData?.map(lt => lt.label) || [])];
-  const jobTypes = ['All', ...(jobTypesData?.map(jt => jt.label) || [])];
-  const experiences = ['All', ...(experienceLevelsData?.map(el => el.label) || [])];
-
-  const activeFilterCount =
-    (workStyle !== 'All' ? 1 : 0) +
-    (jobType !== 'All' ? 1 : 0) +
-    (experience !== 'All' ? 1 : 0);
-
-  const clearFilters = () => {
-    setWorkStyle('All');
-    setJobType('All');
-    setExperience('All');
-    setActiveTitle('');
-    setActiveLocation('');
-    setTitleSearch('');
-    setLocationSearch('');
-  };
-
-  // Apply all filters
-  let filtered = allJobs.filter((j) => {
-    const matchTitle = !activeTitle || j.title.toLowerCase().includes(activeTitle.toLowerCase()) || j.company.toLowerCase().includes(activeTitle.toLowerCase());
-    const matchLocation = !activeLocation || j.location.toLowerCase().includes(activeLocation.toLowerCase()) || j.workStyle.toLowerCase().includes(activeLocation.toLowerCase());
-    const matchWorkStyle = workStyle === 'All' || j.workStyle === workStyle;
-    const matchType = jobType === 'All' || j.type === jobType;
-    const matchExp = experience === 'All' || j.experience === experience;
-    const notApplied = !appliedJobIds.has(j.id);
-    return matchTitle && matchLocation && matchWorkStyle && matchType && matchExp && notApplied;
-  });
-
-  // Sort
-  if (sortBy === 'Newest') {
-    filtered = [...filtered].sort((a, b) => {
-      if (a.posted === 'today' && b.posted !== 'today') return -1;
-      if (a.posted !== 'today' && b.posted === 'today') return 1;
-      return String(b.id).localeCompare(String(a.id)); // Stable tie-breaker
+      
+      // 4. Category match
+      const categoryName = (j.category?.name || j.category || '').toString().toLowerCase();
+      const matchCategory = activeCategory === 'All' || categoryName.includes(activeCategory.toLowerCase());
+      
+      // 5. Salary match
+      const matchSalary = minSalary === 0 || (j.salaryMin && j.salaryMin >= minSalary) || (j.salaryMax && j.salaryMax >= minSalary);
+      
+      return matchTitle && matchLocationInput && matchWS && matchCategory && matchSalary;
     });
-  } else if (sortBy === 'Highest Salary') {
-    // Basic salary sort (extracting first number from string)
-    const getSal = (s: string) => parseInt(s.replace(/[^0-9]/g, '')) || 0;
-    filtered = [...filtered].sort((a, b) => getSal(b.salary) - getSal(a.salary) || String(b.id).localeCompare(String(a.id)));
-  }
-
-  const handleJobApplied = (jobId: string) => {
-    setAppliedJobIds(prev => new Set(prev).add(jobId));
-  };
+  }, [allJobs, appliedJobIds, titleSearch, locationSearch, workStyle, activeCategory, minSalary]);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* ── HERO ── */}
-      <div
-        ref={heroRef}
-        className="relative bg-[#f5f5f5] overflow-hidden border-b border-gray-200"
-        style={{ minHeight: 220 }}
-      >
-        {floatingLogos.map((logo, i) => (
-          <div key={i} className={`absolute ${logo.cls} rounded-xl overflow-hidden shadow-md bg-white border border-gray-200 opacity-80`}>
-            <img src={logo.src} alt="" className="w-full h-full object-cover"
-              onError={(e) => { e.currentTarget.parentElement!.style.display = 'none'; }} />
+    <div className="min-h-screen bg-[#f8fafc] text-gray-900 pb-20">
+      
+      {/* Search Header */}
+      <div className="bg-white/80 backdrop-blur-xl border-b border-gray-100 sticky top-0 z-50 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4">
+          {/* Brand/Search Row */}
+          <div className="flex flex-col lg:flex-row items-center gap-6 py-8">
+            <div className="w-full lg:flex-1 relative flex items-center bg-gray-50 rounded-[2rem] px-6 border-2 border-transparent focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-50 transition-all duration-300">
+               <Search className="w-5 h-5 text-gray-400 mr-3" />
+               <input 
+                 type="text" 
+                 placeholder="Search: Title, company, keywords..." 
+                 className="flex-1 bg-transparent border-none focus:ring-0 py-4 text-base font-bold placeholder-gray-400"
+                 value={titleSearch}
+                 onChange={(e) => setTitleSearch(e.target.value)}
+               />
+               <div className="h-8 w-px bg-gray-200 mx-4 hidden md:block"></div>
+               <MapPin className="w-5 h-5 text-gray-400 mr-3 hidden md:block" />
+               <input 
+                 type="text" 
+                 placeholder="Location" 
+                 className="flex-1 bg-transparent border-none focus:ring-0 py-4 text-base font-bold placeholder-gray-400 hidden md:block"
+                 value={locationSearch}
+                 onChange={(e) => setLocationSearch(e.target.value)}
+               />
+               <button className="bg-gradient-to-r from-blue-600 to-indigo-600 p-3 px-8 rounded-2xl text-white ml-2 shadow-xl shadow-blue-200 flex items-center justify-center hover:opacity-90 transition-all active:scale-95">
+                 <Search className="w-5 h-5" />
+               </button>
+            </div>
+            
+            <div className="flex items-center gap-4">
+               <button className="bg-white border-2 border-gray-100 p-4 rounded-2xl hover:border-blue-500 hover:text-blue-600 transition-all shadow-sm">
+                  <Filter className="w-6 h-6 text-gray-400" />
+               </button>
+            </div>
           </div>
-        ))}
 
-        <div className="relative z-10 flex flex-col items-center justify-center text-center px-4 py-14">
-          <p className={`text-xs font-semibold tracking-widest uppercase mb-3 ${accentColor}`}>
-            {heroTag}
-          </p>
-          <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-8">{heroHeadline}</h1>
+          {/* Category Bar */}
+          <div className="flex items-center gap-4 overflow-x-auto no-scrollbar pb-2">
+             {categories.map(cat => (
+               <CategoryIcon 
+                 key={cat.label} 
+                 {...cat} 
+                 isActive={activeCategory === cat.label} 
+                 onClick={() => setActiveCategory(cat.label)} 
+               />
+             ))}
+          </div>
+        </div>
+      </div>
 
-          <div className="flex flex-col sm:flex-row w-full max-w-2xl bg-white border border-gray-300 rounded-xl shadow-sm overflow-hidden">
-            <div className="flex items-center flex-1 px-4 py-3 border-b sm:border-b-0 sm:border-r border-gray-200">
-              <Search className="w-4 h-4 text-gray-400 mr-2 flex-shrink-0" />
-              <input type="text" placeholder="Job title or company" value={titleSearch}
-                onChange={(e) => setTitleSearch(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                className={inputClass} />
-            </div>
-            <div className="flex items-center flex-1 px-4 py-3">
-              <MapPin className="w-4 h-4 text-gray-400 mr-2 flex-shrink-0" />
-              <input type="text" placeholder="Location" value={locationSearch}
-                onChange={(e) => setLocationSearch(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                className={inputClass} />
-            </div>
-            <button onClick={handleSearch} disabled={isSearching}
-              className="mx-2 my-2 px-6 py-2 bg-gray-900 text-white text-sm font-semibold rounded-lg hover:bg-gray-700 transition-colors flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
-              {isSearching && (
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+      <div className="max-w-7xl mx-auto px-4 py-12 grid grid-cols-1 lg:grid-cols-12 gap-10">
+        
+        {/* Sidebar Filters */}
+        <div className="lg:col-span-3 space-y-8">
+          <div className="bg-white rounded-[2.5rem] p-10 shadow-xl shadow-gray-100/50 border border-gray-50">
+             <div className="flex items-center justify-between mb-2">
+                <h4 className="text-[11px] font-black uppercase tracking-[0.2em] text-gray-400">Salary</h4>
+                <span className="text-[10px] font-black text-blue-600 bg-blue-50 px-3 py-1.5 rounded-full border border-blue-100/50">
+                   {minSalary === 0 ? 'Any' : `${(minSalary/1000).toFixed(0)}k+ USD`}
+                </span>
+             </div>
+             <p className="text-[10px] text-gray-300 font-bold uppercase mb-10 tracking-tight">Minimum monthly gross</p>
+             <div className="relative pt-2">
+               <input 
+                 type="range" 
+                 min="0" 
+                 max="25000" 
+                 step="500"
+                 value={minSalary}
+                 onChange={(e) => setMinSalary(parseInt(e.target.value))}
+                 className="w-full h-2 bg-gray-100 rounded-full appearance-none accent-blue-600 cursor-pointer" 
+               />
+             </div>
+             <div className="flex justify-between mt-4 text-[10px] font-black text-gray-300 uppercase tracking-widest">
+                <span>0 USD</span>
+                <span>25k+ USD</span>
+             </div>
+          </div>
+
+          <div className="bg-white rounded-[2.5rem] p-10 shadow-xl shadow-gray-100/50 border border-gray-50">
+             <h4 className="text-[11px] font-black uppercase tracking-[0.2em] text-gray-400 mb-10">Work style</h4>
+             <div className="space-y-8">
+                {['Remote', 'Hybrid', 'Onsite'].map(style => (
+                  <label key={style} className="flex items-center justify-between cursor-pointer group">
+                    <span className="text-base font-black text-gray-700 group-hover:text-blue-600 transition-colors tracking-tight">{style}</span>
+                    <input 
+                      type="checkbox" 
+                      className="w-7 h-7 rounded-xl border-gray-200 text-blue-600 focus:ring-blue-500 cursor-pointer transition-all border-2" 
+                      checked={workStyle === style}
+                      onChange={() => setWorkStyle(style === workStyle ? 'All' : style)}
+                    />
+                  </label>
+                ))}
+             </div>
+          </div>
+        </div>
+
+        {/* Main Feed */}
+        <div className="lg:col-span-9">
+          {error ? (
+             <div className="bg-red-50 border border-red-100 p-12 rounded-[2.5rem] text-center text-red-600 font-black uppercase tracking-widest shadow-lg">
+                <div className="mb-4">Failed to scan the market.</div>
+                <button onClick={() => window.location.reload()} className="text-sm underline">Try again</button>
+             </div>
+          ) : (
+            <>
+              <div className="flex items-center justify-between mb-10 px-4">
+                 <h2 className="text-[13px] font-black text-gray-400 uppercase tracking-[0.2em] flex items-center gap-3">
+                   <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+                   Market scan: <span className="text-gray-900 ml-1 font-black">{filtered.length} offers found</span>
+                 </h2>
+                 <div className="flex items-center gap-3 text-[11px] font-black uppercase tracking-widest text-gray-900 bg-white px-6 py-3 rounded-2xl border border-gray-100 shadow-xl shadow-gray-100/50 cursor-pointer hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-all group">
+                    <Bookmark className="w-4 h-4 text-blue-600 group-hover:scale-110 transition-transform" /> Watch this search
+                 </div>
+              </div>
+
+              {loading ? (
+                 <div className="flex flex-col items-center justify-center py-32 space-y-6">
+                    <div className="w-16 h-16 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin" />
+                    <div className="font-black text-gray-300 uppercase tracking-[0.3em] text-sm animate-pulse">Scanning the market...</div>
+                 </div>
+              ) : filtered.length > 0 ? (
+                 <div className="space-y-2">
+                    {filtered.map((j: Job) => <JobCard key={j.id} job={j} basePath={basePath} />)}
+                 </div>
+              ) : (
+                 <div className="bg-white rounded-[3rem] p-28 text-center shadow-xl shadow-gray-100/50 border border-gray-100">
+                    <div className="w-24 h-24 bg-gray-50 rounded-[2rem] flex items-center justify-center mx-auto mb-8">
+                       <Search className="w-10 h-10 text-gray-200" />
+                    </div>
+                    <h3 className="text-3xl font-black text-gray-900 tracking-tight">No offers match your criteria</h3>
+                    <p className="text-gray-400 mt-4 font-bold text-lg max-w-sm mx-auto leading-relaxed">Try adjusting your filters or use more general keywords to find what you&apos;re looking for.</p>
+                    <button 
+                      onClick={() => { setTitleSearch(''); setMinSalary(0); setWorkStyle('All'); setActiveCategory('All'); }}
+                      className="mt-12 px-12 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-[1.5rem] font-black uppercase tracking-[0.2em] text-xs shadow-2xl shadow-blue-200 hover:opacity-90 transition-all active:scale-95"
+                    >
+                      Clear all filters
+                    </button>
+                 </div>
               )}
-              {isSearching ? 'Searching...' : 'Search'}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* ── STICKY COMPACT BAR ── */}
-      <div className={`bg-white border-b border-gray-200 sticky top-0 z-40 transition-all duration-200 ${heroVisible ? 'opacity-0 pointer-events-none h-0 overflow-hidden' : 'opacity-100'
-        }`}>
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex gap-2">
-          <div className="flex flex-1 items-center bg-gray-100 rounded-lg px-3 py-2 gap-2">
-            <Search className="w-4 h-4 text-gray-400 flex-shrink-0" />
-            <input type="text" placeholder="Job title or company" value={titleSearch}
-              onChange={(e) => setTitleSearch(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-              className="flex-1 text-sm bg-transparent outline-none text-gray-800 placeholder-gray-400" />
-          </div>
-          <div className="flex flex-1 items-center bg-gray-100 rounded-lg px-3 py-2 gap-2">
-            <MapPin className="w-4 h-4 text-gray-400 flex-shrink-0" />
-            <input type="text" placeholder="Location" value={locationSearch}
-              onChange={(e) => setLocationSearch(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-              className="flex-1 text-sm bg-transparent outline-none text-gray-800 placeholder-gray-400" />
-          </div>
-          <button onClick={handleSearch} disabled={isSearching}
-            className="px-5 py-2 bg-gray-900 text-white text-sm font-semibold rounded-lg hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
-            {isSearching && (
-              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-            )}
-            {isSearching ? 'Searching...' : 'Search'}
-          </button>
-        </div>
-      </div>
-
-      {/* ── FILTERS + LISTINGS ── */}
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6">
-
-        {/* Filter bar */}
-        <div className="bg-white border border-gray-200 rounded-xl p-4 mb-6">
-          <div className="flex flex-wrap gap-4">
-
-            {/* Work Style */}
-            <div>
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Work Style</p>
-              <div className="flex flex-wrap gap-2">
-                {workStyles.map((ws) => (
-                  <FilterChip key={ws} label={ws} active={workStyle === ws} onClick={() => setWorkStyle(ws)} />
-                ))}
-              </div>
-            </div>
-
-            <div className="w-px bg-gray-200 self-stretch hidden sm:block" />
-
-            {/* Job Type */}
-            <div>
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Job Type</p>
-              <div className="flex flex-wrap gap-2">
-                {jobTypes.map((t) => (
-                  <FilterChip key={t} label={t} active={jobType === t} onClick={() => setJobType(t)} />
-                ))}
-              </div>
-            </div>
-
-            <div className="w-px bg-gray-200 self-stretch hidden sm:block" />
-
-            {/* Experience */}
-            <div>
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Experience</p>
-              <div className="flex flex-wrap gap-2">
-                {experiences.map((exp) => (
-                  <FilterChip key={exp} label={exp} active={experience === exp} onClick={() => setExperience(exp)} />
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Active filter count + clear */}
-          {activeFilterCount > 0 && (
-            <div className="mt-3 pt-3 border-t border-gray-100 flex items-center gap-2">
-              <span className="text-xs text-gray-500">{activeFilterCount} filter{activeFilterCount > 1 ? 's' : ''} active</span>
-              <button onClick={clearFilters} className="flex items-center gap-1 text-xs text-red-500 hover:text-red-700 font-medium">
-                <X className="w-3 h-3" /> Clear all
-              </button>
-            </div>
+            </>
           )}
         </div>
 
-        {/* Results header */}
-        <div className="flex items-center justify-between mb-4">
-          <p className="text-sm text-gray-600">
-            <span className="font-semibold text-gray-900">{filtered.length}</span> job{filtered.length !== 1 ? 's' : ''} found
-          </p>
-          {/* Sort */}
-          <div className="relative flex items-center gap-2">
-            <span className="text-sm text-gray-500">Sort:</span>
-            <div className="relative">
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="appearance-none text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg pl-3 pr-8 py-1.5 outline-none focus:border-gray-500 cursor-pointer"
-              >
-                <option>Newest</option>
-                <option>Highest Salary</option>
-              </select>
-              <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
-            </div>
-          </div>
-        </div>
-
-        {/* Job list */}
-        {loading || isSearching ? (
-          <div className="space-y-4">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="h-20 bg-gray-100 rounded-xl animate-pulse" />
-            ))}
-          </div>
-        ) : error ? (
-          <div className="text-center py-16 bg-white border border-gray-200 rounded-xl">
-            <p className="text-gray-900 font-semibold text-lg mb-1">Failed to load jobs</p>
-            <p className="text-gray-500 text-sm mb-4">{error}</p>
-            <button onClick={() => window.location.reload()} className="px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-700 transition-colors">
-              Try again
-            </button>
-          </div>
-        ) : !mounted ? (
-          <div className="space-y-4">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="h-20 bg-gray-100 rounded-xl animate-pulse" />
-            ))}
-          </div>
-        ) : filtered.length > 0 ? (
-          <div className="bg-white border border-gray-200 rounded-xl px-4">
-            {filtered.map((job) => (
-              <JobRow key={job.id} job={job} basePath={basePath} onApplied={handleJobApplied} />
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-16 bg-white border border-gray-200 rounded-xl">
-            <p className="text-gray-900 font-semibold text-lg mb-1">No jobs match your filters</p>
-            <p className="text-gray-500 text-sm mb-4">Try adjusting your search or clearing filters.</p>
-            <button onClick={clearFilters} className="px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-700 transition-colors">
-              Clear filters
-            </button>
-          </div>
-        )}
       </div>
     </div>
   );

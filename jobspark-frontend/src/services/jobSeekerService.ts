@@ -1,18 +1,20 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { apiClient, ApiResponse } from '@/lib/api';
 
 export interface JobSeekerSkill {
-    profileId: string;
-    skillId: string;
+    profileId?: string;
+    skillId?: string;
     level: number;
     yearsExp: number;
-    skill: {
+    name?: string;
+    skill?: {
         id: string;
         name: string;
     };
 }
 
 export interface WorkExperience {
-    id: string;
+    id?: string;
     companyName: string;
     title: string;
     startDate: string;
@@ -21,7 +23,7 @@ export interface WorkExperience {
 }
 
 export interface Education {
-    id: string;
+    id?: string;
     school: string;
     degree: string;
     field: string;
@@ -39,6 +41,7 @@ export interface JobSeekerProfile {
     preferredSalaryMin?: number | null;
     preferredSalaryMax?: number | null;
     isProfileComplete?: boolean;
+    views?: number;
     user?: {
         name?: string | null;
         email: string;
@@ -63,6 +66,38 @@ class JobSeekerService {
         return {
             success: false,
             error: response.error || 'Failed to fetch job seeker profile',
+        };
+    }
+
+    async getDashboardData(): Promise<ApiResponse<any>> {
+        const response = await apiClient.get<any>('/jobseeker/dashboard');
+
+        if (response.success && response.data?.result) {
+            return {
+                success: true,
+                data: response.data.result,
+            };
+        }
+
+        return {
+            success: false,
+            error: response.error || 'Failed to fetch dashboard data',
+        };
+    }
+
+    async updateProfile(data: Partial<JobSeekerProfile>): Promise<ApiResponse<JobSeekerProfile>> {
+        const response = await apiClient.patch<any>('/jobseeker/update', data);
+
+        if (response.success && response.data?.result) {
+            return {
+                success: true,
+                data: response.data.result,
+            };
+        }
+
+        return {
+            success: false,
+            error: response.error || 'Failed to update profile',
         };
     }
 }

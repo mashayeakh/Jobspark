@@ -30,6 +30,7 @@ import {
   Trash2,
   PauseCircle,
   X,
+  ChevronDown,
 } from 'lucide-react';
 
 // ---------------------------------------------------------------------------
@@ -433,6 +434,7 @@ export default function JobPostingsPage() {
   const [editFormData, setEditFormData] = useState<EditFormData>(EMPTY_FORM);
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [showClosedJobs, setShowClosedJobs] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
@@ -632,68 +634,135 @@ export default function JobPostingsPage() {
           </CardContent>
         </Card>
 
-        {/* Jobs List */}
+        {/* Active Jobs List */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">All Jobs ({filteredJobs.length})</CardTitle>
+            <CardTitle className="text-lg">Active Jobs ({filteredJobs.filter(j => j.status === 'ACTIVE' || j.status === 'OPEN').length})</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {filteredJobs.map((job: any) => (
-                <div
-                  key={job.id}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl border border-gray-100 hover:border-blue-200 hover:shadow-sm transition-all gap-4"
-                >
-                  {/* Left: icon + info */}
-                  <div className="flex items-start gap-4">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50">
-                      <Briefcase className="h-5 w-5 text-[#4880FF]" />
+              {filteredJobs.filter(j => j.status === 'ACTIVE' || j.status === 'OPEN').length === 0 ? (
+                <p className="text-sm text-gray-500 text-center py-6 border-2 border-dashed rounded-xl">No active jobs found matching your criteria</p>
+              ) : (
+                filteredJobs.filter(j => j.status === 'ACTIVE' || j.status === 'OPEN').map((job: any) => (
+                  <div
+                    key={job.id}
+                    className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl border border-gray-100 hover:border-blue-200 hover:shadow-md transition-all gap-4 bg-white"
+                  >
+                    {/* Left: icon + info */}
+                    <div className="flex items-start gap-4">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-[#4880FF]">
+                        <Briefcase className="h-6 w-6" />
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-gray-900 text-base">{job.title}</h3>
+                        <div className="flex flex-wrap items-center gap-3 mt-1 text-xs font-medium text-gray-400 uppercase tracking-wider">
+                          <span className="flex items-center gap-1.5">
+                            <MapPin className="h-3.5 w-3.5" />
+                            {job.location}
+                          </span>
+                          <span>•</span>
+                          <span>{job.type?.replace('_', ' ')}</span>
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="font-semibold text-gray-900">{job.title}</h3>
-                      <div className="flex flex-wrap items-center gap-3 mt-1 text-sm text-gray-500">
-                        <span className="flex items-center gap-1">
-                          <MapPin className="h-3 w-3" />
-                          {job.location}
-                        </span>
-                        <span>{job.type?.replace('_', ' ')}</span>
+
+                    {/* Right: metrics + actions */}
+                    <div className="flex items-center gap-6 sm:justify-end">
+                      <div className="flex items-center gap-1.5 text-sm font-semibold text-gray-600">
+                        <Users className="h-4 w-4 text-gray-400" />
+                        <span>{job.applicationCount ?? 0}</span>
+                      </div>
+                      <div className="flex items-center gap-1.5 text-sm font-semibold text-gray-600">
+                        <Eye className="h-4 w-4 text-gray-400" />
+                        <span>{job.viewCount ?? 0}</span>
+                      </div>
+                      <Badge className="bg-green-50 text-green-600 border-green-100 uppercase tracking-widest text-[10px] font-black px-2.5 py-1">
+                        ACTIVE
+                      </Badge>
+
+                      <div className="flex gap-1">
+                        <Button variant="ghost" size="icon" className="h-9 w-9 rounded-lg hover:bg-blue-50 hover:text-blue-600" onClick={() => handleEditClick(job)}>
+                          <Edit className="h-4.5 w-4.5" />
+                        </Button>
+                        <Button variant="ghost" size="icon" className="h-9 w-9 rounded-lg hover:bg-red-50 hover:text-red-600">
+                          <PauseCircle className="h-4.5 w-4.5" />
+                        </Button>
                       </div>
                     </div>
                   </div>
-
-                  {/* Right: metrics + actions */}
-                  <div className="flex items-center gap-4 sm:justify-end">
-                    <div className="flex items-center gap-1 text-sm text-gray-500">
-                      <Users className="h-4 w-4" />
-                      <span>{job.applicationCount ?? 0}</span>
-                    </div>
-                    <div className="flex items-center gap-1 text-sm text-gray-500">
-                      <Eye className="h-4 w-4" />
-                      <span>{job.viewCount ?? 0}</span>
-                    </div>
-                    <Badge variant="outline" className={getStatusColor(job.status)}>
-                      {job.status === 'OPEN' ? 'ACTIVE' : job.status}
-                    </Badge>
-
-                    <div className="flex gap-1">
-                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEditClick(job)}>
-                        <Edit className="h-4 w-4 text-gray-400" />
-                      </Button>
-                      {job.status === 'ACTIVE' ? (
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <PauseCircle className="h-4 w-4 text-gray-400" />
-                        </Button>
-                      ) : (
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <Trash2 className="h-4 w-4 text-gray-400" />
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </CardContent>
+        </Card>
+
+        {/* Expired / Closed Jobs List */}
+        <Card className="bg-gray-50/50 border-dashed">
+          <CardHeader className="cursor-pointer select-none" onClick={() => setShowClosedJobs(!showClosedJobs)}>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg text-gray-500">Expired / Closed Jobs ({filteredJobs.filter(j => j.status === 'CLOSED' || j.status === 'ARCHIVED').length})</CardTitle>
+              <ChevronDown className={`h-5 w-5 text-gray-400 transition-transform duration-300 ${showClosedJobs ? '' : '-rotate-90'}`} />
+            </div>
+          </CardHeader>
+          {showClosedJobs && (
+            <CardContent>
+              <div className="space-y-3">
+                {filteredJobs.filter(j => j.status === 'CLOSED' || j.status === 'ARCHIVED').length === 0 ? (
+                  <p className="text-sm text-gray-400 text-center py-6 italic">No expired or closed jobs yet</p>
+                ) : (
+                  filteredJobs.filter(j => j.status === 'CLOSED' || j.status === 'ARCHIVED').map((job: any) => (
+                    <div
+                      key={job.id}
+                      className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl border border-gray-200 bg-white/60 opacity-75 grayscale-[0.3] hover:grayscale-0 transition-all gap-4"
+                    >
+                      {/* Left: icon + info */}
+                      <div className="flex items-start gap-4">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 text-gray-400">
+                          <Briefcase className="h-6 w-6" />
+                        </div>
+                        <div>
+                          <h3 className="font-bold text-gray-700 text-base">{job.title}</h3>
+                          <div className="flex flex-wrap items-center gap-3 mt-1 text-xs font-medium text-gray-400 uppercase tracking-wider">
+                            <span className="flex items-center gap-1.5">
+                              <MapPin className="h-3.5 w-3.5" />
+                              {job.location}
+                            </span>
+                            <span>•</span>
+                            <span>{job.type?.replace('_', ' ')}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Right: metrics + actions */}
+                      <div className="flex items-center gap-6 sm:justify-end">
+                        <div className="flex items-center gap-1.5 text-sm font-semibold text-gray-500">
+                          <Users className="h-4 w-4" />
+                          <span>{job.applicationCount ?? 0}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-sm font-semibold text-gray-500">
+                          <Eye className="h-4 w-4" />
+                          <span>{job.viewCount ?? 0}</span>
+                        </div>
+                        <Badge className="bg-red-50 text-red-500 border-red-100 uppercase tracking-widest text-[10px] font-black px-2.5 py-1">
+                          CLOSED
+                        </Badge>
+
+                        <div className="flex gap-1">
+                          <Button variant="ghost" size="icon" className="h-9 w-9 rounded-lg hover:bg-blue-50 hover:text-blue-600" onClick={() => handleEditClick(job)}>
+                            <Edit className="h-4.5 w-4.5" />
+                          </Button>
+                          <Button variant="ghost" size="icon" className="h-9 w-9 rounded-lg hover:bg-gray-100 hover:text-gray-900">
+                            <Trash2 className="h-4.5 w-4.5" />
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </CardContent>
+          )}
         </Card>
       </div>
 

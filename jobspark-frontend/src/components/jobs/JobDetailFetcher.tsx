@@ -53,6 +53,16 @@ export default function JobDetailFetcher({ id, backPath, backLabel }: JobDetailF
     );
   }
 
+  // Helper to parse strings into cleaner lists
+  const parseList = (str: string | null | undefined, separator: string = ';') => {
+    if (!str) return [];
+    // Split by common separators: newline, actual bullet points, and the provided separator
+    return str
+      .split(new RegExp(`[\\n•${separator}]`))
+      .map(item => item.trim())
+      .filter(item => item && item.length > 0);
+  };
+
   // Transform API data to match component format
   const job = {
     id: jobData.id,
@@ -68,11 +78,12 @@ export default function JobDetailFetcher({ id, backPath, backLabel }: JobDetailF
     type: jobData.type.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' '),
     experience: jobData.experienceLevel.charAt(0).toUpperCase() + jobData.experienceLevel.slice(1).toLowerCase(),
     description: jobData.description,
-    requirements: jobData.requirements ? jobData.requirements.split('.').map((r: string) => r.trim()).filter((r: string) => r) : jobData.skills.filter(s => s.isRequired).map(s => s.skill.name),
-    responsibilities: jobData.responsibilities ? jobData.responsibilities.split(';').map((r: string) => r.trim()).filter((r: string) => r) : [],
-    benefits: jobData.benefits ? jobData.benefits.split(';').map((b: string) => b.trim()).filter((b: string) => b) : [],
+    requirements: jobData.requirements ? parseList(jobData.requirements, '.') : jobData.skills.filter(s => s.isRequired).map(s => s.skill.name),
+    responsibilities: parseList(jobData.responsibilities, ';'),
+    benefits: parseList(jobData.benefits, ';'),
     vacancy: jobData.vacancy || 1,
     skills: jobData.skills.map(s => s.skill.name),
+    deadline: jobData.applicationDeadline,
     aboutCompany: jobData.company.description || jobData.company.name,
   };
 

@@ -25,17 +25,12 @@ const poppins = Poppins({
   display: "swap",
 });
 
+import { Toaster } from "sonner";
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const hidePublicChrome = pathname === "/signup" || pathname === "/login" || pathname === "/forgetPassword" || pathname === "/verify-email" || pathname.startsWith("/admin/") || pathname.startsWith("/jobseeker/") || pathname.startsWith("/recruiter/");
-  const [notificationCount, setNotificationCount] = useState(0);
-
-  useEffect(() => {
-    // Simulating fetching unread notifications count
-    // In a real app, this would fetch from your API
-    const unreadCount = 4; // Example: 4 unread notifications
-    setNotificationCount(unreadCount);
-  }, []);
+  const [notificationCount, setNotificationCount] = useState(4);
 
   // const { data: session } = authClient.useSession();
   // const hideNavbar = !!session?.user?.role;
@@ -49,6 +44,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <LoadingBarProvider>
             {!hidePublicChrome && <Navbar variant="default" notificationCount={notificationCount} />}
             {children}
+            <Toaster position="top-center" richColors />
           </LoadingBarProvider>
         </div>
       </body>

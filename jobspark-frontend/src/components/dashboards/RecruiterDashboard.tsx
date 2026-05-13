@@ -1,5 +1,6 @@
 'use client';
 
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -13,49 +14,29 @@ import {
   Clock,
   MapPin,
   Calendar,
+  TrendingUp,
+  ChevronDown,
 } from 'lucide-react';
+import { 
+  BarChart, 
+  Bar, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer,
+  Legend
+} from 'recharts';
+import { RecruiterDashboardData } from '@/services/recruiterService';
 
 interface RecruiterDashboardProps {
-  data: {
-    stats: {
-      activeJobs: number;
-      totalApplications: number;
-      totalViews: number;
-      interviewsScheduled: number;
-      offersMade: number;
-      timeToHire: number;
-      costPerHire: number;
-      qualityOfHire: number;
-    };
-    pipeline: Array<{ stage: string; count: number }>;
-    totalPipeline: number;
-    recentJobs: Array<{
-      id: string;
-      title: string;
-      status: string;
-      applications: number;
-      views: number;
-      posted: string;
-      expires: string;
-      type: string;
-      location: string;
-    }>;
-    recentApplications: Array<{
-      id: string;
-      candidateName: string;
-      jobTitle: string;
-      status: string;
-      applied: string;
-      experience: string;
-      location: string;
-      match: number;
-    }>;
-  };
+  data: RecruiterDashboardData;
 }
 
 export function RecruiterDashboard({ data }: RecruiterDashboardProps) {
   const router = useRouter();
-  const { stats, pipeline, totalPipeline, recentJobs, recentApplications } = data;
+  const [showClosedJobs, setShowClosedJobs] = useState(false); // Default closed in dashboard to save space
+  const { stats, pipeline, totalPipeline, recentJobs, recentApplications, monthlyActivity } = data;
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -191,6 +172,43 @@ export function RecruiterDashboard({ data }: RecruiterDashboardProps) {
           </div>
         </CardContent>
       </Card>
+      
+      {/* Hiring Activity Chart */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div>
+            <CardTitle>Hiring Activity</CardTitle>
+            <CardDescription>Monthly overview of job postings and applications</CardDescription>
+          </div>
+          <TrendingUp className="h-4 w-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent>
+          <div className="h-[300px] w-full">
+            {monthlyActivity && monthlyActivity.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={monthlyActivity}
+                  margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <XAxis dataKey="month" axisLine={false} tickLine={false} />
+                  <YAxis axisLine={false} tickLine={false} />
+                  <Tooltip 
+                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                  />
+                  <Legend iconType="circle" />
+                  <Bar dataKey="jobs" name="Jobs Posted" fill="#4880FF" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="applications" name="Applications" fill="#8884d8" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="h-full flex items-center justify-center text-gray-500">
+                No activity data available for the current period
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Recent Applications */}
       <Card>
@@ -257,66 +275,118 @@ export function RecruiterDashboard({ data }: RecruiterDashboardProps) {
         </CardContent>
       </Card>
 
-      {/* Job Postings */}
+      {/* Active Job Postings */}
       <Card>
         <CardHeader>
-          <CardTitle>Your Job Postings</CardTitle>
-          <CardDescription>Manage your active and draft job postings</CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Active Jobs ({recentJobs.filter(j => j.status === 'OPEN' || j.status === 'ACTIVE').length})</CardTitle>
+              <CardDescription>Manage your currently open job postings</CardDescription>
+            </div>
+            <Button size="sm" className="bg-[#4880FF] hover:bg-[#3d72eb]" onClick={() => router.push('/recruiter/post-job')}>
+              <Briefcase className="h-4 w-4 mr-2" />
+              Post New Job
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {recentJobs.length === 0 ? (
-              <p className="text-sm text-gray-500 text-center py-4">No job postings yet</p>
+            {recentJobs.filter(j => j.status === 'OPEN' || j.status === 'ACTIVE').length === 0 ? (
+              <p className="text-sm text-gray-500 text-center py-4">No active job postings</p>
             ) : (
-              recentJobs.map((job) => (
-                <div key={job.id} className="flex items-center justify-between p-4 border rounded-lg">
+              recentJobs.filter(j => j.status === 'OPEN' || j.status === 'ACTIVE').map((job) => (
+                <div key={job.id} className="flex items-center justify-between p-4 border rounded-xl hover:shadow-md transition-shadow">
                   <div className="flex-1">
                     <div className="flex items-center space-x-2 flex-wrap gap-y-1">
-                      <h4 className="font-medium">{job.title}</h4>
-                      <Badge className={getStatusColor(job.status)}>
-                        {formatStatus(job.status)}
+                      <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-[#4880FF] mr-2">
+                        <Briefcase className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-gray-900">{job.title}</h4>
+                        <p className="text-xs text-gray-500">{job.location} • {job.type.replace('_', ' ')}</p>
+                      </div>
+                      <Badge className="ml-auto bg-green-50 text-green-600 border-green-100 uppercase tracking-widest text-[10px] font-black">
+                        ACTIVE
                       </Badge>
                     </div>
-                    <div className="flex items-center space-x-4 mt-1 text-sm text-gray-500 flex-wrap gap-y-1">
+                    <div className="flex items-center space-x-6 mt-3 text-[11px] font-bold text-gray-400 uppercase tracking-widest">
                       <span className="flex items-center">
-                        <Briefcase className="h-3 w-3 mr-1" />
-                        {job.type.replace('_', ' ')}
+                        <Users className="h-3.5 w-3.5 mr-1.5" />
+                        {job.applications} Applicants
                       </span>
                       <span className="flex items-center">
-                        <MapPin className="h-3 w-3 mr-1" />
-                        {job.location}
-                      </span>
-                      <span className="flex items-center">
-                        <Eye className="h-3 w-3 mr-1" />
-                        {job.views} views
-                      </span>
-                      <span className="flex items-center">
-                        <Users className="h-3 w-3 mr-1" />
-                        {job.applications} applications
-                      </span>
-                      <span className="flex items-center">
-                        <Calendar className="h-3 w-3 mr-1" />
-                        Posted {new Date(job.posted).toLocaleDateString()}
+                        <Eye className="h-3.5 w-3.5 mr-1.5" />
+                        {job.views} Views
                       </span>
                     </div>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <Button variant="outline" size="sm">
-                      Edit
+                    <Button variant="ghost" size="icon" className="text-gray-400 hover:text-[#4880FF]">
+                      <TrendingUp className="w-4 h-4" />
                     </Button>
-                    <Button size="sm" className="bg-[#4880FF] hover:bg-[#3d72eb]">
-                      {job.status === 'DRAFT' ? 'Publish' : 'View'}
+                    <Button variant="ghost" size="icon" className="text-gray-400 hover:text-red-500">
+                      <Clock className="w-4 h-4" />
                     </Button>
                   </div>
                 </div>
               ))
             )}
           </div>
-          <Separator className="mt-4" />
-          <Button variant="outline" className="w-full mt-4">
-            View All Job Postings
-          </Button>
         </CardContent>
+      </Card>
+
+      {/* Expired / Closed Job Postings */}
+      <Card className="bg-gray-50/50 border-dashed">
+        <CardHeader className="cursor-pointer select-none" onClick={() => setShowClosedJobs(!showClosedJobs)}>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-gray-500">Expired / Closed Jobs ({recentJobs.filter(j => j.status === 'CLOSED' || j.status === 'ARCHIVED').length})</CardTitle>
+            <ChevronDown className={`h-5 w-5 text-gray-400 transition-transform duration-300 ${showClosedJobs ? '' : '-rotate-90'}`} />
+          </div>
+          <CardDescription>View performance of your past job openings</CardDescription>
+        </CardHeader>
+        {showClosedJobs && (
+          <CardContent>
+            <div className="space-y-4">
+              {recentJobs.filter(j => j.status === 'CLOSED' || j.status === 'ARCHIVED').length === 0 ? (
+                <p className="text-sm text-gray-400 text-center py-4 italic">No expired or closed jobs yet</p>
+              ) : (
+                recentJobs.filter(j => j.status === 'CLOSED' || j.status === 'ARCHIVED').map((job) => (
+                  <div key={job.id} className="flex items-center justify-between p-4 border border-gray-200 bg-white rounded-xl opacity-80 grayscale-[0.5]">
+                    <div className="flex-1">
+                      <div className="flex items-center space-x-2 flex-wrap gap-y-1">
+                        <div className="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center text-gray-400 mr-2">
+                          <Briefcase className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-gray-700">{job.title}</h4>
+                          <p className="text-xs text-gray-400">{job.location} • {job.type.replace('_', ' ')}</p>
+                        </div>
+                        <Badge className="ml-auto bg-red-50 text-red-500 border-red-100 uppercase tracking-widest text-[10px] font-black">
+                          CLOSED
+                        </Badge>
+                      </div>
+                      <div className="flex items-center space-x-6 mt-3 text-[11px] font-bold text-gray-400 uppercase tracking-widest">
+                        <span className="flex items-center">
+                          <Users className="h-3.5 w-3.5 mr-1.5" />
+                          {job.applications} Final Applicants
+                        </span>
+                        <span className="flex items-center">
+                          <Eye className="h-3.5 w-3.5 mr-1.5" />
+                          {job.views} Total Views
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Button variant="ghost" size="icon" className="text-gray-400 hover:text-[#4880FF]">
+                        <TrendingUp className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </CardContent>
+        )}
       </Card>
 
       {/* Quick Actions */}

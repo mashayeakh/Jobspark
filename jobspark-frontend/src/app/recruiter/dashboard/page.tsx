@@ -36,6 +36,7 @@ const defaultDashboardData: RecruiterDashboardData = {
   totalPipeline: 0,
   recentJobs: [],
   recentApplications: [],
+  monthlyActivity: [],
 };
 
 export default function RecruiterDashboardPage() {

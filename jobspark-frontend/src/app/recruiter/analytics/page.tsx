@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -13,6 +14,7 @@ import { authService } from '@/services/authService';
 import { recruiterService, RecruiterDashboardData } from '@/services/recruiterService';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import {
@@ -26,11 +28,13 @@ import {
   Target,
   ArrowUpRight,
   ArrowDownRight,
-  MapPin
+  MapPin,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 
 export default function AnalyticsPage() {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<any>(() => (typeof window !== 'undefined' ? authService.getUser() : null));
   const [loading, setLoading] = useState(true);
   const [dashboardData, setDashboardData] = useState<RecruiterDashboardData | null>(null);
   const router = useRouter();
@@ -41,7 +45,6 @@ export default function AnalyticsPage() {
       router.push('/login');
       return;
     }
-    setUser(userData);
 
     recruiterService.getDashboard()
       .then((res) => {
@@ -64,6 +67,7 @@ export default function AnalyticsPage() {
   ];
 
   const jobPerformance = recentJobs.map((job) => ({
+    id: job.id,
     title: job.title,
     views: job.views,
     applications: job.applications,
@@ -79,17 +83,26 @@ export default function AnalyticsPage() {
     { source: 'Other', percentage: 4, count: stats?.totalApplications ? Math.round(stats.totalApplications * 0.04) : 0 },
   ];
 
-  const jobOpenings = recentJobs.map((job) => ({
-    id: job.id,
-    title: job.title,
-    status: job.status,
-    applications: job.applications,
-    views: job.views,
-    postedDate: job.posted || '2024-01-15',
-    type: job.type || 'FULL_TIME',
-    location: job.location || 'Remote',
-    daysOpen: Math.floor((Date.now() - new Date(job.posted || '2024-01-15').getTime()) / (1000 * 60 * 60 * 24)),
-  }));
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 2;
+  const [renderTime] = useState(() => Date.now());
+
+  const jobOpenings = recentJobs
+    .filter(job => job.status === 'OPEN' || job.status === 'ACTIVE')
+    .map((job) => ({
+      id: job.id,
+      title: job.title,
+      status: job.status,
+      applications: job.applications,
+      views: job.views,
+      postedDate: job.posted || '2024-01-15',
+      type: job.type || 'FULL_TIME',
+      location: job.location || 'Remote',
+      daysOpen: Math.floor((renderTime - new Date(job.posted || '2024-01-15').getTime()) / (1000 * 60 * 60 * 24)),
+    }));
+
+  const totalPages = Math.ceil(jobOpenings.length / itemsPerPage);
+  const paginatedJobs = jobOpenings.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const monthlyData = dashboardData?.monthlyActivity ?? [
     { month: 'May', jobs: 0, applications: 0 },
@@ -202,7 +215,7 @@ export default function AnalyticsPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {jobOpenings.map((job) => (
+                {paginatedJobs.map((job) => (
                   <div key={job.id} className="p-4 rounded-lg border border-gray-100 hover:border-blue-200 transition-colors">
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
@@ -231,7 +244,6 @@ export default function AnalyticsPage() {
                       >
                         {job.status === 'OPEN' ? 'ACTIVE' : job.status}
                       </Badge>
-
                     </div>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4 text-sm">
@@ -257,6 +269,36 @@ export default function AnalyticsPage() {
                   </div>
                 ))}
               </div>
+
+              {totalPages > 1 && (
+                <div className="flex items-center justify-between mt-6 pt-4 border-t">
+                  <p className="text-sm text-gray-500">
+                    Showing <span className="font-medium">{(currentPage - 1) * itemsPerPage + 1}</span> to{' '}
+                    <span className="font-medium">{Math.min(currentPage * itemsPerPage, jobOpenings.length)}</span> of{' '}
+                    <span className="font-medium">{jobOpenings.length}</span> active jobs
+                  </p>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                      disabled={currentPage === 1}
+                      className="h-8 w-8 p-0"
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                      disabled={currentPage === totalPages}
+                      className="h-8 w-8 p-0"
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -271,7 +313,7 @@ export default function AnalyticsPage() {
             <CardContent>
               <div className="space-y-4">
                 {jobPerformance.map((job) => (
-                  <div key={job.title} className="p-3 rounded-lg border border-gray-100">
+                  <div key={job.id} className="p-3 rounded-lg border border-gray-100">
                     <div className="flex items-center justify-between mb-2">
                       <h4 className="font-medium text-sm text-gray-900">{job.title}</h4>
                       <Badge variant="outline" className="text-xs">

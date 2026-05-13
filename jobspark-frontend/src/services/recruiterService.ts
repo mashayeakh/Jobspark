@@ -88,6 +88,8 @@ export interface RecruiterProfile {
   name: string;
   userId: string;
   position?: string;
+  bio?: string;
+  phoneNumber?: string;
   companyId: string;
   company: {
     id: string;
@@ -104,6 +106,8 @@ export interface RecruiterProfile {
     industry: string;
     size?: string;
     location?: string;
+    foundedYear?: string;
+    headquarters?: string;
     socialLinks?: any;
     isVerified: boolean;
     createdAt: string;
@@ -194,7 +198,14 @@ class RecruiterService {
     };
   }
 
-  async updateProfile(data: { position?: string; company?: any }): Promise<ApiResponse<RecruiterProfile>> {
+  async updateProfile(data: { 
+    name?: string;
+    position?: string; 
+    bio?: string;
+    phoneNumber?: string;
+    image?: string;
+    company?: any 
+  }): Promise<ApiResponse<RecruiterProfile>> {
     const response = await apiClient.patch<any>('/recruiter/update', data);
     if (response.success && response.data?.result) {
       return {

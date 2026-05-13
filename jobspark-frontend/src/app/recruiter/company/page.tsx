@@ -91,6 +91,8 @@ export default function CompanyProfilePage() {
           mission: comp.mission || '',
           values: comp.values || '',
           benefits: comp.benefits || '',
+          foundedYear: comp.foundedYear || '',
+          headquarters: comp.headquarters || '',
           socialLinks: comp.socialLinks || prev.socialLinks,
         }));
       });
@@ -188,6 +190,8 @@ export default function CompanyProfilePage() {
           mission: companyData.mission,
           values: companyData.values,
           benefits: companyData.benefits,
+          foundedYear: companyData.foundedYear,
+          headquarters: companyData.headquarters,
           socialLinks: companyData.socialLinks,
         }
       });
