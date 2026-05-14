@@ -73,8 +73,8 @@ const Features = () => {
             <button
               onClick={() => setActiveTab('jobseekers')}
               className={`px-6 py-3 rounded-md font-medium transition-all duration-200 ${activeTab === 'jobseekers'
-                  ? 'bg-white text-blue-600 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
+                ? 'bg-white text-blue-600 shadow-sm'
+                : 'text-gray-600 hover:text-gray-900'
                 }`}
             >
               For Job Seekers
@@ -82,8 +82,8 @@ const Features = () => {
             <button
               onClick={() => setActiveTab('recruiters')}
               className={`px-6 py-3 rounded-md font-medium transition-all duration-200 ${activeTab === 'recruiters'
-                  ? 'bg-white text-blue-600 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
+                ? 'bg-white text-blue-600 shadow-sm'
+                : 'text-gray-600 hover:text-gray-900'
                 }`}
             >
               For Recruiters
@@ -135,12 +135,12 @@ const Features = () => {
               >
                 Get Started Free
               </a>
-              <a
+              {/* <a
                 href="/demo"
                 className="px-8 py-4 bg-white text-gray-900 font-semibold rounded-xl border-2 border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all duration-300"
               >
                 Request Demo
-              </a>
+              </a> */}
             </div>
           </div>
         </div>

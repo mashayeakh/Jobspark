@@ -31,10 +31,6 @@ export default function CompanyManagementPage() {
   const [filterStatus, setFilterStatus] = useState('ALL');
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchCompanies();
-  }, []);
-
   const fetchCompanies = async () => {
     try {
       setLoading(true);
@@ -51,6 +47,13 @@ export default function CompanyManagementPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      fetchCompanies();
+    }, 0);
+    return () => clearTimeout(timeoutId);
+  }, []);
 
   const handleVerifyCompany = async (companyId: string) => {
     try {

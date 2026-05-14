@@ -110,6 +110,29 @@ class AdminService {
     return response;
   }
 
+  async getAdvancedAnalytics(year?: number): Promise<ApiResponse<any>> {
+    const params = year ? { year: year.toString() } : undefined;
+    const response = await apiClient.get<any>('/admin/dashboard/advanced-analytics', params);
+    if (response.success && response.data?.result) {
+      return {
+        success: true,
+        data: response.data.result
+      };
+    }
+    return response;
+  }
+
+  async getAIHealthReport(): Promise<ApiResponse<any>> {
+    const response = await apiClient.get<any>('/admin/dashboard/ai-health-report');
+    if (response.success && response.data?.result) {
+      return {
+        success: true,
+        data: response.data.result
+      };
+    }
+    return response;
+  }
+
   // User Management
   async getUsers(params?: { page?: number; limit?: number; search?: string; role?: string }): Promise<ApiResponse<{ users: User[]; total: number }>> {
     const stringParams = params ? Object.fromEntries(

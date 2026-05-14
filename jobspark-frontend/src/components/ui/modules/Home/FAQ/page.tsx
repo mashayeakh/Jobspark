@@ -239,12 +239,12 @@ const FAQ = () => {
               >
                 Contact Us
               </a>
-              <a
+              {/* <a
                 href="/demo"
                 className="px-8 py-4 bg-blue-700 text-white font-semibold rounded-xl hover:bg-blue-800 transition-all duration-300 border-2 border-blue-500"
               >
                 Schedule a Demo
-              </a>
+              </a> */}
             </div>
           </div>
         </div>

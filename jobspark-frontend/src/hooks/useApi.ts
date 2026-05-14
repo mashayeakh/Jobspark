@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from 'react';
 import { ApiResponse } from '@/lib/api';
 
@@ -12,10 +13,10 @@ export function useApi<T>(
   const execute = async () => {
     setLoading(true);
     setError(null);
-    
+
     try {
       const response = await apiCall();
-      
+
       if (response.success && response.data) {
         setData(response.data);
       } else {
@@ -29,7 +30,10 @@ export function useApi<T>(
   };
 
   useEffect(() => {
-    execute();
+    const timeoutId = setTimeout(() => {
+      execute();
+    }, 0);
+    return () => clearTimeout(timeoutId);
   }, dependencies);
 
   return { data, loading, error, refetch: execute };
@@ -45,10 +49,10 @@ export function useMutation<T, P = any>(
   const mutate = async (params: P) => {
     setLoading(true);
     setError(null);
-    
+
     try {
       const response = await apiCall(params);
-      
+
       if (response.success && response.data) {
         setData(response.data);
         return { success: true, data: response.data };

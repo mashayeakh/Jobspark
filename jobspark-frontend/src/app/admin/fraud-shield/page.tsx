@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -36,10 +37,6 @@ export default function FraudShieldPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRisk, setFilterRisk] = useState('ALL');
 
-  useEffect(() => {
-    fetchFraudData();
-  }, []);
-
   const fetchFraudData = async () => {
     try {
       setLoading(true);
@@ -65,6 +62,13 @@ export default function FraudShieldPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      fetchFraudData();
+    }, 0);
+    return () => clearTimeout(timeoutId);
+  }, []);
 
   const handleAnalyzeJob = async (jobId: string) => {
     try {

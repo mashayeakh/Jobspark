@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // Test script to check backend connection and available endpoints
 export const testBackendConnection = async () => {
   console.log('🔍 Testing backend connection...');
-  
+
   const baseUrl = 'http://localhost:3000';
   const endpoints = [
     '/api/v2/jobs',
@@ -10,29 +11,29 @@ export const testBackendConnection = async () => {
     '/jobs',
     '/health'
   ];
-  
+
   const results = [];
-  
+
   for (const endpoint of endpoints) {
     try {
       console.log(`Testing: ${baseUrl}${endpoint}`);
-      
+
       const response = await fetch(`${baseUrl}${endpoint}`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' }
       });
-      
+
       const data = await response.text();
-      
+
       results.push({
         endpoint,
         status: response.status,
         ok: response.ok,
         data: data.substring(0, 200) + (data.length > 200 ? '...' : '')
       });
-      
+
       console.log(`✅ ${endpoint}: ${response.status} ${response.ok ? 'OK' : 'FAILED'}`);
-      
+
       if (response.ok && endpoint.includes('jobs')) {
         try {
           const jsonData = JSON.parse(data);
@@ -41,8 +42,8 @@ export const testBackendConnection = async () => {
           console.log(`📊 Response is not JSON format`);
         }
       }
-      
-    } catch (error) {
+
+    } catch (error: any) {
       console.log(`❌ ${endpoint}: Connection failed - ${error.message}`);
       results.push({
         endpoint,
@@ -52,7 +53,7 @@ export const testBackendConnection = async () => {
       });
     }
   }
-  
+
   return results;
 };
 

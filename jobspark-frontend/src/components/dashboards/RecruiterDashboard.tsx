@@ -80,66 +80,75 @@ export function RecruiterDashboard({ data }: RecruiterDashboardProps) {
   return (
     <div className="space-y-6">
       {/* Welcome Section */}
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Recruiter Dashboard</h1>
-        <p className="text-gray-600">Manage your job postings and track recruitment progress</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Recruiter Dashboard</h1>
+          <p className="text-gray-600">Manage your job postings and track recruitment progress</p>
+        </div>
+        <Button 
+          className="bg-[#4880FF] hover:bg-[#3d72eb]"
+          onClick={() => router.push('/recruiter/post-job')}
+        >
+          <Briefcase className="h-4 w-4 mr-2" />
+          Post New Job
+        </Button>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Jobs</CardTitle>
-            <Briefcase className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.activeJobs}</div>
-            <p className="text-xs text-muted-foreground">
-              {stats.totalApplications} total applications
-            </p>
-            <Progress value={stats.activeJobs > 0 ? 75 : 0} className="mt-2" />
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-500">Active Jobs</p>
+                <p className="text-2xl font-bold text-gray-900">{stats.activeJobs}</p>
+              </div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50">
+                <Briefcase className="h-5 w-5 text-[#4880FF]" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-500">Interviews</p>
+                <p className="text-2xl font-bold text-gray-900">{stats.interviewsScheduled}</p>
+              </div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-50">
+                <Users className="h-5 w-5 text-purple-600" />
+              </div>
+            </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Interviews</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.interviewsScheduled}</div>
-            <p className="text-xs text-muted-foreground">
-              {stats.offersMade} offers made
-            </p>
-            <Progress value={stats.interviewsScheduled > 0 ? 60 : 0} className="mt-2" />
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-500">Profile Views</p>
+                <p className="text-2xl font-bold text-gray-900">{stats.totalViews.toLocaleString()}</p>
+              </div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-50">
+                <Eye className="h-5 w-5 text-green-600" />
+              </div>
+            </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Profile Views</CardTitle>
-            <Eye className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalViews.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">
-              across all job postings
-            </p>
-            <Progress value={stats.totalViews > 0 ? 85 : 0} className="mt-2" />
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Time to Hire</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.timeToHire} days</div>
-            <p className="text-xs text-muted-foreground">
-              average turnaround
-            </p>
-            <Progress value={stats.timeToHire > 0 ? 70 : 0} className="mt-2" />
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-500">Time to Hire</p>
+                <p className="text-2xl font-bold text-gray-900">{stats.timeToHire} days</p>
+              </div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-50">
+                <Clock className="h-5 w-5 text-emerald-600" />
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -217,51 +226,48 @@ export function RecruiterDashboard({ data }: RecruiterDashboardProps) {
           <CardDescription>Latest candidates who applied to your jobs</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
+          <div className="space-y-3">
             {recentApplications.length === 0 ? (
               <p className="text-sm text-gray-500 text-center py-4">No applications yet</p>
             ) : (
               recentApplications.map((application) => (
-                <div key={application.id} className="flex items-center justify-between p-4 border rounded-lg">
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-2 flex-wrap gap-y-1">
-                      <h4 className="font-medium">{application.candidateName}</h4>
-                      {application.match > 0 && (
-                        <Badge className={getMatchColor(application.match)}>
-                          {application.match}% Match
-                        </Badge>
-                      )}
-                      <Badge className={getStatusColor(application.status)}>
-                        {formatStatus(application.status)}
-                      </Badge>
+                <div key={application.id} className="flex flex-col lg:flex-row lg:items-center justify-between p-4 border border-gray-100 rounded-xl hover:shadow-md transition-all gap-4 bg-white">
+                  <div className="flex items-start gap-4 flex-1">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-[#4880FF] to-blue-600 text-white font-bold text-lg flex-shrink-0">
+                      {application.candidateName.charAt(0)}
                     </div>
-                    <div className="flex items-center space-x-4 mt-1 text-sm text-gray-500 flex-wrap gap-y-1">
-                      <span className="flex items-center">
-                        <Briefcase className="h-3 w-3 mr-1" />
-                        {application.jobTitle}
-                      </span>
-                      <span className="flex items-center">
-                        <Users className="h-3 w-3 mr-1" />
-                        {application.experience}
-                      </span>
-                      {application.location !== 'N/A' && (
-                        <span className="flex items-center">
-                          <MapPin className="h-3 w-3 mr-1" />
-                          {application.location}
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h3 className="font-semibold text-gray-900">{application.candidateName}</h3>
+                        {application.match > 0 && (
+                          <Badge className={`${getMatchColor(application.match)} text-xs border-0`}>
+                            {application.match}% Match
+                          </Badge>
+                        )}
+                      </div>
+                      <div className="flex flex-wrap items-center gap-3 mt-1.5 text-sm text-gray-500">
+                        <span className="flex items-center gap-1">
+                          <Briefcase className="h-3 w-3" />
+                          {application.jobTitle}
                         </span>
-                      )}
-                      <span className="flex items-center">
-                        <Calendar className="h-3 w-3 mr-1" />
-                        {new Date(application.applied).toLocaleDateString()}
-                      </span>
+                        <span className="flex items-center gap-1">
+                          <Calendar className="h-3 w-3" />
+                          {new Date(application.applied).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <Button variant="outline" size="sm">
-                      View Profile
-                    </Button>
-                    <Button size="sm" className="bg-[#4880FF] hover:bg-[#3d72eb]" onClick={() => router.push('/recruiter/schedule-interview?tab=schedule')}>
-                      Schedule Interview
+                  <div className="flex items-center gap-3 lg:justify-end lg:flex-none">
+                    <Badge className={`${getStatusColor(application.status)} border-0`}>
+                      {formatStatus(application.status)}
+                    </Badge>
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      className="h-8 text-[#4880FF] hover:bg-blue-50"
+                      onClick={() => router.push(`/recruiter/applications/${application.id}`)}
+                    >
+                      Details
                     </Button>
                   </div>
                 </div>
@@ -290,43 +296,41 @@ export function RecruiterDashboard({ data }: RecruiterDashboardProps) {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
+          <div className="space-y-3">
             {recentJobs.filter(j => j.status === 'OPEN' || j.status === 'ACTIVE').length === 0 ? (
               <p className="text-sm text-gray-500 text-center py-4">No active job postings</p>
             ) : (
               recentJobs.filter(j => j.status === 'OPEN' || j.status === 'ACTIVE').map((job) => (
-                <div key={job.id} className="flex items-center justify-between p-4 border rounded-xl hover:shadow-md transition-shadow">
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-2 flex-wrap gap-y-1">
-                      <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-[#4880FF] mr-2">
-                        <Briefcase className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-gray-900">{job.title}</h4>
-                        <p className="text-xs text-gray-500">{job.location} • {job.type.replace('_', ' ')}</p>
-                      </div>
-                      <Badge className="ml-auto bg-green-50 text-green-600 border-green-100 uppercase tracking-widest text-[10px] font-black">
-                        ACTIVE
-                      </Badge>
+                <div key={job.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl border border-gray-100 hover:border-blue-200 hover:shadow-md transition-all gap-4 bg-white">
+                  <div className="flex items-start gap-4">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-[#4880FF]">
+                      <Briefcase className="h-6 w-6" />
                     </div>
-                    <div className="flex items-center space-x-6 mt-3 text-[11px] font-bold text-gray-400 uppercase tracking-widest">
-                      <span className="flex items-center">
-                        <Users className="h-3.5 w-3.5 mr-1.5" />
-                        {job.applications} Applicants
-                      </span>
-                      <span className="flex items-center">
-                        <Eye className="h-3.5 w-3.5 mr-1.5" />
-                        {job.views} Views
-                      </span>
+                    <div>
+                      <h3 className="font-bold text-gray-900 text-base">{job.title}</h3>
+                      <div className="flex flex-wrap items-center gap-3 mt-1 text-xs font-medium text-gray-400 uppercase tracking-wider">
+                        <span className="flex items-center gap-1.5">
+                          <MapPin className="h-3.5 w-3.5" />
+                          {job.location}
+                        </span>
+                        <span>•</span>
+                        <span>{job.type.replace('_', ' ')}</span>
+                      </div>
                     </div>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <Button variant="ghost" size="icon" className="text-gray-400 hover:text-[#4880FF]">
-                      <TrendingUp className="w-4 h-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="text-gray-400 hover:text-red-500">
-                      <Clock className="w-4 h-4" />
-                    </Button>
+
+                  <div className="flex items-center gap-6 sm:justify-end">
+                    <div className="flex items-center gap-1.5 text-sm font-semibold text-gray-600">
+                      <Users className="h-4 w-4 text-gray-400" />
+                      <span>{job.applications}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-sm font-semibold text-gray-600">
+                      <Eye className="h-4 w-4 text-gray-400" />
+                      <span>{job.views}</span>
+                    </div>
+                    <Badge className="bg-green-50 text-green-600 border-green-100 uppercase tracking-widest text-[10px] font-black px-2.5 py-1">
+                      ACTIVE
+                    </Badge>
                   </div>
                 </div>
               ))
@@ -405,7 +409,7 @@ export function RecruiterDashboard({ data }: RecruiterDashboardProps) {
               <Users className="h-4 w-4" />
               <span>View Candidates</span>
             </Button>
-            <Button variant="outline" className="flex items-center space-x-2" onClick={() => router.push('/recruiter/schedule-interview?tab=schedule')}>
+            <Button variant="outline" className="flex items-center space-x-2" onClick={() => router.push('/recruiter/candidates')}>
               <Calendar className="h-4 w-4" />
               <span>Schedule Interviews</span>
             </Button>

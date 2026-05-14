@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
+import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Separator } from '@/components/ui/separator';
 import {
   Briefcase,
   FileText,
@@ -102,6 +102,14 @@ export function JobSeekerDashboard({ user }: JobSeekerDashboardProps) {
     }
   };
 
+  const handleCompleteProfile = () => {
+    router.push('/jobseeker/profile');
+  };
+
+  const handleRefreshMatches = async () => {
+    await loadDashboardJobs();
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       await Promise.all([loadDashboardData(), loadDashboardJobs()]);
@@ -183,6 +191,11 @@ export function JobSeekerDashboard({ user }: JobSeekerDashboardProps) {
   }
 
   const stats = dashboardData?.stats || {};
+  const profileCompletion = stats.profileCompletion ?? 0;
+  const applicationsCount = stats.applicationsCount ?? 0;
+  const interviewsScheduled = stats.interviewsScheduled ?? 0;
+  const profileViews = stats.profileViews ?? 0;
+  const skillsCount = stats.skillsCount ?? 0;
 
   return (
     <div className="space-y-8">
@@ -192,7 +205,10 @@ export function JobSeekerDashboard({ user }: JobSeekerDashboardProps) {
           <h1 className="text-4xl font-black text-slate-900 tracking-tight">Welcome back, {user?.name || 'Job Seeker'}!</h1>
           <p className="text-slate-500 font-medium mt-1">Track your job applications and discover new opportunities</p>
         </div>
-        <Button className="bg-[#4880FF] hover:bg-[#3b6ee0] text-white rounded-2xl px-8 h-14 font-bold shadow-lg shadow-blue-200 transition-all hover:scale-105 active:scale-95">
+        <Button
+          className="bg-[#4880FF] hover:bg-[#3b6ee0] text-white rounded-2xl px-8 h-14 font-bold shadow-lg shadow-blue-200 transition-all hover:scale-105 active:scale-95"
+          onClick={handleCompleteProfile}
+        >
           Complete Profile
         </Button>
       </div>
@@ -207,8 +223,8 @@ export function JobSeekerDashboard({ user }: JobSeekerDashboardProps) {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-4xl font-black text-slate-900">{stats.profileCompletion}%</div>
-            <Progress value={stats.profileCompletion} className="mt-4 h-2.5 bg-slate-100" />
+            <div className="text-4xl font-black text-slate-900">{profileCompletion}%</div>
+            <Progress value={profileCompletion} className="mt-4 h-2.5 bg-slate-100" />
             <p className="text-xs text-slate-400 mt-4 font-bold flex items-center gap-1.5 uppercase">
               {stats.hasResume ? (
                 <span className="text-emerald-500 flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5" /> Resume Verified</span>
@@ -227,11 +243,11 @@ export function JobSeekerDashboard({ user }: JobSeekerDashboardProps) {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-4xl font-black text-slate-900">{stats.applicationsCount}</div>
+            <div className="text-4xl font-black text-slate-900">{applicationsCount}</div>
             <p className="text-sm font-bold text-slate-400 mt-1">
-              {stats.interviewsScheduled} scheduled
+              {interviewsScheduled} scheduled
             </p>
-            <Progress value={(stats.interviewsScheduled / (stats.applicationsCount || 1)) * 100} className="mt-4 h-2.5 bg-slate-100" />
+            <Progress value={(applicationsCount > 0 ? (interviewsScheduled / applicationsCount) * 100 : 0)} className="mt-4 h-2.5 bg-slate-100" />
           </CardContent>
         </Card>
 
@@ -243,11 +259,11 @@ export function JobSeekerDashboard({ user }: JobSeekerDashboardProps) {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-4xl font-black text-slate-900">{stats.profileViews}</div>
+            <div className="text-4xl font-black text-slate-900">{profileViews}</div>
             <p className="text-sm font-bold text-slate-400 mt-1 uppercase">
               Total Views
             </p>
-            <Progress value={Math.min((stats.profileViews / 500) * 100, 100)} className="mt-4 h-2.5 bg-slate-100" />
+            <Progress value={Math.min((profileViews / 500) * 100, 100)} className="mt-4 h-2.5 bg-slate-100" />
           </CardContent>
         </Card>
 
@@ -259,11 +275,11 @@ export function JobSeekerDashboard({ user }: JobSeekerDashboardProps) {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-4xl font-black text-slate-900">{stats.skillsCount}</div>
+            <div className="text-4xl font-black text-slate-900">{skillsCount}</div>
             <p className="text-sm font-bold text-slate-400 mt-1 uppercase">
               Core Skills
             </p>
-            <Progress value={(stats.skillsCount / 20) * 100} className="mt-4 h-2.5 bg-slate-100" />
+            <Progress value={(skillsCount / 20) * 100} className="mt-4 h-2.5 bg-slate-100" />
           </CardContent>
         </Card>
       </div>
@@ -273,14 +289,15 @@ export function JobSeekerDashboard({ user }: JobSeekerDashboardProps) {
         <div className="flex items-center justify-between px-2">
           <div>
             <h2 className="text-2xl font-black text-slate-900 flex items-center gap-3">
-              <div className="bg-gradient-to-br from-indigo-500 to-blue-600 p-2 rounded-xl">
+              <div className="bg-linear-to-br from-indigo-500 to-blue-600 p-2 rounded-xl">
                 <Sparkles className="h-6 w-6 text-white" />
               </div>
               Recommended for You
             </h2>
             <p className="text-slate-500 font-medium mt-1">AI-powered matches based on your unique skills and experience</p>
+            {jobsError ? <p className="text-sm text-rose-500 mt-2 font-semibold">{jobsError}</p> : null}
           </div>
-          <Button variant="ghost" className="text-[#4880FF] font-bold hover:bg-blue-50">
+          <Button variant="ghost" className="text-[#4880FF] font-bold hover:bg-blue-50" onClick={handleRefreshMatches}>
             Refresh Matches
           </Button>
         </div>
@@ -300,7 +317,7 @@ export function JobSeekerDashboard({ user }: JobSeekerDashboardProps) {
                     <div className="flex items-center gap-5">
                       <div className="h-16 w-16 bg-slate-50 rounded-2xl flex items-center justify-center border border-slate-100 group-hover:scale-110 transition-transform duration-300">
                         {job.companyLogo ? (
-                          <img src={job.companyLogo} alt={job.companyName} className="h-12 w-12 object-contain" />
+                          <Image src={job.companyLogo} alt={job.companyName} width={48} height={48} className="h-12 w-12 object-contain" />
                         ) : (
                           <Briefcase className="h-8 w-8 text-slate-300" />
                         )}
@@ -343,7 +360,7 @@ export function JobSeekerDashboard({ user }: JobSeekerDashboardProps) {
                       </span>
                       <span className="flex items-center gap-1.5">
                         <DollarSign className="h-4 w-4 text-slate-300" />
-                        {job.salaryRange}
+                        {formatSalary(job)}
                       </span>
                     </div>
                     <div className="flex items-center gap-3">

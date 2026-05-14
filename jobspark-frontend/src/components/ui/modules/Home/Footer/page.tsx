@@ -33,7 +33,7 @@ const Footer = () => {
     forEmployers: {
       title: 'For Employers',
       links: [
-        { name: 'Post a Job', href: '/hire/post' },
+        { name: 'Post a Job', href: '/recruiter/post-job' },
         { name: 'Pricing Plans', href: '/hire/pricing' },
         { name: 'Enterprise Solutions', href: '/hire/enterprise' },
         { name: 'Recruitment Tools', href: '/hire/tools' },

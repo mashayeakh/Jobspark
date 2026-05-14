@@ -40,6 +40,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
+import { RecruiterLoading } from '@/components/shared/RecruiterLoading';
 
 export default function ManageInterviewsPage() {
   const router = useRouter();
@@ -176,7 +177,7 @@ export default function ManageInterviewsPage() {
     }
   };
 
-  const filteredInterviews = interviews.filter(i => 
+  const filteredInterviews = interviews.filter(i =>
     i.application.seeker.user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     i.application.job.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -244,9 +245,8 @@ export default function ManageInterviewsPage() {
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab as any)}
-                  className={`px-6 py-2 rounded-lg text-sm font-bold capitalize transition-all ${
-                    activeTab === tab ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
-                  }`}
+                  className={`px-6 py-2 rounded-lg text-sm font-bold capitalize transition-all ${activeTab === tab ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                    }`}
                 >
                   {tab}
                 </button>
@@ -271,190 +271,188 @@ export default function ManageInterviewsPage() {
           </div>
         </div>
 
-        <CardContent className="p-0">
-          {loading ? (
-            <div className="py-32 flex flex-col items-center justify-center text-center gap-4">
-              <Loader2 className="h-10 w-10 text-[#4880FF] animate-spin" />
-              <p className="text-gray-500 font-bold">Retrieving interviews...</p>
-            </div>
-          ) : filteredInterviews.length > 0 ? (
-            viewMode === 'list' ? (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left">
-                  <thead>
-                    <tr className="border-b border-gray-50">
-                      <th className="px-8 py-4 text-[11px] font-black text-gray-400 uppercase tracking-widest">Candidate & Role</th>
-                      <th className="px-8 py-4 text-[11px] font-black text-gray-400 uppercase tracking-widest">Date & Time</th>
-                      <th className="px-8 py-4 text-[11px] font-black text-gray-400 uppercase tracking-widest">Type</th>
-                      <th className="px-8 py-4 text-[11px] font-black text-gray-400 uppercase tracking-widest">Status</th>
-                      <th className="px-8 py-4 text-[11px] font-black text-gray-400 uppercase tracking-widest text-right">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredInterviews.map((interview) => (
-                      <tr key={interview.id} className="group border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
-                        <td className="px-8 py-5">
-                          <div className="flex items-center gap-4">
-                            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-100 to-indigo-50 flex items-center justify-center font-bold text-[#4880FF]">
-                              {interview.application.seeker.user.name.charAt(0)}
-                            </div>
-                            <div>
-                              <p className="text-sm font-bold text-gray-900 group-hover:text-[#4880FF] transition-colors">{interview.application.seeker.user.name}</p>
-                              <p className="text-xs text-gray-500 font-medium">{interview.application.job.title}</p>
-                            </div>
+        {loading ? (
+          <div className="py-20">
+            <RecruiterLoading fullScreen={false} />
+          </div>
+        ) : filteredInterviews.length > 0 ? (
+          viewMode === 'list' ? (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left">
+                <thead>
+                  <tr className="border-b border-gray-50">
+                    <th className="px-8 py-4 text-[11px] font-black text-gray-400 uppercase tracking-widest">Candidate & Role</th>
+                    <th className="px-8 py-4 text-[11px] font-black text-gray-400 uppercase tracking-widest">Date & Time</th>
+                    <th className="px-8 py-4 text-[11px] font-black text-gray-400 uppercase tracking-widest">Type</th>
+                    <th className="px-8 py-4 text-[11px] font-black text-gray-400 uppercase tracking-widest">Status</th>
+                    <th className="px-8 py-4 text-[11px] font-black text-gray-400 uppercase tracking-widest text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredInterviews.map((interview) => (
+                    <tr key={interview.id} className="group border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
+                      <td className="px-8 py-5">
+                        <div className="flex items-center gap-4">
+                          <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-100 to-indigo-50 flex items-center justify-center font-bold text-[#4880FF]">
+                            {interview.application.seeker.user.name.charAt(0)}
                           </div>
-                        </td>
-                        <td className="px-8 py-5">
-                          <div className="flex flex-col">
-                            <span className="text-sm font-bold text-gray-900">
-                              {new Date(interview.scheduledAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                            </span>
-                            <span className="text-xs text-gray-500 font-medium flex items-center gap-1.5">
-                              <Clock className="h-3 w-3" />
-                              {new Date(interview.scheduledAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })} ({interview.duration}m)
-                            </span>
+                          <div>
+                            <p className="text-sm font-bold text-gray-900 group-hover:text-[#4880FF] transition-colors">{interview.application.seeker.user.name}</p>
+                            <p className="text-xs text-gray-500 font-medium">{interview.application.job.title}</p>
                           </div>
-                        </td>
-                        <td className="px-8 py-5">
-                          <div className="flex items-center gap-2">
-                            {interview.type === 'VIDEO' ? <Video className="h-4 w-4 text-blue-500" /> : 
-                             interview.type === 'PHONE' ? <Phone className="h-4 w-4 text-green-500" /> : 
-                             <MapPin className="h-4 w-4 text-orange-500" />}
-                            <span className="text-xs font-bold text-gray-700 capitalize">{interview.type.toLowerCase()}</span>
-                          </div>
-                        </td>
-                        <td className="px-8 py-5">
-                          <Badge className={`${getStatusColor(interview.status)} border shadow-none px-3 py-1 font-bold rounded-lg text-[10px]`}>
-                            {interview.status}
-                          </Badge>
-                        </td>
-                        <td className="px-8 py-5 text-right">
-                          <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            {interview.meetingLink && (
-                              <Button 
-                                onClick={() => window.open(interview.meetingLink, '_blank')}
-                                className="h-9 px-4 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-100 font-bold text-xs flex items-center gap-2"
-                              >
-                                <Video className="h-4 w-4" /> Join
+                        </div>
+                      </td>
+                      <td className="px-8 py-5">
+                        <div className="flex flex-col">
+                          <span className="text-sm font-bold text-gray-900">
+                            {new Date(interview.scheduledAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                          </span>
+                          <span className="text-xs text-gray-500 font-medium flex items-center gap-1.5">
+                            <Clock className="h-3 w-3" />
+                            {new Date(interview.scheduledAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })} ({interview.duration}m)
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-8 py-5">
+                        <div className="flex items-center gap-2">
+                          {interview.type === 'VIDEO' ? <Video className="h-4 w-4 text-blue-500" /> :
+                            interview.type === 'PHONE' ? <Phone className="h-4 w-4 text-green-500" /> :
+                              <MapPin className="h-4 w-4 text-orange-500" />}
+                          <span className="text-xs font-bold text-gray-700 capitalize">{interview.type.toLowerCase()}</span>
+                        </div>
+                      </td>
+                      <td className="px-8 py-5">
+                        <Badge className={`${getStatusColor(interview.status)} border shadow-none px-3 py-1 font-bold rounded-lg text-[10px]`}>
+                          {interview.status}
+                        </Badge>
+                      </td>
+                      <td className="px-8 py-5 text-right">
+                        <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          {interview.meetingLink && (
+                            <Button
+                              onClick={() => window.open(interview.meetingLink, '_blank')}
+                              className="h-9 px-4 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-100 font-bold text-xs flex items-center gap-2"
+                            >
+                              <Video className="h-4 w-4" /> Join
+                            </Button>
+                          )}
+                          <Button
+                            onClick={() => {
+                              setSelectedInterview(interview);
+                              setEditDate(interview.scheduledAt.split('T')[0]);
+                              setEditTime(new Date(interview.scheduledAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }));
+                              setEditLink(interview.meetingLink || '');
+                              setIsEditModalOpen(true);
+                            }}
+                            variant="ghost"
+                            size="icon"
+                            className="h-9 w-9 rounded-xl hover:bg-blue-50 hover:text-blue-600"
+                          >
+                            <Edit2 className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            onClick={() => router.push(`/recruiter/applications/${interview.applicationId}`)}
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 rounded-lg hover:bg-gray-100"
+                          >
+                            <ExternalLink className="h-4 w-4" />
+                          </Button>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg">
+                                <MoreVertical className="h-4 w-4" />
                               </Button>
-                            )}
-                            <Button 
-                              onClick={() => {
-                                setSelectedInterview(interview);
-                                setEditDate(interview.scheduledAt.split('T')[0]);
-                                setEditTime(new Date(interview.scheduledAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }));
-                                setEditLink(interview.meetingLink || '');
-                                setIsEditModalOpen(true);
-                              }}
-                              variant="ghost" 
-                              size="icon" 
-                              className="h-9 w-9 rounded-xl hover:bg-blue-50 hover:text-blue-600"
-                            >
-                              <Edit2 className="h-4 w-4" />
-                            </Button>
-                            <Button 
-                              onClick={() => router.push(`/recruiter/applications/${interview.applicationId}`)}
-                              variant="ghost" 
-                              size="icon" 
-                              className="h-8 w-8 rounded-lg hover:bg-gray-100"
-                            >
-                              <ExternalLink className="h-4 w-4" />
-                            </Button>
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg">
-                                  <MoreVertical className="h-4 w-4" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end" className="w-48 rounded-xl p-2 shadow-xl border-gray-100">
-                                <DropdownMenuItem 
-                                  onClick={() => {
-                                    setSelectedInterview(interview);
-                                    setEditDate(interview.scheduledAt.split('T')[0]);
-                                    setEditTime(new Date(interview.scheduledAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }));
-                                    setEditLink(interview.meetingLink || '');
-                                    setIsEditModalOpen(true);
-                                  }}
-                                  className="rounded-lg font-bold text-sm flex items-center gap-2"
-                                >
-                                  <Edit2 className="h-4 w-4" /> Reschedule
-                                </DropdownMenuItem>
-                                <DropdownMenuItem 
-                                  onClick={() => handleUpdateStatus(interview.id, 'COMPLETED')}
-                                  className="rounded-lg font-bold text-sm flex items-center gap-2 text-green-600 focus:text-green-600"
-                                >
-                                  <CheckCircle2 className="h-4 w-4" /> Mark Completed
-                                </DropdownMenuItem>
-                                <DropdownMenuItem 
-                                  onClick={() => {
-                                    setSelectedInterview(interview);
-                                    setIsCancelModalOpen(true);
-                                  }}
-                                  className="rounded-lg font-bold text-sm flex items-center gap-2 text-red-600 focus:bg-red-50 focus:text-red-600"
-                                >
-                                  <Trash2 className="h-4 w-4" /> Cancel Interview
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              <div className="p-8 h-full">
-                {/* Simplified Calendar Placeholder */}
-                <div className="grid grid-cols-7 border border-gray-100 rounded-3xl overflow-hidden bg-gray-50/50">
-                  {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(day => (
-                    <div key={day} className="p-4 text-center border-b border-r border-gray-100 bg-white text-[10px] font-black text-gray-400 uppercase tracking-widest">
-                      {day}
-                    </div>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-48 rounded-xl p-2 shadow-xl border-gray-100">
+                              <DropdownMenuItem
+                                onClick={() => {
+                                  setSelectedInterview(interview);
+                                  setEditDate(interview.scheduledAt.split('T')[0]);
+                                  setEditTime(new Date(interview.scheduledAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }));
+                                  setEditLink(interview.meetingLink || '');
+                                  setIsEditModalOpen(true);
+                                }}
+                                className="rounded-lg font-bold text-sm flex items-center gap-2"
+                              >
+                                <Edit2 className="h-4 w-4" /> Reschedule
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => handleUpdateStatus(interview.id, 'COMPLETED')}
+                                className="rounded-lg font-bold text-sm flex items-center gap-2 text-green-600 focus:text-green-600"
+                              >
+                                <CheckCircle2 className="h-4 w-4" /> Mark Completed
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => {
+                                  setSelectedInterview(interview);
+                                  setIsCancelModalOpen(true);
+                                }}
+                                className="rounded-lg font-bold text-sm flex items-center gap-2 text-red-600 focus:bg-red-50 focus:text-red-600"
+                              >
+                                <Trash2 className="h-4 w-4" /> Cancel Interview
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      </td>
+                    </tr>
                   ))}
-                  {Array.from({ length: 35 }).map((_, i) => {
-                    const day = i - 2;
-                    const date = day > 0 && day <= 31 ? day : null;
-                    const hasInterviews = date && interviews.some(int => new Date(int.scheduledAt).getDate() === date);
-                    return (
-                      <div key={i} className={`min-h-[120px] p-4 border-b border-r border-gray-100 bg-white group transition-colors hover:bg-blue-50/20 cursor-pointer`}>
-                        <div className={`text-sm font-bold ${date ? 'text-gray-900' : 'text-gray-200'}`}>{date}</div>
-                        {hasInterviews && (
-                          <div className="mt-2 space-y-1">
-                            {interviews
-                              .filter(int => new Date(int.scheduledAt).getDate() === date)
-                              .slice(0, 2)
-                              .map(int => (
-                                <div key={int.id} className="p-1.5 rounded-lg bg-blue-100 text-blue-700 text-[9px] font-bold truncate border border-blue-200">
-                                  {new Date(int.scheduledAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {int.application.seeker.user.name}
-                                </div>
-                              ))}
-                            {interviews.filter(int => new Date(int.scheduledAt).getDate() === date).length > 2 && (
-                              <div className="text-[9px] font-black text-blue-400 text-center uppercase">+ More</div>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )
-          ) : (
-            <div className="py-32 flex flex-col items-center justify-center text-center gap-6">
-              <div className="h-20 w-20 rounded-full bg-gray-50 flex items-center justify-center">
-                <CalendarDays className="h-10 w-10 text-gray-200" />
-              </div>
-              <div>
-                <h3 className="text-xl font-bold text-gray-900 mb-1">No interviews found</h3>
-                <p className="text-gray-500 font-medium text-sm">There are no scheduled interviews for this category.</p>
-              </div>
-              <Button onClick={() => router.push('/recruiter/candidates')} className="rounded-xl border-gray-200" variant="outline">
-                Schedule your first interview
-              </Button>
+                </tbody>
+              </table>
             </div>
-          )}
-        </CardContent>
+          ) : (
+            <div className="p-8 h-full">
+              {/* Simplified Calendar Placeholder */}
+              <div className="grid grid-cols-7 border border-gray-100 rounded-3xl overflow-hidden bg-gray-50/50">
+                {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(day => (
+                  <div key={day} className="p-4 text-center border-b border-r border-gray-100 bg-white text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                    {day}
+                  </div>
+                ))}
+                {Array.from({ length: 35 }).map((_, i) => {
+                  const day = i - 2;
+                  const date = day > 0 && day <= 31 ? day : null;
+                  const hasInterviews = date && interviews.some(int => new Date(int.scheduledAt).getDate() === date);
+                  return (
+                    <div key={i} className={`min-h-[120px] p-4 border-b border-r border-gray-100 bg-white group transition-colors hover:bg-blue-50/20 cursor-pointer`}>
+                      <div className={`text-sm font-bold ${date ? 'text-gray-900' : 'text-gray-200'}`}>{date}</div>
+                      {hasInterviews && (
+                        <div className="mt-2 space-y-1">
+                          {interviews
+                            .filter(int => new Date(int.scheduledAt).getDate() === date)
+                            .slice(0, 2)
+                            .map(int => (
+                              <div key={int.id} className="p-1.5 rounded-lg bg-blue-100 text-blue-700 text-[9px] font-bold truncate border border-blue-200">
+                                {new Date(int.scheduledAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {int.application.seeker.user.name}
+                              </div>
+                            ))}
+                          {interviews.filter(int => new Date(int.scheduledAt).getDate() === date).length > 2 && (
+                            <div className="text-[9px] font-black text-blue-400 text-center uppercase">+ More</div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )
+        ) : (
+          <div className="py-32 flex flex-col items-center justify-center text-center gap-6">
+            <div className="h-20 w-20 rounded-full bg-gray-50 flex items-center justify-center">
+              <CalendarDays className="h-10 w-10 text-gray-200" />
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-gray-900 mb-1">No interviews found</h3>
+              <p className="text-gray-500 font-medium text-sm">There are no scheduled interviews for this category.</p>
+            </div>
+            <Button onClick={() => router.push('/recruiter/candidates')} className="rounded-xl border-gray-200" variant="outline">
+              Schedule your first interview
+            </Button>
+          </div>
+        )}
+
       </Card>
 
       {/* Cancel Interview Modal */}
@@ -465,7 +463,7 @@ export default function ManageInterviewsPage() {
               <h3 className="text-xl font-bold text-gray-900">Cancel Interview</h3>
               <button onClick={() => setIsCancelModalOpen(false)}><X className="h-5 w-5 text-gray-400" /></button>
             </div>
-            
+
             <div className="p-4 bg-red-50 rounded-xl border border-red-100 flex gap-3">
               <AlertCircle className="h-5 w-5 text-red-600 shrink-0" />
               <p className="text-xs text-red-700 font-medium leading-relaxed">
@@ -475,7 +473,7 @@ export default function ManageInterviewsPage() {
 
             <div className="space-y-3">
               <label className="text-xs font-black text-gray-400 uppercase tracking-widest">Reason for Cancellation</label>
-              <textarea 
+              <textarea
                 value={cancelReason}
                 onChange={(e) => setCancelReason(e.target.value)}
                 placeholder="e.g. Candidate withdrew, Position filled, etc."
@@ -485,7 +483,7 @@ export default function ManageInterviewsPage() {
 
             <div className="flex gap-3 pt-4">
               <Button variant="ghost" onClick={() => setIsCancelModalOpen(false)} className="flex-1 rounded-xl font-bold">Close</Button>
-              <Button 
+              <Button
                 onClick={handleCancelInterview}
                 disabled={isUpdating}
                 className="flex-1 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold"
@@ -517,9 +515,9 @@ export default function ManageInterviewsPage() {
                   <label className="text-xs font-black text-gray-400 uppercase tracking-widest">New Date</label>
                   <div className="relative">
                     <CalendarDays className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                    <Input 
-                      type="date" 
-                      className="pl-10 h-12 rounded-xl border-gray-100 bg-gray-50 focus:bg-white transition-all" 
+                    <Input
+                      type="date"
+                      className="pl-10 h-12 rounded-xl border-gray-100 bg-gray-50 focus:bg-white transition-all"
                       value={editDate}
                       onChange={(e) => setEditDate(e.target.value)}
                     />
@@ -529,9 +527,9 @@ export default function ManageInterviewsPage() {
                   <label className="text-xs font-black text-gray-400 uppercase tracking-widest">New Time</label>
                   <div className="relative">
                     <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                    <Input 
-                      type="time" 
-                      className="pl-10 h-12 rounded-xl border-gray-100 bg-gray-50 focus:bg-white transition-all" 
+                    <Input
+                      type="time"
+                      className="pl-10 h-12 rounded-xl border-gray-100 bg-gray-50 focus:bg-white transition-all"
                       value={editTime}
                       onChange={(e) => setEditTime(e.target.value)}
                     />
@@ -543,18 +541,18 @@ export default function ManageInterviewsPage() {
                 <label className="text-xs font-black text-gray-400 uppercase tracking-widest">Update Meeting Link</label>
                 <div className="relative">
                   <ExternalLink className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <Input 
-                    placeholder="https://zoom.us/j/..." 
+                  <Input
+                    placeholder="https://zoom.us/j/..."
                     value={editLink}
                     onChange={(e) => setEditLink(e.target.value)}
-                    className="pl-10 h-12 rounded-xl border-gray-100 bg-gray-50 focus:bg-white transition-all" 
+                    className="pl-10 h-12 rounded-xl border-gray-100 bg-gray-50 focus:bg-white transition-all"
                   />
                 </div>
               </div>
 
               <div className="pt-4 flex gap-4">
                 <Button variant="ghost" onClick={() => setIsEditModalOpen(false)} className="flex-1 h-12 rounded-xl font-bold">Cancel</Button>
-                <Button 
+                <Button
                   onClick={handleReschedule}
                   disabled={isUpdating}
                   className="flex-1 h-12 rounded-xl bg-[#4880FF] hover:bg-blue-600 text-white font-black shadow-lg shadow-blue-100"

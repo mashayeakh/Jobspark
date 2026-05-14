@@ -3,8 +3,29 @@
 import React from 'react';
 import Link from 'next/link';
 import { Users, Briefcase, TrendingUp, Zap, Shield, Globe, BarChart, Clock, Award, ArrowRight, Search, Target, CheckCircle } from 'lucide-react';
+import { authService } from '@/services/authService';
+import { useRouter } from 'next/navigation';
 
 const RecruiterPage = () => {
+    const router = useRouter();
+
+    const handlePostJobClick = (e: React.MouseEvent) => {
+        e.preventDefault();
+        const user = authService.getUser();
+        const isAuthenticated = authService.isAuthenticated();
+
+        if (!isAuthenticated) {
+            router.push('/login?returnTo=/recruiter/post-job');
+            return;
+        }
+
+        if (user?.role !== 'RECRUITER') {
+            alert('Only recruiters can post jobs.');
+            return;
+        }
+
+        router.push('/recruiter/post-job');
+    };
     const features = [
         {
             icon: Search,
@@ -88,13 +109,13 @@ const RecruiterPage = () => {
                             Powerful tools to find, evaluate, and hire top talent efficiently
                         </p>
                         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                            <Link
-                                href="/post-job"
+                            <button
+                                onClick={handlePostJobClick}
                                 className="px-8 py-4 bg-white text-green-600 font-semibold rounded-xl hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2"
                             >
                                 Post a Job
                                 <Briefcase className="w-5 h-5" />
-                            </Link>
+                            </button>
                             <Link
                                 href="/signup"
                                 className="px-8 py-4 bg-green-700 text-white font-semibold rounded-xl hover:bg-green-800 transition-all duration-300 border-2 border-green-500"
@@ -256,12 +277,12 @@ const RecruiterPage = () => {
                         >
                             Schedule Demo
                         </Link>
-                        <Link
-                            href="/hire/post"
+                        <button
+                            onClick={handlePostJobClick}
                             className="px-8 py-4 bg-transparent text-white font-semibold rounded-xl border-2 border-white hover:bg-white hover:text-green-600 transition-all duration-300"
                         >
                             Post Your First Job
-                        </Link>
+                        </button>
                     </div>
                 </div>
             </section>

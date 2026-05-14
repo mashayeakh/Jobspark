@@ -2,18 +2,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
 import { authService } from '@/services/authService';
 import { useRouter } from 'next/navigation';
 import { useApi } from '@/hooks/useApi';
 import { recruiterService } from '@/services/recruiterService';
+import { RecruiterLoading } from '@/components/shared/RecruiterLoading';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -217,11 +210,7 @@ export default function CompanyProfilePage() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-lg">Loading company profile...</div>
-      </div>
-    );
+    return <RecruiterLoading />;
   }
 
   return (
@@ -254,18 +243,7 @@ export default function CompanyProfilePage() {
       {/* Modern Header */}
       <header className="bg-white/70 backdrop-blur-lg border-b border-gray-200/50 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <Breadcrumb>
-              <BreadcrumbList>
-                <BreadcrumbItem className="hidden md:block">
-                  <BreadcrumbLink href="/recruiter" className="text-gray-600 hover:text-blue-600 font-medium transition-colors">Recruiter</BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator className="hidden md:block" />
-                <BreadcrumbItem>
-                  <BreadcrumbPage className="text-gray-900 font-semibold">Company Profile</BreadcrumbPage>
-                </BreadcrumbItem>
-              </BreadcrumbList>
-            </Breadcrumb>
+          <div className="flex items-center justify-end">
             <div className="flex gap-3">
               {editing && (
                 <Button

@@ -10,6 +10,7 @@ import { workStyleService } from '@/services/workStyleService';
 import { categoryService } from '@/services/categoryService';
 import { useApi } from '@/hooks/useApi';
 import { recruiterService } from '@/services/recruiterService';
+import { authService } from '@/services/authService';
 import { Button } from '@/components/ui/button';
 
 
@@ -97,12 +98,25 @@ export default function PostJobPage() {
   });
 
   useEffect(() => {
-    if (profileData?.company?.name) {
-      requestAnimationFrame(() => {
-        setFormData(prev => ({ ...prev, company: profileData.company.name }));
-      });
+    const user = authService.getUser();
+    const isAuthenticated = authService.isAuthenticated();
+
+    if (!isAuthenticated) {
+      router.push('/login?returnTo=/recruiter/post-job');
+      return;
     }
-  }, [profileData]);
+
+    if (user?.role !== 'RECRUITER') {
+      router.push('/');
+      return;
+    }
+
+    if (profileData?.company?.name) {
+      setTimeout(() => {
+        setFormData(prev => ({ ...prev, company: profileData.company.name }));
+      }, 0);
+    }
+  }, [profileData, router]);
 
 
 

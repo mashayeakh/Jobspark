@@ -37,9 +37,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
   return (
     <html lang="en">
-      <body className="scroll-smooth">
+      <body className={`${inter.variable} ${poppins.variable} font-sans antialiased scroll-smooth`}>
         <div
-          className={`${inter.variable} ${poppins.variable} font-sans antialiased bg-background text-foreground min-h-full flex flex-col`}
+          className="bg-background text-foreground min-h-full flex flex-col"
         >
           <LoadingBarProvider>
             {!hidePublicChrome && <Navbar variant="default" notificationCount={notificationCount} />}

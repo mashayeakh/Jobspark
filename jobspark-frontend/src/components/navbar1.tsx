@@ -2,9 +2,20 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { Book, Menu, Sunset, Trees, Zap, Bell } from "lucide-react";
+import { Book, Menu, Sunset, Trees, Zap, Bell, Plus } from "lucide-react";
 import { useState, useEffect } from "react";
 import { authService } from "@/services/authService";
+import { useRouter } from "next/navigation";
+import { 
+  User, 
+  Settings, 
+  LayoutDashboard, 
+  LogOut, 
+  Briefcase, 
+  Users, 
+  FileText,
+  ChevronDown
+} from "lucide-react";
 
 import {
   Accordion,
@@ -13,6 +24,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -28,6 +40,14 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 
 interface MenuItem {
@@ -111,6 +131,8 @@ const Navbar = ({
 }: Navbar1Props) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -123,10 +145,14 @@ const Navbar = ({
   useEffect(() => {
     // Check authentication status on mount and when storage changes
     const checkAuth = () => {
-      const userData = authService.getUser();
-      const isAuthenticated = authService.isAuthenticated();
-      setUser(userData);
-      console.log('Auth status:', { user: userData, isAuthenticated });
+      try {
+        const userData = authService.getUser();
+        setUser(userData);
+      } catch (error) {
+        console.error('Error checking auth:', error);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     // Initial check
@@ -208,8 +234,9 @@ const Navbar = ({
             </div>
           </div>
           <div className={cn("flex items-center", styles.gap)}>
-            {/* Show login/signup when not authenticated */}
-            {!user && (
+            {isLoading ? (
+              <div className="h-9 w-20 animate-pulse bg-gray-200 rounded-md" />
+            ) : !user ? (
               <>
                 <Button asChild variant="ghost" size="sm" className="text-gray-600 hover:text-gray-900">
                   <a href={auth.login.url}>{auth.login.title}</a>
@@ -218,11 +245,17 @@ const Navbar = ({
                   <a href={auth.signup.url}>{auth.signup.title}</a>
                 </Button>
               </>
-            )}
-
-            {/* Show authenticated user navigation */}
-            {user && (
+            ) : (
               <>
+                {/* Post a Job button for recruiters */}
+                {user.role === 'RECRUITER' && (
+                  <Button asChild variant="outline" size="sm" className="border-blue-200 text-blue-600 hover:bg-blue-50">
+                    <a href="/recruiter/post-job" className="flex items-center gap-2">
+                      <Plus className="size-4" />
+                      Post a Job
+                    </a>
+                  </Button>
+                )}
                 {/* Notification Icon with Badge */}
                 <Button asChild variant="ghost" size="icon" className="relative">
                   <a href="/notifications">
@@ -235,32 +268,92 @@ const Navbar = ({
                   </a>
                 </Button>
                 {/* Profile Dropdown */}
-                <NavigationMenu>
-                  <NavigationMenuList>
-                    <NavigationMenuItem>
-                      <NavigationMenuTrigger className="h-8 w-8 rounded-full bg-gray-100 p-0">
-                        <div className="h-full w-full rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-sm font-medium">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="group flex items-center gap-2 outline-none">
+                      <div className="relative h-9 w-9 rounded-xl overflow-hidden ring-2 ring-blue-500/10 group-hover:ring-blue-500/30 transition-all duration-300">
+                        <div className="h-full w-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-sm font-bold">
                           {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
                         </div>
-                      </NavigationMenuTrigger>
-                      <NavigationMenuContent className="w-64">
-                        <div className="p-4">
-                          <div className="border-b pb-3 mb-3">
-                            <p className="font-medium">{user.name || 'User'}</p>
-                            <p className="text-sm text-gray-500">{user.email || 'user@example.com'}</p>
-                          </div>
-                          <div className="space-y-2">
-                            <a href="/profile" className="block px-3 py-2 text-sm rounded-md hover:bg-gray-100">Profile</a>
-                            <a href="/settings" className="block px-3 py-2 text-sm rounded-md hover:bg-gray-100">Settings</a>
-                            <a href="/applications" className="block px-3 py-2 text-sm rounded-md hover:bg-gray-100">My Applications</a>
-                            <hr className="my-2" />
-                            <a href="/logout" className="block px-3 py-2 text-sm rounded-md hover:bg-gray-100 text-red-600">Log out</a>
-                          </div>
-                        </div>
-                      </NavigationMenuContent>
-                    </NavigationMenuItem>
-                  </NavigationMenuList>
-                </NavigationMenu>
+                      </div>
+                      <ChevronDown className="size-4 text-gray-400 group-hover:text-blue-600 transition-colors duration-200" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-64 p-2 mt-2 rounded-2xl shadow-2xl border-gray-100 bg-white/95 backdrop-blur-xl animate-in fade-in zoom-in-95 duration-200 font-sans" align="end">
+                    <DropdownMenuLabel className="p-3">
+                      <div className="flex flex-col gap-0.5">
+                        <p className="text-sm font-bold text-gray-900">{user.name || 'User'}</p>
+                        <p className="text-xs font-medium text-gray-500 truncate">{user.email || 'user@example.com'}</p>
+                        <Badge variant="outline" className="w-fit mt-2 text-[10px] font-black uppercase tracking-wider bg-blue-50 text-blue-600 border-blue-100 px-2 py-0.5">
+                          {user.role || 'MEMBER'}
+                        </Badge>
+                      </div>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator className="my-2 bg-gray-50" />
+                    
+                    <div className="space-y-0.5">
+                      {user.role === 'RECRUITER' ? (
+                        <>
+                          <DropdownMenuItem asChild className="rounded-xl px-3 py-2.5 focus:bg-blue-50 focus:text-blue-600 cursor-pointer group">
+                            <a href="/recruiter/dashboard" className="flex items-center gap-3 w-full">
+                              <LayoutDashboard className="size-4 text-gray-400 group-focus:text-blue-600" />
+                              <span className="text-sm font-bold">Recruiter Dashboard</span>
+                            </a>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem asChild className="rounded-xl px-3 py-2.5 focus:bg-blue-50 focus:text-blue-600 cursor-pointer group">
+                            <a href="/recruiter/jobs" className="flex items-center gap-3 w-full">
+                              <Briefcase className="size-4 text-gray-400 group-focus:text-blue-600" />
+                              <span className="text-sm font-bold">My Job Postings</span>
+                            </a>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem asChild className="rounded-xl px-3 py-2.5 focus:bg-blue-50 focus:text-blue-600 cursor-pointer group">
+                            <a href="/recruiter/candidates" className="flex items-center gap-3 w-full">
+                              <Users className="size-4 text-gray-400 group-focus:text-blue-600" />
+                              <span className="text-sm font-bold">Candidates</span>
+                            </a>
+                          </DropdownMenuItem>
+                        </>
+                      ) : (
+                        <>
+                          <DropdownMenuItem asChild className="rounded-xl px-3 py-2.5 focus:bg-blue-50 focus:text-blue-600 cursor-pointer group">
+                            <a href="/dashboard" className="flex items-center gap-3 w-full">
+                              <LayoutDashboard className="size-4 text-gray-400 group-focus:text-blue-600" />
+                              <span className="text-sm font-bold">Dashboard</span>
+                            </a>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem asChild className="rounded-xl px-3 py-2.5 focus:bg-blue-50 focus:text-blue-600 cursor-pointer group">
+                            <a href="/applications" className="flex items-center gap-3 w-full">
+                              <FileText className="size-4 text-gray-400 group-focus:text-blue-600" />
+                              <span className="text-sm font-bold">My Applications</span>
+                            </a>
+                          </DropdownMenuItem>
+                        </>
+                      )}
+
+                      <DropdownMenuItem asChild className="rounded-xl px-3 py-2.5 focus:bg-blue-50 focus:text-blue-600 cursor-pointer group">
+                        <a href={user.role === 'RECRUITER' ? "/recruiter/settings" : "/settings"} className="flex items-center gap-3 w-full">
+                          <Settings className="size-4 text-gray-400 group-focus:text-blue-600" />
+                          <span className="text-sm font-bold">Account Settings</span>
+                        </a>
+                      </DropdownMenuItem>
+                    </div>
+
+                    <DropdownMenuSeparator className="my-2 bg-gray-50" />
+                    
+                    <DropdownMenuItem 
+                      onClick={() => {
+                        authService.logout();
+                        router.push('/login');
+                      }} 
+                      className="rounded-xl px-3 py-2.5 focus:bg-red-50 text-red-600 focus:text-red-700 cursor-pointer group"
+                    >
+                      <div className="flex items-center gap-3 w-full">
+                        <LogOut className="size-4 text-red-400 group-focus:text-red-600" />
+                        <span className="text-sm font-bold">Log out</span>
+                      </div>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </>
             )}
           </div>
@@ -321,23 +414,84 @@ const Navbar = ({
                     </Accordion>
 
                     <div className="flex flex-col gap-3">
-                      {/* Show login/signup when not authenticated */}
-                      {!user && (
+                      {isLoading ? (
+                        <div className="h-10 w-full animate-pulse bg-gray-100 rounded-lg" />
+                      ) : !user ? (
                         <>
-                          <Button asChild variant="outline" className="w-full">
+                          <Button asChild variant="outline" className="w-full rounded-xl h-11">
                             <a href={auth.login.url}>{auth.login.title}</a>
                           </Button>
-                          <Button asChild className="w-full bg-blue-600 hover:bg-blue-700">
+                          <Button asChild className="w-full bg-blue-600 hover:bg-blue-700 rounded-xl h-11 shadow-lg shadow-blue-100">
                             <a href={auth.signup.url}>{auth.signup.title}</a>
                           </Button>
                         </>
-                      )}
+                      ) : (
+                        <div className="space-y-4">
+                          <div className="flex items-center gap-4 p-4 rounded-2xl bg-blue-50 border border-blue-100">
+                            <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-lg font-bold shadow-md">
+                              {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                            </div>
+                            <div className="flex flex-col">
+                              <span className="text-sm font-bold text-gray-900">{user.name || 'User'}</span>
+                              <span className="text-xs text-gray-500 truncate max-w-[180px]">{user.email || 'user@example.com'}</span>
+                              <Badge variant="outline" className="w-fit mt-1 text-[9px] font-black uppercase tracking-wider bg-white text-blue-600 border-blue-100 px-2 py-0">
+                                {user.role || 'MEMBER'}
+                              </Badge>
+                            </div>
+                          </div>
+                          
+                          <div className="grid grid-cols-1 gap-2">
+                            {user.role === 'RECRUITER' ? (
+                              <>
+                                <Button asChild variant="outline" className="justify-start gap-3 h-11 rounded-xl border-gray-100 hover:bg-blue-50 hover:text-blue-600 transition-all">
+                                  <a href="/recruiter/dashboard">
+                                    <LayoutDashboard className="size-4" />
+                                    Dashboard
+                                  </a>
+                                </Button>
+                                <Button asChild variant="outline" className="justify-start gap-3 h-11 rounded-xl border-gray-100 hover:bg-blue-50 hover:text-blue-600 transition-all">
+                                  <a href="/recruiter/jobs">
+                                    <Briefcase className="size-4" />
+                                    Job Postings
+                                  </a>
+                                </Button>
+                              </>
+                            ) : (
+                              <>
+                                <Button asChild variant="outline" className="justify-start gap-3 h-11 rounded-xl border-gray-100 hover:bg-blue-50 hover:text-blue-600 transition-all">
+                                  <a href="/dashboard">
+                                    <LayoutDashboard className="size-4" />
+                                    Dashboard
+                                  </a>
+                                </Button>
+                                <Button asChild variant="outline" className="justify-start gap-3 h-11 rounded-xl border-gray-100 hover:bg-blue-50 hover:text-blue-600 transition-all">
+                                  <a href="/applications">
+                                    <FileText className="size-4" />
+                                    Applications
+                                  </a>
+                                </Button>
+                              </>
+                            )}
+                            <Button asChild variant="outline" className="justify-start gap-3 h-11 rounded-xl border-gray-100 hover:bg-blue-50 hover:text-blue-600 transition-all">
+                              <a href={user.role === 'RECRUITER' ? "/recruiter/settings" : "/settings"}>
+                                <Settings className="size-4" />
+                                Settings
+                              </a>
+                            </Button>
+                          </div>
 
-                      {/* Show logout when authenticated */}
-                      {user && (
-                        <Button asChild variant="outline" className="w-full bg-red-600 hover:bg-red-700">
-                          <a href="/logout">Log out</a>
-                        </Button>
+                          <Button 
+                            onClick={() => {
+                              authService.logout();
+                              router.push('/login');
+                            }} 
+                            variant="ghost" 
+                            className="w-full justify-center gap-2 h-11 rounded-xl text-red-600 hover:bg-red-50 hover:text-red-700 font-bold transition-all"
+                          >
+                            <LogOut className="size-4" />
+                            Log out
+                          </Button>
+                        </div>
                       )}
                     </div>
                   </div>

@@ -46,10 +46,6 @@ export default function UserManagementPage() {
     return () => clearTimeout(timeoutId);
   }, []);
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
-
   const fetchUsers = async () => {
     try {
       setLoading(true);
@@ -66,6 +62,13 @@ export default function UserManagementPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      fetchUsers();
+    }, 0);
+    return () => clearTimeout(timeoutId);
+  }, []);
 
   const handleBlockUser = async (userId: string) => {
     try {

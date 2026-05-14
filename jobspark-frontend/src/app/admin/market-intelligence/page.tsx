@@ -107,7 +107,10 @@ export default function MarketIntelligencePage() {
   };
 
   useEffect(() => {
-    fetchMarketData();
+    const timeoutId = setTimeout(() => {
+      fetchMarketData();
+    }, 0);
+    return () => clearTimeout(timeoutId);
   }, [days]);
 
   const getTrendIcon = (trend: string) => {

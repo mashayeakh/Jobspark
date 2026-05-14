@@ -2,19 +2,41 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { 
-  Users, 
-  Target, 
-  Heart, 
-  Rocket, 
-  ArrowRight, 
+import {
+  Users,
+  Target,
+  Heart,
+  Rocket,
+  ArrowRight,
   CheckCircle2,
   Globe,
   Award,
-  Zap
+  Zap,
+
 } from 'lucide-react';
+import { authService } from '@/services/authService';
+import { useRouter } from 'next/navigation';
 
 export default function AboutPage() {
+  const router = useRouter();
+
+  const handlePostJobClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const user = authService.getUser();
+    const isAuthenticated = authService.isAuthenticated();
+
+    if (!isAuthenticated) {
+      router.push('/login?returnTo=/recruiter/post-job');
+      return;
+    }
+
+    if (user?.role !== 'RECRUITER') {
+      alert('Only recruiters can post jobs.');
+      return;
+    }
+
+    router.push('/recruiter/post-job');
+  };
   return (
     <div className="min-h-screen bg-white">
       {/* ── Hero Section ── */}
@@ -30,17 +52,17 @@ export default function AboutPage() {
             <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Infinite Opportunity.</span>
           </h1>
           <p className="text-xl text-gray-500 max-w-2xl mx-auto font-medium leading-relaxed mb-12">
-            We're building the world's most intelligent job platform, designed to help every professional find their perfect career match.
+            We&apos;re building the world&apos;s most intelligent job platform, designed to help every professional find their perfect career match.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
-            <Link 
-              href="/jobs" 
+            <Link
+              href="/jobs"
               className="px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-2xl font-black shadow-xl shadow-blue-200 hover:opacity-90 transition-all active:scale-95 flex items-center gap-2"
             >
               Explore Jobs <ArrowRight className="w-5 h-5" />
             </Link>
-            <Link 
-              href="/careers" 
+            <Link
+              href="/careers"
               className="px-8 py-4 bg-white border-2 border-gray-100 text-gray-900 rounded-2xl font-black hover:border-blue-200 transition-all shadow-sm"
             >
               Join Our Team
@@ -76,20 +98,20 @@ export default function AboutPage() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {[
-            { 
-              title: 'Radical Transparency', 
+            {
+              title: 'Radical Transparency',
               desc: 'We believe in honest conversations and clear information for both candidates and employers.',
               icon: Zap,
               color: 'from-blue-500 to-cyan-500'
             },
-            { 
-              title: 'Talent First', 
+            {
+              title: 'Talent First',
               desc: 'Everything we build is designed to empower the professional and elevate their career journey.',
               icon: Target,
               color: 'from-indigo-500 to-purple-500'
             },
-            { 
-              title: 'Inclusive Growth', 
+            {
+              title: 'Inclusive Growth',
               desc: 'We are committed to creating a platform that provides equal opportunity for everyone, everywhere.',
               icon: Heart,
               color: 'from-rose-500 to-pink-500'
@@ -114,9 +136,12 @@ export default function AboutPage() {
             <h2 className="text-4xl md:text-5xl font-black mb-8 tracking-tight">Ready to build the future?</h2>
             <p className="text-xl text-blue-100 mb-12 max-w-xl mx-auto font-medium">Join thousands of companies finding their best talent on our platform.</p>
             <div className="flex flex-wrap justify-center gap-4">
-              <Link href="/recruiter/jobs/create" className="px-10 py-4 bg-white text-blue-600 rounded-2xl font-black hover:bg-blue-50 transition-all shadow-xl">
+              <button
+                onClick={handlePostJobClick}
+                className="px-10 py-4 bg-white text-blue-600 rounded-2xl font-black hover:bg-blue-50 transition-all shadow-xl"
+              >
                 Post a Job
-              </Link>
+              </button>
               <Link href="/partners" className="px-10 py-4 bg-transparent border-2 border-white/20 text-white rounded-2xl font-black hover:bg-white/10 transition-all">
                 Become a Partner
               </Link>

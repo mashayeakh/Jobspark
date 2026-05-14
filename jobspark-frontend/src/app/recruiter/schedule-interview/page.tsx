@@ -2,23 +2,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
-import { authService } from '@/services/authService';
+
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
-import { SimpleCalendar } from '@/components/ui/calendar-simple';
-import { Separator } from '@/components/ui/separator';
+
 import {
   Calendar as CalendarIcon,
   Clock,
@@ -54,6 +40,16 @@ import {
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem
 } from '@/components/ui/dropdown-menu';
+import { authService } from '@/services/authService';
+import { RecruiterLoading } from '@/components/shared/RecruiterLoading';
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
+import { Button } from '@/components/ui/button';
+import { SimpleCalendar } from '@/components/ui/calendar-simple';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
 // Simple date formatting functions
 const formatDate = (date: Date, formatStr: string) => {
   const options: Intl.DateTimeFormatOptions = {};
@@ -398,11 +394,7 @@ ${user?.email || 'recruitment@company.com'}
   ];
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-lg">Loading interview scheduler...</div>
-      </div>
-    );
+    return <RecruiterLoading />;
   }
 
   return (

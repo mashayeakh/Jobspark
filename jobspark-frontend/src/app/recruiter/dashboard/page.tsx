@@ -2,18 +2,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
 import { authService } from '@/services/authService';
 import { RecruiterDashboard } from '@/components/dashboards/RecruiterDashboard';
 import { recruiterService, RecruiterDashboardData } from '@/services/recruiterService';
 import { useRouter } from 'next/navigation';
+import { RecruiterLoading } from '@/components/shared/RecruiterLoading';
 
 const defaultDashboardData: RecruiterDashboardData = {
   stats: {
@@ -77,29 +70,11 @@ export default function RecruiterDashboardPage() {
   }, [router]);
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-lg">Loading recruiter dashboard...</div>
-      </div>
-    );
+    return <RecruiterLoading />;
   }
 
   return (
     <div className="flex flex-1 flex-col gap-6">
-      <div className="flex items-center justify-between">
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink href="/recruiter">Recruiter</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage>Dashboard</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
-      </div>
-
       <div className="flex flex-1 flex-col gap-4">
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">

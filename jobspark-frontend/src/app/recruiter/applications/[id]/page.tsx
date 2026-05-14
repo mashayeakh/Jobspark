@@ -102,7 +102,7 @@ export default function ApplicationReviewPage() {
 
   const handleSubmitInterview = async () => {
     console.log("[Interview Modal] 🚀 Submit clicked");
-    
+
     if (!interviewDate) {
       console.warn("[Interview Modal] ⚠️ Missing date");
       toast.error("Please select a date");
@@ -144,11 +144,11 @@ export default function ApplicationReviewPage() {
     const toastId = toast.loading(`Updating candidate status to ${newStatus.toLowerCase()}...`);
     try {
       console.log(`[Application Review] Updating status to ${newStatus}...`);
-      const res = await recruiterService.updateApplicationStatus(id as string, { 
+      const res = await recruiterService.updateApplicationStatus(id as string, {
         status: newStatus,
         reason: newStatus === 'ACCEPTED' ? "Welcome to the team!" : "Thank you for your interest."
       });
-      
+
       console.log(`[Application Review] API Response:`, res);
 
       if (res.success) {
@@ -234,15 +234,15 @@ export default function ApplicationReviewPage() {
             </div>
           </div>
           <div className="flex gap-3">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               disabled={isSubmitting || application.status === 'REJECTED' || application.status === 'ACCEPTED'}
               onClick={() => handleStatusUpdate('REJECTED')}
               className="h-12 px-6 rounded-xl border-gray-200 hover:bg-gray-50 font-bold flex items-center gap-2 cursor-pointer disabled:cursor-not-allowed"
             >
               {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Reject'}
             </Button>
-            <Button 
+            <Button
               disabled={isSubmitting || application.status === 'ACCEPTED' || application.status === 'REJECTED'}
               onClick={() => handleStatusUpdate('ACCEPTED')}
               className="h-12 px-6 rounded-xl bg-gray-900 hover:bg-black text-white font-bold transition-all shadow-lg shadow-gray-200 flex items-center gap-2 cursor-pointer disabled:cursor-not-allowed"
@@ -497,14 +497,13 @@ export default function ApplicationReviewPage() {
                 <Button
                   disabled={application.status === 'INTERVIEWING' || application.status === 'ACCEPTED' || application.status === 'REJECTED'}
                   onClick={() => setIsInterviewModalOpen(true)}
-                  className={`w-full h-12 rounded-xl font-bold transition-all shadow-lg ${
-                    (application.status === 'INTERVIEWING' || application.status === 'ACCEPTED' || application.status === 'REJECTED')
-                    ? 'bg-emerald-50 text-emerald-600 border border-emerald-100 cursor-not-allowed shadow-none' 
-                    : 'bg-[#4880FF] hover:bg-blue-600 shadow-blue-100 text-white'
-                  }`}
+                  className={`w-full h-12 rounded-xl font-bold transition-all shadow-lg ${(application.status === 'INTERVIEWING' || application.status === 'ACCEPTED' || application.status === 'REJECTED')
+                      ? 'bg-emerald-50 text-emerald-600 border border-emerald-100 cursor-not-allowed shadow-none'
+                      : 'bg-[#4880FF] hover:bg-blue-600 shadow-blue-100 text-white'
+                    }`}
                 >
-                  {application.status === 'INTERVIEWING' 
-                    ? 'Scheduled Already' 
+                  {application.status === 'INTERVIEWING'
+                    ? 'Scheduled Already'
                     : (application.status === 'ACCEPTED' || application.status === 'REJECTED')
                       ? 'Process Completed'
                       : 'Schedule Interview'
@@ -643,8 +642,8 @@ export default function ApplicationReviewPage() {
                     </div>
                     <div className="space-y-3">
                       <Label className="text-xs font-black text-gray-400 uppercase tracking-widest">Time</Label>
-                      <select 
-                        value={interviewTime} 
+                      <select
+                        value={interviewTime}
                         onChange={(e) => setInterviewTime(e.target.value)}
                         className="w-full h-10 rounded-xl border border-gray-200 bg-white px-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
                       >
@@ -655,8 +654,8 @@ export default function ApplicationReviewPage() {
                     </div>
                     <div className="space-y-3">
                       <Label className="text-xs font-black text-gray-400 uppercase tracking-widest">Duration</Label>
-                      <select 
-                        value={duration} 
+                      <select
+                        value={duration}
                         onChange={(e) => setDuration(e.target.value)}
                         className="w-full h-10 rounded-xl border border-gray-200 bg-white px-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
                       >
@@ -672,7 +671,7 @@ export default function ApplicationReviewPage() {
                     <Label className="text-xs font-black text-gray-400 uppercase tracking-widest">Time Zone</Label>
                     <div className="relative">
                       <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                      <select 
+                      <select
                         defaultValue="utc-5"
                         className="w-full h-10 rounded-xl border border-gray-200 bg-white pl-10 pr-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
                       >
@@ -842,15 +841,15 @@ export default function ApplicationReviewPage() {
 
             {/* Modal Footer */}
             <div className="p-6 border-t border-gray-100 flex items-center justify-end gap-3 bg-white">
-              <Button 
-                variant="ghost" 
-                onClick={() => setIsInterviewModalOpen(false)} 
+              <Button
+                variant="ghost"
+                onClick={() => setIsInterviewModalOpen(false)}
                 disabled={isSubmitting}
                 className="rounded-xl font-bold text-gray-500 cursor-pointer"
               >
                 Cancel
               </Button>
-              <Button 
+              <Button
                 onClick={handleSubmitInterview}
                 disabled={isSubmitting}
                 className="rounded-xl bg-[#4880FF] hover:bg-blue-600 text-white font-black px-8 h-12 shadow-lg shadow-blue-100 flex items-center gap-2 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"

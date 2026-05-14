@@ -2,17 +2,10 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
 import { authService } from '@/services/authService';
 import { jobService, Job } from '@/services/jobService';
 import { useRouter } from 'next/navigation';
+import { RecruiterLoading } from '@/components/shared/RecruiterLoading';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -544,11 +537,7 @@ export default function JobPostingsPage() {
   // ---- render ----
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-lg">Loading job postings...</div>
-      </div>
-    );
+    return <RecruiterLoading />;
   }
 
   return (
@@ -564,138 +553,115 @@ export default function JobPostingsPage() {
       <SuccessAlert isVisible={showSuccessAlert} onClose={() => setShowSuccessAlert(false)} />
 
       <div className="flex items-center justify-between">
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink href="/recruiter">Recruiter</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage>Job Postings</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Job Postings</h1>
+          <p className="text-gray-600">Manage and track all your job listings</p>
+        </div>
+        <Button
+          className="bg-[#4880FF] hover:bg-[#3d72eb]"
+          onClick={() => router.push('/recruiter/post-job')}
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          Post New Job
+        </Button>
       </div>
 
-      <div className="flex flex-1 flex-col gap-4">
+      {/* Stats */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {stats.map((stat) => (
+          <Card key={stat.label}>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-500">{stat.label}</p>
+                  <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                </div>
+                <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${stat.bg}`}>
+                  <stat.icon className={`h-5 w-5 ${stat.color}`} />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
 
-        {/* Page title */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Job Postings</h1>
-            <p className="text-gray-600">Manage and track all your job listings</p>
+      {/* Search & Filter */}
+      <Card>
+        <CardContent className="p-4">
+          <div className="flex gap-3">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Input
+                placeholder="Search jobs by title or department..."
+                className="pl-9 h-11"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+            <Button variant="outline" className="gap-2 h-11">
+              <Filter className="h-4 w-4" />
+              Filter
+            </Button>
           </div>
-          <Button
-            className="bg-[#4880FF] hover:bg-[#3d72eb]"
-            onClick={() => router.push('/recruiter/post-job')}
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Post New Job
-          </Button>
-        </div>
+        </CardContent>
+      </Card>
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {stats.map((stat) => (
-            <Card key={stat.label}>
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-500">{stat.label}</p>
-                    <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Active Jobs ({filteredJobs.filter(j => j.status === 'ACTIVE' || j.status === 'OPEN').length})</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            {filteredJobs.filter(j => j.status === 'ACTIVE' || j.status === 'OPEN').length === 0 ? (
+              <p className="text-sm text-gray-500 text-center py-6 border-2 border-dashed rounded-xl">No active jobs found matching your criteria</p>
+            ) : (
+              filteredJobs.filter(j => j.status === 'ACTIVE' || j.status === 'OPEN').map((job: any) => (
+                <div
+                  key={job.id}
+                  className="flex flex-col lg:flex-row lg:items-center justify-between p-4 rounded-xl border border-gray-100 hover:border-blue-200 hover:shadow-md transition-all gap-4 bg-white"
+                >
+                  <div className="flex items-start gap-4">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-[#4880FF]">
+                      <Briefcase className="h-6 w-6" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-gray-900 text-base">{job.title}</h3>
+                      <div className="flex flex-wrap items-center gap-3 mt-1 text-xs font-medium text-gray-400 uppercase tracking-wider">
+                        <span className="flex items-center gap-1.5">
+                          <MapPin className="h-3.5 w-3.5" />
+                          {job.location}
+                        </span>
+                        <span>•</span>
+                        <span>{job.type?.replace('_', ' ')}</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${stat.bg}`}>
-                    <stat.icon className={`h-5 w-5 ${stat.color}`} />
+
+                  <div className="flex items-center gap-6 sm:justify-end">
+                    <div className="flex items-center gap-1.5 text-sm font-semibold text-gray-600">
+                      <Users className="h-4 w-4 text-gray-400" />
+                      <span>{job.applicationCount ?? 0}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-sm font-semibold text-gray-600">
+                      <Eye className="h-4 w-4 text-gray-400" />
+                      <span>{job.viewCount ?? 0}</span>
+                    </div>
+                    <Badge className="bg-green-50 text-green-600 border-green-100 uppercase tracking-widest text-[10px] font-black px-2.5 py-1">
+                      ACTIVE
+                    </Badge>
+
+                    <div className="flex gap-1">
+                      <Button variant="ghost" size="icon" className="h-9 w-9 rounded-lg hover:bg-blue-50 hover:text-blue-600" onClick={() => handleEditClick(job)}>
+                        <Edit className="h-4.5 w-4.5" />
+                      </Button>
+                    </div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        {/* Search & Filter */}
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex gap-3">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <Input
-                  placeholder="Search jobs by title or department..."
-                  className="pl-9"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-              <Button variant="outline" className="gap-2">
-                <Filter className="h-4 w-4" />
-                Filter
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Active Jobs List */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Active Jobs ({filteredJobs.filter(j => j.status === 'ACTIVE' || j.status === 'OPEN').length})</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {filteredJobs.filter(j => j.status === 'ACTIVE' || j.status === 'OPEN').length === 0 ? (
-                <p className="text-sm text-gray-500 text-center py-6 border-2 border-dashed rounded-xl">No active jobs found matching your criteria</p>
-              ) : (
-                filteredJobs.filter(j => j.status === 'ACTIVE' || j.status === 'OPEN').map((job: any) => (
-                  <div
-                    key={job.id}
-                    className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl border border-gray-100 hover:border-blue-200 hover:shadow-md transition-all gap-4 bg-white"
-                  >
-                    {/* Left: icon + info */}
-                    <div className="flex items-start gap-4">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-[#4880FF]">
-                        <Briefcase className="h-6 w-6" />
-                      </div>
-                      <div>
-                        <h3 className="font-bold text-gray-900 text-base">{job.title}</h3>
-                        <div className="flex flex-wrap items-center gap-3 mt-1 text-xs font-medium text-gray-400 uppercase tracking-wider">
-                          <span className="flex items-center gap-1.5">
-                            <MapPin className="h-3.5 w-3.5" />
-                            {job.location}
-                          </span>
-                          <span>•</span>
-                          <span>{job.type?.replace('_', ' ')}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Right: metrics + actions */}
-                    <div className="flex items-center gap-6 sm:justify-end">
-                      <div className="flex items-center gap-1.5 text-sm font-semibold text-gray-600">
-                        <Users className="h-4 w-4 text-gray-400" />
-                        <span>{job.applicationCount ?? 0}</span>
-                      </div>
-                      <div className="flex items-center gap-1.5 text-sm font-semibold text-gray-600">
-                        <Eye className="h-4 w-4 text-gray-400" />
-                        <span>{job.viewCount ?? 0}</span>
-                      </div>
-                      <Badge className="bg-green-50 text-green-600 border-green-100 uppercase tracking-widest text-[10px] font-black px-2.5 py-1">
-                        ACTIVE
-                      </Badge>
-
-                      <div className="flex gap-1">
-                        <Button variant="ghost" size="icon" className="h-9 w-9 rounded-lg hover:bg-blue-50 hover:text-blue-600" onClick={() => handleEditClick(job)}>
-                          <Edit className="h-4.5 w-4.5" />
-                        </Button>
-                        <Button variant="ghost" size="icon" className="h-9 w-9 rounded-lg hover:bg-red-50 hover:text-red-600">
-                          <PauseCircle className="h-4.5 w-4.5" />
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </CardContent>
-        </Card>
+              ))
+            )}
+          </div>
+        </CardContent>
+      </Card>
 
         {/* Expired / Closed Jobs List */}
         <Card className="bg-gray-50/50 border-dashed">
@@ -764,7 +730,6 @@ export default function JobPostingsPage() {
             </CardContent>
           )}
         </Card>
-      </div>
 
       {/* Edit Modal */}
       {editingJob && (

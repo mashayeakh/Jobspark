@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -44,10 +45,6 @@ export default function JobModerationPage() {
     return () => clearTimeout(timeoutId);
   }, []);
 
-  useEffect(() => {
-    fetchJobs();
-  }, []);
-
   const fetchJobs = async () => {
     try {
       setLoading(true);
@@ -64,6 +61,13 @@ export default function JobModerationPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      fetchJobs();
+    }, 0);
+    return () => clearTimeout(timeoutId);
+  }, []);
 
   const handleUpdateJobStatus = async (jobId: string, status: 'APPROVED' | 'REJECTED') => {
     try {

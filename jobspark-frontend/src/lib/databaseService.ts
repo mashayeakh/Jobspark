@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // Database Service - Connects to real job database
 // This replaces hardcoded mock data with actual database connections
 

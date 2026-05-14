@@ -2,6 +2,8 @@
 
 import { ArrowRight, Wifi } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { authService } from "@/services/authService";
+import { useRouter } from "next/navigation";
 
 interface ButtonConfig {
     text: string;
@@ -51,9 +53,28 @@ const defaultProps: HeroProps = {
 };
 
 const HeroSection = (props: Props) => {
+    const router = useRouter();
     const { icon, heading, description, primaryButton, secondaryButton, byline, image, className } = {
         ...defaultProps,
         ...props,
+    };
+
+    const handlePostJobClick = (e: React.MouseEvent) => {
+        e.preventDefault();
+        const user = authService.getUser();
+        const isAuthenticated = authService.isAuthenticated();
+
+        if (!isAuthenticated) {
+            router.push('/login?returnTo=/recruiter/post-job');
+            return;
+        }
+
+        if (user?.role !== 'RECRUITER') {
+            alert('Only recruiters can post jobs.');
+            return;
+        }
+
+        router.push('/recruiter/post-job');
     };
 
     return (
@@ -100,12 +121,12 @@ const HeroSection = (props: Props) => {
                                 </a>
                             )}
                             {secondaryButton && (
-                                <a
-                                    href={secondaryButton.url}
+                                <button
+                                    onClick={handlePostJobClick}
                                     className="px-8 py-4 bg-white text-gray-900 font-semibold rounded-xl border-2 border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all duration-300 flex items-center justify-center"
                                 >
                                     {secondaryButton.text}
-                                </a>
+                                </button>
                             )}
                         </div>
 
