@@ -2,6 +2,10 @@ import { prisma } from "../../lib/prisma";
 import { AppError } from "@/app/errorHelpers/AppError";
 import httpStatus from "http-status";
 import { UserStatus } from "prisma/generated/prisma/enums";
+import Groq from "groq-sdk";
+import { envVars } from "@/app/config/env";
+
+const groq = new Groq({ apiKey: envVars.GROQ_API_KEY });
 
 
 export const AdminService = {
@@ -137,6 +141,143 @@ export const AdminService = {
     }
 
     return snapshots;
+  },
+
+  getAdvancedAnalytics: async (year?: number) => {
+    const targetYear = year || new Date().getFullYear();
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    
+    // 1. User Growth by Role (Bar Chart) - Last 6 Months
+    const demographics = await Promise.all([5, 4, 3, 2, 1, 0].map(async (mOffset) => {
+      const d = new Date();
+      d.setFullYear(targetYear); // Respect the year filter if possible, otherwise use rolling
+      d.setMonth(new Date().getMonth() - mOffset);
+      
+      const mStart = new Date(d.getFullYear(), d.getMonth(), 1);
+      const mEnd = new Date(d.getFullYear(), d.getMonth() + 1, 0);
+      
+      const [jobseeker, recruiter, admin] = await Promise.all([
+        prisma.user.count({ where: { role: 'JOB_SEEKER', createdAt: { gte: mStart, lte: mEnd } } }),
+        prisma.user.count({ where: { role: 'RECRUITER', createdAt: { gte: mStart, lte: mEnd } } }),
+        prisma.user.count({ where: { role: 'ADMIN', createdAt: { gte: mStart, lte: mEnd } } }),
+      ]);
+      
+      return {
+        month: d.toLocaleString('default', { month: 'short' }),
+        jobseeker, 
+        recruiter,
+        admin,
+      };
+    }));
+
+    // 2. Application Status Breakdown (Donut Chart)
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    
+    const [pending, reviewed, shortlisted, rejected, offered] = await Promise.all([
+      prisma.application.count({ where: { status: 'PENDING', appliedAt: { gte: startOfMonth } } }),
+      prisma.application.count({ where: { status: 'REVIEWING', appliedAt: { gte: startOfMonth } } }),
+      prisma.application.count({ where: { status: 'SHORTLISTED', appliedAt: { gte: startOfMonth } } }),
+      prisma.application.count({ where: { status: 'REJECTED', appliedAt: { gte: startOfMonth } } }),
+      prisma.application.count({ where: { status: 'OFFERED', appliedAt: { gte: startOfMonth } } }),
+    ]);
+
+    const realTotal = pending + reviewed + shortlisted + rejected + offered;
+    const breakdownData = [
+      { status: "PENDING", count: pending, color: '#4379EE' },
+      { status: "REVIEWED", count: reviewed, color: '#CB3EF9' },
+      { status: "SHORTLISTED", count: shortlisted, color: '#00B69B' },
+      { status: "REJECTED", count: rejected, color: '#F93C65' },
+      { status: "OFFERED", count: offered, color: '#FF9F43' },
+    ];
+
+    const applicationBreakdown = {
+      total: realTotal,
+      breakdown: breakdownData.map(d => ({
+        ...d,
+        percentage: realTotal > 0 ? Math.round((d.count / realTotal) * 100) : 0
+      }))
+    };
+
+    // 3. Jobs Posted vs Applications Received (Line Chart)
+    const jobsVsApps = await Promise.all([5, 4, 3, 2, 1, 0].map(async (mOffset) => {
+      const d = new Date();
+      d.setMonth(d.getMonth() - mOffset);
+      const mStart = new Date(d.getFullYear(), d.getMonth(), 1);
+      const mEnd = new Date(d.getFullYear(), d.getMonth() + 1, 0);
+      
+      const [jobsPosted, applications] = await Promise.all([
+        prisma.job.count({ where: { createdAt: { gte: mStart, lte: mEnd } } }),
+        prisma.application.count({ where: { appliedAt: { gte: mStart, lte: mEnd } } }),
+      ]);
+      
+      return {
+        month: d.toLocaleString('default', { month: 'short' }),
+        jobsPosted,
+        applications,
+      };
+    }));
+
+    const currentM = jobsVsApps[5].applications;
+    const lastM = jobsVsApps[4].applications;
+    const growthVal = lastM > 0 ? Math.round(((currentM - lastM) / lastM) * 100) : 0;
+
+    return {
+      demographics,
+      applicationBreakdown,
+      jobsVsApps,
+      growth: growthVal > 0 ? `+${growthVal}%` : `${growthVal}%`
+    };
+  },
+
+  generateAIHealthReport: async () => {
+    // 1. Gather all relevant data for the AI
+    const [snapshot, analytics, pendingApps, totalJobs] = await Promise.all([
+      AdminService.getPlatformSnapshot(),
+      AdminService.getAdvancedAnalytics(),
+      prisma.application.count({ where: { status: 'PENDING' } }),
+      prisma.job.count({ where: { deletedAt: null } }),
+    ]);
+
+    const activeJobs = snapshot.overview.openJobs;
+    const totalUsers = snapshot.overview.totalUsers;
+    const recruitersCount = snapshot.usersByRole.find(r => r.role === 'RECRUITER')?.count || 0;
+    const seekersCount = snapshot.usersByRole.find(r => r.role === 'JOB_SEEKER')?.count || 0;
+
+    const prompt = `
+    As an AI Platform Strategist for JobsPark (a remote job platform), provide a brief "Platform Health Report" based on these REAL metrics:
+
+    CURRENT SNAPSHOT:
+    - Total Users: ${totalUsers} (Seekers: ${seekersCount}, Recruiters: ${recruitersCount})
+    - Total Active Jobs: ${activeJobs} / Total Postings: ${totalJobs}
+    - Total Applications: ${snapshot.overview.totalApplications}
+    - Pending Applications: ${pendingApps} (${Math.round((pendingApps / snapshot.overview.totalApplications) * 100)}% of total)
+
+    USER ACTIVITY:
+    - Application Status Breakdown: ${analytics.applicationBreakdown.breakdown.map((a: any) => `${a.status}: ${a.count} (${a.percentage}%)`).join(', ')}
+
+    INSTRUCTIONS:
+    1. Write a plain English summary (3-4 sentences).
+    2. Identify ONE specific bottleneck or area for improvement.
+    3. Provide ONE "Admin Quick Action" recommendation.
+    4. Keep it professional, strategic, and concise.
+    5. Don't use placeholders; use the numbers provided.
+
+    Format: Return a clean JSON object with "summary", "bottleneck", and "recommendation" fields.
+    `;
+
+    const response = await groq.chat.completions.create({
+      model: "llama-3.3-70b-versatile",
+      messages: [
+        { role: "system", content: "You are an expert AI Platform Strategist specializing in job board ecosystems." },
+        { role: "user", content: prompt }
+      ],
+      temperature: 0.5,
+      response_format: { type: "json_object" }
+    });
+
+    const text = response.choices[0]?.message?.content ?? "{}";
+    return JSON.parse(text);
   },
 
   getAnalyticsLogs: async (limit: number = 100) => {

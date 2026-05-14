@@ -107,13 +107,12 @@ export const RecruiterService = {
     });
     
     if (jobsToBoost.length > 0) {
-      // Boost views individually for realistic variation
-      await Promise.all(jobsToBoost.map(job => 
-        prisma.job.update({
-          where: { id: job.id },
-          data: { viewCount: { increment: Math.floor(Math.random() * 4) + 1 } }
-        })
-      ));
+      // Increment ONE random active job by exactly 1 for a steady +1 total view growth per visit
+      const randomJob = jobsToBoost[Math.floor(Math.random() * jobsToBoost.length)];
+      await prisma.job.update({
+        where: { id: randomJob.id },
+        data: { viewCount: { increment: 1 } }
+      });
 
       // Simulate applications for empty jobs (20% chance per refresh)
       const emptyJobs = jobsToBoost.filter(j => j._count.applications === 0);

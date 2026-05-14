@@ -239,16 +239,7 @@ export const JobService = {
     // Sync expired jobs first
     await JobService.updateExpiredJobs();
 
-    // --- Organic Activity Simulation (Real-life logic) ---
-    // Boost views for active jobs of this user's recruiter profile
-    const recruiter = await prisma.recruiterProfile.findUnique({ where: { userId } });
-    if (recruiter) {
-      await prisma.job.updateMany({
-        where: { recruiterId: recruiter.id, status: { in: ['OPEN', 'ACTIVE'] }, deletedAt: null },
-        data: { viewCount: { increment: Math.floor(Math.random() * 3) + 1 } }
-      });
-    }
-    // -------------------------------------------------------
+
 
     return await prisma.job.findMany({
       where: {

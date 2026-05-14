@@ -17,6 +17,27 @@ export const AdminController = {
     });
   }),
 
+  getAdvancedAnalytics: catchAsyc(async (req: Request, res: Response) => {
+    const year = req.query.year ? parseInt(req.query.year as string) : undefined;
+    const result = await AdminService.getAdvancedAnalytics(year);
+    sendResponse(res, {
+      httpStatusCode: httpStatus.OK,
+      success: true,
+      message: "Advanced analytics fetched successfully",
+      result,
+    });
+  }),
+
+  generateAIHealthReport: catchAsyc(async (req: Request, res: Response) => {
+    const result = await AdminService.generateAIHealthReport();
+    sendResponse(res, {
+      httpStatusCode: httpStatus.OK,
+      success: true,
+      message: "AI Health Report generated successfully",
+      result,
+    });
+  }),
+
   getAnalyticsHistory: catchAsyc(async (req: Request, res: Response) => {
     const days = req.query.days ? parseInt(req.query.days as string) : 30;
     const result = await AdminService.getAnalyticsHistory(days);

@@ -91,64 +91,64 @@ interface ContentSanityResult {
 
 export const ContentSanityService = {
   // Analyze a job posting for content sanity
-  analyzeJobContent: async (jobId: string): Promise<ContentSanityResult> => {
+  analyzeJobContent: async (jobId: string): Promise<any> => {
     try {
       const job = await prisma.job.findUnique({
         where: { id: jobId },
-        include: { company: true },
+        include: { 
+          company: { select: { name: true } },
+          recruiter: { include: { user: { select: { name: true } } } }
+        },
       });
 
       if (!job) {
         throw new AppError(httpStatus.NOT_FOUND, "Job not found");
       }
 
-      const text = `${job.title} ${job.description} ${job.requirements || ''} ${job.responsibilities || ''}`.toLowerCase();
+      const text = `${job.title} ${job.description} ${job.requirements || ''} ${job.responsibilities || ''}`;
 
-      // 1. Bias detection
-      const biasDetection = await detectBias(text);
-
-      // 2. Content quality scoring
-      const contentQuality = calculateContentQuality(job);
-
-      // 3. Inclusive language analysis
-      const inclusiveLanguage = await analyzeInclusiveLanguage(text);
-
-      // 4. Automated corrections
-      const automatedCorrections = await generateCorrections(job, biasDetection, inclusiveLanguage);
-
-      // 5. Overall recommendation
-      const overallRecommendation = determineRecommendation(biasDetection, contentQuality);
-
-      // 6. AI-powered summary
-      let summary = '';
-      try {
-        const prompt = `Analyze this job posting content and provide a brief 2-3 sentence summary of content quality and inclusivity:
-        
-        Title: ${job.title}
-        Description: ${job.description}
-        Requirements: ${job.requirements}
-        
-        Focus on: bias detection, inclusivity, and overall content quality. Return ONLY the summary.`;
-
-        const response = await genAI.models.generateContent({
-          model: "gemini-2.5-flash",
-          contents: prompt,
-        });
-
-        summary = response.text || 'Content analysis complete';
-      } catch (error) {
-        summary = 'Content analysis complete';
+      // USE AI for deep analysis
+      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+      const prompt = `Analyze this job posting for bias and quality. 
+      Return a JSON object exactly in this format:
+      {
+        "qualityScore": number (0-100),
+        "biasScore": number (0-100, 100 being bias-free),
+        "biasFlags": { "gender": boolean, "age": boolean, "race": boolean },
+        "languageIssues": string[],
+        "suggestions": string[],
+        "riskLevel": "LOW" | "MEDIUM" | "HIGH" | "CRITICAL",
+        "recommendation": "APPROVE" | "REVIEW" | "REJECT",
+        "summary": string
       }
+      
+      Job Title: ${job.title}
+      Content: ${text}`;
 
-      return {
-        jobId,
-        biasDetection,
-        contentQuality,
-        inclusiveLanguage,
-        automatedCorrections,
-        overallRecommendation,
-        summary,
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      const aiData = JSON.parse(response.text().replace(/```json|```/g, ''));
+
+      const frontendAnalysis = {
+        id: job.id,
+        title: job.title,
+        company: job.company?.name || 'Unknown',
+        recruiter: job.recruiter?.user?.name || 'Unknown',
+        analysis: {
+          biasScore: aiData.biasScore,
+          biasFlags: aiData.biasFlags,
+          qualityScore: aiData.qualityScore,
+          languageIssues: aiData.languageIssues,
+          suggestions: aiData.suggestions,
+          needsReview: aiData.recommendation !== 'APPROVE',
+          riskLevel: aiData.riskLevel
+        },
+        createdAt: job.createdAt,
+        status: aiData.recommendation === 'APPROVE' ? 'SAFE' : (aiData.recommendation === 'REVIEW' ? 'UNDER_REVIEW' : 'FLAGGED'),
+        summary: aiData.summary
       };
+
+      return frontendAnalysis;
     } catch (error) {
       console.error('Content sanity analysis error:', error);
       throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, "Content sanity analysis failed");

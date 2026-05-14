@@ -11,6 +11,8 @@ const adminAuth = checkAuth(UserRole.ADMIN);
 // Analytics
 router.get("/dashboard", adminAuth, AdminController.getPlatformSnapshot);
 router.get("/dashboard/history", adminAuth, AdminController.getAnalyticsHistory);
+router.get("/dashboard/advanced-analytics", adminAuth, AdminController.getAdvancedAnalytics);
+router.get("/dashboard/ai-health-report", adminAuth, AdminController.generateAIHealthReport);
 router.get("/dashboard/logs", adminAuth, AdminController.getAnalyticsLogs);
 
 // User Management
