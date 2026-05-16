@@ -312,6 +312,7 @@ export const RecruiterService = {
             workExperience: { orderBy: { startDate: "desc" } },
             education: { orderBy: { startDate: "desc" } },
           },
+          // resumeUrl is a direct field on JobSeekerProfile — included automatically
         },
         logs: { orderBy: { changedAt: "desc" } },
         interviews: { orderBy: { scheduledAt: "desc" }, take: 1 },
