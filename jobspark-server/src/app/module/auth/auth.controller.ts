@@ -94,20 +94,23 @@ export const AuthController = {
             //clear the cookies - access token
             clearCookie(res, 'accessToken', {
                 httpOnly: true,
-                secure: false,
+                secure: true,
                 sameSite: "none",
+                path: "/",
             });
             //clear the cookies - refresh token
             clearCookie(res, 'refreshToken', {
                 httpOnly: true,
-                secure: false,
+                secure: true,
                 sameSite: "none",
+                path: "/",
             });
             //clear the cookies - better-auth-session token
             clearCookie(res, 'better-auth.session_token', {
                 httpOnly: true,
-                secure: false,
+                secure: true,
                 sameSite: "none",
+                path: "/",
             });
 
             sendResponse(res, {

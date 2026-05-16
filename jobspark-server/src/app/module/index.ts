@@ -23,6 +23,9 @@ import { BioGeneratorRouter } from "./ai/bio_generator/bioGenerator.route";
 import { RecommendationRoutes } from "./ai/recommendation/recommendation.route";
 import { InterviewRoutes } from "./interview/interview.route";
 import { ResumeAnalyzerRoutes } from "./ai/resume_analyzer/resumeAnalyzer.route";
+import { ProfileAnalyticsRoutes } from "./ai/profile_analytics/profileAnalytics.route";
+import { BlogGeneratorRoutes } from "./ai/blog_generator/blogGenerator.route";
+import { BlogRoutes } from "./blog/blog.route";
 
 const router = express.Router();
 
@@ -32,6 +35,7 @@ router.use("/auth", AuthRoutes);
 //!JobSeeker
 router.use("/jobseeker/recommended", RecommendationRoutes);
 router.use("/jobseeker/resume-analyzer", ResumeAnalyzerRoutes);
+router.use("/jobseeker/profile-analytics", ProfileAnalyticsRoutes);
 router.use("/jobseeker", JobSeekerRoutes);
 
 //!Recruiter
@@ -57,6 +61,9 @@ router.use("/admin", AdminRoutes);
 
 //!Interviews
 router.use("/interviews", InterviewRoutes);
+
+//!Blogs
+router.use("/blogs", BlogRoutes);
 
 //!AI Fraud Detection
 router.use("/admin/fraud-shield", FraudDetectionRouter);
@@ -87,5 +94,8 @@ router.use("/ai/job-description", JobDescriptionRouter);
 
 //!AI Bio Generator
 router.use("/ai/bio-generator", BioGeneratorRouter);
+
+//!AI Blog Generator
+router.use("/ai/blog-generator", BlogGeneratorRoutes);
 
 export default router;
