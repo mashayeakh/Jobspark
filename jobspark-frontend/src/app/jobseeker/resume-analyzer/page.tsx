@@ -121,6 +121,14 @@ export default function ResumeAnalyzerPage() {
           </div>
 
           <div className="bg-gradient-to-r from-[#4880FF] to-[#6366F1] rounded-3xl p-8 text-white relative overflow-hidden shadow-2xl shadow-blue-100 min-h-[300px] flex items-center">
+            <input
+              type="file"
+              id="direct-resume-upload"
+              className="hidden"
+              accept=".pdf,.doc,.docx"
+              onChange={handleResumeUpload}
+            />
+
             <div className="relative z-10 w-full">
               {!profile?.resumeUrl ? (
                 <div className="flex flex-col items-center text-center animate-in fade-in zoom-in duration-500">
@@ -130,13 +138,6 @@ export default function ResumeAnalyzerPage() {
                   <h3 className="text-2xl font-black mb-2">No Resume Found</h3>
                   <p className="text-blue-100 mb-6 max-w-md">Upload your resume to unlock AI optimization features.</p>
                   
-                  <input
-                    type="file"
-                    id="direct-resume-upload"
-                    className="hidden"
-                    accept=".pdf,.doc,.docx"
-                    onChange={handleResumeUpload}
-                  />
                   <label
                     htmlFor="direct-resume-upload"
                     className={cn(
@@ -155,12 +156,22 @@ export default function ResumeAnalyzerPage() {
               ) : (
                 <div className="flex flex-col md:flex-row gap-8 items-center animate-in fade-in slide-in-from-bottom-4 duration-700">
                   <div className="flex-1 w-full">
-                    <div className="flex items-center gap-2 mb-3">
-                      <div className="h-6 w-6 rounded-full bg-green-400/20 flex items-center justify-center">
-                        <CheckCircle2 className="h-3.5 w-3.5 text-green-400" />
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <div className="h-6 w-6 rounded-full bg-green-400/20 flex items-center justify-center">
+                          <CheckCircle2 className="h-3.5 w-3.5 text-green-400" />
+                        </div>
+                        <h3 className="text-lg font-bold">Target Job Role</h3>
+                        <Badge className="bg-white/20 text-white border-none text-[10px] ml-2">RESUME READY</Badge>
                       </div>
-                      <h3 className="text-lg font-bold">Target Job Role</h3>
-                      <Badge className="bg-white/20 text-white border-none text-[10px] ml-2">RESUME READY</Badge>
+                      
+                      <label 
+                        htmlFor="direct-resume-upload"
+                        className="text-[10px] font-black uppercase tracking-widest text-white/50 hover:text-white cursor-pointer transition-colors flex items-center gap-1.5 bg-white/5 px-3 py-1.5 rounded-lg border border-white/10 hover:bg-white/10"
+                      >
+                        <Plus className="h-3 w-3" />
+                        Upload Different File
+                      </label>
                     </div>
                     <div className="relative group">
                       <Input

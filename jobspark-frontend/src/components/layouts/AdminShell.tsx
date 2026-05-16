@@ -164,7 +164,15 @@ export function AdminShell({ children, title }: AdminShellProps) {
                 <DropdownMenuSeparator className="my-2 bg-gray-50" />
                 <DropdownMenuItem 
                   className="rounded-xl h-10 font-bold text-red-600 focus:bg-red-50 focus:text-red-600 cursor-pointer"
-                  onClick={() => authService.logout().then(() => router.push('/login'))}
+                  onClick={async () => {
+                    try {
+                      await authService.logout();
+                      router.push('/login');
+                    } catch (error) {
+                      console.error('Admin logout failed:', error);
+                      router.push('/login');
+                    }
+                  }}
                 >
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Logout</span>

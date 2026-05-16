@@ -27,8 +27,8 @@ const JobSeekersPage = () => {
       title: 'Professional Profile',
       description: 'Create a standout profile that showcases your skills and experience',
       features: ['Resume builder', 'Portfolio showcase', 'Skills assessment', 'Profile analytics'],
-      cta: 'Build Profile',
-      href: '/profile'
+      cta: 'Analyze Profile',
+      href: '/jobseeker/profile-score'
     },
     {
       icon: BarChart,

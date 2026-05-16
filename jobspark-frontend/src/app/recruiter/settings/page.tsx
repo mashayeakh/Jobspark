@@ -100,6 +100,16 @@ export default function SettingsPage() {
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      await authService.logout();
+      router.push('/login');
+    } catch (error) {
+      console.error('Logout failed:', error);
+      router.push('/login');
+    }
+  };
+
   if (loading) {
     return <RecruiterLoading />;
   }
@@ -303,7 +313,11 @@ export default function SettingsPage() {
             </CardContent>
           </Card>
 
-          <Button variant="ghost" className="w-full text-rose-500 hover:text-rose-600 hover:bg-rose-50 font-bold text-sm rounded-xl h-11 transition-colors">
+          <Button 
+            variant="ghost" 
+            className="w-full text-rose-500 hover:text-rose-600 hover:bg-rose-50 font-bold text-sm rounded-xl h-11 transition-colors"
+            onClick={handleLogout}
+          >
             <LogOut className="h-4 w-4 mr-2" />
             Log out of all devices
           </Button>

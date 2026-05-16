@@ -33,7 +33,8 @@ import {
   Lock,
   Calendar,
   Plus,
-  ChevronRight
+  ChevronRight,
+  BookText
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -68,6 +69,7 @@ const getNavigationData = (userRole: string) => {
           items: [
             { title: "Users", url: "/admin/users", icon: Users },
             { title: "Job Moderation", url: "/admin/job-moderation", icon: Briefcase },
+            { title: "Blogs", url: "/admin/blogs", icon: BookText },
             { title: "Taxonomy", url: "/admin/taxonomy", icon: FileText },
             { title: "Platform Settings", url: "/admin/settings", icon: Settings },
           ]
@@ -80,6 +82,7 @@ const getNavigationData = (userRole: string) => {
           items: [
             { title: "Dashboard", url: "/jobseeker/dashboard", icon: LayoutDashboard },
             { title: "My Profile", url: "/jobseeker/profile", icon: User },
+            { title: "Profile Analysis", url: "/jobseeker/profile-score", icon: Activity, badge: "New" },
             { title: "AI Resume Optimizer", url: "/jobseeker/resume-analyzer", icon: Zap, badge: "AI" },
             { title: "Applications", url: "/jobseeker/applications", icon: FileText },
             { title: "Saved Jobs", url: "/jobseeker/saved-jobs", icon: Briefcase },
@@ -129,9 +132,15 @@ export function AppSidebar({ userRole, ...props }: AppSidebarProps) {
 
   const groups = getNavigationData(userRole || '');
 
-  const handleLogout = () => {
-    authService.logout();
-    router.push('/login');
+  const handleLogout = async () => {
+    try {
+      await authService.logout();
+      router.push('/login');
+    } catch (error) {
+      console.error('Logout failed:', error);
+      // Still redirect even if backend fails, but at least we tried
+      router.push('/login');
+    }
   };
 
   return (

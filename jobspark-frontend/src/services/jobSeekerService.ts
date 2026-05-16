@@ -163,6 +163,14 @@ class JobSeekerService {
         }
         return { success: false, error: response.error || 'Failed to analyze resume' };
     }
+
+    async getProfileScore(): Promise<ApiResponse<any>> {
+        const response = await apiClient.get<any>('/jobseeker/profile-analytics/score');
+        if (response.success && response.data?.result) {
+            return { success: true, data: response.data.result };
+        }
+        return response;
+    }
 }
 
 export const jobSeekerService = new JobSeekerService();
