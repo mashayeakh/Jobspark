@@ -22,6 +22,7 @@ import { JobDescriptionRouter } from "./ai/job_description/jobDescription.route"
 import { BioGeneratorRouter } from "./ai/bio_generator/bioGenerator.route";
 import { RecommendationRoutes } from "./ai/recommendation/recommendation.route";
 import { InterviewRoutes } from "./interview/interview.route";
+import { ResumeAnalyzerRoutes } from "./ai/resume_analyzer/resumeAnalyzer.route";
 
 const router = express.Router();
 
@@ -30,6 +31,7 @@ router.use("/auth", AuthRoutes);
 
 //!JobSeeker
 router.use("/jobseeker/recommended", RecommendationRoutes);
+router.use("/jobseeker/resume-analyzer", ResumeAnalyzerRoutes);
 router.use("/jobseeker", JobSeekerRoutes);
 
 //!Recruiter
