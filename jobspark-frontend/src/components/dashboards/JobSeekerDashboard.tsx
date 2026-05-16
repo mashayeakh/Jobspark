@@ -292,7 +292,12 @@ export function JobSeekerDashboard({ user }: JobSeekerDashboardProps) {
               <div className="bg-linear-to-br from-indigo-500 to-blue-600 p-2 rounded-xl">
                 <Sparkles className="h-6 w-6 text-white" />
               </div>
-              Recommended for You
+              Recommended for You 
+              {aiRecommendations.length > 0 && (
+                <span className="text-sm font-bold bg-blue-100 text-blue-700 px-3 py-1 rounded-full ml-2">
+                  Showing {aiRecommendations.length} matches
+                </span>
+              )}
             </h2>
             <p className="text-slate-500 font-medium mt-1">AI-powered matches based on your unique skills and experience</p>
             {jobsError ? <p className="text-sm text-rose-500 mt-2 font-semibold">{jobsError}</p> : null}
@@ -323,7 +328,12 @@ export function JobSeekerDashboard({ user }: JobSeekerDashboardProps) {
                         )}
                       </div>
                       <div>
-                        <h3 className="text-xl font-black text-slate-900 group-hover:text-blue-600 transition-colors">{job.title}</h3>
+                        <h3 
+                          className="text-xl font-black text-slate-900 group-hover:text-blue-600 transition-colors cursor-pointer hover:underline"
+                          onClick={() => router.push(`/jobs/${job.jobId}`)}
+                        >
+                          {job.title}
+                        </h3>
                         <p className="text-slate-500 font-bold">{job.companyName}</p>
                       </div>
                     </div>

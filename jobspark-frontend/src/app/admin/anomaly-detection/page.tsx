@@ -6,6 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { Shield, Zap, Activity, AlertTriangle, Terminal, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useEffect, useState } from 'react';
+import { adminService } from '@/services/adminService';
+import { toast } from 'sonner';
 
 interface Stats {
   activeAnomalies: number;
@@ -26,12 +28,12 @@ export default function AnomalyDetectionPage() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [anomalies, setAnomalies] = useState<Anomaly[]>([]);
   const [loading, setLoading] = useState(true);
+  const [analyzing, setAnalyzing] = useState(false);
 
   const fetchStats = async () => {
     try {
-      const res = await fetch('/api/admin/anomaly-detection/stats');
-      const data = await res.json();
-      if (data.success) setStats(data.result);
+      const res = await adminService.getAnomalyStats();
+      if (res.success) setStats(res.data);
     } catch (error) {
       console.error('Failed to fetch stats:', error);
     }
@@ -39,9 +41,8 @@ export default function AnomalyDetectionPage() {
 
   const fetchAnomalies = async () => {
     try {
-      const res = await fetch('/api/admin/anomaly-detection/anomalies');
-      const data = await res.json();
-      if (data.success) setAnomalies(data.result);
+      const res = await adminService.getAnomalies();
+      if (res.success) setAnomalies(res.data);
     } catch (error) {
       console.error('Failed to fetch anomalies:', error);
     }
@@ -64,26 +65,34 @@ export default function AnomalyDetectionPage() {
 
   const handleResolve = async (id: string) => {
     try {
-      const res = await fetch(`/api/admin/anomaly-detection/resolve/${id}`, {
-        method: 'POST'
-      });
-      const data = await res.json();
-      if (data.success) {
+      const res = await adminService.resolveAnomaly(id);
+      if (res.success) {
+        toast.success("Anomaly marked as resolved.");
         fetchStats();
         fetchAnomalies();
+      } else {
+        toast.error("Failed to resolve anomaly.");
       }
     } catch (error) {
-      console.error('Failed to resolve anomaly:', error);
+      toast.error('Error resolving anomaly');
     }
   };
 
   const runAnalysis = async () => {
     try {
-      await fetch('/api/admin/anomaly-detection/analyze', { method: 'POST' });
-      fetchStats();
-      fetchAnomalies();
+      setAnalyzing(true);
+      const res = await adminService.analyzeTraffic();
+      if (res.success) {
+        toast.success("System analysis completed.");
+        fetchStats();
+        fetchAnomalies();
+      } else {
+        toast.error("Failed to run analysis.");
+      }
     } catch (error) {
-      console.error('Failed to run analysis:', error);
+      toast.error('Error running analysis');
+    } finally {
+      setAnalyzing(false);
     }
   };
 
@@ -95,9 +104,9 @@ export default function AnomalyDetectionPage() {
             <h2 className="text-3xl font-bold text-[#202224]">AI Anomaly Detection</h2>
             <p className="text-gray-500 font-medium">ML-based system health and performance monitoring</p>
           </div>
-          <Button onClick={runAnalysis} className="rounded-xl bg-[#202224] text-white font-bold shadow-lg hover:bg-black">
+          <Button onClick={runAnalysis} disabled={analyzing} className="rounded-xl bg-[#202224] text-white font-bold shadow-lg hover:bg-black">
             <Terminal className="h-4 w-4 mr-2" />
-            Run System Analysis
+            {analyzing ? "Running Analysis..." : "Run System Analysis"}
           </Button>
         </div>
 

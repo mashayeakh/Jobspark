@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { authService } from '@/services/authService';
 import { useApi } from '@/hooks/useApi';
 import { jobSeekerService, JobSeekerProfile } from '@/services/jobSeekerService';
-import { User, Mail, Bookmark, Briefcase, GraduationCap, FileText, RefreshCw, Edit, Save, X, TrendingUp } from 'lucide-react';
+import { User, Mail, Bookmark, Briefcase, GraduationCap, FileText, RefreshCw, Edit, Save, X, TrendingUp, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -39,6 +39,9 @@ export default function JobSeekerProfilePage() {
     const [formData, setFormData] = useState<Partial<JobSeekerProfile>>({});
     const [newSkill, setNewSkill] = useState('');
     const [hasInitialized, setHasInitialized] = useState(false);
+    const [isGeneratingBio, setIsGeneratingBio] = useState(false);
+    const [bioOptions, setBioOptions] = useState<string[]>([]);
+    const [isUploadingResume, setIsUploadingResume] = useState(false);
 
     useEffect(() => {
         if (profile && !hasInitialized) {
@@ -94,6 +97,34 @@ export default function JobSeekerProfilePage() {
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleResumeUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setIsUploadingResume(true);
+        const result = await jobSeekerService.uploadResume(file);
+        if (result.success && result.data?.resumeUrl) {
+            setFormData(prev => ({ ...prev, resumeUrl: result.data!.resumeUrl }));
+            refetch(); // fetch fresh data to show updated URL
+        } else {
+            alert(result.error || 'Failed to upload resume');
+        }
+        setIsUploadingResume(false);
+    };
+
+    const handleGenerateBio = async () => {
+        setIsGeneratingBio(true);
+        setBioOptions([]);
+        const skillsList = formData.skills?.map((s: any) => s.name) || [];
+        const result = await jobSeekerService.generateBioOptions(formData.headline || '', formData.bio || '', skillsList);
+        if (result.success && result.data) {
+            setBioOptions(result.data);
+        } else {
+            alert(result.error || "Failed to generate bio options.");
+        }
+        setIsGeneratingBio(false);
     };
 
     const addWorkExperience = () => {
@@ -290,17 +321,57 @@ export default function JobSeekerProfilePage() {
                                     )}
                                 </div>
                                 <div className="space-y-2 rounded-3xl bg-slate-50 p-4 sm:col-span-2">
-                                    <p className="text-xs uppercase tracking-[0.2em] text-gray-500">Bio</p>
                                     {isEditing ? (
-                                        <Textarea
-                                            name="bio"
-                                            value={formData.bio || ''}
-                                            onChange={handleInputChange}
-                                            placeholder="Tell us about yourself..."
-                                            className="bg-white border-gray-200 rounded-xl min-h-[100px]"
-                                        />
+                                        <div className="space-y-3">
+                                            <div className="flex items-center justify-between">
+                                                <p className="text-xs uppercase tracking-[0.2em] text-gray-500">Bio</p>
+                                                <Button
+                                                    type="button"
+                                                    size="sm"
+                                                    variant="outline"
+                                                    className="h-7 text-xs border-blue-200 text-blue-600 hover:bg-blue-50"
+                                                    onClick={handleGenerateBio}
+                                                    disabled={isGeneratingBio}
+                                                >
+                                                    {isGeneratingBio ? <RefreshCw className="w-3 h-3 mr-1 animate-spin" /> : <Zap className="w-3 h-3 mr-1" />}
+                                                    Generate with AI
+                                                </Button>
+                                            </div>
+                                            <Textarea
+                                                name="bio"
+                                                value={formData.bio || ''}
+                                                onChange={handleInputChange}
+                                                placeholder="Tell us about yourself..."
+                                                className="bg-white border-gray-200 rounded-xl min-h-[100px]"
+                                            />
+                                            {bioOptions.length > 0 && (
+                                                <div className="mt-4 p-4 rounded-xl border border-blue-100 bg-blue-50/50 space-y-3">
+                                                    <p className="text-xs font-bold text-blue-800 uppercase tracking-wider mb-2">Select an AI Generated Bio:</p>
+                                                    {bioOptions.map((opt, i) => (
+                                                        <div
+                                                            key={i}
+                                                            onClick={() => {
+                                                                setFormData(prev => ({ ...prev, bio: opt }));
+                                                                setBioOptions([]);
+                                                            }}
+                                                            className="p-3 bg-white border border-blue-200 rounded-lg text-sm text-gray-700 cursor-pointer hover:border-blue-400 hover:shadow-md transition-all group"
+                                                        >
+                                                            <div className="flex gap-2 items-start">
+                                                                <div className="mt-0.5 text-blue-400 group-hover:text-blue-600">
+                                                                    <Zap className="w-4 h-4" />
+                                                                </div>
+                                                                <p>{opt}</p>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
                                     ) : (
-                                        <p className="whitespace-pre-line text-sm text-gray-900">{profile?.bio ?? 'No summary provided yet.'}</p>
+                                        <>
+                                            <p className="text-xs uppercase tracking-[0.2em] text-gray-500">Bio</p>
+                                            <p className="whitespace-pre-line text-sm text-gray-900">{profile?.bio ?? 'No summary provided yet.'}</p>
+                                        </>
                                     )}
                                 </div>
                             </div>
@@ -344,15 +415,77 @@ export default function JobSeekerProfilePage() {
                                         <p className="mt-2 text-sm font-semibold text-gray-900">{formatSalary(profile?.preferredSalaryMin, profile?.preferredSalaryMax)}</p>
                                     )}
                                 </div>
-                                <div className="rounded-3xl bg-slate-50 p-4">
-                                    <p className="text-xs uppercase tracking-[0.2em] text-gray-500">Resume</p>
-                                    {profile?.resumeUrl ? (
-                                        <a href={profile.resumeUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-sm font-semibold text-[#4880FF] hover:underline">
-                                            <FileText className="w-4 h-4" />
-                                            View resume
-                                        </a>
+                                <div className="rounded-3xl bg-slate-50 p-4 relative overflow-hidden group">
+                                    <p className="text-xs uppercase tracking-[0.2em] text-gray-500 mb-2">Resume</p>
+
+                                    {isEditing ? (
+                                        <div className="space-y-3">
+                                            {formData.resumeUrl ? (
+                                                <div className="flex items-center justify-between bg-white px-3 py-2 rounded-xl border border-blue-100">
+                                                    <a href={formData.resumeUrl}
+                                                        download
+                                                        target="_blank"
+                                                        rel="noreferrer" className="flex items-center gap-2 text-sm font-semibold text-[#4880FF] hover:underline truncate">
+                                                        <FileText className="w-4 h-4 shrink-0" />
+                                                        <span className="truncate">Current Resume</span>
+                                                    </a>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        className="h-7 w-7 p-0 text-red-500 hover:text-red-600 hover:bg-red-50 rounded-lg"
+                                                        onClick={() => setFormData(prev => ({ ...prev, resumeUrl: null }))}
+                                                    >
+                                                        <X className="w-4 h-4" />
+                                                    </Button>
+                                                </div>
+                                            ) : null}
+
+                                            <div className="relative">
+                                                <input
+                                                    type="file"
+                                                    id="resume-upload"
+                                                    className="hidden"
+                                                    accept=".pdf,.doc,.docx"
+                                                    onChange={handleResumeUpload}
+                                                    disabled={isUploadingResume}
+                                                />
+                                                <Label
+                                                    htmlFor="resume-upload"
+                                                    className={`flex items-center justify-center gap-2 w-full h-10 px-4 text-sm font-bold rounded-xl border-2 border-dashed transition-all cursor-pointer
+                                                        ${isUploadingResume
+                                                            ? 'border-gray-200 text-gray-400 bg-gray-50 cursor-not-allowed'
+                                                            : 'border-blue-200 text-[#4880FF] bg-blue-50/50 hover:bg-blue-50 hover:border-[#4880FF]'
+                                                        }`}
+                                                >
+                                                    {isUploadingResume ? (
+                                                        <span className="flex items-center gap-2 animate-pulse">
+                                                            <div className="w-4 h-4 border-2 border-[#4880FF] border-t-transparent rounded-full animate-spin" />
+                                                            Uploading...
+                                                        </span>
+                                                    ) : (
+                                                        <>
+                                                            <FileText className="w-4 h-4" />
+                                                            {formData.resumeUrl ? 'Replace File' : 'Upload File'}
+                                                        </>
+                                                    )}
+                                                </Label>
+                                            </div>
+                                        </div>
                                     ) : (
-                                        <p className="text-sm text-gray-900">Not provided</p>
+                                        profile?.resumeUrl ? (
+                                            <a href={profile.resumeUrl}
+                                                download
+                                                target="_blank"
+                                                rel="noreferrer" className="inline-flex items-center gap-2 text-sm font-semibold text-[#4880FF] hover:underline bg-white px-4 py-2 rounded-xl border border-blue-100 shadow-sm transition-transform hover:scale-105 active:scale-95">
+                                                <FileText className="w-4 h-4" />
+                                                View Resume
+                                            </a>
+                                        ) : (
+                                            <p className="text-sm font-medium text-gray-500 bg-white px-4 py-2 rounded-xl border border-gray-100 inline-flex items-center gap-2">
+                                                <X className="w-4 h-4 text-gray-400" />
+                                                Not provided
+                                            </p>
+                                        )
                                     )}
                                 </div>
                             </div>
@@ -574,11 +707,10 @@ export default function JobSeekerProfilePage() {
                                                             key={skillName}
                                                             type="button"
                                                             onClick={() => isSelected ? removeSkill(skillName) : addSkill(skillName)}
-                                                            className={`rounded-full px-4 py-2 text-sm font-medium transition-all duration-200 border ${
-                                                                isSelected
-                                                                    ? "bg-[#4880FF] text-white border-[#4880FF] shadow-lg shadow-blue-100 transform scale-105"
-                                                                    : "bg-white text-gray-600 hover:border-gray-300 border-gray-100"
-                                                            }`}
+                                                            className={`rounded-full px-4 py-2 text-sm font-medium transition-all duration-200 border ${isSelected
+                                                                ? "bg-[#4880FF] text-white border-[#4880FF] shadow-lg shadow-blue-100 transform scale-105"
+                                                                : "bg-white text-gray-600 hover:border-gray-300 border-gray-100"
+                                                                }`}
                                                         >
                                                             {skillName}
                                                         </button>
@@ -726,8 +858,8 @@ export default function JobSeekerProfilePage() {
                                                     {completion === 100 ? "All set!" : completion > 70 ? "Almost there!" : "Getting started!"}
                                                 </h4>
                                                 <p className="text-[11px] text-gray-500 leading-tight">
-                                                    {completion === 100 
-                                                        ? "Your profile is fully optimized." 
+                                                    {completion === 100
+                                                        ? "Your profile is fully optimized."
                                                         : `Complete your profile to stand out to recruiters.`}
                                                 </p>
                                             </div>
@@ -746,11 +878,10 @@ export default function JobSeekerProfilePage() {
                                         { label: 'Career Preferences', completed: !!profile?.preferredSalaryMin },
                                     ].map((step, i) => (
                                         <div key={i} className="flex items-center gap-3 animate-in fade-in slide-in-from-right-1 duration-300" style={{ animationDelay: `${i * 100}ms` }}>
-                                            <div className={`flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center border transition-all duration-300 ${
-                                                step.completed 
-                                                    ? "bg-emerald-50 border-emerald-200 text-emerald-600 scale-110" 
-                                                    : "bg-white border-gray-100 text-gray-200"
-                                            }`}>
+                                            <div className={`flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center border transition-all duration-300 ${step.completed
+                                                ? "bg-emerald-50 border-emerald-200 text-emerald-600 scale-110"
+                                                : "bg-white border-gray-100 text-gray-200"
+                                                }`}>
                                                 {step.completed ? (
                                                     <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
@@ -765,7 +896,7 @@ export default function JobSeekerProfilePage() {
                                         </div>
                                     ))}
                                 </div>
-                                
+
                                 {(() => {
                                     const steps = [
                                         !!profile?.name && !!profile?.headline,

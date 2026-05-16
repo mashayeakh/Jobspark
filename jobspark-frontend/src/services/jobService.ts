@@ -111,20 +111,36 @@ export interface AIRecommendedJob {
   matchReasons: string[];
 }
 
+export interface Meta {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
 export interface JobResponse {
   success: boolean;
   message: string;
-  result: Job[];
+  result: Job[] | { jobs: Job[]; meta: Meta };
 }
 
 export class JobService {
-  async getJobs(filters?: JobFilters): Promise<ApiResponse<Job[]>> {
+  async getJobs(filters?: JobFilters & { page?: number; limit?: number }): Promise<ApiResponse<{ jobs: Job[]; meta?: Meta }>> {
     const response = await apiClient.get<JobResponse>('/jobs', filters as Record<string, string>);
 
     if (response.success && response.data) {
+      const result = response.data.result;
+      
+      if (Array.isArray(result)) {
+        return {
+          success: true,
+          data: { jobs: result },
+        };
+      }
+
       return {
         success: true,
-        data: response.data.result,
+        data: result,
       };
     }
 

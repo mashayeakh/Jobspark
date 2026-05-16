@@ -64,7 +64,15 @@ export default function PostJobPage() {
   const [errorMessage, setErrorMessage] = useState('');
   const [aiEnabled, setAiEnabled] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [aiGeneratedDescription, setAiGeneratedDescription] = useState('');
+  const [aiGeneratedData, setAiGeneratedData] = useState<{
+    title: string, 
+    description: string, 
+    responsibilities: string, 
+    requirements: string, 
+    benefits: string, 
+    skills: string[],
+    category: string
+  } | null>(null);
   const [aiRole, setAiRole] = useState('');
   const [aiTechnologies, setAiTechnologies] = useState('');
   const [aiExperience, setAiExperience] = useState('');
@@ -156,45 +164,44 @@ export default function PostJobPage() {
     setErrorMessage('');
 
     try {
-      // Simulate AI API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
-      const experienceLevel = {
-        JUNIOR: '0-2 years of experience',
-        MID: '2-5 years of experience',
-        SENIOR: '5+ years of experience',
-        LEAD: '7+ years of experience with leadership responsibilities'
-      };
-
-      const description = `We are seeking a talented ${aiRole} to join our dynamic team. The ideal candidate will have ${experienceLevel[aiExperience as keyof typeof experienceLevel]} and strong proficiency in ${aiTechnologies}.
-
-Key Responsibilities:
-• Design, develop, and maintain high-quality software solutions
-• Collaborate with cross-functional teams to define and implement features
-• Write clean, maintainable, and well-documented code
-• Participate in code reviews and contribute to technical discussions
-• Troubleshoot and debug complex issues
-
-Requirements:
-• ${experienceLevel[aiExperience as keyof typeof experienceLevel]} in software development
-• Strong expertise in ${aiTechnologies}
-• Excellent problem-solving and analytical skills
-• Ability to work independently and in a team environment
-• Strong communication skills and attention to detail
-
-We offer a competitive salary, flexible work environment, and opportunities for professional growth. If you're passionate about technology and want to make an impact, we'd love to hear from you!`;
-
-      setAiGeneratedDescription(description);
+      const response = await recruiterService.generateJobDescription(aiRole, aiTechnologies, aiExperience);
+      
+      if (response.success && response.data) {
+        setAiGeneratedData(response.data as any);
+      } else {
+        setErrorMessage(response.error || 'Failed to generate description. Please try again.');
+      }
     } catch (error) {
-      setErrorMessage('Failed to generate description. Please try again.');
+      setErrorMessage('An unexpected error occurred while generating description.');
     } finally {
       setIsGenerating(false);
     }
   };
 
   const insertAIDescription = () => {
-    setFormData(prev => ({ ...prev, description: aiGeneratedDescription }));
-    setSubmitMessage('AI description inserted into form!');
+    if (!aiGeneratedData) return;
+    
+    setFormData(prev => {
+      let matchedCategoryId = prev.category;
+      if (aiGeneratedData.category && categoriesData) {
+        const found = categoriesData.find((c: any) => c.name.toLowerCase() === aiGeneratedData.category.toLowerCase());
+        if (found) {
+          matchedCategoryId = found.id;
+        }
+      }
+
+      return {
+        ...prev, 
+        title: aiGeneratedData.title || prev.title,
+        description: aiGeneratedData.description,
+        responsibilities: aiGeneratedData.responsibilities,
+        requirements: aiGeneratedData.requirements,
+        benefits: aiGeneratedData.benefits,
+        skills: Array.from(new Set([...prev.skills, ...(aiGeneratedData.skills || [])])),
+        category: matchedCategoryId
+      };
+    });
+    setSubmitMessage('AI content inserted into form!');
     setTimeout(() => setSubmitMessage(''), 3000);
   };
 
@@ -747,33 +754,39 @@ We offer a competitive salary, flexible work environment, and opportunities for 
                     </div>
 
                     {/* AI Output */}
-                    {aiGeneratedDescription && (
+                    {aiGeneratedData && (
                       <div className="space-y-4">
                         <div className="flex items-center justify-between">
-                          <h3 className="font-semibold text-gray-900">Generated Description</h3>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setIsEditingAi(!isEditingAi)}
-                            className="gap-1"
-                          >
-                            <Edit3 className="h-3 w-3" />
-                            {isEditingAi ? 'Done' : 'Edit'}
-                          </Button>
+                          <h3 className="font-semibold text-gray-900">Generated Content Preview</h3>
                         </div>
-                        <div className="bg-white rounded-lg border border-gray-200 p-4">
-                          <div
-                            contentEditable={isEditingAi}
-                            suppressContentEditableWarning={true}
-                            className={`min-h-[120px] text-sm text-gray-700 whitespace-pre-wrap ${isEditingAi ? 'outline-none border-2 border-blue-500 rounded p-2' : ''
-                              }`}
-                            onBlur={(e) => {
-                              if (isEditingAi) {
-                                setAiGeneratedDescription(e.currentTarget.textContent || '');
-                              }
-                            }}
-                          >
-                            {aiGeneratedDescription}
+                        <div className="bg-white rounded-lg border border-gray-200 p-4 space-y-4 max-h-[300px] overflow-y-auto">
+                          <div>
+                            <h4 className="font-bold text-sm text-gray-800 mb-1">Title</h4>
+                            <p className="text-sm text-gray-600 whitespace-pre-wrap">{aiGeneratedData.title}</p>
+                          </div>
+                          <div>
+                            <h4 className="font-bold text-sm text-gray-800 mb-1">Description</h4>
+                            <p className="text-sm text-gray-600 whitespace-pre-wrap">{aiGeneratedData.description}</p>
+                          </div>
+                          <div>
+                            <h4 className="font-bold text-sm text-gray-800 mb-1">Responsibilities</h4>
+                            <p className="text-sm text-gray-600 whitespace-pre-wrap">{aiGeneratedData.responsibilities}</p>
+                          </div>
+                          <div>
+                            <h4 className="font-bold text-sm text-gray-800 mb-1">Requirements</h4>
+                            <p className="text-sm text-gray-600 whitespace-pre-wrap">{aiGeneratedData.requirements}</p>
+                          </div>
+                          <div>
+                            <h4 className="font-bold text-sm text-gray-800 mb-1">Benefits</h4>
+                            <p className="text-sm text-gray-600 whitespace-pre-wrap">{aiGeneratedData.benefits}</p>
+                          </div>
+                          <div>
+                            <h4 className="font-bold text-sm text-gray-800 mb-1">Skills</h4>
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              {aiGeneratedData.skills?.map(skill => (
+                                <Badge key={skill} variant="secondary" className="text-xs">{skill}</Badge>
+                              ))}
+                            </div>
                           </div>
                         </div>
                         <Button
@@ -781,7 +794,7 @@ We offer a competitive salary, flexible work environment, and opportunities for 
                           className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
                         >
                           <Plus className="h-4 w-4 mr-2" />
-                          Insert into Form
+                          Insert all into Form
                         </Button>
                       </div>
                     )}

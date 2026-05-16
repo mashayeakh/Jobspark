@@ -232,6 +232,20 @@ class RecruiterService {
       error: response.error || 'Failed to update application status',
     };
   }
+
+  async generateJobDescription(role: string, technologies: string, experience: string): Promise<ApiResponse<{ description: string }>> {
+    const response = await apiClient.post<any>('/ai/job-description/generate', { role, technologies, experience });
+    if (response.success && response.data?.result) {
+      return {
+        success: true,
+        data: response.data.result,
+      };
+    }
+    return {
+      success: false,
+      error: response.error || 'Failed to generate job description',
+    };
+  }
 }
 
 export const recruiterService = new RecruiterService();

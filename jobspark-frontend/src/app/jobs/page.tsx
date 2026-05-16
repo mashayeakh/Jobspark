@@ -5,10 +5,13 @@ import { jobService } from '@/services/jobService';
 import { useApi } from '@/hooks/useApi';
 
 export default function JobsPage() {
-  const { data: jobsData, loading, error } = useApi(() => jobService.getJobs());
+  const fetchLimit = 100;
+  const { data: jobsData, loading, error } = useApi(() => jobService.getJobs({ page: 1, limit: fetchLimit }));
+
+  const jobs = jobsData?.jobs || [];
 
   // Transform API data to match component format
-  const transformedJobs = jobsData?.map(job => ({
+  const transformedJobs = jobs.map(job => ({
     id: job.id,
     title: job.title,
     company: job.company.name,
@@ -16,6 +19,9 @@ export default function JobsPage() {
     workStyle: job.locationType === 'REMOTE' ? 'Remote' : job.locationType === 'HYBRID' ? 'Hybrid' : 'Onsite',
     location: job.location,
     salary: job.salaryMin && job.salaryMax ? `$${(job.salaryMin / 1000).toFixed(0)}k – $${(job.salaryMax / 1000).toFixed(0)}k` : 'Salary not disclosed',
+    salaryMin: job.salaryMin,
+    salaryMax: job.salaryMax,
+    locationType: job.locationType,
     equity: undefined,
     posted: 'today', // Could calculate from job.createdAt
     category: job.category?.name || 'General',
@@ -30,7 +36,7 @@ export default function JobsPage() {
     deadline: job.applicationDeadline,
     aboutCompany: job.company.description || job.company.name,
 
-  })) || [];
+  }));
 
   return (
     <JobListingTemplate

@@ -33,6 +33,7 @@ export default function FraudShieldPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedJob, setSelectedJob] = useState<any>(null);
+  const [analyzeAllResult, setAnalyzeAllResult] = useState<any>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRisk, setFilterRisk] = useState('ALL');
@@ -102,6 +103,25 @@ export default function FraudShieldPage() {
       }
     } catch (err) {
       alert('An unexpected error occurred');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleAnalyzeAllJobs = async () => {
+    try {
+      setActionLoading('analyzeAll');
+      const response = await adminService.analyzeAllJobs();
+      if (response.success) {
+        setAnalyzeAllResult(response.data);
+        await fetchFraudData();
+        alert(`Analyze All Jobs completed: ${response.data.totalAnalyzed} jobs analyzed`);
+      } else {
+        alert(response.error || 'Failed to analyze all jobs');
+      }
+    } catch (err) {
+      alert('An unexpected error occurred');
+      console.error('Analyze all jobs error:', err);
     } finally {
       setActionLoading(null);
     }
@@ -186,12 +206,29 @@ export default function FraudShieldPage() {
               <RefreshCw className="h-4 w-4 mr-2" />
               Refresh Data
             </Button>
-            <Button className="rounded-xl bg-[#4880FF] font-bold shadow-lg shadow-blue-100">
-              <Zap className="h-4 w-4 mr-2" />
+            <Button
+              className="rounded-xl bg-[#4880FF] font-bold shadow-lg shadow-blue-100"
+              onClick={handleAnalyzeAllJobs}
+              disabled={actionLoading === 'analyzeAll'}
+            >
+              {actionLoading === 'analyzeAll' ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <Zap className="h-4 w-4 mr-2" />
+              )}
               Analyze All Jobs
             </Button>
           </div>
         </div>
+
+        {analyzeAllResult && (
+          <Card className="border-0 shadow-sm rounded-2xl border-blue-100 bg-blue-50">
+            <CardContent className="p-6">
+              <p className="text-sm font-bold text-blue-700">{analyzeAllResult.message}</p>
+              <p className="text-sm text-gray-600">Total Analyzed: {analyzeAllResult.totalAnalyzed}</p>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">

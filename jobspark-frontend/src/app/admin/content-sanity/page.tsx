@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { AdminShell } from '@/components/layouts/AdminShell';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -72,14 +72,6 @@ const validateJobId = (jobId: string): boolean => {
   return /^[a-zA-Z0-9-]{1,50}$/.test(jobId);
 };
 
-const validateEmail = (email: string): boolean => {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-};
-
-const validateTextInput = (text: string, minLength: number = 1, maxLength: number = 1000): boolean => {
-  return text.length >= minLength && text.length <= maxLength;
-};
-
 export default function ContentSanityPage() {
   const [stats, setStats] = useState<SanityStats | null>(null);
   const [jobs, setJobs] = useState<JobAnalysis[]>([]);
@@ -92,7 +84,7 @@ export default function ContentSanityPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   // API functions
-  const fetchStats = async () => {
+  const fetchStats = useCallback(async () => {
     try {
       console.log('🔍 [CLIENT] Starting fetchStats...');
       console.log('🔍 [CLIENT] Fetching from: /api/admin/content-sanity/stats');
@@ -130,9 +122,9 @@ export default function ContentSanityPage() {
         stack: error instanceof Error ? error.stack : 'No stack trace'
       });
     }
-  };
+  }, []);
 
-  const fetchJobs = async () => {
+  const fetchJobs = useCallback(async () => {
     try {
       console.log('🔍 [CLIENT] Starting fetchJobs...');
 
@@ -164,7 +156,7 @@ export default function ContentSanityPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   const analyzeJob = async (jobId: string) => {
     if (!validateJobId(jobId)) {
@@ -256,9 +248,14 @@ export default function ContentSanityPage() {
   };
 
   useEffect(() => {
-    fetchStats();
-    fetchJobs();
-  }, []);
+    // Use a timeout to defer state updates and avoid "cascading renders" warnings
+    const timeoutId = setTimeout(() => {
+      fetchStats();
+      fetchJobs();
+    }, 0);
+
+    return () => clearTimeout(timeoutId);
+  }, [fetchStats, fetchJobs]);
 
   return (
     <AdminShell title="Content Sanity">
@@ -583,7 +580,7 @@ export default function ContentSanityPage() {
                       <ul className="space-y-2">
                         {selectedJob.analysis.suggestions.map((suggestion, index) => (
                           <li key={index} className="flex items-start gap-3 p-3 bg-blue-50 rounded-lg">
-                            <CheckCircle className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                            <CheckCircle className="h-5 w-5 text-blue-600 mt-0.5 shrink-0" />
                             <span className="text-sm">{suggestion}</span>
                           </li>
                         ))}

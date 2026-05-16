@@ -17,7 +17,7 @@ export interface Job {
   requirements: string[];
   responsibilities: string[];
   benefits: string[];
-  vacancy: number;
+  vacancy?: number;
   skills: string[];
   aboutCompany: string;
 }

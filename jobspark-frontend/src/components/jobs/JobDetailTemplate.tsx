@@ -74,12 +74,12 @@ export default function JobDetailTemplate({ job, backPath, backLabel }: JobDetai
         // Fetch More Jobs
         const similarRes = await jobService.getJobs({ categoryId: job.categoryId || undefined });
         if (similarRes.success && similarRes.data && isMounted) {
-          setSimilarJobs(similarRes.data.filter(j => j.id !== job.id).slice(0, 4));
+          setSimilarJobs((similarRes.data.jobs || []).filter(j => j.id !== job.id).slice(0, 4));
         }
 
         const companyRes = await jobService.getJobs(); 
         if (companyRes.success && companyRes.data && isMounted) {
-          setCompanyJobs(companyRes.data.filter(j => j.companyId === job.companyId && j.id !== job.id).slice(0, 4));
+          setCompanyJobs((companyRes.data.jobs || []).filter(j => j.companyId === job.companyId && j.id !== job.id).slice(0, 4));
         }
       } catch (error) {
         console.error('Error fetching job details:', error);
@@ -115,12 +115,15 @@ export default function JobDetailTemplate({ job, backPath, backLabel }: JobDetai
     } finally { setLoadingApply(false); }
   };
 
-  const formatList = (val?: string | string[]) => {
+  // Handles raw DB strings (split on newlines, bullets, semicolons) or pre-split arrays
+  const formatList = (val?: string | string[], separator = '[\n•;]') => {
     if (!val) return [];
     if (Array.isArray(val)) return val.filter(line => line.trim().length > 0);
     if (typeof val !== 'string') return [];
-    return val.split('\n').filter(line => line.trim().length > 0);
+    return val.split(new RegExp(separator)).map(s => s.trim()).filter(s => s.length > 0);
   };
+  // Requirements may be period-separated
+  const formatRequirements = (val?: string | string[]) => formatList(val, '[\n•;.]');
 
   const formattedSalary = job.salaryMin && job.salaryMax 
     ? `$${(job.salaryMin/1000).toFixed(0)}k - $${(job.salaryMax/1000).toFixed(0)}k`
@@ -191,7 +194,7 @@ export default function JobDetailTemplate({ job, backPath, backLabel }: JobDetai
                 </div>
 
                 <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-gray-600">
-                  <span className="flex items-center gap-2"><Briefcase className="w-4 h-4" /> {job.type} • {job.experienceLevel}</span>
+                  <span className="flex items-center gap-2"><Briefcase className="w-4 h-4" /> {job.type.split('_').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ')} • {job.experienceLevel.charAt(0).toUpperCase() + job.experienceLevel.slice(1).toLowerCase()}</span>
                   <span className="flex items-center gap-2 font-bold text-green-700"><DollarSign className="w-4 h-4" /> {formattedSalary}</span>
                   <span className="flex items-center gap-2"><Clock className="w-4 h-4" /> Posted {timeAgo(job.createdAt)}</span>
                 </div>

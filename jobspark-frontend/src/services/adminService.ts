@@ -300,6 +300,17 @@ class AdminService {
     return response;
   }
 
+  async analyzeAllJobs(): Promise<ApiResponse<any>> {
+    const response = await apiClient.post<any>('/admin/fraud-shield/analyze-all');
+    if (response.success && response.data?.result) {
+      return {
+        success: true,
+        data: response.data.result
+      };
+    }
+    return response;
+  }
+
   async analyzeJob(jobId: string): Promise<ApiResponse<any>> {
     const response = await apiClient.get<any>(`/admin/fraud-shield/analyze/${jobId}`);
     if (response.success && response.data?.result) {
@@ -373,6 +384,108 @@ class AdminService {
 
   async getMarketIntelligenceDashboard(days?: number): Promise<ApiResponse<any>> {
     const response = await apiClient.get<any>('/admin/market-intelligence/dashboard', days ? { days: days.toString() } : undefined);
+    if (response.success && response.data?.result) {
+      return {
+        success: true,
+        data: response.data.result
+      };
+    }
+    return response;
+  }
+
+  // Churn Prediction
+  async getChurnPredictions(): Promise<ApiResponse<any>> {
+    const response = await apiClient.get<any>('/admin/churn-predictor');
+    if (response.success && response.data?.result) {
+      return {
+        success: true,
+        data: response.data.result
+      };
+    }
+    return response;
+  }
+
+  async retrainChurnModel(): Promise<ApiResponse<any>> {
+    const response = await apiClient.post<any>('/admin/churn-predictor/retrain');
+    if (response.success && response.data?.result) {
+      return {
+        success: true,
+        data: response.data.result
+      };
+    }
+    return response;
+  }
+
+  // Anomaly Detection
+  async getAnomalyStats(): Promise<ApiResponse<any>> {
+    const response = await apiClient.get<any>('/admin/anomaly-detection/stats');
+    if (response.success && response.data?.result) {
+      return {
+        success: true,
+        data: response.data.result
+      };
+    }
+    return response;
+  }
+
+  async getAnomalies(): Promise<ApiResponse<any>> {
+    const response = await apiClient.get<any>('/admin/anomaly-detection/anomalies');
+    if (response.success && response.data?.result) {
+      return {
+        success: true,
+        data: response.data.result
+      };
+    }
+    return response;
+  }
+
+  async resolveAnomaly(anomalyId: string): Promise<ApiResponse<any>> {
+    const response = await apiClient.post<any>(`/admin/anomaly-detection/resolve/${anomalyId}`);
+    if (response.success && response.data?.result) {
+      return {
+        success: true,
+        data: response.data.result
+      };
+    }
+    return response;
+  }
+
+  async analyzeTraffic(): Promise<ApiResponse<any>> {
+    const response = await apiClient.post<any>('/admin/anomaly-detection/analyze');
+    if (response.success && response.data?.result) {
+      return {
+        success: true,
+        data: response.data.result
+      };
+    }
+    return response;
+  }
+
+  // Platform Settings
+  async getPlatformSettings(): Promise<ApiResponse<any>> {
+    const response = await apiClient.get<any>('/admin/settings');
+    if (response.success && response.data?.result) {
+      return {
+        success: true,
+        data: response.data.result
+      };
+    }
+    return response;
+  }
+
+  async updatePlatformSettings(settings: any): Promise<ApiResponse<any>> {
+    const response = await apiClient.patch<any>('/admin/settings', settings);
+    if (response.success && response.data?.result) {
+      return {
+        success: true,
+        data: response.data.result
+      };
+    }
+    return response;
+  }
+
+  async optimizePlatformSettings(): Promise<ApiResponse<any>> {
+    const response = await apiClient.post<any>('/admin/settings/optimize');
     if (response.success && response.data?.result) {
       return {
         success: true,
