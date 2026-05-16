@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { jobService, Job, AIRecommendedJob } from '@/services/jobService';
 import { jobSeekerService } from '@/services/jobSeekerService';
+import { applicationService } from '@/services/applicationService';
 
 interface JobSeekerDashboardProps {
   user: { name?: string } | null;
@@ -37,23 +38,21 @@ export function JobSeekerDashboard({ user }: JobSeekerDashboardProps) {
   const [jobsLoading, setJobsLoading] = useState(false);
   const [jobsError, setJobsError] = useState<string | null>(null);
   const [savingJobIds, setSavingJobIds] = useState<Record<string, boolean>>({});
-  const [applyingJobIds, setApplyingJobIds] = useState<Record<string, boolean>>({});
   const [savedJobIds, setSavedJobIds] = useState<Record<string, boolean>>({});
   const [appliedJobIds, setAppliedJobIds] = useState<Record<string, boolean>>({});
+  const [recPage, setRecPage] = useState(1);
+  const REC_PER_PAGE = 6;
 
   const formatSalary = (job: any) => {
     if (job.salaryMin && job.salaryMax) {
       return `$${job.salaryMin.toLocaleString()} - $${job.salaryMax.toLocaleString()}`;
     }
-
     if (job.salaryMin) {
       return `$${job.salaryMin.toLocaleString()}+`;
     }
-
     if (job.salaryMax) {
       return `Up to $${job.salaryMax.toLocaleString()}`;
     }
-
     return job.salaryRange || 'Salary not specified';
   };
 
@@ -62,9 +61,10 @@ export function JobSeekerDashboard({ user }: JobSeekerDashboardProps) {
     setJobsError(null);
 
     try {
-      const [aiResponse, savedResponse] = await Promise.all([
+      const [aiResponse, savedResponse, appliedResponse] = await Promise.all([
         jobService.getAIRecommendedJobs(),
-        jobService.getSavedJobs()
+        jobService.getSavedJobs(),
+        applicationService.getMyApplications(),
       ]);
 
       if (aiResponse.success && aiResponse.data) {
@@ -80,6 +80,14 @@ export function JobSeekerDashboard({ user }: JobSeekerDashboardProps) {
           return acc;
         }, {});
         setSavedJobIds(savedIds);
+      }
+
+      if (appliedResponse.success && appliedResponse.data) {
+        const appliedIds = appliedResponse.data.reduce<Record<string, boolean>>((acc, app) => {
+          acc[app.job.id] = true;
+          return acc;
+        }, {});
+        setAppliedJobIds(appliedIds);
       }
     } catch (error) {
       setJobsError(error instanceof Error ? error.message : 'Failed to load jobs.');
@@ -131,33 +139,13 @@ export function JobSeekerDashboard({ user }: JobSeekerDashboardProps) {
         const response = await jobService.saveJob(jobId);
         if (response.success) {
           setSavedJobIds((prev) => ({ ...prev, [jobId]: true }));
-          const savedJob = aiRecommendations.find((job) => job.jobId === jobId);
-          if (savedJob) {
-            // Convert AIRecommendedJob to Job for savedJobs state if needed, 
-            // or just reload. For now, reload is safer.
-            await loadDashboardJobs();
-          }
+          await loadDashboardJobs();
         }
       }
     } catch (error) {
       console.error('Save job error:', error);
     } finally {
       setSavingJobIds((prev) => ({ ...prev, [jobId]: false }));
-    }
-  };
-
-  const handleApply = async (jobId: string) => {
-    setApplyingJobIds((prev) => ({ ...prev, [jobId]: true }));
-
-    try {
-      const response = await jobService.applyToJob(jobId);
-      if (response.success) {
-        setAppliedJobIds((prev) => ({ ...prev, [jobId]: true }));
-      }
-    } catch (error) {
-      console.error('Apply job error:', error);
-    } finally {
-      setApplyingJobIds((prev) => ({ ...prev, [jobId]: false }));
     }
   };
 
@@ -196,6 +184,11 @@ export function JobSeekerDashboard({ user }: JobSeekerDashboardProps) {
   const interviewsScheduled = stats.interviewsScheduled ?? 0;
   const profileViews = stats.profileViews ?? 0;
   const skillsCount = stats.skillsCount ?? 0;
+
+  // ✅ Moved out of JSX to fix "Type '() => Element' is not assignable to type 'ReactNode'" error
+  const unappliedRecs = aiRecommendations.filter(job => !appliedJobIds[job.jobId]);
+  const totalRecPages = Math.max(1, Math.ceil(unappliedRecs.length / REC_PER_PAGE));
+  const pagedRecs = unappliedRecs.slice((recPage - 1) * REC_PER_PAGE, recPage * REC_PER_PAGE);
 
   return (
     <div className="space-y-8">
@@ -292,7 +285,7 @@ export function JobSeekerDashboard({ user }: JobSeekerDashboardProps) {
               <div className="bg-linear-to-br from-indigo-500 to-blue-600 p-2 rounded-xl">
                 <Sparkles className="h-6 w-6 text-white" />
               </div>
-              Recommended for You 
+              Recommended for You
               {aiRecommendations.length > 0 && (
                 <span className="text-sm font-bold bg-blue-100 text-blue-700 px-3 py-1 rounded-full ml-2">
                   Showing {aiRecommendations.length} matches
@@ -307,94 +300,135 @@ export function JobSeekerDashboard({ user }: JobSeekerDashboardProps) {
           </Button>
         </div>
 
+        {/* ✅ Clean conditional rendering — no IIFE */}
         {jobsLoading ? (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {[1, 2, 3, 4].map((i) => (
               <div key={i} className="h-64 bg-slate-100 rounded-[2.5rem] animate-pulse" />
             ))}
           </div>
-        ) : aiRecommendations.length > 0 ? (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {aiRecommendations.map((job) => (
-              <Card key={job.jobId} className="group rounded-[2.5rem] border-slate-100/60 overflow-hidden hover:shadow-xl hover:shadow-blue-100/50 transition-all duration-300 border-2 hover:border-blue-200">
-                <CardContent className="p-8">
-                  <div className="flex items-start justify-between mb-6">
-                    <div className="flex items-center gap-5">
-                      <div className="h-16 w-16 bg-slate-50 rounded-2xl flex items-center justify-center border border-slate-100 group-hover:scale-110 transition-transform duration-300">
-                        {job.companyLogo ? (
-                          <Image src={job.companyLogo} alt={job.companyName} width={48} height={48} className="h-12 w-12 object-contain" />
-                        ) : (
-                          <Briefcase className="h-8 w-8 text-slate-300" />
-                        )}
+        ) : unappliedRecs.length > 0 ? (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {pagedRecs.map((job) => (
+                <Card key={job.jobId} className="group rounded-[2.5rem] border-slate-100/60 overflow-hidden hover:shadow-xl hover:shadow-blue-100/50 transition-all duration-300 border-2 hover:border-blue-200">
+                  <CardContent className="p-8">
+                    <div className="flex items-start justify-between mb-6">
+                      <div className="flex items-center gap-5">
+                        <div className="h-16 w-16 bg-slate-50 rounded-2xl flex items-center justify-center border border-slate-100 group-hover:scale-110 transition-transform duration-300">
+                          {job.companyLogo ? (
+                            <Image src={job.companyLogo} alt={job.companyName} width={48} height={48} className="h-12 w-12 object-contain" />
+                          ) : (
+                            <Briefcase className="h-8 w-8 text-slate-300" />
+                          )}
+                        </div>
+                        <div>
+                          <h3
+                            className="text-xl font-black text-slate-900 group-hover:text-blue-600 transition-colors cursor-pointer hover:underline"
+                            onClick={() => router.push(`/jobs/${job.jobId}`)}
+                          >
+                            {job.title}
+                          </h3>
+                          <p className="text-slate-500 font-bold">{job.companyName}</p>
+                        </div>
                       </div>
-                      <div>
-                        <h3 
-                          className="text-xl font-black text-slate-900 group-hover:text-blue-600 transition-colors cursor-pointer hover:underline"
-                          onClick={() => router.push(`/jobs/${job.jobId}`)}
-                        >
-                          {job.title}
-                        </h3>
-                        <p className="text-slate-500 font-bold">{job.companyName}</p>
+                      <div className="flex flex-col items-end gap-2">
+                        <Badge className="bg-emerald-50 text-emerald-600 border-emerald-100 hover:bg-emerald-100 px-4 py-1.5 rounded-xl font-black text-sm">
+                          <Zap className="h-3.5 w-3.5 mr-1.5 fill-emerald-500" />
+                          {job.score}% MATCH
+                        </Badge>
                       </div>
                     </div>
-                    <div className="flex flex-col items-end gap-2">
-                      <Badge className="bg-emerald-50 text-emerald-600 border-emerald-100 hover:bg-emerald-100 px-4 py-1.5 rounded-xl font-black text-sm">
-                        <Zap className="h-3.5 w-3.5 mr-1.5 fill-emerald-500" />
-                        {job.score}% MATCH
-                      </Badge>
-                    </div>
-                  </div>
 
-                  <div className="bg-blue-50/40 rounded-3xl p-5 mb-6 border border-blue-100/50">
-                    <div className="flex items-start gap-3">
-                      <Sparkles className="h-5 w-5 text-blue-500 shrink-0 mt-1" />
-                      <div>
-                        <p className="text-blue-900 font-bold text-sm leading-relaxed">{job.explanation}</p>
-                        <div className="flex flex-wrap gap-2 mt-3">
-                          {job.matchReasons.map((reason, idx) => (
-                            <span key={idx} className="flex items-center gap-1.5 text-[11px] font-black uppercase tracking-wider text-blue-700 bg-white/80 px-2.5 py-1 rounded-lg border border-blue-100">
-                              <CheckCircle2 className="h-3 w-3" />
-                              {reason}
-                            </span>
-                          ))}
+                    <div className="bg-blue-50/40 rounded-3xl p-5 mb-6 border border-blue-100/50">
+                      <div className="flex items-start gap-3">
+                        <Sparkles className="h-5 w-5 text-blue-500 shrink-0 mt-1" />
+                        <div>
+                          <p className="text-blue-900 font-bold text-sm leading-relaxed">{job.explanation}</p>
+                          <div className="flex flex-wrap gap-2 mt-3">
+                            {job.matchReasons.map((reason, idx) => (
+                              <span key={idx} className="flex items-center gap-1.5 text-[11px] font-black uppercase tracking-wider text-blue-700 bg-white/80 px-2.5 py-1 rounded-lg border border-blue-100">
+                                <CheckCircle2 className="h-3 w-3" />
+                                {reason}
+                              </span>
+                            ))}
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
 
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-5 text-sm font-bold text-slate-400">
-                      <span className="flex items-center gap-1.5">
-                        <MapPin className="h-4 w-4 text-slate-300" />
-                        {job.location}
-                      </span>
-                      <span className="flex items-center gap-1.5">
-                        <DollarSign className="h-4 w-4 text-slate-300" />
-                        {formatSalary(job)}
-                      </span>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-5 text-sm font-bold text-slate-400">
+                        <span className="flex items-center gap-1.5">
+                          <MapPin className="h-4 w-4 text-slate-300" />
+                          {job.location}
+                        </span>
+                        <span className="flex items-center gap-1.5">
+                          <DollarSign className="h-4 w-4 text-slate-300" />
+                          {formatSalary(job)}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className={`rounded-2xl border-slate-200 h-12 w-12 hover:bg-rose-50 hover:text-rose-500 hover:border-rose-100 transition-all ${savedJobIds[job.jobId] ? 'bg-rose-50 text-rose-500 border-rose-100' : ''}`}
+                          onClick={() => handleToggleSave(job.jobId)}
+                          disabled={savingJobIds[job.jobId]}
+                        >
+                          <Bookmark className={`h-5 w-5 ${savedJobIds[job.jobId] ? 'fill-rose-500' : ''}`} />
+                        </Button>
+                        <Button
+                          className="bg-[#4880FF] hover:bg-[#3b6ee0] text-white rounded-2xl px-6 h-12 font-bold shadow-md shadow-blue-100 transition-all"
+                          onClick={() => router.push(`/jobs/${job.jobId}`)}
+                        >
+                          View Details
+                        </Button>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        className={`rounded-2xl border-slate-200 h-12 w-12 hover:bg-rose-50 hover:text-rose-500 hover:border-rose-100 transition-all ${savedJobIds[job.jobId] ? 'bg-rose-50 text-rose-500 border-rose-100' : ''}`}
-                        onClick={() => handleToggleSave(job.jobId)}
-                        disabled={savingJobIds[job.jobId]}
-                      >
-                        <Bookmark className={`h-5 w-5 ${savedJobIds[job.jobId] ? 'fill-rose-500' : ''}`} />
-                      </Button>
-                      <Button
-                        className="bg-[#4880FF] hover:bg-[#3b6ee0] text-white rounded-2xl px-6 h-12 font-bold shadow-md shadow-blue-100 transition-all"
-                        onClick={() => handleApply(job.jobId)}
-                        disabled={applyingJobIds[job.jobId] || appliedJobIds[job.jobId]}
-                      >
-                        {appliedJobIds[job.jobId] ? 'Applied' : 'Apply Now'}
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            {/* Pagination */}
+            {totalRecPages > 1 && (
+              <div className="flex items-center justify-between pt-2">
+                <p className="text-sm font-bold text-slate-400">
+                  Page {recPage} of {totalRecPages} &middot; {unappliedRecs.length} matches
+                </p>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    className="rounded-2xl border-slate-200 h-10 px-4 font-bold disabled:opacity-40"
+                    disabled={recPage === 1}
+                    onClick={() => setRecPage(p => Math.max(1, p - 1))}
+                  >
+                    Previous
+                  </Button>
+                  {Array.from({ length: totalRecPages }, (_, i) => i + 1).map(p => (
+                    <button
+                      key={p}
+                      onClick={() => setRecPage(p)}
+                      className={`min-w-[40px] h-10 rounded-2xl border text-sm font-black transition-all ${p === recPage
+                        ? 'bg-[#4880FF] text-white border-[#4880FF]'
+                        : 'bg-white text-slate-600 border-slate-200 hover:bg-blue-50 hover:text-blue-600'
+                        }`}
+                    >
+                      {p}
+                    </button>
+                  ))}
+                  <Button
+                    variant="outline"
+                    className="rounded-2xl border-slate-200 h-10 px-4 font-bold disabled:opacity-40"
+                    disabled={recPage === totalRecPages}
+                    onClick={() => setRecPage(p => Math.min(totalRecPages, p + 1))}
+                  >
+                    Next
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
         ) : (
           <Card className="rounded-[3rem] border-dashed border-2 border-slate-200 bg-slate-50/50">
@@ -402,8 +436,29 @@ export function JobSeekerDashboard({ user }: JobSeekerDashboardProps) {
               <div className="h-20 w-20 bg-slate-100 rounded-[2rem] flex items-center justify-center mx-auto mb-6">
                 <Sparkles className="h-10 w-10 text-slate-300" />
               </div>
-              <h3 className="text-2xl font-black text-slate-900 mb-2">Finding your perfect match...</h3>
-              <p className="text-slate-500 font-medium max-w-sm mx-auto">Update your skills and experience to help our AI find the best opportunities for you.</p>
+              {jobsError ? (
+                <>
+                  <h3 className="text-xl font-black text-rose-500 mb-2">AI Matching Unavailable</h3>
+                  <p className="text-slate-500 font-medium max-w-sm mx-auto">{jobsError}</p>
+                  <button
+                    onClick={handleRefreshMatches}
+                    className="mt-6 px-6 py-3 bg-blue-600 text-white rounded-2xl font-bold text-sm hover:bg-blue-700 transition-colors"
+                  >
+                    Try Again
+                  </button>
+                </>
+              ) : (
+                <>
+                  <h3 className="text-2xl font-black text-slate-900 mb-2">Finding your perfect match...</h3>
+                  <p className="text-slate-500 font-medium max-w-sm mx-auto">Update your skills and experience to help our AI find the best opportunities for you.</p>
+                  <button
+                    onClick={handleRefreshMatches}
+                    className="mt-6 px-6 py-3 bg-blue-600 text-white rounded-2xl font-bold text-sm hover:bg-blue-700 transition-colors"
+                  >
+                    Refresh Matches
+                  </button>
+                </>
+              )}
             </CardContent>
           </Card>
         )}
@@ -505,7 +560,6 @@ export function JobSeekerDashboard({ user }: JobSeekerDashboardProps) {
           </Card>
         </div>
       </div>
-
     </div>
   );
 }

@@ -168,13 +168,27 @@ function JobCard({ job, basePath, isApplied }: { job: Job; basePath: string; isA
   );
 }
 
+import { Meta } from '@/services/jobService';
+
 // ─── Main Template ────────────────────────────────────────────────────────────
 export default function JobListingTemplate({
   basePath,
   allJobs,
   loading = false,
   error = null,
-}: any) {
+  // Server-side pagination props (optional — falls back to client-side)
+  meta,
+  currentPage: serverPage,
+  onPageChange,
+}: {
+  basePath: string;
+  allJobs: any[];
+  loading?: boolean;
+  error?: string | null;
+  meta?: Meta | null;
+  currentPage?: number;
+  onPageChange?: (page: number) => void;
+}) {
   const [titleSearch, setTitleSearch] = useState('');
   const [locationSearch, setLocationSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -255,14 +269,40 @@ export default function JobListingTemplate({
     });
   }, [allJobs, titleSearch, locationSearch, workStyle, activeCategory, minSalary]);
 
-  // Page reset is handled atomically inside each update handler above — no effect needed.
+  // ── Determine pagination mode ─────────────────────────────────────────────
+  // Server-side mode: meta + onPageChange are provided by the parent page.
+  // Client-side mode: fall back to in-memory slicing (used by sub-listing pages).
+  const isServerPaginated = !!(meta && onPageChange);
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / itemsPerPage));
-  const paginatedJobs = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const clientTotalPages = Math.max(1, Math.ceil(filtered.length / itemsPerPage));
+  const clientPage       = currentPage; // local state
+
+  const activePage   = isServerPaginated ? (serverPage ?? 1) : clientPage;
+  const totalPages   = isServerPaginated ? (meta!.totalPages ?? 1) : clientTotalPages;
+  const totalResults = isServerPaginated ? meta!.total : filtered.length;
+
+  const paginatedJobs = isServerPaginated
+    ? allJobs // server already returned the correct slice
+    : filtered.slice((clientPage - 1) * itemsPerPage, clientPage * itemsPerPage);
 
   const handlePageChange = (page: number) => {
-    setCurrentPage(Math.min(Math.max(1, page), totalPages));
+    const clamped = Math.min(Math.max(1, page), totalPages);
+    if (isServerPaginated) {
+      onPageChange!(clamped);
+    } else {
+      setCurrentPage(clamped);
+    }
   };
+
+  // Build smart page window (show at most 5 page buttons around the active page)
+  const pageWindow = (() => {
+    const pages: number[] = [];
+    const halfWindow = 2;
+    const start = Math.max(1, activePage - halfWindow);
+    const end   = Math.min(totalPages, activePage + halfWindow);
+    for (let p = start; p <= end; p++) pages.push(p);
+    return pages;
+  })();
 
   return (
     <div className="min-h-screen bg-[#f8fafc] text-gray-900 pb-20">
@@ -375,7 +415,7 @@ export default function JobListingTemplate({
               <div className="flex items-center justify-between mb-10 px-4">
                 <h2 className="text-[13px] font-black text-gray-400 uppercase tracking-[0.2em] flex items-center gap-3">
                   <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-                  Market scan: <span className="text-gray-900 ml-1 font-black">{filtered.length} offers found</span>
+                  Market scan: <span className="text-gray-900 ml-1 font-black">{totalResults} offers found</span>
                 </h2>
                 <div className="flex items-center gap-3 text-[11px] font-black uppercase tracking-widest text-gray-900 bg-white px-6 py-3 rounded-2xl border border-gray-100 shadow-xl shadow-gray-100/50 cursor-pointer hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-all group">
                   <Bookmark className="w-4 h-4 text-blue-600 group-hover:scale-110 transition-transform" /> Watch this search
@@ -395,34 +435,61 @@ export default function JobListingTemplate({
 
                   <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between text-sm text-gray-600">
                     <div className="font-black uppercase tracking-[0.2em] text-gray-400">
-                      Showing {(currentPage - 1) * itemsPerPage + 1} - {Math.min(currentPage * itemsPerPage, filtered.length)} of {filtered.length} results
+                      {isServerPaginated
+                        ? `Page ${activePage} of ${totalPages} · ${totalResults} results`
+                        : `Showing ${(activePage - 1) * itemsPerPage + 1}–${Math.min(activePage * itemsPerPage, totalResults)} of ${totalResults} results`
+                      }
                     </div>
                     <div className="flex items-center gap-2">
+                      {/* First page shortcut */}
+                      {activePage > 3 && (
+                        <>
+                          <button
+                            onClick={() => handlePageChange(1)}
+                            className="min-w-[40px] px-4 py-3 rounded-2xl border bg-white text-gray-600 border-gray-200 hover:bg-blue-50 hover:text-blue-600"
+                          >1</button>
+                          {activePage > 4 && <span className="text-gray-400 font-black">…</span>}
+                        </>
+                      )}
                       <button
-                        onClick={() => handlePageChange(currentPage - 1)}
-                        disabled={currentPage === 1}
+                        onClick={() => handlePageChange(activePage - 1)}
+                        disabled={activePage === 1}
                         className="px-4 py-3 rounded-2xl border border-gray-200 bg-white text-gray-600 hover:border-blue-300 hover:text-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                       >
                         Previous
                       </button>
-                      <div className="flex items-center gap-1 overflow-x-auto no-scrollbar">
-                        {Array.from({ length: totalPages }, (_, idx) => idx + 1).map(page => (
+                      <div className="flex items-center gap-1">
+                        {pageWindow.map(page => (
                           <button
                             key={page}
                             onClick={() => handlePageChange(page)}
-                            className={`min-w-[40px] px-4 py-3 rounded-2xl border ${page === currentPage ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-600 border-gray-200 hover:bg-blue-50 hover:text-blue-600'}`}
+                            className={`min-w-[40px] px-4 py-3 rounded-2xl border ${
+                              page === activePage
+                                ? 'bg-blue-600 text-white border-blue-600'
+                                : 'bg-white text-gray-600 border-gray-200 hover:bg-blue-50 hover:text-blue-600'
+                            }`}
                           >
                             {page}
                           </button>
                         ))}
                       </div>
                       <button
-                        onClick={() => handlePageChange(currentPage + 1)}
-                        disabled={currentPage === totalPages}
+                        onClick={() => handlePageChange(activePage + 1)}
+                        disabled={activePage === totalPages}
                         className="px-4 py-3 rounded-2xl border border-gray-200 bg-white text-gray-600 hover:border-blue-300 hover:text-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                       >
                         Next
                       </button>
+                      {/* Last page shortcut */}
+                      {activePage < totalPages - 2 && (
+                        <>
+                          {activePage < totalPages - 3 && <span className="text-gray-400 font-black">…</span>}
+                          <button
+                            onClick={() => handlePageChange(totalPages)}
+                            className="min-w-[40px] px-4 py-3 rounded-2xl border bg-white text-gray-600 border-gray-200 hover:bg-blue-50 hover:text-blue-600"
+                          >{totalPages}</button>
+                        </>
+                      )}
                     </div>
                   </div>
                 </>

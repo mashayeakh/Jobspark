@@ -394,8 +394,8 @@ export default function ApplicationReviewPage() {
                           </div>
                           {candidateSkill ? (
                             <div className="flex flex-col items-end gap-1">
-                              <Badge className="bg-green-100 text-green-700 border-0">{candidateSkill.yearsExp} yrs Exp</Badge>
-                              <span className="text-[10px] font-bold text-green-600 uppercase">Match Found</span>
+                              <Badge className="bg-green-100 text-green-700 border-0">Match Found</Badge>
+                              <span className="text-[10px] font-bold text-green-600 uppercase">Verified</span>
                             </div>
                           ) : (
                             <div className="flex flex-col items-end gap-1">
@@ -416,7 +416,7 @@ export default function ApplicationReviewPage() {
                       .filter((s: any) => !application.job.skills.some((js: any) => js.skill.name.toLowerCase() === s.skill.name.toLowerCase()))
                       .map((s: any) => (
                         <Badge key={s.skill.id} variant="secondary" className="h-8 px-4 rounded-lg bg-purple-50 text-purple-700 border-purple-100">
-                          {s.skill.name} • {s.yearsExp}y
+                          {s.skill.name}
                         </Badge>
                       ))}
                   </div>
@@ -469,7 +469,7 @@ export default function ApplicationReviewPage() {
         {/* Right Column: Quick Stats & Job Details */}
         <div className="space-y-8">
           {/* Quick Stats Card */}
-          <Card className="rounded-3xl border border-gray-100 shadow-sm bg-white overflow-hidden sticky top-8">
+          <Card className="rounded-3xl border border-gray-100 shadow-sm bg-white overflow-hidden">
             <CardHeader className="bg-gray-50/50 border-b border-gray-50 p-6">
               <CardTitle className="text-lg font-bold tracking-tight">Review Summary</CardTitle>
             </CardHeader>
@@ -488,7 +488,10 @@ export default function ApplicationReviewPage() {
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-gray-500 font-medium">Skills Match</span>
                   <span className="font-black text-emerald-600">
-                    {application.seeker.skills.filter((s: any) => application.job.skills.some((js: any) => js.skill.name.toLowerCase() === s.skill.name.toLowerCase())).length} / {application.job.skills.length}
+                    {analysis
+                      ? `${analysis.skillMatchCount ?? application.seeker.skills.filter((s: any) => application.job.skills.some((js: any) => js.skill.name.toLowerCase() === s.skill.name.toLowerCase())).length} / ${analysis.totalRequiredSkills ?? application.job.skills.length}`
+                      : `${application.seeker.skills.filter((s: any) => application.job.skills.some((js: any) => js.skill.name.toLowerCase() === s.skill.name.toLowerCase())).length} / ${application.job.skills.length}`
+                    }
                   </span>
                 </div>
               </div>
@@ -509,10 +512,27 @@ export default function ApplicationReviewPage() {
                       : 'Schedule Interview'
                   }
                 </Button>
-                <Button variant="outline" className="w-full h-12 rounded-xl border-gray-200 text-gray-600 font-bold flex items-center justify-center gap-2">
-                  <FileText className="h-4 w-4" />
-                  View Original Resume
-                </Button>
+
+                {application.seeker.resumeUrl ? (
+                  <a
+                    href={application.seeker.resumeUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full h-12 rounded-xl border border-gray-200 text-gray-600 font-bold flex items-center justify-center gap-2 hover:bg-gray-50 hover:border-[#4880FF] hover:text-[#4880FF] transition-all"
+                  >
+                    <FileText className="h-4 w-4" />
+                    View Resume
+                    <ExternalLink className="h-3.5 w-3.5" />
+                  </a>
+                ) : (
+                  <div
+                    title="Candidate has not uploaded a resume"
+                    className="w-full h-12 rounded-xl border border-dashed border-gray-200 text-gray-300 font-bold flex items-center justify-center gap-2 cursor-not-allowed select-none"
+                  >
+                    <FileText className="h-4 w-4" />
+                    No Resume Uploaded
+                  </div>
+                )}
               </div>
 
               <div className="pt-6 border-t border-gray-50">
@@ -597,9 +617,18 @@ export default function ApplicationReviewPage() {
                         <p className="text-xs text-gray-500 font-medium">{application.job.title} • {application.seeker.user.email}</p>
                       </div>
                     </div>
-                    <Button variant="link" className="text-[#4880FF] text-xs font-bold gap-1 p-0 h-auto">
-                      View Resume <ExternalLink className="h-3 w-3" />
-                    </Button>
+                    {application.seeker.resumeUrl ? (
+                      <a
+                        href={application.seeker.resumeUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[#4880FF] text-xs font-bold gap-1 flex items-center hover:underline"
+                      >
+                        View Resume <ExternalLink className="h-3 w-3" />
+                      </a>
+                    ) : (
+                      <span className="text-gray-300 text-xs font-bold">No Resume</span>
+                    )}
                   </div>
 
                   {/* Interview Type */}
