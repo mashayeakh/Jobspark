@@ -40,4 +40,25 @@ export const JobSeekerController = {
       result,
     });
   }),
+
+  uploadResume: catchAsyc(async (req: Request, res: Response) => {
+    const userId = (req as any).user.userId;
+    const file = req.file;
+    if (!file) {
+      return sendResponse(res, {
+        httpStatusCode: httpStatus.BAD_REQUEST,
+        success: false,
+        message: "No file uploaded",
+      });
+    }
+
+    const result = await JobSeekerService.uploadResume(userId, file as any);
+
+    sendResponse(res, {
+      httpStatusCode: httpStatus.OK,
+      success: true,
+      message: "Resume uploaded successfully",
+      result,
+    });
+  }),
 };

@@ -16,6 +16,10 @@ import { SupportAgentRouter } from "./ai/support_agent/supportAgent.route";
 import { FraudDetectionRouter } from "./ai/fraud_detection/fraudDetection.route";
 import { MarketIntelligenceRouter } from "./ai/market_intelligence/marketIntelligence.route";
 import { AnomalyDetectionRouter } from "./ai/anomaly_detection/anomalyDetection.route";
+import { ChurnPredictionRouter } from "./ai/churn_prediction/churnPrediction.route";
+import { PlatformSettingsRouter } from "./ai/platform_settings/platformSettings.route";
+import { JobDescriptionRouter } from "./ai/job_description/jobDescription.route";
+import { BioGeneratorRouter } from "./ai/bio_generator/bioGenerator.route";
 import { RecommendationRoutes } from "./ai/recommendation/recommendation.route";
 import { InterviewRoutes } from "./interview/interview.route";
 
@@ -69,5 +73,17 @@ router.use("/admin/content-sanity", ContentSanityRouter);
 
 //!AI Anomaly Detection
 router.use("/admin/anomaly-detection", AnomalyDetectionRouter);
+
+//!AI Churn Predictor
+router.use("/admin/churn-predictor", ChurnPredictionRouter);
+
+//!Platform Settings
+router.use("/admin/settings", PlatformSettingsRouter);
+
+//!AI Job Description Generator
+router.use("/ai/job-description", JobDescriptionRouter);
+
+//!AI Bio Generator
+router.use("/ai/bio-generator", BioGeneratorRouter);
 
 export default router;

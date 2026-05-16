@@ -106,7 +106,18 @@ export const JobService = {
   },
 
   getAllJobs: async (filters: JobFiltersDto) => {
-    const { searchTerm, type, locationType, experienceLevel, minSalary, maxSalary, categoryId, subCategoryId } = filters;
+    const { 
+      searchTerm, 
+      type, 
+      locationType, 
+      experienceLevel, 
+      minSalary, 
+      maxSalary, 
+      categoryId, 
+      subCategoryId,
+      page = 1,
+      limit = 10 
+    } = filters;
 
     const where: Prisma.JobWhereInput = {
       status: { in: ["OPEN", "ACTIVE"] }, // Only show open and active jobs to seekers
@@ -128,19 +139,37 @@ export const JobService = {
     if (categoryId) where.categoryId = categoryId;
     if (subCategoryId) where.subCategoryId = subCategoryId;
 
-    return await prisma.job.findMany({
-      where,
-      include: {
-        company: true,
-        recruiter: true,
-        skills: {
-          include: { skill: true },
+    const skip = (Number(page) - 1) * Number(limit);
+    const take = Number(limit);
+
+    const [jobs, total] = await Promise.all([
+      prisma.job.findMany({
+        where,
+        include: {
+          company: true,
+          recruiter: true,
+          skills: {
+            include: { skill: true },
+          },
+          category: true,
+          subCategory: true,
         },
-        category: true,
-        subCategory: true,
+        orderBy: { createdAt: "desc" },
+        skip,
+        take,
+      }),
+      prisma.job.count({ where }),
+    ]);
+
+    return {
+      jobs,
+      meta: {
+        total,
+        page: Number(page),
+        limit: Number(limit),
+        totalPages: Math.ceil(total / Number(limit)),
       },
-      orderBy: { createdAt: "desc" },
-    });
+    };
   },
 
   getJobById: async (id: string) => {

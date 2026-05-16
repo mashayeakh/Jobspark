@@ -1,11 +1,11 @@
 import { prisma } from "../../../lib/prisma";
 import { AppError } from "@/app/errorHelpers/AppError";
 import httpStatus from "http-status";
-import { GoogleGenAI } from "@google/genai";
+import Groq from "groq-sdk";
 import { envVars } from "../../../config/env";
 
 // Initialize AI services
-const genAI = new GoogleGenAI({ apiKey: envVars.GEMINI_API_KEY });
+const groq = new Groq({ apiKey: envVars.GROQ_API_KEY });
 
 // Bias detection patterns
 const BIAS_PATTERNS = {
@@ -108,7 +108,6 @@ export const ContentSanityService = {
       const text = `${job.title} ${job.description} ${job.requirements || ''} ${job.responsibilities || ''}`;
 
       // USE AI for deep analysis
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
       const prompt = `Analyze this job posting for bias and quality. 
       Return a JSON object exactly in this format:
       {
@@ -125,9 +124,16 @@ export const ContentSanityService = {
       Job Title: ${job.title}
       Content: ${text}`;
 
-      const result = await model.generateContent(prompt);
-      const response = await result.response;
-      const aiData = JSON.parse(response.text().replace(/```json|```/g, ''));
+      const chatCompletion = await groq.chat.completions.create({
+        messages: [
+          { role: "system", content: "You are a content sanity specialist for job postings. Always respond with valid JSON only." },
+          { role: "user", content: prompt }
+        ],
+        model: "llama-3.3-70b-versatile",
+        response_format: { type: "json_object" }
+      });
+
+      const aiData = JSON.parse(chatCompletion.choices[0]?.message?.content || '{}');
 
       const frontendAnalysis = {
         id: job.id,

@@ -17,34 +17,120 @@ const tokenizer = new natural.WordTokenizer();
 const stemmer = natural.PorterStemmer;
 
 // Scam pattern keywords and weights
+// 🔥 Enhanced Scam Pattern Keywords and Weights
 const SCAM_PATTERNS = {
   payment_request: {
-    keywords: ['pay', 'payment', 'fee', 'cost', 'charge', 'money', 'invest', 'deposit'],
-    weight: 0.3,
+    keywords: ['pay', 'payment', 'fee', 'cost', 'charge', 'money', 'deposit'],
+    weight: 0.35,
     description: 'Payment requests'
   },
-  urgent_language: {
-    keywords: ['urgent', 'immediate', 'act now', 'limited time', 'don\'t miss', 'hurry'],
-    weight: 0.2,
-    description: 'Urgent language'
+
+  onboarding_scam: {
+    keywords: ['onboarding fee', 'registration fee', 'training fee', 'activation fee'],
+    weight: 0.35,
+    description: 'Onboarding payment scam'
   },
+
+  suspicious_tasks: {
+    keywords: [
+      'receive packages', 'reship items', 'forward packages',
+      'transfer money', 'handle transactions', 'use your bank account'
+    ],
+    weight: 0.3,
+    description: 'Suspicious job responsibilities'
+  },
+
+  investment_scam: {
+    keywords: [
+      'investment opportunity', 'crypto earnings', 'trading profit',
+      'guaranteed returns', 'double your money'
+    ],
+    weight: 0.3,
+    description: 'Investment scam indicators'
+  },
+
+  personal_data_request: {
+    keywords: [
+      'nid', 'passport', 'bank details',
+      'credit card', 'verification document',
+      'upload your id', 'personal information'
+    ],
+    weight: 0.25,
+    description: 'Sensitive personal data request'
+  },
+
+  fake_hiring: {
+    keywords: [
+      'no interview', 'instant hiring', 'quick hiring',
+      'guaranteed job', 'no selection process'
+    ],
+    weight: 0.25,
+    description: 'Suspicious hiring process'
+  },
+
+  income_exaggeration: {
+    keywords: [
+      'earn daily', 'earn per day',
+      'easy income', 'passive income',
+      'make money fast'
+    ],
+    weight: 0.25,
+    description: 'Unrealistic income promises'
+  },
+
+  external_messaging: {
+    keywords: [
+      'whatsapp', 'telegram', 'signal', 'skype',
+      'contact me on', 'text this number'
+    ],
+    weight: 0.2,
+    description: 'External messaging request'
+  },
+
+  pyramid_scheme: {
+    keywords: [
+      'refer others', 'invite friends',
+      'earn per referral', 'network marketing'
+    ],
+    weight: 0.2,
+    description: 'Pyramid scheme indicators'
+  },
+
+  generic_job_title: {
+    keywords: [
+      'online job', 'part time job',
+      'data entry job', 'easy job', 'home job'
+    ],
+    weight: 0.2,
+    description: 'Generic job role'
+  },
+
   suspicious_contact: {
-    keywords: ['gmail.com', 'yahoo.com', 'hotmail.com', 'personal email', 'direct contact'],
+    keywords: ['gmail.com', 'yahoo.com', 'hotmail.com', 'personal email'],
     weight: 0.15,
     description: 'Suspicious contact methods'
   },
-  vague_description: {
-    keywords: ['exciting opportunity', 'great team', 'amazing culture', 'fast growing'],
-    weight: 0.1,
-    description: 'Vague descriptions'
-  },
+
   unrealistic_benefits: {
-    keywords: ['work from home', 'flexible hours', 'unlimited vacation', 'high salary', 'quick money'],
+    keywords: ['high salary', 'quick money', 'unlimited vacation'],
     weight: 0.15,
     description: 'Unrealistic benefits'
   },
+
+  urgent_language: {
+    keywords: ['urgent', 'immediate', 'act now', 'hurry'],
+    weight: 0.1,
+    description: 'Urgent language'
+  },
+
+  vague_description: {
+    keywords: ['exciting opportunity', 'fast growing'],
+    weight: 0.05,
+    description: 'Vague descriptions'
+  },
+
   ghost_job_indicators: {
-    keywords: ['always hiring', 'multiple positions', 'ongoing recruitment', 'evergreen'],
+    keywords: ['always hiring', 'multiple positions'],
     weight: 0.1,
     description: 'Ghost job indicators'
   }

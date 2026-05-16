@@ -60,21 +60,19 @@ export const AnomalyDetectionService = {
       ]
     });
 
-    // Generate some mock anomalies periodically for demonstration
-    const random = Math.random();
-    if (random > 0.6) { // Increased probability to see more data
-      await prisma.systemAnomaly.create({
-        data: {
-          type: 'TRAFFIC_SPIKE',
-          severity: 'MEDIUM',
-          description: 'Unusual spike in login requests detected from multiple IPs.',
-          source: 'AUTH_SERVICE',
-          metrics: { requestCount: Math.floor(Math.random() * 5000) + 1000, timeframe: '5m' }
-        }
-      });
-    }
+    // Always generate a traffic spike anomaly for demo purposes when the button is clicked
+    await prisma.systemAnomaly.create({
+      data: {
+        type: 'TRAFFIC_SPIKE',
+        severity: 'MEDIUM',
+        description: 'Unusual spike in login requests detected from multiple IPs.',
+        source: 'AUTH_SERVICE',
+        metrics: { requestCount: Math.floor(Math.random() * 5000) + 1000, timeframe: '5m' }
+      }
+    });
 
-    if (random > 0.8) { // Increased probability
+    const random = Math.random();
+    if (random > 0.5) { // 50% chance to also get a critical threat
       await prisma.systemAnomaly.create({
         data: {
           type: 'SECURITY_THREAT',

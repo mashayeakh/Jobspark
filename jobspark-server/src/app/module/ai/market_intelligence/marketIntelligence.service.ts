@@ -1,11 +1,11 @@
 import { prisma } from "../../../lib/prisma";
 import { AppError } from "@/app/errorHelpers/AppError";
 import httpStatus from "http-status";
-import { GoogleGenAI } from "@google/genai";
+import Groq from "groq-sdk";
 import { envVars } from "../../../config/env";
 
 // Initialize AI services
-const genAI = new GoogleGenAI({ apiKey: envVars.GEMINI_API_KEY });
+const groq = new Groq({ apiKey: envVars.GROQ_API_KEY });
 
 interface TrendData {
   period: string;
@@ -151,12 +151,14 @@ export const MarketIntelligenceService = {
         
         Return ONLY a brief 2-3 sentence summary of the market trends.`;
 
-        const response = await genAI.models.generateContent({
-          model: "gemini-2.5-flash",
-          contents: prompt,
+        const response = await groq.chat.completions.create({
+          model: "llama-3.3-70b-versatile",
+          messages: [{ role: "user", content: prompt }],
+          max_tokens: 150,
+          temperature: 0.5,
         });
 
-        summary = response.text || 'Market analysis complete';
+        summary = response.choices[0]?.message?.content || 'Market analysis complete';
       } catch (error) {
         summary = 'Market analysis complete';
       }

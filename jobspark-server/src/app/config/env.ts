@@ -28,9 +28,9 @@ const loadEnvVariables = () => {
         // "EMAIL_SENDER_SMTP_FROM",
         // "STRIPE_SECRET_KEY",
         // "STRIPE_WEBHOOK_SECRET",
-        // "CLOUDINARY_CLOUD_NAME",
-        // "CLOUDINARY_API_KEY",
-        // "CLOUDINARY_API_SECRET",
+        "CLOUDINARY_CLOUD_NAME",
+        "CLOUDINARY_API_KEY",
+        "CLOUDINARY_API_SECRET",
         "GEMINI_API_KEY",
         "GROQ_API_KEY",
         "REDIS_URL",
@@ -121,11 +121,11 @@ const loadEnvVariables = () => {
         //     STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET as string,
         // },
 
-        // CLOUDINARY: {
-        //     CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME as string,
-        //     API_KEY: process.env.CLOUDINARY_API_KEY as string,
-        //     API_SECRET: process.env.CLOUDINARY_API_SECRET as string,
-        // },
+        CLOUDINARY: {
+            CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME as string,
+            API_KEY: process.env.CLOUDINARY_API_KEY as string,
+            API_SECRET: process.env.CLOUDINARY_API_SECRET as string,
+        },
 
         GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID as string,
         GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET as string,

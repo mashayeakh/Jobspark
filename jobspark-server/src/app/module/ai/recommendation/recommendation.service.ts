@@ -39,7 +39,7 @@ export const RecommendationService = {
       // 2. Fetch All Open Jobs (Filter by basic status)
       const allJobs = await prisma.job.findMany({
         where: { 
-          status: 'OPEN',
+          status: { in: ['OPEN', 'ACTIVE'] },
           deletedAt: null
         },
         include: {
@@ -77,10 +77,13 @@ export const RecommendationService = {
         return { job, score };
       });
 
-      // Sort and take top 10 for AI enhancement
+      // Sort and take top 20 for AI enhancement to increase variety
       const topJobs = scoredJobs
         .sort((a, b) => b.score - a.score)
-        .slice(0, 10);
+        .slice(0, 20);
+
+      console.log(`[RecommendationService] allJobs fetched: ${allJobs.length}`);
+      console.log(`[RecommendationService] topJobs selected: ${topJobs.length}`);
 
       // 4. AI Enhancement with Groq
       const seekerSummary = `
@@ -108,9 +111,9 @@ export const RecommendationService = {
         ${JSON.stringify(jobsData, null, 2)}
         
         For each job, provide:
-        1. A normalized match score (0-1).
-        2. A short "Why this job?" explanation (max 15 words).
-        3. 2-3 specific match reasons (e.g., "Matches your Node.js skill").
+        1. A normalized match score (0.0 to 1.0). Be precise (e.g. 0.85). If the job fits their bio and skills well, score it high (0.7-1.0). If it's unrelated, score it low (0.0-0.3).
+        2. A short "Why this job?" explanation (max 15 words) that specifically references their Bio or Skills.
+        3. 2-3 specific match reasons (e.g., "Matches your Node.js skill", "Aligns with your bio").
         
         Return ONLY a JSON array of objects with this structure:
         [
@@ -135,6 +138,9 @@ export const RecommendationService = {
 
       const aiResult = JSON.parse(aiResponse.choices[0]?.message?.content || '{"results":[]}');
       const aiRankings = Array.isArray(aiResult) ? aiResult : (aiResult.results || []);
+
+      console.log(`[RecommendationService] AI Rankings returned: ${aiRankings.length}`);
+      console.log(`[RecommendationService] AI Raw Output:`, aiResponse.choices[0]?.message?.content);
 
       // 5. Final Ranking & Formatting
       const finalRecommendations: RecommendedJob[] = topJobs.map(tj => {

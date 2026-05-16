@@ -1,11 +1,11 @@
 import { prisma } from "../../../lib/prisma";
 import { AppError } from "@/app/errorHelpers/AppError";
 import httpStatus from "http-status";
-import { GoogleGenAI } from "@google/genai";
+import Groq from "groq-sdk";
 import { envVars } from "../../../config/env";
 
 // Initialize AI services
-const genAI = new GoogleGenAI({ apiKey: envVars.GEMINI_API_KEY });
+const groq = new Groq({ apiKey: envVars.GROQ_API_KEY });
 
 // Intent patterns for NLP
 interface IntentPattern {
@@ -301,18 +301,20 @@ async function generateAIResponse(message: string, intent: { intent: string; con
 
   // Use Gemini AI for complex or low-confidence queries
   try {
-    const prompt = `You are a helpful support assistant for a job platform called JobsPark. 
-    Respond to this user query professionally and concisely: "${message}"
-    
-    Keep responses under 150 words and be helpful. Focus on job platform related questions.`;
-
-    const response = await genAI.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: prompt,
+    const response = await groq.chat.completions.create({
+      model: "llama-3.3-70b-versatile",
+      messages: [
+        { role: "system", content: "You are a helpful support assistant for a job platform called JobsPark." },
+        { role: "user", content: message }
+      ],
+      max_tokens: 300,
+      temperature: 0.7,
     });
 
+    const botMessage = response.choices[0]?.message?.content || "I'm here to help! Could you provide more details about your question?";
+
     return {
-      message: response.text || "I'm here to help! Could you provide more details about your question?",
+      message: botMessage,
       suggestedActions: getSuggestedActions(intent.intent),
     };
   } catch (error) {

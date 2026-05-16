@@ -1,3 +1,4 @@
+import { cloudinary } from "@/app/Utils/cloudinary";
 import { prisma } from "../../lib/prisma";
 import { UpdateJobSeekerProfileDto } from "./jobSeeker.dto";
 
@@ -75,7 +76,7 @@ export const JobSeekerService = {
         });
       }
 
-      return await tx.jobSeekerProfile.findUnique({
+      const updated = await tx.jobSeekerProfile.findUnique({
         where: { id: profile.id },
         include: {
           workExperience: true,
@@ -85,8 +86,10 @@ export const JobSeekerService = {
           },
         },
       });
+
+      return updated;
     }, {
-      timeout: 10000, // 10 seconds timeout
+      timeout: 10000,
     });
   },
 
@@ -110,6 +113,8 @@ export const JobSeekerService = {
         },
       },
     });
+
+    // ✅ No signing needed — URL is public
     return profile;
   },
 
@@ -187,5 +192,59 @@ export const JobSeekerService = {
       recentApplications: profile.applications,
       userName: profile.name,
     };
+  },
+
+  uploadResume: async (userId: string, file: Express.Multer.File) => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        console.log(`[Upload Resume] Starting upload for user: ${userId}`);
+        console.log(`[Upload Resume] File Details: ${file.originalname} (${file.size} bytes, ${file.mimetype})`);
+
+        const profile = await prisma.jobSeekerProfile.findUnique({ where: { userId } });
+        if (!profile) {
+          console.error(`[Upload Resume] Profile not found for user: ${userId}`);
+          return reject(new Error("Profile not found"));
+        }
+
+        const fileExt = file.originalname.split('.').pop()?.toLowerCase();
+        const uniqueId = `${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+        const publicIdWithExt = `jobspark/resumes/${uniqueId}.${fileExt}`;
+
+        console.log(`[Upload Resume] Public ID: ${publicIdWithExt}`);
+
+        const uploadStream = cloudinary.uploader.upload_stream(
+          {
+            resource_type: 'raw',
+            public_id: publicIdWithExt,
+            access_mode: 'public',
+          },
+          async (error, result) => {
+            if (error || !result) {
+              console.error(`[Upload Resume] Cloudinary Upload Error:`, error);
+              return reject(error || new Error("Failed to upload to Cloudinary"));
+            }
+
+            console.log(`[Upload Resume] Cloudinary Result:`, {
+              public_id: result.public_id,
+              resource_type: result.resource_type,
+              secure_url: result.secure_url,
+            });
+
+            // ✅ Store plain secure_url — no fl_attachment needed anymore
+            await prisma.jobSeekerProfile.update({
+              where: { id: profile.id },
+              data: { resumeUrl: result.secure_url },
+            });
+
+            console.log(`[Upload Resume] Stored URL in DB: ${result.secure_url}`);
+            resolve({ resumeUrl: result.secure_url });
+          }
+        );
+
+        uploadStream.end(file.buffer);
+      } catch (error) {
+        reject(error);
+      }
+    });
   },
 };

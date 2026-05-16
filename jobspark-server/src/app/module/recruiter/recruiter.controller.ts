@@ -3,6 +3,7 @@ import { catchAsyc } from "@/app/shared/catchAsyc";
 import { sendResponse } from "@/app/Utils/sendResponse";
 import httpStatus from "http-status";
 import { RecruiterService } from "./recruiter.service";
+import { AppError } from "@/app/errorHelpers/AppError";
 
 export const RecruiterController = {
   createProfile: catchAsyc(async (req: Request, res: Response) => {
@@ -34,7 +35,7 @@ export const RecruiterController = {
   getMyProfile: catchAsyc(async (req: Request, res: Response) => {
     const userId = (req as any).user.userId;
     const result = await RecruiterService.getProfile(userId);
-    
+
     sendResponse(res, {
       httpStatusCode: httpStatus.OK,
       success: true,
@@ -71,7 +72,7 @@ export const RecruiterController = {
 
   getApplicationDetails: catchAsyc(async (req: Request, res: Response) => {
     const { applicationId } = req.params;
-    const result = await RecruiterService.getApplicationById(applicationId);
+    const result = await RecruiterService.getApplicationById(applicationId as string);
 
     if (!result) {
       throw new AppError(httpStatus.NOT_FOUND, "Application not found");
