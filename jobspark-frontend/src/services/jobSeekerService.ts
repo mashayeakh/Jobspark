@@ -156,6 +156,13 @@ class JobSeekerService {
             };
         }
     }
+    async analyzeResume(targetRole: string): Promise<ApiResponse<any>> {
+        const response = await apiClient.post<any>('/jobseeker/resume-analyzer/analyze', { targetRole });
+        if (response.success && response.data?.result) {
+            return { success: true, data: response.data.result };
+        }
+        return { success: false, error: response.error || 'Failed to analyze resume' };
+    }
 }
 
 export const jobSeekerService = new JobSeekerService();
