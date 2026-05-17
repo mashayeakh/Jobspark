@@ -1,7 +1,8 @@
 import express from "express";
 import { BlogController } from "./blog.controller";
 import { checkAuth } from "@/app/middleware/checkAuth";
-import { UserRole } from "@prisma/client";
+import pkg from "@prisma/client";
+const { UserRole } = pkg;
 
 const router = express.Router();
 

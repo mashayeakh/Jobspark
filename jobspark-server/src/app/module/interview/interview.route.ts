@@ -1,5 +1,6 @@
 import express from 'express';
-import { UserRole } from '@prisma/client';
+import pkg from '@prisma/client';
+const { UserRole } = pkg;
 import { InterviewController } from './interview.controller';
 import { checkAuth } from '@/app/middleware/checkAuth';
 

@@ -1,6 +1,7 @@
 
 import express from "express";
-import { UserRole } from "@prisma/client";
+import pkg from "@prisma/client";
+const { UserRole } = pkg;
 import { checkAuth } from "../../../middleware/checkAuth";
 import { ProfileAnalyticsController } from "./profileAnalytics.controller";
 
