@@ -1,21 +1,19 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Users, Briefcase, Building, TrendingUp } from 'lucide-react';
+import { Users, Briefcase, TrendingUp } from 'lucide-react';
 import apiClient from '@/lib/api';
 
 const Stats = () => {
   const [counters, setCounters] = useState({
     jobSeekers: 0,
-    companies: 0,
     jobs: 0,
     hireRate: 0
   });
 
   const [targetStats, setTargetStats] = useState({
-    jobSeekers: 12000,
-    companies: 450,
-    jobs: 1800,
+    jobSeekers: 0,
+    jobs: 0,
     hireRate: 95
   });
 
@@ -24,13 +22,13 @@ const Stats = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const response = await apiClient.get<any>('/jobs/public-stats');
         if (response.success && response.data?.result) {
-          const { jobSeekers, companies, jobs, hireRate } = response.data.result;
+          const { jobSeekers, jobs, hireRate } = response.data.result;
           setTargetStats({
-            jobSeekers: 12000 + jobSeekers,
-            companies: 450 + companies,
-            jobs: 1800 + jobs,
+            jobSeekers: jobSeekers || 0,
+            jobs: jobs || 0,
             hireRate: hireRate || 95
           });
         }
@@ -49,13 +47,6 @@ const Stats = () => {
     const duration = 2000; // 2 seconds
     const steps = 60;
     const interval = duration / steps;
-
-    setCounters({
-      jobSeekers: 0,
-      companies: 0,
-      jobs: 0,
-      hireRate: 0
-    });
 
     const timer = setInterval(() => {
       setCounters(prev => {
@@ -81,12 +72,6 @@ const Stats = () => {
       value: Math.floor(counters.jobSeekers).toLocaleString(),
       label: "Active Job Seekers",
       description: "Professionals ready for their next opportunity"
-    },
-    {
-      icon: Building,
-      value: Math.floor(counters.companies).toLocaleString(),
-      label: "Partner Companies",
-      description: "From startups to Fortune 500 companies"
     },
     {
       icon: Briefcase,
@@ -116,7 +101,7 @@ const Stats = () => {
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {stats.map((stat, index) => {
             const Icon = stat.icon;
             return (

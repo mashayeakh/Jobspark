@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import {
   Users,
@@ -12,13 +12,43 @@ import {
   Globe,
   Award,
   Zap,
-
 } from 'lucide-react';
 import { authService } from '@/services/authService';
 import { useRouter } from 'next/navigation';
+import apiClient from '@/lib/api';
 
 export default function AboutPage() {
   const router = useRouter();
+  const [counters, setCounters] = useState({
+    jobSeekers: 0,
+    companies: 0,
+    jobs: 0,
+    applications: 0
+  });
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const response = await apiClient.get<any>('/jobs/public-stats');
+        if (response.success && response.data?.result) {
+          const { jobSeekers, companies, jobs, applications } = response.data.result;
+          setCounters({
+            jobSeekers: jobSeekers || 0,
+            companies: companies || 0,
+            jobs: jobs || 0,
+            applications: applications || 0
+          });
+        }
+      } catch (err) {
+        console.error('Failed to fetch stats:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchStats();
+  }, []);
 
   const handlePostJobClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -75,9 +105,9 @@ export default function AboutPage() {
       <section className="py-20 border-y border-gray-50 bg-gray-50/30">
         <div className="max-w-7xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-12">
           {[
-            { label: 'Active Users', value: '2M+', icon: Users },
-            { label: 'Partner Companies', value: '50k+', icon: Building },
-            { label: 'Job Placements', value: '150k+', icon: CheckCircle2 },
+            { label: 'Active Users', value: isLoading ? '...' : `${counters.jobSeekers}`, icon: Users },
+            { label: 'Partner Companies', value: isLoading ? '...' : `${counters.companies}`, icon: Building },
+            { label: 'Job Placements', value: isLoading ? '...' : `${counters.applications || '150k+'}`, icon: CheckCircle2 },
             { label: 'Countries', value: '120+', icon: Globe },
           ].map((stat, i) => (
             <div key={i} className="text-center group">

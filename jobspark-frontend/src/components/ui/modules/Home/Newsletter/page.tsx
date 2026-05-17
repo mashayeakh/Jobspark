@@ -49,13 +49,13 @@ const Newsletter = () => {
               <CheckCircle className="w-10 h-10 text-green-600" />
             </div>
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-              Welcome to HireNova!
+              Welcome to JobSpark!
             </h2>
             <p className="text-lg text-gray-600 mb-8">
-              You're all set! Check your email for a confirmation link and start exploring amazing opportunities.
+              You&apos;re all set! Check your email for a confirmation link and start exploring amazing opportunities.
             </p>
             <div className="bg-green-50 rounded-2xl p-6 text-left">
-              <h3 className="font-semibold text-gray-900 mb-3">What's next?</h3>
+              <h3 className="font-semibold text-gray-900 mb-3">What&apos;s next?</h3>
               <ul className="space-y-2 text-gray-600">
                 <li className="flex items-start gap-2">
                   <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
@@ -153,7 +153,7 @@ const Newsletter = () => {
                     required
                   />
                   <label htmlFor="terms" className="text-sm text-gray-600">
-                    I agree to receive job alerts and career tips from HireNova
+                    I agree to receive job alerts and career tips from JobSpark
                   </label>
                 </div>
 

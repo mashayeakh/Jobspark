@@ -1,14 +1,42 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { ArrowRight, Star, Shield, Zap, Users } from 'lucide-react';
 import Link from 'next/link';
+import apiClient from '@/lib/api';
 
 const FinalCTA = () => {
+  const [counters, setCounters] = useState({
+    jobSeekers: 0,
+    jobs: 0
+  });
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const response = await apiClient.get<any>('/jobs/public-stats');
+        if (response.success && response.data?.result) {
+          const { jobSeekers, jobs } = response.data.result;
+          setCounters({
+            jobSeekers: jobSeekers || 0,
+            jobs: jobs || 0
+          });
+        }
+      } catch (err) {
+        console.error('Failed to fetch stats:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchStats();
+  }, []);
+
   const stats = [
-    { icon: Users, value: '500K+', label: 'Active Users' },
+    { icon: Users, value: isLoading ? '...' : `${counters.jobSeekers}`, label: 'Active Users' },
     { icon: Star, value: '4.9/5', label: 'User Rating' },
-    { icon: Shield, value: '100%', label: 'Verified Jobs' },
+    { icon: Shield, value: isLoading ? '...' : `${counters.jobs}`, label: 'Verified Jobs' },
     { icon: Zap, value: '50%', label: 'Faster Hiring' }
   ];
 
@@ -28,7 +56,7 @@ const FinalCTA = () => {
             Ready to Transform Your Career?
           </h2>
           <p className="text-lg sm:text-xl text-gray-300 max-w-3xl mx-auto">
-            Join thousands of professionals and companies who&apos;ve already found their perfect match through HireNova
+            Join thousands of professionals and companies who&apos;ve already found their perfect match through JobSpark
           </p>
         </div>
 
@@ -63,7 +91,7 @@ const FinalCTA = () => {
                 Start Your Journey Today
               </h3>
               <p className="text-lg text-blue-100 mb-8 max-w-2xl mx-auto">
-                Whether you&apos;re looking for your next opportunity or seeking top talent, HireNova is your platform for success.
+                Whether you&apos;re looking for your next opportunity or seeking top talent, JobSpark is your platform for success.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
@@ -94,7 +122,7 @@ const FinalCTA = () => {
                 </div>
                 <div className="flex items-center gap-1">
                   <Users className="w-4 h-4" />
-                  <span>500K+ Users</span>
+                  <span>{isLoading ? '...' : `${counters.jobSeekers}`} Users</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <Zap className="w-4 h-4" />

@@ -83,7 +83,7 @@ const Footer = () => {
   const contactInfo = [
     { icon: Mail, label: 'Email', value: 'support@jobspark.com', href: 'mailto:support@jobspark.com' },
     { icon: Phone, label: 'Phone', value: '+1 (555) 123-4567', href: 'tel:+15551234567' },
-    { icon: MapPin, label: 'Address', value: '123 Tech Street, San Francisco, CA 94105', href: 'https://maps.google.com/?q=123+Tech+Street+San+Francisco+CA+94105' }
+    { icon: MapPin, label: 'Address', value: 'Dhaka, Bangladesh', href: 'https://maps.google.com/?q=Dhaka+Bangladesh' }
   ];
 
   return (
@@ -201,7 +201,7 @@ const Footer = () => {
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             {/* Copyright */}
             <div className="text-gray-400 text-sm">
-              © 2024 HireNova. All rights reserved.
+              © 2024 JobSpark. All rights reserved.
             </div>
 
             {/* Bottom Links */}

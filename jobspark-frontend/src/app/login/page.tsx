@@ -83,13 +83,17 @@ const LoginPage = () => {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
+    const frame = requestAnimationFrame(() => {
+      setMounted(true);
+    });
 
     // Test localStorage immediately
     console.log('Testing localStorage on mount...');
     localStorage.setItem('test', 'working');
     console.log('Test item:', localStorage.getItem('test'));
     localStorage.removeItem('test');
+
+    return () => cancelAnimationFrame(frame);
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -116,6 +120,7 @@ const LoginPage = () => {
       } else {
         setError(response.error || 'Login failed. Please check your credentials.');
       }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       setError(error?.message || 'Login failed. Please try again.');
     } finally {
@@ -131,10 +136,10 @@ const LoginPage = () => {
         <div className="absolute top-8 left-8 z-20">
           <div className="flex items-center gap-2">
             <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
-              <span className="text-blue-600 font-bold text-xl">HN</span>
+              <span className="text-blue-600 font-bold text-xl">JS</span>
             </div>
             <Link href="/">
-              <span className="text-white font-semibold text-lg">HireNova</span>
+              <span className="text-white font-semibold text-lg">JobSpark</span>
             </Link>
           </div>
         </div>
@@ -208,7 +213,7 @@ const LoginPage = () => {
           </div>
 
           <div className="text-center">
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">Sign in to HireNova</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-2">Sign in to JobSpark</h2>
             <p className="text-gray-600 mb-8">Welcome back! Please enter your details.</p>
           </div>
 

@@ -308,7 +308,7 @@ export default function JobListingTemplate({
     <div className="min-h-screen bg-[#f8fafc] text-gray-900 pb-20">
 
       {/* Search Header */}
-      <div className="bg-white/80 backdrop-blur-xl border-b border-gray-100 sticky top-0 z-50 shadow-sm">
+      <div className="bg-white/80 backdrop-blur-xl border-b border-gray-100 sticky top-0 z-30 shadow-sm">
         <div className="max-w-7xl mx-auto px-4">
           {/* Brand/Search Row */}
           <div className="flex flex-col lg:flex-row items-center gap-6 py-8">

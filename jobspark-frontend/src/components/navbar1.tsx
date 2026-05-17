@@ -88,8 +88,8 @@ const Navbar = ({
   logo = {
     url: "/",
     src: "https://deifkwefumgah.cloudfront.net/shadcnblocks/block/logos/shadcnblockscom-icon.svg",
-    alt: "HireNova Logo",
-    title: "HireNova",
+    alt: "JobSpark Logo",
+    title: "JobSpark",
   },
   menu = [
     {
@@ -112,13 +112,8 @@ const Navbar = ({
       url: "/hire",
     },
     {
-      title: "Discover",
-      url: "/",
-      items: [
-        { title: "Salary Guide", url: "/resources/salary", description: "Market insights" },
-        { title: "Career Advice", url: "/resources/career", description: "Expert tips" },
-        { title: "Blog", url: "/resources/blog", description: "Industry news" },
-      ]
+      title: "Blog",
+      url: "/resources/blog",
     },
   ],
   auth = {
