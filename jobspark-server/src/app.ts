@@ -15,6 +15,7 @@ const allowedOrigins = new Set(
     [
         envVars.FRONTEND_URL,
         envVars.BETTER_AUTH_URL,
+        "https://jobspark-frontend.vercel.app",
         "http://localhost:3000",
         "http://localhost:5000",
     ].filter(Boolean),
@@ -28,11 +29,18 @@ app.use(
                 return callback(null, true);
             }
 
-            if (allowedOrigins.has(origin)) {
+            const cleanOrigin = origin.replace(/\/$/, "");
+            const isAllowed = Array.from(allowedOrigins).some(allowed => {
+                if (!allowed) return false;
+                const cleanAllowed = allowed.replace(/\/$/, "");
+                return cleanOrigin === cleanAllowed;
+            });
+
+            if (isAllowed || process.env.NODE_ENV !== "production") {
                 return callback(null, true);
             }
 
-            return callback(new Error("Not allowed by CORS"));
+            return callback(new Error(`Not allowed by CORS: ${origin}`));
         },
         credentials: true,
         methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
