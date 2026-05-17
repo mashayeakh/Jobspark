@@ -1,8 +1,7 @@
 import express from "express";
 import { BioGeneratorController } from "./bioGenerator.controller";
 import { checkAuth } from "@/app/middleware/checkAuth";
-import pkg from "@prisma/client";
-const { UserRole } = pkg;
+import { UserRole } from "@/app/lib/prisma";
 
 const router = express.Router();
 

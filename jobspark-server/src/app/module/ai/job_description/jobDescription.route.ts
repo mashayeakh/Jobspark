@@ -1,7 +1,6 @@
 import express from "express";
 import { JobDescriptionController } from "./jobDescription.controller";
-import pkg from "@prisma/client";
-const { UserRole } = pkg;
+import { UserRole } from "@/app/lib/prisma";
 import { checkAuth } from "@/app/middleware/checkAuth";
 
 const router = express.Router();
