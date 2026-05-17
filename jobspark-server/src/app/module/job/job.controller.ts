@@ -115,4 +115,15 @@ export const JobController = {
       result: { isSaved },
     });
   }),
+
+  getPublicStats: catchAsyc(async (req: Request, res: Response) => {
+    const result = await JobService.getPublicStats();
+
+    sendResponse(res, {
+      httpStatusCode: httpStatus.OK,
+      success: true,
+      message: "Public stats fetched successfully",
+      result,
+    });
+  }),
 };

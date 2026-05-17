@@ -405,5 +405,25 @@ export const JobService = {
 
     return !!saved;
   },
+
+  getPublicStats: async () => {
+    const [jobSeekers, companies, jobs] = await Promise.all([
+      prisma.jobSeekerProfile.count(),
+      prisma.company.count(),
+      prisma.job.count({
+        where: {
+          status: { in: ["OPEN", "ACTIVE"] },
+          deletedAt: null,
+        },
+      }),
+    ]);
+
+    return {
+      jobSeekers: jobSeekers || 0,
+      companies: companies || 0,
+      jobs: jobs || 0,
+      hireRate: 95,
+    };
+  },
 };
 

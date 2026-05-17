@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Users, Briefcase, Building, TrendingUp } from 'lucide-react';
+import apiClient from '@/lib/api';
 
 const Stats = () => {
   const [counters, setCounters] = useState({
@@ -11,17 +12,50 @@ const Stats = () => {
     hireRate: 0
   });
 
-  const targetStats = {
-    jobSeekers: 1000000,
-    companies: 50000,
-    jobs: 250000,
+  const [targetStats, setTargetStats] = useState({
+    jobSeekers: 12000,
+    companies: 450,
+    jobs: 1800,
     hireRate: 95
-  };
+  });
+
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await apiClient.get<any>('/jobs/public-stats');
+        if (response.success && response.data?.result) {
+          const { jobSeekers, companies, jobs, hireRate } = response.data.result;
+          setTargetStats({
+            jobSeekers: 12000 + jobSeekers,
+            companies: 450 + companies,
+            jobs: 1800 + jobs,
+            hireRate: hireRate || 95
+          });
+        }
+      } catch (err) {
+        console.error('Failed to fetch public stats:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchStats();
+  }, []);
+
+  useEffect(() => {
+    if (isLoading) return;
+
     const duration = 2000; // 2 seconds
     const steps = 60;
     const interval = duration / steps;
+
+    setCounters({
+      jobSeekers: 0,
+      companies: 0,
+      jobs: 0,
+      hireRate: 0
+    });
 
     const timer = setInterval(() => {
       setCounters(prev => {
@@ -39,7 +73,7 @@ const Stats = () => {
     }, interval);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [isLoading, targetStats]);
 
   const stats = [
     {
@@ -77,7 +111,7 @@ const Stats = () => {
             Trusted by Leaders Worldwide
           </h2>
           <p className="text-lg sm:text-xl text-blue-100 max-w-3xl mx-auto">
-            Join the millions who&apos;ve already found their perfect match through HireNova
+            Join the millions who&apos;ve already found their perfect match through JobSpark
           </p>
         </div>
 

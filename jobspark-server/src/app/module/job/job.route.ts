@@ -7,6 +7,7 @@ const router = express.Router();
 
 // Public/Seeker routes
 router.get("/", JobController.getAllJobs);
+router.get("/public-stats", JobController.getPublicStats);
 
 // Specific routes (must come before dynamic :id)
 router.get("/my-jobs", checkAuth(UserRole.RECRUITER), JobController.getRecruiterJobs);
