@@ -50,7 +50,6 @@ const getNavigationData = (userRole: string) => {
           label: "Dashboard",
           items: [
             { title: "Overview", url: "/admin/dashboard", icon: LayoutDashboard },
-            { title: "Financials", url: "/admin/financials", icon: BarChart3 },
           ]
         },
         {
@@ -60,7 +59,6 @@ const getNavigationData = (userRole: string) => {
             { title: "Market Intel", url: "/admin/market-intelligence", icon: BrainCircuit },
             { title: "Content Sanity", url: "/admin/content-sanity", icon: Lock },
             { title: "Churn Predictor", url: "/admin/churn-predictor", icon: Zap },
-            { title: "Support Agent", url: "/admin/support-agent", icon: Bot },
             { title: "Anomaly Detection", url: "/admin/anomaly-detection", icon: Activity },
           ]
         },
