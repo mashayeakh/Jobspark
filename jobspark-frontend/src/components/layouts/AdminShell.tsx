@@ -120,12 +120,7 @@ export function AdminShell({ children, title }: AdminShellProps) {
               <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl text-gray-500 hover:text-blue-600 hover:bg-blue-50">
                 <MessageSquare className="h-5 w-5" />
               </Button>
-              <div className="relative">
-                <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl text-gray-500 hover:text-blue-600 hover:bg-blue-50">
-                  <Bell className="h-5 w-5" />
-                </Button>
-                <span className="absolute top-2.5 right-2.5 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white" />
-              </div>
+
               <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl text-gray-500 hover:text-blue-600 hover:bg-blue-50">
                 <Maximize2 className="h-5 w-5" />
               </Button>
