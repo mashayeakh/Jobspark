@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ChevronDown, ChevronUp, HelpCircle, Briefcase, Users, Shield, Zap, Globe, Award } from 'lucide-react';
+import { ChevronDown, ChevronUp, HelpCircle, Briefcase, Users, Zap } from 'lucide-react';
 
 const FAQ = () => {
   const [openQuestion, setOpenQuestion] = useState<number | null>(null);
@@ -181,7 +181,7 @@ const FAQ = () => {
           })}
         </div>
 
-        {/* Quick Help Section */}
+        {/* Quick Help Section (Commented Out)
         <div className="grid md:grid-cols-3 gap-6 mb-12">
           <div className="bg-white rounded-2xl p-6 text-center border border-gray-200 hover:shadow-lg transition-shadow duration-300">
             <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
@@ -222,8 +222,9 @@ const FAQ = () => {
             </a>
           </div>
         </div>
+        */}
 
-        {/* CTA Section */}
+        {/* CTA Section (Commented Out)
         <div className="text-center">
           <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl p-8 sm:p-12 text-white">
             <h3 className="text-2xl sm:text-3xl font-bold mb-4">
@@ -239,15 +240,10 @@ const FAQ = () => {
               >
                 Contact Us
               </a>
-              {/* <a
-                href="/demo"
-                className="px-8 py-4 bg-blue-700 text-white font-semibold rounded-xl hover:bg-blue-800 transition-all duration-300 border-2 border-blue-500"
-              >
-                Schedule a Demo
-              </a> */}
             </div>
           </div>
         </div>
+        */}
       </div>
     </section>
   );
