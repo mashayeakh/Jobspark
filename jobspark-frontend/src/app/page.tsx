@@ -3,7 +3,7 @@ import CompanyMarquee from "@/components/ui/modules/Home/CompanyMarquee/page";
 import Features from "@/components/ui/modules/Home/Features/page";
 import Stats from "@/components/ui/modules/Home/Stats/page";
 import Categories from "@/components/ui/modules/Home/Categories/page";
-// import Testimonials from "@/components/ui/modules/Home/Testimonials/page";
+import Testimonials from "@/components/ui/modules/Home/Testimonials/page";
 import FAQ from "@/components/ui/modules/Home/FAQ/page";
 import Newsletter from "@/components/ui/modules/Home/Newsletter/page";
 import FinalCTA from "@/components/ui/modules/Home/FinalCTA/page";
@@ -31,7 +31,7 @@ export default function Home() {
       <Categories />
 
       {/* Testimonials */}
-      {/* <Testimonials /> */}
+      <Testimonials />
 
       {/* FAQ */}
       <FAQ />
