@@ -2,16 +2,18 @@
 'use client';
 
 import { useEffect, useState, use } from 'react';
-import { notFound } from 'next/navigation';
+import { notFound, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { MapPin, Briefcase, GraduationCap, Mail, Link as LinkIcon, Users, MoreHorizontal, BadgeCheck, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import apiClient from '@/lib/api';
+import { toast } from 'sonner';
 
 export default function UserProfilePage({ params }: { params: Promise<{ userId: string }> }) {
   const { userId } = use(params);
+  const router = useRouter();
   
   const [user, setUser] = useState<any>(null);
   const [recommended, setRecommended] = useState<any[]>([]);
@@ -71,12 +73,25 @@ export default function UserProfilePage({ params }: { params: Promise<{ userId: 
       const res = await apiClient.post(`/network/connect/${userId}`);
       if (res.success) {
         setConnectedState('PENDING');
-        alert("Connection request sent successfully!");
+        toast.success('Connection request sent!', {
+          description: `Your request to connect with ${user?.name} is now pending.`,
+        });
       } else {
-        alert(res.error || "Failed to send request.");
+        if (res.error?.toLowerCase().includes('unauthorized') || res.error?.toLowerCase().includes('login')) {
+          toast.warning('Login required', {
+            description: 'You must be logged in to connect with users.',
+            action: {
+              label: 'Log in',
+              onClick: () => router.push('/login'),
+            },
+            duration: 6000,
+          });
+        } else {
+          toast.error(res.error || 'Failed to send request.');
+        }
       }
-    } catch (err) {
-      alert("Error sending request.");
+    } catch {
+      toast.error('An error occurred while sending the request.');
     } finally {
       setConnectLoading(false);
     }

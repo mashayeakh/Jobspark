@@ -3,6 +3,7 @@
 "use client";
 
 import { Book, Menu, Sunset, Trees, Zap, Bell, Plus } from "lucide-react";
+import Link from "next/link";
 import { useState, useEffect } from "react";
 import { authService } from "@/services/authService";
 import { useRouter, usePathname } from "next/navigation";
@@ -521,14 +522,16 @@ const renderMenuItem = (item: MenuItem, pathname: string) => {
 
   return (
     <NavigationMenuItem key={item.title}>
-      <NavigationMenuLink
-        href={item.url}
-        className={cn(
-          "group inline-flex h-10 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-white/50 hover:text-accent-foreground",
-          isActive && "font-bold text-blue-600 border-b-2 border-blue-600 rounded-none bg-blue-50/30"
-        )}
-      >
-        {item.title}
+      <NavigationMenuLink asChild>
+        <Link
+          href={item.url}
+          className={cn(
+            "group inline-flex h-10 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-white/50 hover:text-accent-foreground",
+            isActive && "font-bold text-blue-600 border-b-2 border-blue-600 rounded-none bg-blue-50/30"
+          )}
+        >
+          {item.title}
+        </Link>
       </NavigationMenuLink>
     </NavigationMenuItem>
   );
