@@ -125,18 +125,22 @@ export const NetworkService = {
     return { received, sent };
   },
   // --- Get recommended users (not connected yet) ---
-  getRecommendedUsers: async (userId: string) => {
-    // Fetch user's existing connections
-    const connections = await prisma.connection.findMany({
-      where: {
-        OR: [{ senderId: userId }, { receiverId: userId }],
-      },
-    });
+  getRecommendedUsers: async (userId: string | null) => {
+    let connectedUserIds = new Set<string>();
 
-    const connectedUserIds = new Set(
-      connections.map((c) => (c.senderId === userId ? c.receiverId : c.senderId))
-    );
-    connectedUserIds.add(userId);
+    if (userId) {
+      // Fetch user's existing connections
+      const connections = await prisma.connection.findMany({
+        where: {
+          OR: [{ senderId: userId }, { receiverId: userId }],
+        },
+      });
+
+      connectedUserIds = new Set(
+        connections.map((c) => (c.senderId === userId ? c.receiverId : c.senderId))
+      );
+      connectedUserIds.add(userId);
+    }
 
     // Fetch users who are not in the connected/pending list
     const recommendedUsers = await prisma.user.findMany({
@@ -151,8 +155,10 @@ export const NetworkService = {
         jobSeekerProfile: {
           select: { headline: true },
         },
+        _count: {
+          select: { receivedConnections: true, sentConnections: true },
+        },
       },
-      take: 20, // Limit the number of recommendations
     });
 
     return recommendedUsers.map((user) => ({
@@ -160,6 +166,7 @@ export const NetworkService = {
       name: user.name,
       avatar: user.image || "https://github.com/shadcn.png",
       title: user.jobSeekerProfile?.headline || "Member",
+      connections: user._count.receivedConnections + user._count.sentConnections,
     }));
   },
 

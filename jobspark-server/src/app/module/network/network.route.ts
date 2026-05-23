@@ -12,8 +12,8 @@ router.get("/connections", checkAuth(), NetworkController.getConnections);
 router.get("/pending", checkAuth(), NetworkController.getPendingRequests);
 
 // --- User Profile Routes ---
-router.get("/users", checkAuth(), NetworkController.getRecommendedUsers);
-router.get("/users/:id", checkAuth(), NetworkController.getUserProfile);
+router.get("/users", NetworkController.getRecommendedUsers);
+router.get("/users/:id", NetworkController.getUserProfile);
 
 // --- Notification Routes ---
 router.get("/notifications", checkAuth(), NotificationController.getNotifications);

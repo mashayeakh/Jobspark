@@ -69,7 +69,7 @@ export const NetworkController = {
   }),
 
   getRecommendedUsers: catchAsyc(async (req: Request, res: Response) => {
-    const userId = (req as any).user.userId;
+    const userId = (req as any).user?.userId || null;
     const result = await NetworkService.getRecommendedUsers(userId);
     console.log("Recommended users count:", result.length);
 
