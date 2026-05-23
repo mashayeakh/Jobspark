@@ -67,6 +67,31 @@ export const NetworkController = {
       result,
     });
   }),
+
+  getRecommendedUsers: catchAsyc(async (req: Request, res: Response) => {
+    const userId = (req as any).user.userId;
+    const result = await NetworkService.getRecommendedUsers(userId);
+    console.log("Recommended users count:", result.length);
+
+    sendResponse(res, {
+      httpStatusCode: httpStatus.OK,
+      success: true,
+      message: "Recommended users fetched successfully",
+      result,
+    });
+  }),
+
+  getUserProfile: catchAsyc(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const result = await NetworkService.getUserProfile(id as string);
+
+    sendResponse(res, {
+      httpStatusCode: httpStatus.OK,
+      success: true,
+      message: "User profile fetched successfully",
+      result,
+    });
+  }),
 };
 
 export const NotificationController = {

@@ -98,9 +98,9 @@ export const NetworkService = {
     });
   },
 
-  // --- Get pending connection requests (received) ---
+  // --- Get pending connection requests (both received and sent) ---
   getPendingRequests: async (userId: string) => {
-    return await prisma.connection.findMany({
+    const received = await prisma.connection.findMany({
       where: {
         receiverId: userId,
         status: ConnectionStatus.PENDING,
@@ -110,6 +110,93 @@ export const NetworkService = {
       },
       orderBy: { createdAt: "desc" },
     });
+
+    const sent = await prisma.connection.findMany({
+      where: {
+        senderId: userId,
+        status: ConnectionStatus.PENDING,
+      },
+      include: {
+        receiver: { select: { id: true, name: true, email: true, image: true } },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    return { received, sent };
+  },
+  // --- Get recommended users (not connected yet) ---
+  getRecommendedUsers: async (userId: string) => {
+    // Fetch user's existing connections
+    const connections = await prisma.connection.findMany({
+      where: {
+        OR: [{ senderId: userId }, { receiverId: userId }],
+      },
+    });
+
+    const connectedUserIds = new Set(
+      connections.map((c) => (c.senderId === userId ? c.receiverId : c.senderId))
+    );
+    connectedUserIds.add(userId);
+
+    // Fetch users who are not in the connected/pending list
+    const recommendedUsers = await prisma.user.findMany({
+      where: {
+        id: { notIn: Array.from(connectedUserIds) },
+        role: "JOB_SEEKER", // Assuming we recommend job seekers, or remove to recommend anyone
+      },
+      select: {
+        id: true,
+        name: true,
+        image: true,
+        jobSeekerProfile: {
+          select: { headline: true },
+        },
+      },
+      take: 20, // Limit the number of recommendations
+    });
+
+    return recommendedUsers.map((user) => ({
+      id: user.id,
+      name: user.name,
+      avatar: user.image || "https://github.com/shadcn.png",
+      title: user.jobSeekerProfile?.headline || "Member",
+    }));
+  },
+
+  // --- Get public profile of a user ---
+  getUserProfile: async (userId: string) => {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        jobSeekerProfile: {
+          include: {
+            workExperience: true,
+            education: true,
+          },
+        },
+        _count: {
+          select: { receivedConnections: true, sentConnections: true },
+        },
+      },
+    });
+
+    if (!user) {
+      throw new AppError(httpStatus.NOT_FOUND, "User profile not found.");
+    }
+
+    return {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      avatar: user.image || "https://github.com/shadcn.png",
+      title: user.jobSeekerProfile?.headline || "Member",
+      about: user.jobSeekerProfile?.bio || "No bio available.",
+      location: "San Francisco, CA", // Hardcoded for now if not in DB
+      company: user.jobSeekerProfile?.workExperience?.[0]?.companyName || "Open to work",
+      connections: user._count.receivedConnections + user._count.sentConnections,
+      experience: user.jobSeekerProfile?.workExperience || [],
+      education: user.jobSeekerProfile?.education || [],
+    };
   },
 };
 
