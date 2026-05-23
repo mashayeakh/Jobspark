@@ -33,6 +33,7 @@ class ApiClient {
           ...options.headers,
         },
         credentials: 'include',
+        cache: 'no-store', // Disable Next.js caching for authenticated API requests
         ...options,
       };
 

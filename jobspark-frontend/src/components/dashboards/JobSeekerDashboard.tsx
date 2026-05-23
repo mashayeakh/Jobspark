@@ -21,9 +21,9 @@ import {
   Zap,
   CheckCircle2
 } from 'lucide-react';
-import { jobService, Job, AIRecommendedJob } from '@/services/jobService';
 import { jobSeekerService } from '@/services/jobSeekerService';
 import { applicationService } from '@/services/applicationService';
+import { jobService, Job, AIRecommendedJob } from '@/services/jobService';
 
 interface JobSeekerDashboardProps {
   user: { name?: string } | null;
@@ -346,7 +346,7 @@ export function JobSeekerDashboard({ user }: JobSeekerDashboardProps) {
                         <div>
                           <p className="text-blue-900 font-bold text-sm leading-relaxed">{job.explanation}</p>
                           <div className="flex flex-wrap gap-2 mt-3">
-                            {job.matchReasons.map((reason, idx) => (
+                            {job.matchReasons.map((reason: string, idx: number) => (
                               <span key={idx} className="flex items-center gap-1.5 text-[11px] font-black uppercase tracking-wider text-blue-700 bg-white/80 px-2.5 py-1 rounded-lg border border-blue-100">
                                 <CheckCircle2 className="h-3 w-3" />
                                 {reason}

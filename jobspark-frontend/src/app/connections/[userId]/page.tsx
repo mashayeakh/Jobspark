@@ -1,17 +1,93 @@
-import { users } from '../data';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+'use client';
+
+import { useEffect, useState, use } from 'react';
 import { notFound } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { MapPin, Briefcase, GraduationCap, Mail, Link as LinkIcon, Users, MoreHorizontal, BadgeCheck, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
+import apiClient from '@/lib/api';
 
-export default async function UserProfilePage({ params }: { params: Promise<{ userId: string }> }) {
-  const { userId } = await params;
-  const user = users.find(u => u.id === userId);
+export default function UserProfilePage({ params }: { params: Promise<{ userId: string }> }) {
+  const { userId } = use(params);
+  
+  const [user, setUser] = useState<any>(null);
+  const [recommended, setRecommended] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [connectLoading, setConnectLoading] = useState(false);
+  const [connectedState, setConnectedState] = useState<'NONE' | 'PENDING' | 'ACCEPTED'>('NONE');
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [profileRes, recommendedRes, connectionsRes, pendingRes] = await Promise.all([
+          apiClient.get<any>(`/network/users/${userId}`),
+          apiClient.get<any>('/network/users'),
+          apiClient.get<any>('/network/connections'),
+          apiClient.get<any>('/network/pending')
+        ]);
+        
+        if (profileRes.success && profileRes.data?.result) {
+          setUser(profileRes.data.result);
+        }
+        
+        if (recommendedRes.success && recommendedRes.data?.result) {
+          setRecommended(recommendedRes.data.result);
+        }
+
+        // Determine connection state
+        let state: 'NONE' | 'PENDING' | 'ACCEPTED' = 'NONE';
+        
+        if (connectionsRes.success && connectionsRes.data?.result) {
+          const isConnected = connectionsRes.data.result.some((c: any) => 
+            c.sender.id === userId || c.receiver.id === userId
+          );
+          if (isConnected) state = 'ACCEPTED';
+        }
+
+        if (state === 'NONE' && pendingRes.success && pendingRes.data?.result) {
+          const isPending = 
+            (pendingRes.data.result.sent || []).some((c: any) => c.receiver.id === userId) ||
+            (pendingRes.data.result.received || []).some((c: any) => c.sender.id === userId);
+          if (isPending) state = 'PENDING';
+        }
+        
+        setConnectedState(state);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchData();
+  }, [userId]);
+
+  const handleConnect = async () => {
+    setConnectLoading(true);
+    try {
+      const res = await apiClient.post(`/network/connect/${userId}`);
+      if (res.success) {
+        setConnectedState('PENDING');
+        alert("Connection request sent successfully!");
+      } else {
+        alert(res.error || "Failed to send request.");
+      }
+    } catch (err) {
+      alert("Error sending request.");
+    } finally {
+      setConnectLoading(false);
+    }
+  };
+
+  if (loading) {
+    return <div className="min-h-screen flex items-center justify-center">Loading profile...</div>;
+  }
 
   if (!user) {
-    notFound();
+    return <div className="min-h-screen flex items-center justify-center">User not found</div>;
   }
 
   // Generate some semi-random tags based on user ID for the mock data
@@ -48,9 +124,19 @@ export default async function UserProfilePage({ params }: { params: Promise<{ us
 
                   {/* Action Buttons */}
                   <div className="flex items-center gap-2 pb-2">
-                    <Button className="rounded-full bg-[#0a66c2] hover:bg-[#004182] text-white font-semibold px-5 h-9">
-                      Message
-                    </Button>
+                    {connectedState === 'PENDING' ? (
+                      <Button disabled className="rounded-full bg-gray-400 text-white font-semibold px-5 h-9">
+                        Pending
+                      </Button>
+                    ) : connectedState === 'ACCEPTED' ? (
+                      <Button className="rounded-full bg-green-600 hover:bg-green-700 text-white font-semibold px-5 h-9">
+                        Message
+                      </Button>
+                    ) : (
+                      <Button onClick={handleConnect} disabled={connectLoading} className="rounded-full bg-[#0a66c2] hover:bg-[#004182] text-white font-semibold px-5 h-9">
+                        {connectLoading ? 'Connecting...' : 'Connect'}
+                      </Button>
+                    )}
                     <Button variant="outline" className="rounded-full border-[#0a66c2] text-[#0a66c2] hover:bg-[#eaf3ff] hover:border-[#0a66c2] font-semibold px-5 h-9 transition-colors">
                       +Follow
                     </Button>
@@ -167,7 +253,7 @@ export default async function UserProfilePage({ params }: { params: Promise<{ us
               <CardContent className="p-6">
                 <h2 className="text-lg font-bold mb-4 text-gray-900">People you may know</h2>
                 <div className="space-y-4">
-                  {users.filter(u => u.id !== userId).slice(0, 4).map(recommendedUser => (
+                  {recommended.filter(u => u.id !== userId).slice(0, 4).map(recommendedUser => (
                     <div key={recommendedUser.id} className="flex items-start gap-3">
                       <div className="h-12 w-12 rounded-full overflow-hidden shrink-0 border border-gray-100">
                         <img src={recommendedUser.avatar} alt={recommendedUser.name} className="h-full w-full object-cover" />
