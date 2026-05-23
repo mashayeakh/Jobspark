@@ -1,0 +1,195 @@
+import { users } from '../data';
+import { notFound } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { MapPin, Briefcase, GraduationCap, Mail, Link as LinkIcon, Users, MoreHorizontal, BadgeCheck, ArrowLeft } from 'lucide-react';
+import Link from 'next/link';
+
+export default async function UserProfilePage({ params }: { params: Promise<{ userId: string }> }) {
+  const { userId } = await params;
+  const user = users.find(u => u.id === userId);
+
+  if (!user) {
+    notFound();
+  }
+
+  // Generate some semi-random tags based on user ID for the mock data
+  const tags = ["#leadership", "#technology", "#innovation", "#development", "#strategy", "#mentorship", "#startups"];
+  const userTags = tags.slice(0, 4).join(', ');
+  const userInterests = tags.slice(3, 7).join(', ');
+
+  return (
+    <div className="bg-[#F3F2EF] min-h-screen py-8">
+      <div className="container mx-auto px-4 max-w-[1128px]">
+
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+          {/* Main Content Column */}
+          <div className="md:col-span-8 space-y-4">
+
+            {/* Top Profile Card */}
+            <Card className="overflow-hidden border border-gray-200 shadow-sm rounded-xl bg-white relative">
+              {/* Cover Photo */}
+              <div className="h-48 w-full bg-gradient-to-r from-[#B9A696] to-[#8C7A6B] relative">
+                <img
+                  src="https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=2029&auto=format&fit=crop"
+                  alt="Cover"
+                  className="w-full h-full object-cover opacity-80 mix-blend-overlay"
+                />
+              </div>
+
+              <div className="px-6 pb-6 relative">
+                {/* Avatar and Action Buttons */}
+                <div className="flex justify-between items-end -mt-20 mb-4">
+                  {/* Avatar */}
+                  <div className="h-[152px] w-[152px] rounded-full border-4 border-white overflow-hidden bg-white shadow-sm shrink-0">
+                    <img src={user.avatar} alt={user.name} className="h-full w-full object-cover" />
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex items-center gap-2 pb-2">
+                    <Button className="rounded-full bg-[#0a66c2] hover:bg-[#004182] text-white font-semibold px-5 h-9">
+                      Message
+                    </Button>
+                    <Button variant="outline" className="rounded-full border-[#0a66c2] text-[#0a66c2] hover:bg-[#eaf3ff] hover:border-[#0a66c2] font-semibold px-5 h-9 transition-colors">
+                      +Follow
+                    </Button>
+                    <Button variant="outline" size="icon" className="rounded-full h-9 w-9 border-gray-500 text-gray-500 hover:bg-gray-100 hover:border-gray-600 transition-colors">
+                      <MoreHorizontal className="size-5" />
+                    </Button>
+                  </div>
+                </div>
+
+                {/* User Info */}
+                <div>
+                  <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-1.5">
+                    {user.name}
+                    <BadgeCheck className="text-blue-500 size-5 fill-blue-50" />
+                  </h1>
+                  <p className="text-[16px] text-gray-900 mt-1">{user.title}</p>
+                </div>
+              </div>
+            </Card>
+
+            {/* Pills Row */}
+            <div className="flex gap-3 items-center flex-wrap">
+              <Badge variant="outline" className="rounded-full px-4 py-1.5 border-gray-300 text-gray-700 hover:bg-gray-100 text-[14px] font-medium bg-white cursor-pointer transition-colors shadow-sm">
+                Vendors (32)
+              </Badge>
+              <Badge className="rounded-full px-4 py-1.5 bg-[#0a66c2] hover:bg-[#004182] text-white text-[14px] font-medium cursor-pointer transition-colors shadow-sm">
+                Advice (18)
+              </Badge>
+              <Badge variant="outline" className="rounded-full px-4 py-1.5 border-gray-300 text-gray-700 hover:bg-gray-100 text-[14px] font-medium bg-white cursor-pointer transition-colors shadow-sm">
+                Experts (52)
+              </Badge>
+              <Badge variant="outline" className="rounded-full px-4 py-1.5 border-gray-300 text-gray-700 hover:bg-gray-100 text-[14px] font-medium bg-white cursor-pointer transition-colors shadow-sm">
+                Followers (142)
+              </Badge>
+              <div className="ml-auto text-[12px] text-gray-500 hidden sm:flex gap-2">
+                <span className="hover:text-[#0a66c2] hover:underline cursor-pointer">Questions & Answers</span> |
+                <span className="hover:text-[#0a66c2] hover:underline cursor-pointer">Updates & Insights</span> |
+                <span className="hover:text-[#0a66c2] hover:underline cursor-pointer">Articles & News</span>
+              </div>
+            </div>
+
+            {/* About Card */}
+            <Card className="border border-gray-200 shadow-sm rounded-xl bg-white">
+              <CardContent className="p-6">
+                <h2 className="text-xl font-bold mb-4 text-gray-900">About</h2>
+                <p className="text-[14px] text-gray-600 leading-relaxed whitespace-pre-line">
+                  {user.about} <span className="text-gray-500 hover:text-blue-600 hover:underline cursor-pointer font-medium ml-1">...See more</span>
+                </p>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mt-6">
+                  <div>
+                    <h3 className="font-semibold text-[15px] text-gray-900 mb-2">Expertise</h3>
+                    <p className="text-[14px] text-[#0a66c2] leading-relaxed mb-4 cursor-pointer hover:underline">
+                      {userTags}
+                    </p>
+                    <p className="text-[14px] text-gray-700 mb-1">Open to networking</p>
+                    <p className="text-[14px] font-semibold text-green-700">Yes</p>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-[15px] text-gray-900 mb-2">Interests</h3>
+                    <p className="text-[14px] text-[#0a66c2] leading-relaxed mb-4 cursor-pointer hover:underline">
+                      {userInterests}
+                    </p>
+                    <p className="text-[14px] text-gray-700 mb-1">Open to advising</p>
+                    <p className="text-[14px] font-semibold text-green-700">Yes</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+
+
+          </div>
+
+          {/* Right Sidebar Column */}
+          <div className="md:col-span-4 space-y-4">
+
+            {/* Intro Card */}
+            <Card className="border border-gray-200 shadow-sm rounded-xl bg-white">
+              <CardContent className="p-6">
+                <h2 className="text-lg font-bold mb-5 text-gray-900">Intro</h2>
+                <div className="space-y-4 text-[14px]">
+                  <div className="flex items-start gap-3 text-gray-700">
+                    <Briefcase className="size-5 shrink-0 text-gray-500" />
+                    <span>{user.title.split(' at ')[0]} at <span className="font-semibold text-gray-900">{user.company}</span></span>
+                  </div>
+                  <div className="flex items-start gap-3 text-gray-700">
+                    <GraduationCap className="size-5 shrink-0 text-gray-500" />
+                    <span>Went to <span className="font-semibold text-gray-900">Oxford International</span></span>
+                  </div>
+                  <div className="flex items-start gap-3 text-gray-700">
+                    <MapPin className="size-5 shrink-0 text-gray-500" />
+                    <span>Lives in <span className="font-semibold text-gray-900">{user.location}</span></span>
+                  </div>
+                  <div className="flex items-start gap-3 text-gray-700">
+                    <Users className="size-5 shrink-0 text-gray-500" />
+                    <span>Followed by <span className="font-semibold text-gray-900">{user.connections * 45} people</span></span>
+                  </div>
+                  <div className="flex items-start gap-3 text-gray-700">
+                    <Mail className="size-5 shrink-0 text-gray-500" />
+                    <span className="flex items-center gap-1">Email <a href="#" className="text-[#0a66c2] hover:underline font-medium">{user.name.split(' ')[0].toLowerCase()}@contact.com</a></span>
+                  </div>
+                  <div className="flex items-start gap-3 text-gray-700">
+                    <LinkIcon
+                     className="size-5 shrink-0 text-gray-500" />
+                    <span className="flex items-center gap-1">LinkedIn <a href="#" className="text-[#0a66c2] hover:underline font-medium">@{user.name.split(' ')[0].toLowerCase()}_S</a></span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Recommended Users Card */}
+            <Card className="border border-gray-200 shadow-sm rounded-xl bg-white mt-4">
+              <CardContent className="p-6">
+                <h2 className="text-lg font-bold mb-4 text-gray-900">People you may know</h2>
+                <div className="space-y-4">
+                  {users.filter(u => u.id !== userId).slice(0, 4).map(recommendedUser => (
+                    <div key={recommendedUser.id} className="flex items-start gap-3">
+                      <div className="h-12 w-12 rounded-full overflow-hidden shrink-0 border border-gray-100">
+                        <img src={recommendedUser.avatar} alt={recommendedUser.name} className="h-full w-full object-cover" />
+                      </div>
+                      <div>
+                        <Link href={`/connections/${recommendedUser.id}`} className="font-bold text-sm text-gray-900 hover:text-[#0a66c2] hover:underline">
+                          {recommendedUser.name}
+                        </Link>
+                        <p className="text-xs text-gray-500 line-clamp-1">{recommendedUser.title}</p>
+                        <Button variant="outline" size="sm" className="mt-2 h-7 px-4 text-xs rounded-full border-gray-500 font-semibold text-gray-600 hover:bg-gray-100 hover:text-gray-900">
+                          Connect
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

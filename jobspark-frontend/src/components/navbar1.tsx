@@ -5,7 +5,7 @@
 import { Book, Menu, Sunset, Trees, Zap, Bell, Plus } from "lucide-react";
 import { useState, useEffect } from "react";
 import { authService } from "@/services/authService";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { 
   User, 
   Settings, 
@@ -114,6 +114,10 @@ const Navbar = ({
       url: "/hire",
     },
     {
+      title: "Connection",
+      url: "/connections",
+    },
+    {
       title: "Blog",
       url: "/resources/blog",
     },
@@ -130,6 +134,7 @@ const Navbar = ({
   const [user, setUser] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -237,7 +242,7 @@ const Navbar = ({
           <div className="flex items-center justify-center flex-1">
             <NavigationMenu>
               <NavigationMenuList>
-                {menu.map((item) => renderMenuItem(item))}
+                {menu.map((item) => renderMenuItem(item, pathname))}
               </NavigationMenuList>
             </NavigationMenu>
           </div>
@@ -404,7 +409,7 @@ const Navbar = ({
                       collapsible
                       className="flex w-full flex-col gap-4"
                     >
-                      {menu.map((item) => renderMobileMenuItem(item))}
+                      {menu.map((item) => renderMobileMenuItem(item, pathname))}
                     </Accordion>
 
                     <div className="flex flex-col gap-3">
@@ -496,15 +501,17 @@ const Navbar = ({
   );
 };
 
-const renderMenuItem = (item: MenuItem) => {
+const renderMenuItem = (item: MenuItem, pathname: string) => {
+  const isActive = item.url === '/' ? pathname === item.url : pathname.startsWith(item.url);
+  
   if (item.items) {
     return (
       <NavigationMenuItem key={item.title}>
-        <NavigationMenuTrigger>{item.title}</NavigationMenuTrigger>
+        <NavigationMenuTrigger className={cn(isActive && "font-bold text-blue-600 bg-blue-50/50")}>{item.title}</NavigationMenuTrigger>
         <NavigationMenuContent className="bg-popover text-popover-foreground">
           {item.items.map((subItem) => (
             <NavigationMenuLink asChild key={subItem.title} className="w-80">
-              <SubMenuLink item={subItem} />
+              <SubMenuLink item={subItem} pathname={pathname} />
             </NavigationMenuLink>
           ))}
         </NavigationMenuContent>
@@ -516,7 +523,10 @@ const renderMenuItem = (item: MenuItem) => {
     <NavigationMenuItem key={item.title}>
       <NavigationMenuLink
         href={item.url}
-        className="group inline-flex h-10 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-white/50 hover:text-accent-foreground"
+        className={cn(
+          "group inline-flex h-10 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-white/50 hover:text-accent-foreground",
+          isActive && "font-bold text-blue-600 border-b-2 border-blue-600 rounded-none bg-blue-50/30"
+        )}
       >
         {item.title}
       </NavigationMenuLink>
@@ -524,16 +534,18 @@ const renderMenuItem = (item: MenuItem) => {
   );
 };
 
-const renderMobileMenuItem = (item: MenuItem) => {
+const renderMobileMenuItem = (item: MenuItem, pathname: string) => {
+  const isActive = item.url === '/' ? pathname === item.url : pathname.startsWith(item.url);
+
   if (item.items) {
     return (
       <AccordionItem key={item.title} value={item.title} className="border-b-0">
-        <AccordionTrigger className="text-md py-0 font-semibold hover:no-underline">
+        <AccordionTrigger className={cn("text-md py-0 font-semibold hover:no-underline", isActive && "text-blue-600")}>
           {item.title}
         </AccordionTrigger>
         <AccordionContent className="mt-2">
           {item.items.map((subItem) => (
-            <SubMenuLink key={subItem.title} item={subItem} />
+            <SubMenuLink key={subItem.title} item={subItem} pathname={pathname} />
           ))}
         </AccordionContent>
       </AccordionItem>
@@ -541,21 +553,22 @@ const renderMobileMenuItem = (item: MenuItem) => {
   }
 
   return (
-    <a key={item.title} href={item.url} className="text-md font-semibold">
+    <a key={item.title} href={item.url} className={cn("text-md font-semibold", isActive && "text-blue-600")}>
       {item.title}
     </a>
   );
 };
 
-const SubMenuLink = ({ item }: { item: MenuItem }) => {
+const SubMenuLink = ({ item, pathname }: { item: MenuItem, pathname?: string }) => {
+  const isActive = pathname && (item.url === '/' ? pathname === item.url : pathname.startsWith(item.url));
   return (
     <a
-      className="flex min-w-80 flex-row gap-4 rounded-md p-3 leading-none no-underline transition-colors outline-none select-none hover:bg-muted hover:text-accent-foreground"
+      className={cn("flex min-w-80 flex-row gap-4 rounded-md p-3 leading-none no-underline transition-colors outline-none select-none hover:bg-muted hover:text-accent-foreground", isActive && "bg-muted text-accent-foreground")}
       href={item.url}
     >
-      <div className="text-foreground">{item.icon}</div>
+      <div className={cn("text-foreground", isActive && "text-blue-600")}>{item.icon}</div>
       <div>
-        <div className="text-sm font-semibold">{item.title}</div>
+        <div className={cn("text-sm font-semibold", isActive && "text-blue-600")}>{item.title}</div>
         {item.description && (
           <p className="text-sm leading-snug text-muted-foreground">
             {item.description}
