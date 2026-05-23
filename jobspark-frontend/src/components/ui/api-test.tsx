@@ -27,22 +27,23 @@ export default function ApiTest() {
   };
 
   return (
-    <div className="p-6 max-w-2xl mx-auto">
-      <h2 className="text-2xl font-bold mb-4">API Connection Test</h2>
+    // <div className="p-6 max-w-2xl mx-auto">
+    //   <h2 className="text-2xl font-bold mb-4">API Connection Test</h2>
 
-      <button
-        onClick={testConnection}
-        disabled={loading}
-        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:bg-gray-400"
-      >
-        {loading ? 'Testing...' : 'Test Backend Connection'}
-      </button>
+    //   <button
+    //     onClick={testConnection}
+    //     disabled={loading}
+    //     className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:bg-gray-400"
+    //   >
+    //     {loading ? 'Testing...' : 'Test Backend Connection'}
+    //   </button>
 
-      {result && (
-        <div className="mt-4 p-4 bg-gray-100 rounded">
-          <pre className="whitespace-pre-wrap text-sm">{result}</pre>
-        </div>
-      )}
-    </div>
+    //   {result && (
+    //     <div className="mt-4 p-4 bg-gray-100 rounded">
+    //       <pre className="whitespace-pre-wrap text-sm">{result}</pre>
+    //     </div>
+    //   )}
+    // </div>
+    <></>
   );
 }

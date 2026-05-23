@@ -10,7 +10,7 @@ import FinalCTA from "@/components/ui/modules/Home/FinalCTA/page";
 import Footer from "@/components/ui/modules/Home/Footer/page";
 import Image from "next/image";
 import ApiTest from '@/components/ui/api-test';
-import JobTest from '@/components/ui/job-test';
+// import JobTest from '@/components/ui/job-test';
 
 export default function Home() {
   return (
@@ -46,7 +46,7 @@ export default function Home() {
       <Footer />
 
       <ApiTest />
-      <JobTest />
+      {/* <JobTest /> */}
     </div>
   );
 }
