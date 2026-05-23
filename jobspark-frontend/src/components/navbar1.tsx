@@ -17,6 +17,8 @@ import {
   ChevronDown
 } from "lucide-react";
 
+import { NotificationModal } from "./NotificationModal";
+
 import {
   Accordion,
   AccordionContent,
@@ -218,7 +220,7 @@ const Navbar = ({
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Desktop Menu */}
         <nav className={styles.nav}>
-          <div className="flex items-center gap-8">
+          <div className="flex items-center w-[250px]">
             {/* Logo */}
             <a href={logo.url} className="flex items-center gap-2">
               <img
@@ -230,15 +232,25 @@ const Navbar = ({
                 {logo.title}
               </span>
             </a>
-            <div className="flex items-center">
-              <NavigationMenu>
-                <NavigationMenuList>
-                  {menu.map((item) => renderMenuItem(item))}
-                </NavigationMenuList>
-              </NavigationMenu>
-            </div>
           </div>
-          <div className={cn("flex items-center", styles.gap)}>
+
+          <div className="flex items-center justify-center flex-1">
+            <NavigationMenu>
+              <NavigationMenuList>
+                {menu.map((item) => renderMenuItem(item))}
+              </NavigationMenuList>
+            </NavigationMenu>
+          </div>
+
+          <div className={cn("flex items-center justify-end w-[250px]", styles.gap)}>
+            <NotificationModal>
+              <Button variant="ghost" size="icon" className="relative text-gray-600 hover:text-gray-900 rounded-full h-9 w-9">
+                <Bell className="size-5" />
+                {notificationCount > 0 && (
+                  <span className="absolute top-1.5 right-1.5 flex h-2 w-2 rounded-full bg-red-600"></span>
+                )}
+              </Button>
+            </NotificationModal>
             {isLoading ? (
               <div className="h-9 w-20 animate-pulse bg-gray-200 rounded-md" />
             ) : !user ? (
