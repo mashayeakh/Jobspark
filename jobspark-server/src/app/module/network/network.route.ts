@@ -10,6 +10,7 @@ router.patch("/connect/:id/accept", checkAuth(), NetworkController.acceptConnect
 router.patch("/connect/:id/reject", checkAuth(), NetworkController.rejectConnection);
 router.get("/connections", checkAuth(), NetworkController.getConnections);
 router.get("/pending", checkAuth(), NetworkController.getPendingRequests);
+router.delete("/connect/:id", checkAuth(), NetworkController.removeConnection);
 
 // --- User Profile Routes ---
 router.get("/users", NetworkController.getRecommendedUsers);

@@ -81,6 +81,24 @@ export const NetworkService = {
     });
   },
 
+  // --- Remove a connection ---
+  removeConnection: async (userId: string, connectionId: string) => {
+    const connection = await prisma.connection.findFirst({
+      where: {
+        id: connectionId,
+        OR: [{ senderId: userId }, { receiverId: userId }],
+      },
+    });
+
+    if (!connection) {
+      throw new AppError(httpStatus.NOT_FOUND, "Connection not found or unauthorized.");
+    }
+
+    return await prisma.connection.delete({
+      where: { id: connectionId },
+    });
+  },
+
   // --- Get all accepted connections for the current user ---
   getConnections: async (userId: string) => {
     return await prisma.connection.findMany({
@@ -198,7 +216,13 @@ export const NetworkService = {
       avatar: user.image || "https://github.com/shadcn.png",
       title: user.jobSeekerProfile?.headline || "Member",
       about: user.jobSeekerProfile?.bio || "No bio available.",
-      location: "San Francisco, CA", // Hardcoded for now if not in DB
+      location: user.jobSeekerProfile?.location || "Not specified",
+      linkedinUrl: user.jobSeekerProfile?.linkedinUrl,
+      websiteUrl: user.jobSeekerProfile?.websiteUrl,
+      expertise: user.jobSeekerProfile?.expertise || [],
+      interests: user.jobSeekerProfile?.interests || [],
+      openToNetworking: user.jobSeekerProfile?.openToNetworking ?? false,
+      openToAdvising: user.jobSeekerProfile?.openToAdvising ?? false,
       company: user.jobSeekerProfile?.workExperience?.[0]?.companyName || "Open to work",
       connections: user._count.receivedConnections + user._count.sentConnections,
       experience: user.jobSeekerProfile?.workExperience || [],

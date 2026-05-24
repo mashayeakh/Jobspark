@@ -5,6 +5,13 @@ export interface UpdateJobSeekerProfileDto {
   resumeUrl?: string;
   preferredSalaryMin?: number;
   preferredSalaryMax?: number;
+  location?: string;
+  linkedinUrl?: string;
+  websiteUrl?: string;
+  openToNetworking?: boolean;
+  openToAdvising?: boolean;
+  expertise?: string[];
+  interests?: string[];
   workExperience?: {
     companyName: string;
     title: string;

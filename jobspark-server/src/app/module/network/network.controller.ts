@@ -44,6 +44,19 @@ export const NetworkController = {
     });
   }),
 
+  removeConnection: catchAsyc(async (req: Request, res: Response) => {
+    const userId = (req as any).user.userId;
+    const { id } = req.params;
+    const result = await NetworkService.removeConnection(userId, id as string);
+
+    sendResponse(res, {
+      httpStatusCode: httpStatus.OK,
+      success: true,
+      message: "Connection removed successfully",
+      result,
+    });
+  }),
+
   getConnections: catchAsyc(async (req: Request, res: Response) => {
     const userId = (req as any).user.userId;
     const result = await NetworkService.getConnections(userId);

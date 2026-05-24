@@ -9,6 +9,13 @@ model JobSeekerProfile {
   isProfileComplete  Boolean          @default(false)
   views              Int              @default(0)
   name               String
+  location           String?
+  linkedinUrl        String?
+  websiteUrl         String?
+  openToNetworking   Boolean          @default(false)
+  openToAdvising     Boolean          @default(false)
+  expertise          String[]
+  interests          String[]
   applications       Application[]
   skills             CandidateSkill[]
   education          Education[]
