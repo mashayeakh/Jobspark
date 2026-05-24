@@ -45,8 +45,18 @@ export default function JobSeekerNetworkPage() {
     fetchNetworkData();
   }, []);
 
-  const handleAction = async (connectionId: string, action: 'accept' | 'reject') => {
+  const handleAction = async (connectionId: string, action: 'accept' | 'reject' | 'disconnect') => {
     try {
+      if (action === 'disconnect') {
+        const res = await apiClient.delete(`/network/connect/${connectionId}`);
+        if (res.success) {
+          setMyConnections(prev => prev.filter(c => c.id !== connectionId));
+        } else {
+          alert(res.error || `Failed to disconnect.`);
+        }
+        return;
+      }
+
       const res = await apiClient.patch(`/network/connect/${connectionId}/${action}`);
       if (res.success) {
         const conn = pendingReceived.find(c => c.id === connectionId);
@@ -115,9 +125,14 @@ export default function JobSeekerNetworkPage() {
                 <Clock className="w-4 h-4 mr-2" /> Pending
               </Button>
             ) : (
-              <Button variant="outline" className="w-full rounded-xl border-slate-200 text-blue-600 font-bold hover:bg-blue-50 mt-2">
-                <MessageSquare className="w-4 h-4 mr-2" /> Message
-              </Button>
+              <>
+                <Button onClick={() => handleAction(conn.id, 'disconnect')} variant="outline" className="rounded-xl border-slate-200 text-red-600 font-bold hover:bg-red-50 mt-2 px-3 shrink-0" title="Disconnect">
+                  <X className="w-4 h-4" />
+                </Button>
+                <Button variant="outline" className="flex-1 rounded-xl border-slate-200 text-blue-600 font-bold hover:bg-blue-50 mt-2">
+                  <MessageSquare className="w-4 h-4 mr-2" /> Message
+                </Button>
+              </>
             )}
           </div>
         </CardContent>
@@ -162,9 +177,14 @@ export default function JobSeekerNetworkPage() {
                 <Clock className="w-4 h-4 mr-2" /> Pending
               </Button>
             ) : (
-              <Button variant="outline" size="sm" className="flex-1 sm:flex-none rounded-xl border-slate-200 text-blue-600 font-bold hover:bg-blue-50">
-                <MessageSquare className="w-4 h-4 mr-2" /> Message
-              </Button>
+              <>
+                <Button onClick={() => handleAction(conn.id, 'disconnect')} variant="outline" size="sm" className="flex-none rounded-xl border-slate-200 text-red-600 font-bold hover:bg-red-50 px-2" title="Disconnect">
+                  <X className="w-4 h-4" />
+                </Button>
+                <Button variant="outline" size="sm" className="flex-1 sm:flex-none rounded-xl border-slate-200 text-blue-600 font-bold hover:bg-blue-50">
+                  <MessageSquare className="w-4 h-4 mr-2" /> Message
+                </Button>
+              </>
             )}
           </div>
         </CardContent>
@@ -222,9 +242,14 @@ export default function JobSeekerNetworkPage() {
             ) : isSent ? (
               <span className="text-xs text-slate-400 font-medium px-2 py-1">Waiting</span>
             ) : (
-              <Button variant="ghost" size="sm" className="h-8 px-3 text-blue-600 hover:bg-blue-50 rounded-full font-bold text-xs">
-                Message
-              </Button>
+              <>
+                <Button onClick={() => handleAction(conn.id, 'disconnect')} variant="ghost" size="sm" className="h-8 w-8 p-0 text-red-600 hover:bg-red-50 rounded-full" title="Disconnect">
+                  <X className="w-4 h-4" />
+                </Button>
+                <Button variant="ghost" size="sm" className="h-8 px-3 text-blue-600 hover:bg-blue-50 rounded-full font-bold text-xs">
+                  Message
+                </Button>
+              </>
             )}
           </div>
         </td>

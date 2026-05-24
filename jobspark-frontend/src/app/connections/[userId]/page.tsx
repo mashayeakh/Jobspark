@@ -105,10 +105,8 @@ export default function UserProfilePage({ params }: { params: Promise<{ userId: 
     return <div className="min-h-screen flex items-center justify-center">User not found</div>;
   }
 
-  // Generate some semi-random tags based on user ID for the mock data
-  const tags = ["#leadership", "#technology", "#innovation", "#development", "#strategy", "#mentorship", "#startups"];
-  const userTags = tags.slice(0, 4).join(', ');
-  const userInterests = tags.slice(3, 7).join(', ');
+  const userTags = user?.expertise?.length ? user.expertise.join(', ') : "Not specified";
+  const userInterests = user?.interests?.length ? user.interests.join(', ') : "Not specified";
 
   return (
     <div className="bg-[#F3F2EF] min-h-screen py-8">
@@ -208,7 +206,7 @@ export default function UserProfilePage({ params }: { params: Promise<{ userId: 
                       {userTags}
                     </p>
                     <p className="text-[14px] text-gray-700 mb-1">Open to networking</p>
-                    <p className="text-[14px] font-semibold text-green-700">Yes</p>
+                    <p className={`text-[14px] font-semibold ${user.openToNetworking ? 'text-green-700' : 'text-gray-500'}`}>{user.openToNetworking ? 'Yes' : 'No'}</p>
                   </div>
                   <div>
                     <h3 className="font-semibold text-[15px] text-gray-900 mb-2">Interests</h3>
@@ -216,7 +214,7 @@ export default function UserProfilePage({ params }: { params: Promise<{ userId: 
                       {userInterests}
                     </p>
                     <p className="text-[14px] text-gray-700 mb-1">Open to advising</p>
-                    <p className="text-[14px] font-semibold text-green-700">Yes</p>
+                    <p className={`text-[14px] font-semibold ${user.openToAdvising ? 'text-green-700' : 'text-gray-500'}`}>{user.openToAdvising ? 'Yes' : 'No'}</p>
                   </div>
                 </div>
               </CardContent>
@@ -236,12 +234,14 @@ export default function UserProfilePage({ params }: { params: Promise<{ userId: 
                 <div className="space-y-4 text-[14px]">
                   <div className="flex items-start gap-3 text-gray-700">
                     <Briefcase className="size-5 shrink-0 text-gray-500" />
-                    <span>{user.title.split(' at ')[0]} at <span className="font-semibold text-gray-900">{user.company}</span></span>
+                    <span>{user.title} {user.company && user.company !== "Open to work" ? <span>at <span className="font-semibold text-gray-900">{user.company}</span></span> : ''}</span>
                   </div>
+                  {user.education && user.education.length > 0 && (
                   <div className="flex items-start gap-3 text-gray-700">
                     <GraduationCap className="size-5 shrink-0 text-gray-500" />
-                    <span>Went to <span className="font-semibold text-gray-900">Oxford International</span></span>
+                    <span>Went to <span className="font-semibold text-gray-900">{user.education[0].school}</span></span>
                   </div>
+                  )}
                   <div className="flex items-start gap-3 text-gray-700">
                     <MapPin className="size-5 shrink-0 text-gray-500" />
                     <span>Lives in <span className="font-semibold text-gray-900">{user.location}</span></span>
@@ -252,13 +252,20 @@ export default function UserProfilePage({ params }: { params: Promise<{ userId: 
                   </div>
                   <div className="flex items-start gap-3 text-gray-700">
                     <Mail className="size-5 shrink-0 text-gray-500" />
-                    <span className="flex items-center gap-1">Email <a href="#" className="text-[#0a66c2] hover:underline font-medium">{user.name.split(' ')[0].toLowerCase()}@contact.com</a></span>
+                    <span className="flex items-center gap-1">Email <a href={`mailto:${user.email}`} className="text-[#0a66c2] hover:underline font-medium">{user.email}</a></span>
                   </div>
+                  {user.linkedinUrl && (
                   <div className="flex items-start gap-3 text-gray-700">
-                    <LinkIcon
-                     className="size-5 shrink-0 text-gray-500" />
-                    <span className="flex items-center gap-1">LinkedIn <a href="#" className="text-[#0a66c2] hover:underline font-medium">@{user.name.split(' ')[0].toLowerCase()}_S</a></span>
+                    <LinkIcon className="size-5 shrink-0 text-gray-500" />
+                    <span className="flex items-center gap-1">LinkedIn <a href={user.linkedinUrl} target="_blank" rel="noreferrer" className="text-[#0a66c2] hover:underline font-medium">{user.linkedinUrl}</a></span>
                   </div>
+                  )}
+                  {user.websiteUrl && (
+                  <div className="flex items-start gap-3 text-gray-700">
+                    <LinkIcon className="size-5 shrink-0 text-gray-500" />
+                    <span className="flex items-center gap-1">Website <a href={user.websiteUrl} target="_blank" rel="noreferrer" className="text-[#0a66c2] hover:underline font-medium">{user.websiteUrl}</a></span>
+                  </div>
+                  )}
                 </div>
               </CardContent>
             </Card>

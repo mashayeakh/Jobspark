@@ -40,6 +40,13 @@ export interface JobSeekerProfile {
     resumeUrl?: string | null;
     preferredSalaryMin?: number | null;
     preferredSalaryMax?: number | null;
+    location?: string | null;
+    linkedinUrl?: string | null;
+    websiteUrl?: string | null;
+    openToNetworking?: boolean;
+    openToAdvising?: boolean;
+    expertise?: string[];
+    interests?: string[];
     isProfileComplete?: boolean;
     views?: number;
     user?: {

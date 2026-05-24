@@ -53,6 +53,13 @@ export default function JobSeekerProfilePage() {
                     bio: profile.bio,
                     preferredSalaryMin: profile.preferredSalaryMin,
                     preferredSalaryMax: profile.preferredSalaryMax,
+                    location: profile.location || '',
+                    linkedinUrl: profile.linkedinUrl || '',
+                    websiteUrl: profile.websiteUrl || '',
+                    openToNetworking: profile.openToNetworking || false,
+                    openToAdvising: profile.openToAdvising || false,
+                    expertise: profile.expertise || [],
+                    interests: profile.interests || [],
                     workExperience: profile.workExperience?.map(exp => ({
                         id: exp.id,
                         companyName: exp.companyName,
@@ -321,6 +328,48 @@ export default function JobSeekerProfilePage() {
                                     )}
                                 </div>
                                 <div className="space-y-2 rounded-3xl bg-slate-50 p-4 sm:col-span-2">
+                                    <p className="text-xs uppercase tracking-[0.2em] text-gray-500">Location</p>
+                                    {isEditing ? (
+                                        <Input
+                                            name="location"
+                                            value={formData.location || ''}
+                                            onChange={handleInputChange}
+                                            placeholder="e.g. San Francisco, CA"
+                                            className="bg-white border-gray-200 rounded-xl"
+                                        />
+                                    ) : (
+                                        <p className="text-sm text-gray-900">{profile?.location ?? 'Not provided'}</p>
+                                    )}
+                                </div>
+                                <div className="space-y-2 rounded-3xl bg-slate-50 p-4">
+                                    <p className="text-xs uppercase tracking-[0.2em] text-gray-500">LinkedIn URL</p>
+                                    {isEditing ? (
+                                        <Input
+                                            name="linkedinUrl"
+                                            value={formData.linkedinUrl || ''}
+                                            onChange={handleInputChange}
+                                            placeholder="e.g. linkedin.com/in/username"
+                                            className="bg-white border-gray-200 rounded-xl"
+                                        />
+                                    ) : (
+                                        <p className="text-sm text-[#4880FF] hover:underline cursor-pointer">{profile?.linkedinUrl ?? 'Not provided'}</p>
+                                    )}
+                                </div>
+                                <div className="space-y-2 rounded-3xl bg-slate-50 p-4">
+                                    <p className="text-xs uppercase tracking-[0.2em] text-gray-500">Website URL</p>
+                                    {isEditing ? (
+                                        <Input
+                                            name="websiteUrl"
+                                            value={formData.websiteUrl || ''}
+                                            onChange={handleInputChange}
+                                            placeholder="e.g. myportfolio.com"
+                                            className="bg-white border-gray-200 rounded-xl"
+                                        />
+                                    ) : (
+                                        <p className="text-sm text-[#4880FF] hover:underline cursor-pointer">{profile?.websiteUrl ?? 'Not provided'}</p>
+                                    )}
+                                </div>
+                                <div className="space-y-2 rounded-3xl bg-slate-50 p-4 sm:col-span-2">
                                     {isEditing ? (
                                         <div className="space-y-3">
                                             <div className="flex items-center justify-between">
@@ -486,6 +535,140 @@ export default function JobSeekerProfilePage() {
                                                 Not provided
                                             </p>
                                         )
+                                    )}
+                                </div>
+                            </div>
+                        </section>
+
+                        <section className="rounded-3xl border border-gray-100 bg-white p-6 shadow-sm">
+                            <div className="flex items-center gap-3 text-sm font-semibold text-gray-900">
+                                <TrendingUp className="w-5 h-5 text-[#4880FF]" />
+                                <span>Networking & Interests</span>
+                            </div>
+                            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+                                <div className="space-y-4 rounded-3xl bg-slate-50 p-4">
+                                    <div className="flex items-center justify-between">
+                                        <p className="text-xs uppercase tracking-[0.2em] text-gray-500">Open to Networking</p>
+                                        {isEditing ? (
+                                            <input
+                                                type="checkbox"
+                                                name="openToNetworking"
+                                                checked={formData.openToNetworking || false}
+                                                onChange={(e) => setFormData(prev => ({ ...prev, openToNetworking: e.target.checked }))}
+                                                className="w-4 h-4 text-[#4880FF] rounded border-gray-300"
+                                            />
+                                        ) : (
+                                            <p className={`text-sm font-semibold ${profile?.openToNetworking ? 'text-emerald-600' : 'text-gray-500'}`}>{profile?.openToNetworking ? 'Yes' : 'No'}</p>
+                                        )}
+                                    </div>
+                                    <div className="flex items-center justify-between mt-4">
+                                        <p className="text-xs uppercase tracking-[0.2em] text-gray-500">Open to Advising</p>
+                                        {isEditing ? (
+                                            <input
+                                                type="checkbox"
+                                                name="openToAdvising"
+                                                checked={formData.openToAdvising || false}
+                                                onChange={(e) => setFormData(prev => ({ ...prev, openToAdvising: e.target.checked }))}
+                                                className="w-4 h-4 text-[#4880FF] rounded border-gray-300"
+                                            />
+                                        ) : (
+                                            <p className={`text-sm font-semibold ${profile?.openToAdvising ? 'text-emerald-600' : 'text-gray-500'}`}>{profile?.openToAdvising ? 'Yes' : 'No'}</p>
+                                        )}
+                                    </div>
+                                </div>
+                                <div className="space-y-4 rounded-3xl bg-slate-50 p-4">
+                                    <p className="text-xs uppercase tracking-[0.2em] text-gray-500">Expertise</p>
+                                    {isEditing ? (
+                                        <div className="space-y-2">
+                                            <Input
+                                                placeholder="Type and press Enter (e.g. #leadership)"
+                                                onKeyDown={(e) => {
+                                                    if (e.key === 'Enter') {
+                                                        e.preventDefault();
+                                                        const val = e.currentTarget.value;
+                                                        const items = val.split(',').map(s => s.trim()).filter(Boolean);
+                                                        const newItems = items.filter(i => !formData.expertise?.includes(i));
+                                                        if (newItems.length > 0) {
+                                                            setFormData(prev => ({ ...prev, expertise: [...(prev.expertise || []), ...newItems] }));
+                                                        }
+                                                        e.currentTarget.value = '';
+                                                    }
+                                                }}
+                                                onBlur={(e) => {
+                                                    const val = e.currentTarget.value;
+                                                    const items = val.split(',').map(s => s.trim()).filter(Boolean);
+                                                    const newItems = items.filter(i => !formData.expertise?.includes(i));
+                                                    if (newItems.length > 0) {
+                                                        setFormData(prev => ({ ...prev, expertise: [...(prev.expertise || []), ...newItems] }));
+                                                    }
+                                                    e.currentTarget.value = '';
+                                                }}
+                                                className="bg-white border-gray-200 rounded-xl"
+                                            />
+                                            <div className="flex flex-wrap gap-2">
+                                                {formData.expertise?.map(item => (
+                                                    <span key={item} className="inline-flex items-center gap-1 bg-blue-50 text-blue-700 px-2 py-1 rounded-md text-xs font-medium">
+                                                        {item}
+                                                        <button type="button" onClick={() => setFormData(prev => ({ ...prev, expertise: prev.expertise?.filter(i => i !== item) }))}>
+                                                            <X className="w-3 h-3" />
+                                                        </button>
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="flex flex-wrap gap-2">
+                                            {profile?.expertise?.length ? profile.expertise.map(item => (
+                                                <span key={item} className="text-sm text-[#4880FF]">{item.startsWith('#') ? item : `#${item}`}</span>
+                                            )) : <span className="text-sm text-gray-500">Not provided</span>}
+                                        </div>
+                                    )}
+
+                                    <p className="text-xs uppercase tracking-[0.2em] text-gray-500 mt-4">Interests</p>
+                                    {isEditing ? (
+                                        <div className="space-y-2">
+                                            <Input
+                                                placeholder="Type and press Enter (e.g. #development)"
+                                                onKeyDown={(e) => {
+                                                    if (e.key === 'Enter') {
+                                                        e.preventDefault();
+                                                        const val = e.currentTarget.value;
+                                                        const items = val.split(',').map(s => s.trim()).filter(Boolean);
+                                                        const newItems = items.filter(i => !formData.interests?.includes(i));
+                                                        if (newItems.length > 0) {
+                                                            setFormData(prev => ({ ...prev, interests: [...(prev.interests || []), ...newItems] }));
+                                                        }
+                                                        e.currentTarget.value = '';
+                                                    }
+                                                }}
+                                                onBlur={(e) => {
+                                                    const val = e.currentTarget.value;
+                                                    const items = val.split(',').map(s => s.trim()).filter(Boolean);
+                                                    const newItems = items.filter(i => !formData.interests?.includes(i));
+                                                    if (newItems.length > 0) {
+                                                        setFormData(prev => ({ ...prev, interests: [...(prev.interests || []), ...newItems] }));
+                                                    }
+                                                    e.currentTarget.value = '';
+                                                }}
+                                                className="bg-white border-gray-200 rounded-xl"
+                                            />
+                                            <div className="flex flex-wrap gap-2">
+                                                {formData.interests?.map(item => (
+                                                    <span key={item} className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 px-2 py-1 rounded-md text-xs font-medium">
+                                                        {item}
+                                                        <button type="button" onClick={() => setFormData(prev => ({ ...prev, interests: prev.interests?.filter(i => i !== item) }))}>
+                                                            <X className="w-3 h-3" />
+                                                        </button>
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="flex flex-wrap gap-2">
+                                            {profile?.interests?.length ? profile.interests.map(item => (
+                                                <span key={item} className="text-sm text-[#4880FF]">{item.startsWith('#') ? item : `#${item}`}</span>
+                                            )) : <span className="text-sm text-gray-500">Not provided</span>}
+                                        </div>
                                     )}
                                 </div>
                             </div>
