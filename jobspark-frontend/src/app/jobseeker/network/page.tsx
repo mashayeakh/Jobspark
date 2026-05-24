@@ -12,19 +12,21 @@ export default function JobSeekerNetworkPage() {
   const [myConnections, setMyConnections] = useState<any[]>([]);
   const [pendingSent, setPendingSent] = useState<any[]>([]);
   const [pendingReceived, setPendingReceived] = useState<any[]>([]);
+  const [blockedUsers, setBlockedUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   // Filter and View state
-  const [filter, setFilter] = useState<'all' | 'connected' | 'invitations' | 'sent'>('all');
+  const [filter, setFilter] = useState<'all' | 'connected' | 'invitations' | 'sent' | 'blocked'>('all');
   const [viewMode, setViewMode] = useState<'grid' | 'table' | 'list'>('grid');
 
   useEffect(() => {
     const fetchNetworkData = async () => {
       try {
-        const [connectionsRes, pendingRes] = await Promise.all([
+        const [connectionsRes, pendingRes, blockedRes] = await Promise.all([
           apiClient.get<any>('/network/connections'),
-          apiClient.get<any>('/network/pending')
+          apiClient.get<any>('/network/pending'),
+          apiClient.get<any>('/network/blocked'),
         ]);
 
         if (connectionsRes.success && connectionsRes.data?.result) {
@@ -34,6 +36,10 @@ export default function JobSeekerNetworkPage() {
         if (pendingRes.success && pendingRes.data?.result) {
           setPendingSent(pendingRes.data.result.sent || []);
           setPendingReceived(pendingRes.data.result.received || []);
+        }
+
+        if (blockedRes.success && blockedRes.data?.result) {
+          setBlockedUsers(blockedRes.data.result);
         }
       } catch (err: any) {
         console.error("Failed to fetch network data", err);
@@ -45,7 +51,7 @@ export default function JobSeekerNetworkPage() {
     fetchNetworkData();
   }, []);
 
-  const handleAction = async (connectionId: string, action: 'accept' | 'reject' | 'disconnect') => {
+  const handleAction = async (connectionId: string, action: 'accept' | 'reject' | 'disconnect' | 'unblock') => {
     try {
       if (action === 'disconnect') {
         const res = await apiClient.delete(`/network/connect/${connectionId}`);
@@ -53,6 +59,16 @@ export default function JobSeekerNetworkPage() {
           setMyConnections(prev => prev.filter(c => c.id !== connectionId));
         } else {
           alert(res.error || `Failed to disconnect.`);
+        }
+        return;
+      }
+
+      if (action === 'unblock') {
+        const res = await apiClient.delete(`/network/block/${connectionId}`);
+        if (res.success) {
+          setBlockedUsers(prev => prev.filter(c => c.receiver.id !== connectionId));
+        } else {
+          alert(res.error || `Failed to unblock.`);
         }
         return;
       }
@@ -86,13 +102,14 @@ export default function JobSeekerNetworkPage() {
   }
 
   const showAll = filter === 'all';
-  const totalItems = myConnections.length + pendingReceived.length + pendingSent.length;
+  const totalItems = myConnections.length + pendingReceived.length + pendingSent.length + blockedUsers.length;
 
   // Render helper for Grid View
-  const renderGridCard = (type: 'invitation' | 'sent' | 'connected', conn: any) => {
-    const displayUser = type === 'sent' ? conn.receiver : (type === 'invitation' ? conn.sender : (conn.sender || conn.receiver));
+  const renderGridCard = (type: 'invitation' | 'sent' | 'connected' | 'blocked', conn: any) => {
+    const displayUser = type === 'sent' ? conn.receiver : (type === 'invitation' ? conn.sender : (type === 'blocked' ? conn.receiver : (conn.sender || conn.receiver)));
     const isSent = type === 'sent';
     const isInv = type === 'invitation';
+    const isBlocked = type === 'blocked';
 
     return (
       <Card key={conn.id} className={`rounded-3xl shadow-sm hover:shadow-md transition-all group ${isInv ? 'bg-blue-50/50 border-blue-100' : 'border-slate-100 hover:border-blue-100'} ${isSent ? 'opacity-80' : ''}`}>
@@ -106,6 +123,8 @@ export default function JobSeekerNetworkPage() {
             </Link>
             {isSent ? (
               <p className="text-[12px] text-yellow-600 font-bold uppercase tracking-wider mt-1">Pending Approval</p>
+            ) : isBlocked ? (
+              <p className="text-[12px] text-red-600 font-bold uppercase tracking-wider mt-1">Blocked</p>
             ) : (
               <p className="text-sm text-slate-500 mt-1 line-clamp-1">{displayUser.jobSeekerProfile?.headline || (isInv ? "Wants to connect" : "Connected")}</p>
             )}
@@ -124,6 +143,10 @@ export default function JobSeekerNetworkPage() {
               <Button disabled variant="outline" className="w-full rounded-xl border-slate-200 text-slate-400 font-bold bg-slate-50 mt-2">
                 <Clock className="w-4 h-4 mr-2" /> Pending
               </Button>
+            ) : isBlocked ? (
+              <Button onClick={() => handleAction(displayUser.id, 'unblock')} className="w-full rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold mt-2">
+                Unblock
+              </Button>
             ) : (
               <>
                 <Button onClick={() => handleAction(conn.id, 'disconnect')} variant="outline" className="rounded-xl border-slate-200 text-red-600 font-bold hover:bg-red-50 mt-2 px-3 shrink-0" title="Disconnect">
@@ -141,10 +164,11 @@ export default function JobSeekerNetworkPage() {
   };
 
   // Render helper for List View
-  const renderListCard = (type: 'invitation' | 'sent' | 'connected', conn: any) => {
-    const displayUser = type === 'sent' ? conn.receiver : (type === 'invitation' ? conn.sender : (conn.sender || conn.receiver));
+  const renderListCard = (type: 'invitation' | 'sent' | 'connected' | 'blocked', conn: any) => {
+    const displayUser = type === 'sent' ? conn.receiver : (type === 'invitation' ? conn.sender : (type === 'blocked' ? conn.receiver : (conn.sender || conn.receiver)));
     const isSent = type === 'sent';
     const isInv = type === 'invitation';
+    const isBlocked = type === 'blocked';
 
     return (
       <Card key={conn.id} className={`rounded-2xl shadow-sm hover:shadow-md transition-all ${isInv ? 'bg-blue-50/30 border-blue-100' : 'border-slate-100'} ${isSent ? 'opacity-80' : ''}`}>
@@ -158,6 +182,8 @@ export default function JobSeekerNetworkPage() {
             </Link>
             {isSent ? (
               <p className="text-xs text-yellow-600 font-bold uppercase tracking-wider mt-0.5">Pending Approval</p>
+            ) : isBlocked ? (
+              <p className="text-xs text-red-600 font-bold uppercase tracking-wider mt-0.5">Blocked</p>
             ) : (
               <p className="text-sm text-slate-500 line-clamp-1">{displayUser.jobSeekerProfile?.headline || (isInv ? "Wants to connect" : "Connected")}</p>
             )}
@@ -176,6 +202,10 @@ export default function JobSeekerNetworkPage() {
               <Button disabled variant="outline" size="sm" className="flex-1 sm:flex-none rounded-xl border-slate-200 text-slate-400 font-bold bg-slate-50">
                 <Clock className="w-4 h-4 mr-2" /> Pending
               </Button>
+            ) : isBlocked ? (
+              <Button onClick={() => handleAction(displayUser.id, 'unblock')} size="sm" className="flex-1 sm:flex-none rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold">
+                Unblock
+              </Button>
             ) : (
               <>
                 <Button onClick={() => handleAction(conn.id, 'disconnect')} variant="outline" size="sm" className="flex-none rounded-xl border-slate-200 text-red-600 font-bold hover:bg-red-50 px-2" title="Disconnect">
@@ -193,10 +223,11 @@ export default function JobSeekerNetworkPage() {
   };
 
   // Render helper for Table View row
-  const renderTableRow = (type: 'invitation' | 'sent' | 'connected', conn: any) => {
-    const displayUser = type === 'sent' ? conn.receiver : (type === 'invitation' ? conn.sender : (conn.sender || conn.receiver));
+  const renderTableRow = (type: 'invitation' | 'sent' | 'connected' | 'blocked', conn: any) => {
+    const displayUser = type === 'sent' ? conn.receiver : (type === 'invitation' ? conn.sender : (type === 'blocked' ? conn.receiver : (conn.sender || conn.receiver)));
     const isSent = type === 'sent';
     const isInv = type === 'invitation';
+    const isBlocked = type === 'blocked';
 
     return (
       <tr key={conn.id} className="hover:bg-gray-50 border-b border-gray-100 last:border-0 transition-colors">
@@ -222,6 +253,10 @@ export default function JobSeekerNetworkPage() {
             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-yellow-100 text-yellow-800">
               Pending
             </span>
+          ) : isBlocked ? (
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-800">
+              Blocked
+            </span>
           ) : (
             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-800">
               Connected
@@ -241,6 +276,10 @@ export default function JobSeekerNetworkPage() {
               </>
             ) : isSent ? (
               <span className="text-xs text-slate-400 font-medium px-2 py-1">Waiting</span>
+            ) : isBlocked ? (
+              <Button onClick={() => handleAction(displayUser.id, 'unblock')} variant="ghost" size="sm" className="h-8 px-3 text-red-600 hover:bg-red-50 rounded-full font-bold text-xs">
+                Unblock
+              </Button>
             ) : (
               <>
                 <Button onClick={() => handleAction(conn.id, 'disconnect')} variant="ghost" size="sm" className="h-8 w-8 p-0 text-red-600 hover:bg-red-50 rounded-full" title="Disconnect">
@@ -257,7 +296,7 @@ export default function JobSeekerNetworkPage() {
     );
   };
 
-  const renderSection = (title: string, data: any[], type: 'invitation' | 'sent' | 'connected') => {
+  const renderSection = (title: string, data: any[], type: 'invitation' | 'sent' | 'connected' | 'blocked') => {
     if (data.length === 0) return null;
 
     return (
@@ -339,6 +378,13 @@ export default function JobSeekerNetworkPage() {
           >
             Sent Requests ({pendingSent.length})
           </Button>
+          <Button
+            onClick={() => setFilter('blocked')}
+            variant={filter === 'blocked' ? 'default' : 'outline'}
+            className={`rounded-full px-6 font-bold transition-all ${filter === 'blocked' ? 'bg-red-600 hover:bg-red-700 text-white shadow-md' : 'border-gray-200 text-red-600 hover:bg-red-50'}`}
+          >
+            Blocked ({blockedUsers.length})
+          </Button>
         </div>
 
         {/* View Toggle */}
@@ -379,6 +425,7 @@ export default function JobSeekerNetworkPage() {
         {(showAll || filter === 'invitations') && renderSection("Invitations", pendingReceived, 'invitation')}
         {(showAll || filter === 'sent') && renderSection("Sent Requests", pendingSent, 'sent')}
         {(showAll || filter === 'connected') && renderSection("My Connections", myConnections, 'connected')}
+        {(showAll || filter === 'blocked') && renderSection("Blocked Users", blockedUsers, 'blocked')}
 
         {/* Empty States */}
         {(!showAll && filter === 'invitations' && pendingReceived.length === 0) && (
@@ -395,6 +442,11 @@ export default function JobSeekerNetworkPage() {
           <div className="p-8 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200">
             <p className="text-slate-500 font-medium">You don&apos;t have any connections yet.</p>
             <Link href="/connections" className="text-blue-600 font-bold mt-2 inline-block hover:underline">Find people you may know</Link>
+          </div>
+        )}
+        {(!showAll && filter === 'blocked' && blockedUsers.length === 0) && (
+          <div className="p-8 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+            <p className="text-slate-500 font-medium">You haven&apos;t blocked any users.</p>
           </div>
         )}
 

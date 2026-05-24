@@ -36,8 +36,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   // const hideNavbar = !!session?.user?.role;
 
   return (
-    <html lang="en">
-      <body className={`${inter.variable} ${poppins.variable} font-sans antialiased scroll-smooth`}>
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${inter.variable} ${poppins.variable} font-sans antialiased scroll-smooth`} suppressHydrationWarning>
         <div
           className="bg-background text-foreground min-h-full flex flex-col"
         >
