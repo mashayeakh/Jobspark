@@ -99,6 +99,61 @@ export const NetworkService = {
     });
   },
 
+  // --- Block a user ---
+  blockUser: async (userId: string, blockedUserId: string) => {
+    if (userId === blockedUserId) {
+      throw new AppError(httpStatus.BAD_REQUEST, "You cannot block yourself.");
+    }
+
+    // Check if the user to be blocked exists
+    const blockedUser = await prisma.user.findUnique({
+      where: { id: blockedUserId },
+    });
+    if (!blockedUser) {
+      throw new AppError(httpStatus.NOT_FOUND, "User not found.");
+    }
+
+    // Delete any existing connections between these two users
+    await prisma.connection.deleteMany({
+      where: {
+        OR: [
+          { senderId: userId, receiverId: blockedUserId },
+          { senderId: blockedUserId, receiverId: userId },
+        ],
+      },
+    });
+
+    // Create a new connection with BLOCKED status, sender is the blocker
+    return await prisma.connection.create({
+      data: {
+        senderId: userId,
+        receiverId: blockedUserId,
+        status: ConnectionStatus.BLOCKED,
+      },
+    });
+  },
+
+  // --- Unblock a user ---
+  unblockUser: async (userId: string, blockedUserId: string) => {
+    // Find the block record where sender is the blocker
+    const block = await prisma.connection.findFirst({
+      where: {
+        senderId: userId,
+        receiverId: blockedUserId,
+        status: ConnectionStatus.BLOCKED,
+      },
+    });
+
+    if (!block) {
+      throw new AppError(httpStatus.NOT_FOUND, "Block record not found.");
+    }
+
+    // Delete the block
+    return await prisma.connection.delete({
+      where: { id: block.id },
+    });
+  },
+
   // --- Get all accepted connections for the current user ---
   getConnections: async (userId: string) => {
     return await prisma.connection.findMany({
@@ -142,6 +197,47 @@ export const NetworkService = {
 
     return { received, sent };
   },
+  // --- Get all blocked users for the current user ---
+  getBlockedUsers: async (userId: string) => {
+    return await prisma.connection.findMany({
+      where: {
+        senderId: userId,
+        status: ConnectionStatus.BLOCKED,
+      },
+      include: {
+        receiver: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            image: true,
+            jobSeekerProfile: {
+              select: { headline: true, location: true },
+            },
+          },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+  },
+
+  getConnectStatus: async (currentUserId: string, targetUserId: string) => {
+    const connection = await prisma.connection.findFirst({
+      where: {
+        OR: [
+          { senderId: currentUserId, receiverId: targetUserId },
+          { senderId: targetUserId, receiverId: currentUserId },
+        ],
+      },
+    });
+
+    if (!connection) {
+      return { status: "NONE" };
+    }
+
+    return { status: connection.status, senderId: connection.senderId };
+  },
+
   // --- Get recommended users (not connected yet) ---
   getRecommendedUsers: async (userId: string | null) => {
     let connectedUserIds = new Set<string>();

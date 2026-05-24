@@ -57,6 +57,32 @@ export const NetworkController = {
     });
   }),
 
+  blockUser: catchAsyc(async (req: Request, res: Response) => {
+    const userId = (req as any).user.userId;
+    const { id: blockedUserId } = req.params;
+    const result = await NetworkService.blockUser(userId, blockedUserId as string);
+
+    sendResponse(res, {
+      httpStatusCode: httpStatus.OK,
+      success: true,
+      message: "User blocked successfully",
+      result,
+    });
+  }),
+
+  unblockUser: catchAsyc(async (req: Request, res: Response) => {
+    const userId = (req as any).user.userId;
+    const { id: blockedUserId } = req.params;
+    const result = await NetworkService.unblockUser(userId, blockedUserId as string);
+
+    sendResponse(res, {
+      httpStatusCode: httpStatus.OK,
+      success: true,
+      message: "User unblocked successfully",
+      result,
+    });
+  }),
+
   getConnections: catchAsyc(async (req: Request, res: Response) => {
     const userId = (req as any).user.userId;
     const result = await NetworkService.getConnections(userId);
@@ -77,6 +103,31 @@ export const NetworkController = {
       httpStatusCode: httpStatus.OK,
       success: true,
       message: "Pending requests fetched successfully",
+      result,
+    });
+  }),
+
+  getConnectStatus: catchAsyc(async (req: Request, res: Response) => {
+    const userId = (req as any).user.userId;
+    const { id: targetUserId } = req.params;
+    const result = await NetworkService.getConnectStatus(userId, targetUserId as string);
+
+    sendResponse(res, {
+      httpStatusCode: httpStatus.OK,
+      success: true,
+      message: "Connection status fetched successfully",
+      result,
+    });
+  }),
+
+  getBlockedUsers: catchAsyc(async (req: Request, res: Response) => {
+    const userId = (req as any).user.userId;
+    const result = await NetworkService.getBlockedUsers(userId);
+
+    sendResponse(res, {
+      httpStatusCode: httpStatus.OK,
+      success: true,
+      message: "Blocked users fetched successfully",
       result,
     });
   }),

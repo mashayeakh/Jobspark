@@ -55,6 +55,7 @@ enum ConnectionStatus {
   PENDING
   ACCEPTED
   REJECTED
+  BLOCKED
 }
 
 enum InterviewType {
