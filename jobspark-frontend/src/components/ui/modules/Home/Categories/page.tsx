@@ -1,12 +1,15 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Code, Palette, Megaphone, BarChart, Heart, Wrench, Camera, Music, Briefcase, GraduationCap, Cpu } from 'lucide-react';
+import { Code, Palette, Megaphone, BarChart, Heart, Wrench, Camera, Music, Briefcase, GraduationCap, Cpu, Search, ArrowRight } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { categoryService, Category } from '@/services/categoryService';
 import { useApi } from '@/hooks/useApi';
 
 const Categories = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const { data: categoriesData, loading, error } = useApi(() => categoryService.getActiveCategories());
 
@@ -51,8 +54,12 @@ const Categories = () => {
 
   const selectedCategoryData = categories.find(cat => cat.id === selectedCategory);
 
+  const filteredCategories = categories.filter(category =>
+    category.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
-    <section className="py-16 sm:py-20 lg:py-24 bg-gray-50">
+    <section className="py-6 sm:py-12 lg:py-16 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center mb-12 sm:mb-16">
@@ -62,6 +69,22 @@ const Categories = () => {
           <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto">
             Find opportunities in your field of expertise. We have jobs across all industries and experience levels.
           </p>
+        </div>
+
+        {/* Search Bar */}
+        <div className="max-w-2xl mx-auto mb-16">
+          <div className="relative group">
+            <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+              <Search className="h-6 w-6 text-gray-400 group-focus-within:text-blue-500 transition-colors duration-300" />
+            </div>
+            <input
+              type="text"
+              placeholder="Search for any category or industry..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="block w-full pl-14 pr-6 py-4 bg-white border-2 border-transparent shadow-sm rounded-2xl text-gray-900 text-lg focus:ring-0 focus:border-blue-500 hover:shadow-md focus:shadow-lg focus:outline-none transition-all duration-300 placeholder-gray-400"
+            />
+          </div>
         </div>
 
         {/* Loading State */}
@@ -82,115 +105,93 @@ const Categories = () => {
 
         {/* Categories Grid */}
         {!loading && !error && (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-6 mb-12">
-            {categories.map((category) => {
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 mb-12">
+            {filteredCategories.map((category) => {
               const Icon = category.icon;
               return (
                 <button
                   key={category.id}
                   onClick={() => setSelectedCategory(category.id === selectedCategory ? null : category.id)}
-                  className={`group relative p-6 rounded-2xl border-2 transition-all duration-300 hover:scale-105 ${selectedCategory === category.id
-                    ? 'border-blue-500 bg-blue-50 shadow-lg'
-                    : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-md'
+                  className={`group relative flex items-center p-5 rounded-2xl border transition-all duration-300 ${selectedCategory === category.id
+                    ? 'border-blue-500 bg-blue-50/50 shadow-md scale-[1.02]'
+                    : 'border-gray-100 bg-white hover:border-blue-200 hover:shadow-xl hover:-translate-y-1'
                     }`}
                 >
                   {/* Icon */}
-                  <div className={`w-12 h-12 bg-gradient-to-br ${category.color} rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-300`}>
-                    <Icon className="w-6 h-6 text-white" />
+                  <div className={`flex-shrink-0 w-14 h-14 bg-gradient-to-br ${category.color} rounded-2xl flex items-center justify-center shadow-sm group-hover:shadow-md transition-all duration-300`}>
+                    <Icon className="w-7 h-7 text-white" />
                   </div>
 
-                  {/* Title */}
-                  <div className="font-semibold text-gray-900 mb-1">
-                    {category.title}
-                  </div>
-
-                  {/* Count */}
-                  <div className="text-sm text-gray-500">
-                    {category.count} jobs
-                  </div>
-
-                  {/* Selected Indicator */}
-                  {selectedCategory === category.id && (
-                    <div className="absolute -top-2 -right-2 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
-                      <div className="w-2 h-2 bg-white rounded-full"></div>
+                  {/* Text Content */}
+                  <div className="ml-4 text-left flex-1">
+                    <div className="font-bold text-gray-900 group-hover:text-blue-700 transition-colors text-[1.05rem]">
+                      {category.title}
                     </div>
-                  )}
+                    <div className="text-sm text-gray-500 mt-1 font-medium">
+                      {category.count} open jobs
+                    </div>
+                  </div>
+
+                  {/* Hover Arrow */}
+                  <div className="ml-2 opacity-0 group-hover:opacity-100 transform -translate-x-2 group-hover:translate-x-0 transition-all duration-300">
+                    <ArrowRight className="w-5 h-5 text-blue-600" />
+                  </div>
                 </button>
               );
             })}
           </div>
         )}
 
-        {/* Selected Category Details */}
-        {selectedCategoryData && (
-          <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-200 animate-fade-in">
-            <div className="flex items-center gap-4 mb-6">
-              <div className={`w-16 h-16 bg-gradient-to-br ${selectedCategoryData.color} rounded-2xl flex items-center justify-center`}>
-                <selectedCategoryData.icon className="w-8 h-8 text-white" />
-              </div>
-              <div>
-                <h3 className="text-2xl font-bold text-gray-900">
-                  {selectedCategoryData.title}
-                </h3>
-                <p className="text-gray-600">
-                  {selectedCategoryData.count} open positions
-                </p>
-              </div>
-            </div>
+        {/* Selected Category Dialog */}
+        <Dialog open={!!selectedCategory} onOpenChange={(open) => !open && setSelectedCategory(null)}>
+          {selectedCategoryData && (
+            <DialogContent className="sm:max-w-[550px] p-0 overflow-hidden rounded-3xl border-0 shadow-2xl">
+              <div className="p-8 pb-6">
+                <DialogHeader className="mb-8">
+                  <div className="flex items-center gap-5">
+                    <div className={`w-16 h-16 bg-gradient-to-br ${selectedCategoryData.color} rounded-2xl flex items-center justify-center shadow-md`}>
+                      <selectedCategoryData.icon className="w-8 h-8 text-white" />
+                    </div>
+                    <div className="text-left">
+                      <DialogTitle className="text-3xl font-extrabold text-gray-900 tracking-tight">
+                        {selectedCategoryData.title}
+                      </DialogTitle>
+                      <DialogDescription className="text-base text-gray-500 mt-1 font-medium">
+                        {selectedCategoryData.count} open positions available
+                      </DialogDescription>
+                    </div>
+                  </div>
+                </DialogHeader>
 
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {selectedCategoryData.jobs.map((job, index) => (
-                <div
-                  key={index}
-                  className="flex items-center justify-between p-4 rounded-xl border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-all duration-300 cursor-pointer group"
-                >
-                  <span className="font-medium text-gray-900 group-hover:text-blue-600">
-                    {job}
-                  </span>
-                  <span className="text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    →
-                  </span>
+                <div className="space-y-4">
+                  <h4 className="text-sm font-bold text-gray-400 uppercase tracking-wider">Popular Specializations</h4>
+                  <div className="flex flex-wrap gap-2.5 max-h-[250px] overflow-y-auto pb-2">
+                    {selectedCategoryData.jobs.map((job, index) => (
+                      <a
+                        href={`/jobs?category=${selectedCategoryData.id}`}
+                        key={index}
+                        className="inline-flex items-center px-4 py-2 rounded-xl bg-gray-50 text-gray-700 text-sm font-medium hover:bg-blue-50 hover:text-blue-700 hover:shadow-sm border border-gray-100 hover:border-blue-200 transition-all duration-200"
+                      >
+                        {job}
+                      </a>
+                    ))}
+                  </div>
                 </div>
-              ))}
-            </div>
+              </div>
 
-            <div className="mt-6 text-center">
-              <a
-                href={`/jobs?category=${selectedCategoryData.id}`}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-colors duration-300"
-              >
-                View All {selectedCategoryData.title} Jobs
-                <span>→</span>
-              </a>
-            </div>
-          </div>
-        )}
-
-        {/* CTA Section */}
-        <div className="text-center mt-16">
-          <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl p-8 sm:p-12 text-white">
-            <h3 className="text-2xl sm:text-3xl font-bold mb-4">
-              Don't see your category?
-            </h3>
-            <p className="text-lg mb-8 text-blue-100">
-              We're constantly adding new job categories. Sign up to get notified when new opportunities in your field become available.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a
-                href="/signup"
-                className="px-8 py-4 bg-white text-blue-600 font-semibold rounded-xl hover:bg-gray-100 transition-all duration-300 transform hover:scale-105"
-              >
-                Get Notified
-              </a>
-              <a
-                href="/categories"
-                className="px-8 py-4 bg-blue-700 text-white font-semibold rounded-xl hover:bg-blue-800 transition-all duration-300 border-2 border-blue-500"
-              >
-                Browse All Categories
-              </a>
-            </div>
-          </div>
-        </div>
+              <div className="px-8 py-5 bg-gray-50 border-t border-gray-100 flex justify-between items-center">
+                <span className="text-sm text-gray-500 font-medium">Explore all opportunities</span>
+                <a
+                  href={`/jobs?category=${selectedCategoryData.id}`}
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-gray-900 text-white font-semibold rounded-xl hover:bg-blue-600 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+                >
+                  View All Jobs
+                  <ArrowRight className="w-4 h-4" />
+                </a>
+              </div>
+            </DialogContent>
+          )}
+        </Dialog>
       </div>
 
       {/* CSS Animations */}

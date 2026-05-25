@@ -59,6 +59,8 @@ interface MenuItem {
   description?: string;
   icon?: React.ReactNode;
   items?: MenuItem[];
+  rightItems?: MenuItem[];
+  isSeparator?: boolean;
 }
 
 type NavbarVariant = "default" | "compact" | "minimal";
@@ -108,6 +110,10 @@ const Navbar = ({
         { title: "Tech Jobs", url: "/tech-jobs", description: "Engineering & development" },
         { title: "Design Jobs", url: "/design-jobs", description: "UI/UX & product design" },
         { title: "Marketing Jobs", url: "/marketing-jobs", description: "Growth & marketing" },
+      ],
+      rightItems: [
+        { title: "All Categories", url: "/categories" },
+        { title: "List of Companies", url: "/companies" },
       ]
     },
     {
@@ -509,12 +515,23 @@ const renderMenuItem = (item: MenuItem, pathname: string) => {
     return (
       <NavigationMenuItem key={item.title}>
         <NavigationMenuTrigger className={cn(isActive && "font-bold text-blue-600 bg-blue-50/50")}>{item.title}</NavigationMenuTrigger>
-        <NavigationMenuContent className="bg-popover text-popover-foreground">
-          {item.items.map((subItem) => (
-            <NavigationMenuLink asChild key={subItem.title} className="w-80">
-              <SubMenuLink item={subItem} pathname={pathname} />
-            </NavigationMenuLink>
-          ))}
+        <NavigationMenuContent className="bg-popover text-popover-foreground flex">
+          <div className="flex flex-col p-2">
+            {item.items.map((subItem) => (
+              <NavigationMenuLink asChild key={subItem.title} className="w-80">
+                <SubMenuLink item={subItem} pathname={pathname} />
+              </NavigationMenuLink>
+            ))}
+          </div>
+          {item.rightItems && (
+            <div className="flex flex-col p-2 bg-muted/30 border-l border-muted">
+              {item.rightItems.map((subItem) => (
+                <NavigationMenuLink asChild key={subItem.title} className="w-56">
+                  <SubMenuLink item={subItem} pathname={pathname} />
+                </NavigationMenuLink>
+              ))}
+            </div>
+          )}
         </NavigationMenuContent>
       </NavigationMenuItem>
     );
@@ -550,6 +567,13 @@ const renderMobileMenuItem = (item: MenuItem, pathname: string) => {
           {item.items.map((subItem) => (
             <SubMenuLink key={subItem.title} item={subItem} pathname={pathname} />
           ))}
+          {item.rightItems && (
+            <div className="mt-2 pt-2 border-t border-muted bg-muted/20">
+              {item.rightItems.map((subItem) => (
+                <SubMenuLink key={subItem.title} item={subItem} pathname={pathname} />
+              ))}
+            </div>
+          )}
         </AccordionContent>
       </AccordionItem>
     );
