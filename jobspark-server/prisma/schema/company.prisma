@@ -2,6 +2,7 @@ model Company {
   id          String             @id @default(cuid())
   name        String
   logo        String?
+  coverImage  String?
   website     String?
   description String?
   industry    String

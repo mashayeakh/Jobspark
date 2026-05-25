@@ -230,6 +230,17 @@ export const JobSeekerService = {
               secure_url: result.secure_url,
             });
 
+            // Delete old resume from Cloudinary if it exists
+            if (profile.resumeUrl && profile.resumeUrl.includes('jobspark/resumes/')) {
+              try {
+                const oldPublicId = 'jobspark/resumes/' + profile.resumeUrl.split('jobspark/resumes/')[1];
+                await cloudinary.uploader.destroy(oldPublicId, { resource_type: 'raw' });
+                console.log(`[Upload Resume] Deleted old resume from Cloudinary: ${oldPublicId}`);
+              } catch (deleteError) {
+                console.error(`[Upload Resume] Failed to delete old resume:`, deleteError);
+              }
+            }
+
             // ✅ Store plain secure_url — no fl_attachment needed anymore
             await prisma.jobSeekerProfile.update({
               where: { id: profile.id },

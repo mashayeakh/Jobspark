@@ -21,15 +21,18 @@ export const NetworkService = {
       throw new AppError(httpStatus.NOT_FOUND, "User not found.");
     }
 
-    // Check for existing connection
-    const existing = await prisma.connection.findUnique({
+    // Check for existing connection (in both directions)
+    const existing = await prisma.connection.findFirst({
       where: {
-        senderId_receiverId: { senderId, receiverId },
+        OR: [
+          { senderId, receiverId },
+          { senderId: receiverId, receiverId: senderId }
+        ]
       },
     });
 
     if (existing) {
-      throw new AppError(httpStatus.CONFLICT, "Connection request already sent.");
+      throw new AppError(httpStatus.CONFLICT, "A connection or request already exists between these users.");
     }
 
     // Create connection request
@@ -75,10 +78,24 @@ export const NetworkService = {
       throw new AppError(httpStatus.BAD_REQUEST, "This connection request has already been responded to.");
     }
 
-    return await prisma.connection.update({
+    const updatedConnection = await prisma.connection.update({
       where: { id: connectionId },
       data: { status: newStatus },
     });
+
+    // Notify the sender if the connection was accepted
+    if (newStatus === ConnectionStatus.ACCEPTED) {
+      const receiver = await prisma.user.findUnique({ where: { id: userId }, select: { name: true } });
+      await prisma.notification.create({
+        data: {
+          userId: connection.senderId,
+          type: "CONNECTION_ACCEPTED",
+          content: `${receiver?.name || 'A user'} accepted your connection request.`,
+        },
+      });
+    }
+
+    return updatedConnection;
   },
 
   // --- Remove a connection ---
@@ -262,6 +279,7 @@ export const NetworkService = {
         id: { notIn: Array.from(connectedUserIds) },
         role: "JOB_SEEKER", // Assuming we recommend job seekers, or remove to recommend anyone
       },
+      take: 20, // Limit the number of recommendations to prevent performance issues
       select: {
         id: true,
         name: true,
