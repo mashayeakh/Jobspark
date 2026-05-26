@@ -13,6 +13,9 @@ export interface Review {
     name: string;
     image: string | null;
     role: string;
+    jobSeekerProfile?: {
+      headline: string | null;
+    } | null;
   };
 }
 

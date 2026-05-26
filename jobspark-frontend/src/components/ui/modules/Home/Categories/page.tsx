@@ -66,13 +66,13 @@ const Categories = () => {
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
             Explore by Category
           </h2>
-          <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto">
+          {/* <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto">
             Find opportunities in your field of expertise. We have jobs across all industries and experience levels.
-          </p>
+          </p> */}
         </div>
 
         {/* Search Bar */}
-        <div className="max-w-2xl mx-auto mb-16">
+        {/* <div className="max-w-2xl mx-auto mb-16">
           <div className="relative group">
             <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
               <Search className="h-6 w-6 text-gray-400 group-focus-within:text-blue-500 transition-colors duration-300" />
@@ -85,7 +85,7 @@ const Categories = () => {
               className="block w-full pl-14 pr-6 py-4 bg-white border-2 border-transparent shadow-sm rounded-2xl text-gray-900 text-lg focus:ring-0 focus:border-blue-500 hover:shadow-md focus:shadow-lg focus:outline-none transition-all duration-300 placeholder-gray-400"
             />
           </div>
-        </div>
+        </div> */}
 
         {/* Loading State */}
         {loading && (

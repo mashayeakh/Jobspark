@@ -85,6 +85,7 @@ const getNavigationData = (userRole: string) => {
             { title: "AI Resume Optimizer", url: "/jobseeker/resume-analyzer", icon: Zap, badge: "AI" },
             { title: "Applications", url: "/jobseeker/applications", icon: FileText },
             { title: "Saved Jobs", url: "/jobseeker/saved-jobs", icon: Briefcase },
+            { title: "My Reviews", url: "/jobseeker/reviews", icon: BookText },
             { title: "Settings", url: "/jobseeker/settings", icon: Settings },
           ]
         }

@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react';
 import { Mail, Send, CheckCircle, Bell, TrendingUp, Users } from 'lucide-react';
+import { newsletterService } from '@/services/newsletterService';
+import { toast } from 'sonner';
 
 const Newsletter = () => {
   const [email, setEmail] = useState('');
@@ -14,12 +16,16 @@ const Newsletter = () => {
 
     setIsLoading(true);
 
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-
-    setIsSubscribed(true);
-    setIsLoading(false);
-    setEmail('');
+    try {
+      await newsletterService.subscribe(email);
+      setIsSubscribed(true);
+      toast.success('Successfully subscribed to the newsletter!');
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to subscribe. Please try again.');
+    } finally {
+      setIsLoading(false);
+      setEmail('');
+    }
   };
 
   const benefits = [

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Star, Quote, ChevronLeft, ChevronRight, X, Loader2 } from 'lucide-react';
 import { reviewService, Review } from '@/services/reviewService';
 import { authService } from '@/services/authService';
+import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 
 const Testimonials = () => {
@@ -11,6 +12,7 @@ const Testimonials = () => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const router = useRouter();
 
   // Form state
   const [rating, setRating] = useState(5);
@@ -55,7 +57,13 @@ const Testimonials = () => {
       toast.error('Please login to write a review');
       return;
     }
-    setIsModalOpen(true);
+    
+    const user = authService.getUser();
+    if (user?.role === 'JOB_SEEKER') {
+      router.push('/jobseeker/reviews');
+    } else {
+      setIsModalOpen(true);
+    }
   };
 
   const handleSubmitReview = async (e: React.FormEvent) => {
@@ -153,7 +161,7 @@ const Testimonials = () => {
                         {currentTestimonial?.author?.name}
                       </div>
                       <div className="text-gray-600">
-                        {currentTestimonial?.author?.role} {currentTestimonial?.company ? `at ${currentTestimonial.company}` : ''}
+                        {currentTestimonial?.author?.jobSeekerProfile?.headline || currentTestimonial?.author?.role} {currentTestimonial?.company ? `at ${currentTestimonial.company}` : ''}
                       </div>
                       <div className="flex items-center gap-1 mt-1 justify-center sm:justify-start">
                         {renderStars(currentTestimonial?.rating || 5)}
@@ -237,7 +245,7 @@ const Testimonials = () => {
                       {testimonial.author?.name}
                     </div>
                     <div className="text-xs text-gray-600">
-                      {testimonial.author?.role}
+                      {testimonial.author?.jobSeekerProfile?.headline || testimonial.author?.role}
                     </div>
                   </div>
                 </div>
