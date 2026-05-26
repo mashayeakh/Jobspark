@@ -16,6 +16,11 @@ const getAllReviews = async () => {
           name: true,
           image: true,
           role: true,
+          jobSeekerProfile: {
+            select: {
+              headline: true
+            }
+          }
         },
       },
     },

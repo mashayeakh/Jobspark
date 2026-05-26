@@ -94,7 +94,7 @@ export const JobService = {
     }
 
     // Return job with skills
-    return await prisma.job.findUnique({
+    const createdJob = await prisma.job.findUnique({
       where: { id: job.id },
       include: {
         skills: { include: { skill: true } },
@@ -103,6 +103,15 @@ export const JobService = {
         subCategory: true,
       },
     });
+
+    // Fire job match alert emails non-blocking
+    import('@/app/module/newsletter/newsletter.service').then(({ NewsletterService }) => {
+      NewsletterService.sendJobMatchAlerts(job.id).catch((err) =>
+        console.error('[Job] Failed to send job match alerts:', err)
+      );
+    });
+
+    return createdJob;
   },
 
   getAllJobs: async (filters: JobFiltersDto) => {

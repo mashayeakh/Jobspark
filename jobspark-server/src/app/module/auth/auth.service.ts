@@ -60,6 +60,13 @@ export const AuthService = {
                     name: name,
                 },
             });
+
+            // Fire new company alert emails non-blocking
+            import('@/app/module/newsletter/newsletter.service').then(({ NewsletterService }) => {
+                NewsletterService.sendNewCompanyAlerts(company.id).catch((err) =>
+                    console.error('[Auth] Failed to send new company alerts:', err)
+                );
+            });
         }
 
         return newUser;

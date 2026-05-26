@@ -14,8 +14,9 @@ const brevo = new BrevoClient({
 interface sendEmailOptions {
     to: string;
     subject: string;
-    templateName: string;
+    templateName?: string;
     templateData?: Record<string, any>;
+    htmlBody?: string;
     attachments?: {
         filename: string;
         content: Buffer | string;
@@ -28,28 +29,37 @@ export const sendEmail = async ({
     subject,
     templateName,
     templateData,
+    htmlBody,
     attachments,
 }: sendEmailOptions) => {
     try {
-        // ── Resolve template path ─────────────────────────────────────
-        const builtPath = path.resolve(process.cwd(), "dist/src/app/template", `${templateName}.ejs`);
-        const sourcePath = path.resolve(process.cwd(), "src/app/template", `${templateName}.ejs`);
-        const currentFileDir = path.dirname(fileURLToPath(import.meta.url));
-        const relativeTemplatePath = path.resolve(currentFileDir, "../template", `${templateName}.ejs`);
+        let html = htmlBody;
 
-        let templatePath = "";
-        if (fs.existsSync(builtPath)) templatePath = builtPath;
-        else if (fs.existsSync(sourcePath)) templatePath = sourcePath;
-        else if (fs.existsSync(relativeTemplatePath)) templatePath = relativeTemplatePath;
+        if (!html && templateName) {
+            // ── Resolve template path ─────────────────────────────────────
+            const builtPath = path.resolve(process.cwd(), "dist/src/app/template", `${templateName}.ejs`);
+            const sourcePath = path.resolve(process.cwd(), "src/app/template", `${templateName}.ejs`);
+            const currentFileDir = path.dirname(fileURLToPath(import.meta.url));
+            const relativeTemplatePath = path.resolve(currentFileDir, "../template", `${templateName}.ejs`);
 
-        if (!templatePath) {
-            console.error(`[Email] ❌ Template not found: ${templateName}`, { builtPath, sourcePath });
-            throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, `Email template ${templateName} not found`);
+            let templatePath = "";
+            if (fs.existsSync(builtPath)) templatePath = builtPath;
+            else if (fs.existsSync(sourcePath)) templatePath = sourcePath;
+            else if (fs.existsSync(relativeTemplatePath)) templatePath = relativeTemplatePath;
+
+            if (!templatePath) {
+                console.error(`[Email] ❌ Template not found: ${templateName}`, { builtPath, sourcePath });
+                throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, `Email template ${templateName} not found`);
+            }
+
+            console.log(`[Email] Using template: ${templatePath}`);
+
+            html = await ejs.renderFile(templatePath, templateData);
         }
 
-        console.log(`[Email] Using template: ${templatePath}`);
-
-        const html = await ejs.renderFile(templatePath, templateData);
+        if (!html) {
+            throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, "No HTML body or template provided for email");
+        }
 
         // ── Debug Logs ────────────────────────────────────────────────
         console.log(`[Email Debug] Sender Name: "${envVars.BREVO_FROM_NAME}"`);

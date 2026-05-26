@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: 'Inter', sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f4f7fb; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .card { background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.06); }
+        .header { background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%); padding: 40px 30px; text-align: center; }
+        .header h1 { color: #ffffff; font-size: 24px; margin: 0 0 8px; }
+        .header p { color: rgba(255,255,255,0.9); font-size: 15px; margin: 0; }
+        .content { padding: 30px; }
+        .job-card { background: #fffbeb; border: 1px solid #fde68a; border-radius: 12px; padding: 18px; margin: 16px 0; }
+        .job-card h3 { margin: 0 0 4px; color: #92400e; font-size: 17px; }
+        .job-meta { font-size: 13px; color: #78716c; margin: 4px 0; }
+        .salary { display: inline-block; padding: 3px 10px; background: #d1fae5; color: #065f46; border-radius: 20px; font-size: 12px; font-weight: bold; margin-top: 8px; }
+        .btn { display: inline-block; padding: 14px 32px; background: #f59e0b; color: #ffffff; text-decoration: none; border-radius: 10px; font-weight: bold; font-size: 15px; margin-top: 20px; }
+        .new-badge { display: inline-block; padding: 3px 10px; background: #fef3c7; color: #d97706; border-radius: 6px; font-size: 11px; font-weight: bold; margin-left: 8px; vertical-align: middle; }
+        .footer { text-align: center; padding: 20px 30px; font-size: 12px; color: #94a3b8; border-top: 1px solid #f1f5f9; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="header">
+                <h1>⚡ New Job You Might Like!</h1>
+                <p>A position matching your skills was just posted</p>
+            </div>
+            <div class="content">
+                <p style="font-size: 16px; color: #334155;">Hi <strong><%= seekerName %></strong>,</p>
+                <p style="color: #475569;">We found a new job that matches your skills and preferences. Don't wait — apply early for the best chance!</p>
+
+                <div class="job-card">
+                    <h3><%= jobTitle %> <span class="new-badge">NEW</span></h3>
+                    <p class="job-meta">🏢 <%= companyName %></p>
+                    <p class="job-meta">📍 <%= location || 'Remote / Flexible' %></p>
+                    <p class="job-meta">💼 <%= jobType || 'Full Time' %></p>
+                    <% if (salaryMin || salaryMax) { %>
+                    <span class="salary">
+                        💰 <%= salaryMin ? '$' + salaryMin.toLocaleString() : '' %><%= (salaryMin && salaryMax) ? ' – ' : '' %><%= salaryMax ? '$' + salaryMax.toLocaleString() : '' %>
+                    </span>
+                    <% } %>
+                </div>
+
+                <p style="color: #475569;">Be among the first applicants and increase your chances of getting noticed by the hiring team!</p>
+
+                <div style="text-align: center;">
+                    <a href="<%= frontendUrl %>/jobs/<%= jobId %>" class="btn">View Job & Apply →</a>
+                </div>
+            </div>
+            <div class="footer">
+                <p>You received this because your skills match this role.<br>
+                <a href="<%= frontendUrl %>" style="color: #f59e0b;">Visit JobSpark</a></p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

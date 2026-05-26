@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: 'Inter', sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f4f7fb; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .card { background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.06); }
+        .header { background: linear-gradient(135deg, #4880FF 0%, #7c3aed 100%); padding: 36px 30px; text-align: center; }
+        .header h1 { color: #ffffff; font-size: 24px; margin: 0 0 6px; }
+        .header p { color: rgba(255,255,255,0.85); font-size: 14px; margin: 0; }
+        .content { padding: 28px 30px; }
+        .week-stat { background: #eff6ff; border-radius: 12px; padding: 14px 20px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; }
+        .week-stat .num { font-size: 32px; font-weight: bold; color: #4880FF; }
+        .week-stat .label { color: #64748b; font-size: 14px; }
+        .job-row { border-bottom: 1px solid #f1f5f9; padding: 14px 0; }
+        .job-row:last-child { border-bottom: none; }
+        .job-row h3 { margin: 0 0 4px; font-size: 15px; color: #1e293b; }
+        .job-row p { margin: 0; font-size: 13px; color: #64748b; }
+        .job-row .salary { display: inline-block; padding: 2px 8px; background: #d1fae5; color: #065f46; border-radius: 6px; font-size: 11px; font-weight: bold; margin-top: 6px; }
+        .tip-box { background: linear-gradient(135deg, #fef3c7, #fde68a); border-radius: 12px; padding: 18px 20px; margin: 24px 0; }
+        .tip-box h3 { margin: 0 0 6px; color: #92400e; font-size: 15px; }
+        .tip-box p { margin: 0; color: #78350f; font-size: 14px; }
+        .btn { display: inline-block; padding: 14px 32px; background: #4880FF; color: #ffffff; text-decoration: none; border-radius: 10px; font-weight: bold; font-size: 15px; }
+        .footer { text-align: center; padding: 20px 30px; font-size: 12px; color: #94a3b8; border-top: 1px solid #f1f5f9; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="header">
+                <h1>📬 Your Weekly Job Digest</h1>
+                <p>Week of <%= weekOf %> — personalized for you</p>
+            </div>
+            <div class="content">
+                <p style="font-size: 16px; color: #334155;">Hi <strong><%= seekerName %></strong>,</p>
+
+                <div class="week-stat">
+                    <span class="num"><%= newJobCount %></span>
+                    <span class="label">new jobs matching your profile this week</span>
+                </div>
+
+                <h2 style="font-size: 16px; color: #1e293b; margin-bottom: 4px;">🔥 Top Picks For You</h2>
+
+                <% jobs.forEach(function(job) { %>
+                <div class="job-row">
+                    <h3><%= job.title %></h3>
+                    <p>🏢 <%= job.companyName %> &nbsp;·&nbsp; 📍 <%= job.location || 'Remote' %></p>
+                    <% if (job.salaryMin || job.salaryMax) { %>
+                    <span class="salary">💰 <%= job.salaryMin ? '$' + job.salaryMin.toLocaleString() : '' %><%= (job.salaryMin && job.salaryMax) ? '–' : '' %><%= job.salaryMax ? '$' + job.salaryMax.toLocaleString() : '' %></span>
+                    <% } %>
+                </div>
+                <% }); %>
+
+                <div class="tip-box">
+                    <h3>💡 Career Tip of the Week</h3>
+                    <p><%= careerTip %></p>
+                </div>
+
+                <div style="text-align: center;">
+                    <a href="<%= frontendUrl %>/jobs" class="btn">View All Jobs →</a>
+                </div>
+            </div>
+            <div class="footer">
+                <p>Weekly digest every Monday. <a href="<%= frontendUrl %>" style="color: #4880FF;">Visit JobSpark</a></p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

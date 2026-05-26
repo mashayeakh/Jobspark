@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: 'Inter', sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f4f7fb; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .card { background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.06); }
+        .header { background: linear-gradient(135deg, #059669 0%, #0d9488 100%); padding: 40px 30px; text-align: center; }
+        .header h1 { color: #ffffff; font-size: 24px; margin: 0 0 8px; }
+        .header p { color: rgba(255,255,255,0.85); font-size: 15px; margin: 0; }
+        .content { padding: 30px; }
+        .company-card { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 20px; margin: 20px 0; text-align: center; }
+        .company-card h2 { margin: 0 0 6px; color: #166534; font-size: 22px; }
+        .company-card p { margin: 0; color: #4ade80; font-weight: 600; font-size: 14px; }
+        .btn { display: inline-block; padding: 14px 32px; background: #059669; color: #ffffff; text-decoration: none; border-radius: 10px; font-weight: bold; font-size: 15px; margin-top: 20px; }
+        .footer { text-align: center; padding: 20px 30px; font-size: 12px; color: #94a3b8; border-top: 1px solid #f1f5f9; }
+        .badge { display: inline-block; padding: 4px 12px; background: #dbeafe; color: #2563eb; border-radius: 20px; font-size: 12px; font-weight: bold; margin: 4px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="header">
+                <h1>🏢 New Company Alert!</h1>
+                <p>A company matching your interests just joined JobSpark</p>
+            </div>
+            <div class="content">
+                <p style="font-size: 16px; color: #334155;">Hi <strong><%= seekerName %></strong>,</p>
+                <p style="color: #475569;">Great news! A new company that matches your profile has joined JobSpark and is actively hiring.</p>
+
+                <div class="company-card">
+                    <h2><%= companyName %></h2>
+                    <p>Industry: <%= industry %></p>
+                </div>
+
+                <p style="color: #475569;">This could be a great opportunity for someone with your background. Be among the first to explore their open positions and get noticed!</p>
+
+                <div style="text-align: center;">
+                    <a href="<%= frontendUrl %>/companies" class="btn">View Company & Jobs →</a>
+                </div>
+            </div>
+            <div class="footer">
+                <p>You received this because your profile matches this company's industry.<br>
+                <a href="<%= frontendUrl %>" style="color: #059669;">Visit JobSpark</a></p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

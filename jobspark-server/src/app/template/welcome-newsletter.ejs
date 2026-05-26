@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: 'Inter', sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f4f7fb; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .card { background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.06); }
+        .header { background: linear-gradient(135deg, #4880FF 0%, #7c3aed 100%); padding: 40px 30px; text-align: center; }
+        .header h1 { color: #ffffff; font-size: 28px; margin: 0 0 8px; }
+        .header p { color: rgba(255,255,255,0.85); font-size: 16px; margin: 0; }
+        .content { padding: 30px; }
+        .step { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 18px; padding: 14px; background: #f8fafc; border-radius: 12px; }
+        .step-num { background: #4880FF; color: #fff; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; flex-shrink: 0; }
+        .step-text h3 { margin: 0 0 4px; font-size: 15px; color: #1e293b; }
+        .step-text p { margin: 0; font-size: 13px; color: #64748b; }
+        .btn { display: inline-block; padding: 14px 32px; background: #4880FF; color: #ffffff; text-decoration: none; border-radius: 10px; font-weight: bold; font-size: 15px; margin-top: 20px; }
+        .footer { text-align: center; padding: 20px 30px; font-size: 12px; color: #94a3b8; border-top: 1px solid #f1f5f9; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="header">
+                <h1>Welcome to JobSpark! 🚀</h1>
+                <p>You're in. Let's find your dream job.</p>
+            </div>
+            <div class="content">
+                <p style="font-size: 16px; color: #334155;">Hi <strong><%= name || 'there' %></strong>,</p>
+                <p style="color: #475569;">Thank you for subscribing to JobSpark! You'll now receive personalized job alerts, career insights, and exclusive opportunities delivered straight to your inbox.</p>
+
+                <h2 style="font-size: 18px; color: #1e293b; margin-top: 28px;">Your Next Steps</h2>
+
+                <div class="step">
+                    <div class="step-num">1</div>
+                    <div class="step-text">
+                        <h3>Complete Your Profile</h3>
+                        <p>Add your skills, experience, and preferences to get better job matches.</p>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-num">2</div>
+                    <div class="step-text">
+                        <h3>Browse Open Positions</h3>
+                        <p>Explore thousands of jobs from top companies already hiring on JobSpark.</p>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-num">3</div>
+                    <div class="step-text">
+                        <h3>Set Up Job Alerts</h3>
+                        <p>Get notified instantly when new jobs matching your skills are posted.</p>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-num">4</div>
+                    <div class="step-text">
+                        <h3>Apply with One Click</h3>
+                        <p>Use your saved profile to apply to jobs faster than ever before.</p>
+                    </div>
+                </div>
+
+                <div style="text-align: center;">
+                    <a href="<%= frontendUrl %>/jobs" class="btn">Browse Jobs Now →</a>
+                </div>
+            </div>
+            <div class="footer">
+                <p>You received this because you subscribed at JobSpark.<br>
+                <a href="<%= frontendUrl %>" style="color: #4880FF;">Visit JobSpark</a></p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

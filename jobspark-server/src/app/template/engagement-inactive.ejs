@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: 'Inter', sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f4f7fb; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .card { background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.06); }
+        .header { background: linear-gradient(135deg, #0ea5e9 0%, #4880FF 100%); padding: 36px 30px; text-align: center; }
+        .header h1 { color: #fff; font-size: 24px; margin: 0 0 6px; }
+        .header p { color: rgba(255,255,255,0.85); font-size: 14px; margin: 0; }
+        .content { padding: 28px 30px; }
+        .stat-row { display: flex; gap: 12px; margin: 20px 0; }
+        .stat-box { flex: 1; background: #f0f9ff; border-radius: 12px; padding: 16px; text-align: center; }
+        .stat-box .num { font-size: 26px; font-weight: bold; color: #0ea5e9; display: block; }
+        .stat-box .lbl { font-size: 12px; color: #64748b; }
+        .highlight-box { background: #eff6ff; border-left: 4px solid #4880FF; border-radius: 0 12px 12px 0; padding: 16px 20px; margin: 20px 0; }
+        .highlight-box p { margin: 0; font-size: 14px; color: #1e40af; }
+        .btn { display: inline-block; padding: 14px 32px; background: #0ea5e9; color: #ffffff; text-decoration: none; border-radius: 10px; font-weight: bold; font-size: 15px; }
+        .footer { text-align: center; padding: 20px 30px; font-size: 12px; color: #94a3b8; border-top: 1px solid #f1f5f9; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="header">
+                <h1>👋 We Miss You, <%= seekerName %>!</h1>
+                <p>Here's what happened on JobSpark while you were away</p>
+            </div>
+            <div class="content">
+                <p style="font-size: 16px; color: #334155;">Hi <strong><%= seekerName %></strong>,</p>
+                <p style="color: #475569;">It's been <strong><%= daysSinceLastVisit %> days</strong> since you last visited JobSpark. A lot has happened — don't miss out!</p>
+
+                <div class="stat-row">
+                    <div class="stat-box">
+                        <span class="num"><%= newJobsCount %>+</span>
+                        <span class="lbl">New Jobs Posted</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="num"><%= newCompaniesCount %>+</span>
+                        <span class="lbl">Companies Hiring</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="num"><%= hiringCitiesCount %></span>
+                        <span class="lbl">Cities Active</span>
+                    </div>
+                </div>
+
+                <div class="highlight-box">
+                    <p>🔥 <strong><%= activeHiringCount %> companies</strong> are actively hiring in <strong><%= topCity %></strong> right now!</p>
+                </div>
+
+                <p style="color: #475569;">Your profile is still live and being viewed by recruiters. Log back in to see who's been looking at your profile and apply to the latest opportunities.</p>
+
+                <div style="text-align: center;">
+                    <a href="<%= frontendUrl %>/jobs" class="btn">See What You Missed →</a>
+                </div>
+            </div>
+            <div class="footer">
+                <p>You received this because you haven't visited in a while.<br>
+                <a href="<%= frontendUrl %>" style="color: #0ea5e9;">Visit JobSpark</a></p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
