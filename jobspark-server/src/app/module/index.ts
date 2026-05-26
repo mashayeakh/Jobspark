@@ -27,6 +27,7 @@ import { ResumeAnalyzerRoutes } from "./ai/resume_analyzer/resumeAnalyzer.route"
 import { ProfileAnalyticsRoutes } from "./ai/profile_analytics/profileAnalytics.route";
 import { BlogGeneratorRoutes } from "./ai/blog_generator/blogGenerator.route";
 import { BlogRoutes } from "./blog/blog.route";
+import { ReviewRoutes } from "./review/review.route";
 
 const router = express.Router();
 
@@ -68,6 +69,9 @@ router.use("/interviews", InterviewRoutes);
 
 //!Blogs
 router.use("/blogs", BlogRoutes);
+
+//!Reviews
+router.use("/reviews", ReviewRoutes);
 
 //!AI Fraud Detection
 router.use("/admin/fraud-shield", FraudDetectionRouter);

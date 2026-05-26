@@ -1,0 +1,13 @@
+model Review {
+  id        String   @id @default(cuid())
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  rating    Int      @default(5)
+  content   String
+  company   String?
+  type      String   @default("jobseeker")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([authorId])
+}

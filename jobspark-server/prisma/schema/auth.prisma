@@ -21,6 +21,7 @@ model User {
   sessions            Session[]
   supportSessions     SupportSession[]
   supportTickets      SupportTicket[]
+  reviews             Review[]
 
   @@index([email])
   @@index([role])
