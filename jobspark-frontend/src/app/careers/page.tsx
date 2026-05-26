@@ -2,14 +2,14 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { 
-  Briefcase, 
-  Coffee, 
-  Monitor, 
-  MapPin, 
-  ArrowRight, 
-  Users, 
-  Zap, 
+import {
+  Briefcase,
+  Coffee,
+  Monitor,
+  MapPin,
+  ArrowRight,
+  Users,
+  Zap,
   Globe,
   Award,
   Star
@@ -32,7 +32,7 @@ export default function CareersPage() {
                 <span className="bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">of your life.</span>
               </h1>
               <p className="text-xl text-gray-400 max-w-xl font-medium leading-relaxed">
-                Join a world-class team building the future of recruitment. We're on a mission to empower everyone to find their perfect career.
+                Join a world-class team building the future of recruitment. We&apos;re on a mission to empower everyone to find their perfect career.
               </p>
               <div className="flex flex-wrap gap-4">
                 <button className="px-10 py-5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-2xl font-black shadow-2xl shadow-blue-500/20 hover:scale-105 transition-all active:scale-95">
@@ -52,8 +52,8 @@ export default function CareersPage() {
               <div className="relative">
                 <div className="absolute -inset-4 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-[3rem] blur-2xl opacity-20" />
                 <div className="relative bg-gray-800 rounded-[3rem] p-4 border border-white/10 shadow-2xl">
-                  <img 
-                    src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=800" 
+                  <img
+                    src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=800"
                     className="rounded-[2.5rem] w-full"
                     alt="Team collaboration"
                   />
@@ -75,7 +75,7 @@ export default function CareersPage() {
             Our Culture <ArrowRight className="w-5 h-5" />
           </Link>
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {[
             { title: 'Remote First', desc: 'Work from anywhere in the world. We provide a global home-office stipend.', icon: Globe },
@@ -123,7 +123,7 @@ export default function CareersPage() {
             ))}
           </div>
           <div className="mt-16 text-center">
-            <p className="text-gray-400 font-bold mb-6 italic">Don't see a role that fits?</p>
+            <p className="text-gray-400 font-bold mb-6 italic">Don&t see a role that fits?</p>
             <button className="text-blue-600 font-black text-sm uppercase tracking-widest border-b-2 border-blue-600 pb-1 hover:text-blue-700 hover:border-blue-700 transition-all">
               General Application
             </button>

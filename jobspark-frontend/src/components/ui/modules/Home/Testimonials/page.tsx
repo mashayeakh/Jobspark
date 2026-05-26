@@ -1,88 +1,116 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Star, Quote, ChevronLeft, ChevronRight } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Star, Quote, ChevronLeft, ChevronRight, X, Loader2 } from 'lucide-react';
+import { reviewService, Review } from '@/services/reviewService';
+import { authService } from '@/services/authService';
+import { toast } from 'sonner';
 
 const Testimonials = () => {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const testimonials = [
-    {
-      id: 1,
-      name: 'Sarah Chen',
-      role: 'Senior Frontend Developer',
-      company: 'TechCorp',
-      image: 'https://images.unsplash.com/photo-1494790108750-2616b612b786?w=150&h=150&fit=crop&crop=face',
-      rating: 5,
-      content: 'JobSpark completely changed my career trajectory. I found my dream job at a company I never would have discovered on my own. The matching algorithm is incredibly accurate, and the application process was seamless.',
-      type: 'jobseeker'
-    },
-    {
-      id: 2,
-      name: 'Michael Rodriguez',
-      role: 'Engineering Manager',
-      company: 'StartupXYZ',
-      image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
-      rating: 5,
-      content: 'As a hiring manager, JobSpark has been a game-changer. The quality of candidates is outstanding, and we reduced our time-to-hire by 60%. The platform saves us countless hours in screening.',
-      type: 'recruiter'
-    },
-    {
-      id: 3,
-      name: 'Emily Thompson',
-      role: 'UX Designer',
-      company: 'DesignHub',
-      image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
-      rating: 5,
-      content: 'I was skeptical at first, but JobSpark delivered beyond my expectations. I landed a remote position with a 40% salary increase. The platform really understands what candidates and companies need.',
-      type: 'jobseeker'
-    },
-    {
-      id: 4,
-      name: 'David Kim',
-      role: 'HR Director',
-      company: 'GlobalTech',
-      image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
-      rating: 5,
-      content: 'We\'ve been using JobSpark for 2 years now, and it\'s transformed our recruitment process. The AI-powered matching helps us find candidates that are not just qualified, but also culturally fit.',
-      type: 'recruiter'
-    },
-    {
-      id: 5,
-      name: 'Jessica Martinez',
-      role: 'Product Manager',
-      company: 'InnovateCo',
-      image: 'https://images.unsplash.com/photo-1489424731084-a5d8b219a5bb?w=150&h=150&fit=crop&crop=face',
-      rating: 5,
-      content: 'The best job platform I\'ve ever used. The direct connection to hiring managers eliminates the middleman, and the transparency in salary and company culture is unmatched.',
-      type: 'jobseeker'
+  // Form state
+  const [rating, setRating] = useState(5);
+  const [content, setContent] = useState('');
+  const [company, setCompany] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const fetchReviews = async () => {
+    setIsLoading(true);
+    try {
+      const response = await reviewService.getReviews();
+      if (response.success && response.data) {
+        setReviews(response.data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch reviews:', error);
+    } finally {
+      setIsLoading(false);
     }
-  ];
+  };
+
+  useEffect(() => {
+    fetchReviews();
+  }, []);
 
   const nextTestimonial = () => {
-    console.log('Next testimonial clicked, current index:', activeIndex);
-    setActiveIndex((prev) => (prev + 1) % testimonials.length);
+    if (reviews.length === 0) return;
+    setActiveIndex((prev) => (prev + 1) % reviews.length);
   };
 
   const prevTestimonial = () => {
-    console.log('Previous testimonial clicked, current index:', activeIndex);
-    setActiveIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length);
+    if (reviews.length === 0) return;
+    setActiveIndex((prev) => (prev - 1 + reviews.length) % reviews.length);
   };
 
   const goToTestimonial = (index: number) => {
     setActiveIndex(index);
   };
 
-  const renderStars = (rating: number) => {
+  const handleWriteReviewClick = () => {
+    if (!authService.isAuthenticated()) {
+      toast.error('Please login to write a review');
+      return;
+    }
+    setIsModalOpen(true);
+  };
+
+  const handleSubmitReview = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!content.trim()) {
+      toast.error('Review content is required');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const response = await reviewService.createReview({
+        rating,
+        content,
+        company: company.trim() || undefined,
+        type: 'jobseeker' // hardcoded for now or derived from user role
+      });
+
+      if (response.success) {
+        toast.success('Review submitted successfully!');
+        setIsModalOpen(false);
+        setContent('');
+        setRating(5);
+        setCompany('');
+        fetchReviews(); // Refresh list
+      } else {
+        toast.error(response.error || 'Failed to submit review');
+      }
+    } catch (error) {
+      toast.error('An unexpected error occurred');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const renderStars = (rating: number, interactive = false, setStar?: (val: number) => void) => {
     return Array.from({ length: 5 }, (_, i) => (
       <Star
         key={i}
-        className={`w-5 h-5 ${i < rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`}
+        onClick={() => interactive && setStar && setStar(i + 1)}
+        className={`w-5 h-5 ${interactive ? 'cursor-pointer' : ''} ${i < rating ? 'text-yellow-400 fill-current' : 'text-gray-300'
+          }`}
       />
     ));
   };
 
-  const currentTestimonial = testimonials[activeIndex];
+  if (isLoading) {
+    return (
+      <section className="py-16 sm:py-20 lg:py-24 bg-white flex justify-center items-center">
+        <Loader2 className="w-12 h-12 text-blue-600 animate-spin" />
+      </section>
+    );
+  }
+
+  const currentTestimonial = reviews[activeIndex];
 
   return (
     <section className="py-16 sm:py-20 lg:py-24 bg-white">
@@ -97,114 +125,126 @@ const Testimonials = () => {
           </p>
         </div>
 
-        {/* Main Testimonial */}
-        <div className="max-w-4xl mx-auto mb-12">
-          <div className="relative bg-gradient-to-br from-blue-50 to-purple-50 rounded-3xl p-8 sm:p-12 shadow-xl">
-            {/* Quote Icon */}
-            <div className="absolute top-8 left-8 text-blue-200">
-              <Quote className="w-12 h-12" />
-            </div>
+        {reviews.length > 0 ? (
+          <>
+            {/* Main Testimonial */}
+            <div className="max-w-4xl mx-auto mb-12">
+              <div className="relative bg-gradient-to-br from-blue-50 to-purple-50 rounded-3xl p-8 sm:p-12 shadow-xl">
+                {/* Quote Icon */}
+                <div className="absolute top-8 left-8 text-blue-200">
+                  <Quote className="w-12 h-12" />
+                </div>
 
-            {/* Content */}
-            <div className="relative z-10 text-center sm:text-left">
-              <p className="text-lg sm:text-xl lg:text-2xl text-gray-800 mb-8 leading-relaxed font-medium">
-                {currentTestimonial.content}
-              </p>
+                {/* Content */}
+                <div className="relative z-10 text-center sm:text-left">
+                  <p className="text-lg sm:text-xl lg:text-2xl text-gray-800 mb-8 leading-relaxed font-medium">
+                    {currentTestimonial?.content}
+                  </p>
 
-              {/* Author Info */}
-              <div className="flex flex-col sm:flex-row items-center gap-4">
-                <img
-                  src={currentTestimonial.image}
-                  alt={currentTestimonial.name}
-                  className="w-16 h-16 rounded-full object-cover border-4 border-white shadow-lg"
-                />
-                <div className="text-center sm:text-left">
-                  <div className="font-bold text-gray-900 text-lg">
-                    {currentTestimonial.name}
+                  {/* Author Info */}
+                  <div className="flex flex-col sm:flex-row items-center gap-4">
+                    <img
+                      src={currentTestimonial?.author?.image || `https://ui-avatars.com/api/?name=${currentTestimonial?.author?.name || 'User'}`}
+                      alt={currentTestimonial?.author?.name}
+                      className="w-16 h-16 rounded-full object-cover border-4 border-white shadow-lg"
+                    />
+                    <div className="text-center sm:text-left">
+                      <div className="font-bold text-gray-900 text-lg">
+                        {currentTestimonial?.author?.name}
+                      </div>
+                      <div className="text-gray-600">
+                        {currentTestimonial?.author?.role} {currentTestimonial?.company ? `at ${currentTestimonial.company}` : ''}
+                      </div>
+                      <div className="flex items-center gap-1 mt-1 justify-center sm:justify-start">
+                        {renderStars(currentTestimonial?.rating || 5)}
+                      </div>
+                    </div>
                   </div>
-                  <div className="text-gray-600">
-                    {currentTestimonial.role} at {currentTestimonial.company}
-                  </div>
-                  <div className="flex items-center gap-1 mt-1">
-                    {renderStars(currentTestimonial.rating)}
+
+                  {/* Type Badge */}
+                  <div className="mt-4 inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-700">
+                    {currentTestimonial?.type?.toLowerCase() === 'job_seeker' ? '👤 Job Seeker' : '💼 Professional'}
                   </div>
                 </div>
               </div>
-
-              {/* Type Badge */}
-              <div className="mt-4 inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-700">
-                {currentTestimonial.type === 'jobseeker' ? '👤 Job Seeker' : '🏢 Recruiter'}
-              </div>
             </div>
+
+            {/* Navigation */}
+            {reviews.length > 1 && (
+              <div className="flex items-center justify-center gap-4 mb-8">
+                <button
+                  onClick={prevTestimonial}
+                  className="p-3 rounded-full bg-white border-2 border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all duration-300 shadow-md hover:shadow-lg"
+                  aria-label="Previous testimonial"
+                >
+                  <ChevronLeft className="w-6 h-6 text-gray-600" />
+                </button>
+
+                {/* Dots */}
+                <div className="flex items-center gap-2 flex-wrap justify-center max-w-xs">
+                  {reviews.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => goToTestimonial(index)}
+                      className={`w-3 h-3 rounded-full transition-all duration-300 ${index === activeIndex
+                        ? 'bg-blue-600 w-8'
+                        : 'bg-gray-300 hover:bg-gray-400'
+                        }`}
+                      aria-label={`Go to testimonial ${index + 1}`}
+                    />
+                  ))}
+                </div>
+
+                <button
+                  onClick={nextTestimonial}
+                  className="p-3 rounded-full bg-white border-2 border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all duration-300 shadow-md hover:shadow-lg"
+                  aria-label="Next testimonial"
+                >
+                  <ChevronRight className="w-6 h-6 text-gray-600" />
+                </button>
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="text-center py-12 text-gray-500">
+            No success stories yet. Be the first to share yours!
           </div>
-        </div>
-
-        {/* Navigation */}
-        <div className="flex items-center justify-center gap-4 mb-8">
-          <button
-            onClick={prevTestimonial}
-            className="p-3 rounded-full bg-white border-2 border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all duration-300 shadow-md hover:shadow-lg"
-            aria-label="Previous testimonial"
-          >
-            <ChevronLeft className="w-6 h-6 text-gray-600" />
-          </button>
-
-          {/* Dots */}
-          <div className="flex items-center gap-2">
-            {testimonials.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => goToTestimonial(index)}
-                className={`w-3 h-3 rounded-full transition-all duration-300 ${index === activeIndex
-                  ? 'bg-blue-600 w-8'
-                  : 'bg-gray-300 hover:bg-gray-400'
-                  }`}
-                aria-label={`Go to testimonial ${index + 1}`}
-              />
-            ))}
-          </div>
-
-          <button
-            onClick={nextTestimonial}
-            className="p-3 rounded-full bg-white border-2 border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all duration-300 shadow-md hover:shadow-lg"
-            aria-label="Next testimonial"
-          >
-            <ChevronRight className="w-6 h-6 text-gray-600" />
-          </button>
-        </div>
+        )}
 
         {/* Additional Testimonials Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mt-16">
-          {testimonials.slice(1, 4).map((testimonial, index) => (
-            <div
-              key={testimonial.id}
-              className="bg-gray-50 rounded-2xl p-6 hover:shadow-lg transition-all duration-300 cursor-pointer group"
-              onClick={() => goToTestimonial(testimonials.indexOf(testimonial))}
-            >
-              <div className="flex items-center gap-1 mb-3">
-                {renderStars(testimonial.rating)}
-              </div>
-              <p className="text-gray-700 mb-4 line-clamp-3">
-                {testimonial.content}
-              </p>
-              <div className="flex items-center gap-3">
-                <img
-                  src={testimonial.image}
-                  alt={testimonial.name}
-                  className="w-10 h-10 rounded-full object-cover"
-                />
-                <div>
-                  <div className="font-semibold text-gray-900 text-sm">
-                    {testimonial.name}
-                  </div>
-                  <div className="text-xs text-gray-600">
-                    {testimonial.role}
+        {reviews.length > 1 && (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mt-16">
+            {reviews.filter((_, i) => i !== activeIndex).slice(0, 3).map((testimonial, index) => (
+              <div
+                key={testimonial.id}
+                className="bg-gray-50 rounded-2xl p-6 hover:shadow-lg transition-all duration-300 cursor-pointer group"
+                onClick={() => goToTestimonial(reviews.indexOf(testimonial))}
+              >
+                <div className="flex items-center gap-1 mb-3">
+                  {renderStars(testimonial.rating)}
+                </div>
+                <p className="text-gray-700 mb-4 line-clamp-3">
+                  {testimonial.content}
+                </p>
+                <div className="flex items-center gap-3">
+                  <img
+                    src={testimonial.author?.image || `https://ui-avatars.com/api/?name=${testimonial.author?.name || 'User'}`}
+                    alt={testimonial.author?.name}
+                    className="w-10 h-10 rounded-full object-cover"
+                  />
+                  <div>
+                    <div className="font-semibold text-gray-900 text-sm">
+                      {testimonial.author?.name}
+                    </div>
+                    <div className="text-xs text-gray-600">
+                      {testimonial.author?.role}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
 
         {/* CTA Section */}
         <div className="text-center mt-16">
@@ -216,22 +256,79 @@ const Testimonials = () => {
               Join thousands of professionals who&apos;ve already transformed their careers with JobSpark
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a
-                href="/signup"
+              <button
+                onClick={handleWriteReviewClick}
                 className="px-8 py-4 bg-white text-blue-600 font-semibold rounded-xl hover:bg-gray-100 transition-all duration-300 transform hover:scale-105"
               >
-                Start Your Journey
-              </a>
-              <a
-                href="/success-stories"
-                className="px-8 py-4 bg-blue-700 text-white font-semibold rounded-xl hover:bg-blue-800 transition-all duration-300 border-2 border-blue-500"
-              >
-                Read More Stories
-              </a>
+                Write a Review
+              </button>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Review Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 backdrop-blur-sm transition-opacity">
+          <div className="bg-white rounded-2xl w-full max-w-lg p-6 shadow-2xl relative">
+            <button
+              onClick={() => setIsModalOpen(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              <X className="w-6 h-6" />
+            </button>
+
+            <h3 className="text-2xl font-bold text-gray-900 mb-6">Share Your Experience</h3>
+
+            <form onSubmit={handleSubmitReview}>
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Rating</label>
+                <div className="flex items-center gap-2">
+                  {renderStars(rating, true, setRating)}
+                </div>
+              </div>
+
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Company (Optional)</label>
+                <input
+                  type="text"
+                  value={company}
+                  onChange={(e) => setCompany(e.target.value)}
+                  placeholder="Where did you get hired?"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                />
+              </div>
+
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Your Story</label>
+                <textarea
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  placeholder="Tell us how JobSpark helped you..."
+                  rows={4}
+                  required
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all resize-none"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md transition-colors disabled:opacity-70 disabled:cursor-not-allowed flex justify-center items-center"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                    Submitting...
+                  </>
+                ) : (
+                  'Submit Review'
+                )}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </section>
   );
 };

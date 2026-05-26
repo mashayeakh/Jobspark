@@ -25,7 +25,10 @@ import {
   Save,
   X,
   Upload,
-  Link
+  Link,
+  Quote,
+  Star,
+  CheckCircle2
 } from 'lucide-react';
 
 export default function CompanyProfilePage() {
@@ -484,7 +487,9 @@ export default function CompanyProfilePage() {
                 </div>
 
                 <div className="space-y-3">
-                  <Label className="text-sm font-bold text-gray-700 uppercase tracking-wider">Company Description</Label>
+                  <Label className="text-sm font-bold text-gray-700 uppercase tracking-wider flex items-center gap-2">
+                    Company Description
+                  </Label>
                   {editing ? (
                     <textarea
                       value={companyData.description}
@@ -493,15 +498,24 @@ export default function CompanyProfilePage() {
                       placeholder="Describe your company..."
                     />
                   ) : (
-                    <div className="bg-gray-50 p-5 rounded-xl">
-                      <p className="text-gray-700 leading-relaxed text-lg">{companyData.description || 'No description provided yet.'}</p>
+                    <div className="bg-gradient-to-br from-white to-gray-50 border border-gray-100 p-6 rounded-2xl shadow-sm">
+                      <div className="text-gray-700 leading-relaxed text-lg space-y-4">
+                        {companyData.description ? (
+                          companyData.description.split('\n').map((paragraph, idx) => (
+                            <p key={idx}>{paragraph}</p>
+                          ))
+                        ) : (
+                          <p className="italic text-gray-500">No description provided yet.</p>
+                        )}
+                      </div>
                     </div>
-
                   )}
                 </div>
 
                 <div className="space-y-3">
-                  <Label className="text-sm font-bold text-gray-700 uppercase tracking-wider">Mission Statement</Label>
+                  <Label className="text-sm font-bold text-gray-700 uppercase tracking-wider flex items-center gap-2">
+                    Mission Statement
+                  </Label>
                   {editing ? (
                     <textarea
                       value={companyData.mission}
@@ -510,48 +524,74 @@ export default function CompanyProfilePage() {
                       placeholder="What is your company's mission?"
                     />
                   ) : (
-                    <div className="bg-gray-50 p-5 rounded-xl">
-                      <p className="text-gray-700 leading-relaxed text-lg">{companyData.mission || 'No mission statement provided yet.'}</p>
+                    <div className="relative bg-gradient-to-r from-blue-50 to-indigo-50 p-8 rounded-2xl border border-blue-100/50">
+                      <Quote className="absolute top-4 left-4 h-8 w-8 text-blue-200" />
+                      <div className="relative z-10 pl-6">
+                        <p className="text-gray-800 leading-relaxed text-xl italic font-medium">
+                          {companyData.mission || 'No mission statement provided yet.'}
+                        </p>
+                      </div>
                     </div>
-
                   )}
                 </div>
 
                 <div className="space-y-3">
-                  <Label className="text-sm font-bold text-gray-700 uppercase tracking-wider">Company Values</Label>
+                  <Label className="text-sm font-bold text-gray-700 uppercase tracking-wider flex items-center gap-2">
+                    Company Values
+                  </Label>
                   {editing ? (
-                    <Input
+                    <textarea
                       value={companyData.values}
                       onChange={(e) => handleInputChange('values', e.target.value)}
-                      className="h-12 border-2 border-gray-200 focus:border-blue-500 rounded-xl"
-                      placeholder="e.g., Innovation, Integrity, Collaboration"
+                      className="w-full min-h-[100px] border-2 border-gray-200 focus:border-blue-500 rounded-xl p-4 resize-none"
+                      placeholder="e.g., Innovation, Integrity, Collaboration (separate by comma or asterisk)"
                     />
                   ) : (
-                    <div className="bg-gray-50 p-5 rounded-xl">
-                      <p className="text-gray-700 text-lg">{companyData.values || 'No values listed yet.'}</p>
+                    <div className="bg-white border border-gray-100 p-6 rounded-2xl shadow-sm">
+                      <div className="flex flex-wrap gap-3">
+                        {companyData.values ? (
+                          companyData.values.split(/[,*\n]+/).map(v => v.trim()).filter(Boolean).map((value, index) => (
+                            <div key={index} className="flex items-center gap-2 bg-indigo-50 text-indigo-700 px-4 py-2 rounded-full font-semibold border border-indigo-100 shadow-sm hover:shadow-md transition-shadow">
+                              <Star className="h-4 w-4 text-indigo-400" />
+                              <span>{value}</span>
+                            </div>
+                          ))
+                        ) : (
+                          <p className="text-gray-500 italic">No values listed yet.</p>
+                        )}
+                      </div>
                     </div>
-
                   )}
                 </div>
 
                 <div className="space-y-3">
-                  <Label className="text-sm font-bold text-gray-700 uppercase tracking-wider">Benefits & Perks</Label>
+                  <Label className="text-sm font-bold text-gray-700 uppercase tracking-wider flex items-center gap-2">
+                    Benefits & Perks
+                  </Label>
                   {editing ? (
-                    <Input
+                    <textarea
                       value={companyData.benefits}
                       onChange={(e) => handleInputChange('benefits', e.target.value)}
-                      className="h-12 border-2 border-gray-200 focus:border-blue-500 rounded-xl"
-                      placeholder="e.g., Health Insurance, Remote Work, Stock Options"
+                      className="w-full min-h-[100px] border-2 border-gray-200 focus:border-blue-500 rounded-xl p-4 resize-none"
+                      placeholder="e.g., Health Insurance, Remote Work, Stock Options (separate by comma or asterisk)"
                     />
                   ) : (
-                    <div className="flex flex-wrap gap-3">
-                      {companyData.benefits ? companyData.benefits.split(',').map((benefit, index) => (
-                        <Badge key={index} className="bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800 border-0 px-4 py-2 font-bold">
-                          {benefit.trim()}
-                        </Badge>
-                      )) : <p className="text-gray-500 italic">No benefits listed yet.</p>}
+                    <div className="bg-white border border-gray-100 p-6 rounded-2xl shadow-sm">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {companyData.benefits ? (
+                          companyData.benefits.split(/[,*\n]+/).map(v => v.trim()).filter(Boolean).map((benefit, index) => (
+                            <div key={index} className="flex items-start gap-3 p-3 rounded-xl hover:bg-emerald-50/50 transition-colors">
+                              <div className="mt-0.5">
+                                <CheckCircle2 className="h-5 w-5 text-emerald-500" />
+                              </div>
+                              <span className="text-gray-700 font-medium">{benefit}</span>
+                            </div>
+                          ))
+                        ) : (
+                          <p className="text-gray-500 italic col-span-2">No benefits listed yet.</p>
+                        )}
+                      </div>
                     </div>
-
                   )}
                 </div>
               </div>
