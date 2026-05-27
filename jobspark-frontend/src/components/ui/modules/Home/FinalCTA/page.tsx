@@ -81,57 +81,7 @@ const FinalCTA = () => {
         </div>
 
         {/* Main CTA */}
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl p-8 sm:p-12 text-center relative overflow-hidden">
-            {/* Glow Effect */}
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-400/20 to-purple-400/20 animate-pulse"></div>
 
-            <div className="relative z-10">
-              <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4">
-                Start Your Journey Today
-              </h3>
-              <p className="text-lg text-blue-100 mb-8 max-w-2xl mx-auto">
-                Whether you&apos;re looking for your next opportunity or seeking top talent, JobSpark is your platform for success.
-              </p>
-
-              <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-                <a
-                  href="/signup"
-                  className="group px-8 py-4 bg-white text-blue-600 font-semibold rounded-xl hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
-                >
-                  Get Started Free
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
-                </a>
-                <a
-                  href="/demo"
-                  className="px-8 py-4 bg-transparent text-white font-semibold rounded-xl border-2 border-white/30 hover:border-white hover:bg-white/10 transition-all duration-300 flex items-center justify-center"
-                >
-                  Schedule Demo
-                </a>
-              </div>
-
-              {/* Trust Indicators */}
-              <div className="flex flex-wrap justify-center items-center gap-6 text-sm text-blue-100">
-                <div className="flex items-center gap-1">
-                  <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                  <span>4.9/5 Rating</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Shield className="w-4 h-4" />
-                  <span>SSL Secured</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Users className="w-4 h-4" />
-                  <span>{isLoading ? '...' : `${counters.jobSeekers}`} Users</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Zap className="w-4 h-4" />
-                  <span>Instant Setup</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
 
         {/* Alternative CTAs */}
         <div className="grid md:grid-cols-2 gap-8 mt-12">
