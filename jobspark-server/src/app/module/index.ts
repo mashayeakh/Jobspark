@@ -29,6 +29,7 @@ import { BlogGeneratorRoutes } from "./ai/blog_generator/blogGenerator.route";
 import { BlogRoutes } from "./blog/blog.route";
 import { ReviewRoutes } from "./review/review.route";
 import { NewsletterRoutes } from "./newsletter/newsletter.route";
+import { ContactRoutes } from "./contact/contact.route";
 
 const router = express.Router();
 
@@ -76,6 +77,9 @@ router.use("/reviews", ReviewRoutes);
 
 //!Newsletter
 router.use("/newsletter", NewsletterRoutes);
+
+//!Contact
+router.use("/contact", ContactRoutes);
 
 //!AI Fraud Detection
 router.use("/admin/fraud-shield", FraudDetectionRouter);
