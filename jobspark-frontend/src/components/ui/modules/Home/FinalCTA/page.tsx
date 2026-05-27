@@ -175,24 +175,10 @@ const FinalCTA = () => {
         </div>
 
         {/* Final Message */}
-        <div className="text-center mt-16">
+        <div className="text-center mt-16 pb-8">
           <p className="text-gray-400 text-lg">
             Join the future of recruitment. Your dream job or perfect candidate is just a click away.
           </p>
-          <div className="mt-6 flex justify-center gap-8">
-            <a href="/about" className="text-blue-400 hover:text-blue-300 transition-colors duration-300">
-              About Us
-            </a>
-            <a href="/contact" className="text-blue-400 hover:text-blue-300 transition-colors duration-300">
-              Contact
-            </a>
-            <a href="/privacy" className="text-blue-400 hover:text-blue-300 transition-colors duration-300">
-              Privacy Policy
-            </a>
-            <a href="/terms" className="text-blue-400 hover:text-blue-300 transition-colors duration-300">
-              Terms of Service
-            </a>
-          </div>
         </div>
       </div>
     </section>

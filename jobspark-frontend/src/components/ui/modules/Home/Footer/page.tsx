@@ -4,16 +4,7 @@ import React, { useState } from 'react';
 import { Mail, Phone, MapPin, ArrowUp, ChevronDown } from 'lucide-react';
 
 const Footer = () => {
-  const [email, setEmail] = useState('');
   const [activeSection, setActiveSection] = useState<string | null>(null);
-
-  const handleSubscribe = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email) return;
-    // Handle newsletter subscription
-    console.log('Subscribing:', email);
-    setEmail('');
-  };
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -81,7 +72,7 @@ const Footer = () => {
   ];
 
   const contactInfo = [
-    { icon: Mail, label: 'Email', value: 'support@jobspark.com', href: 'mailto:support@jobspark.com' },
+    { icon: Mail, label: 'Email', value: 'islammasayekh@gmail.com', href: 'mailto:islammasayekh@gmail.com' },
     { icon: Phone, label: 'Phone', value: '+1 (555) 123-4567', href: 'tel:+15551234567' },
     { icon: MapPin, label: 'Address', value: 'Dhaka, Bangladesh', href: 'https://maps.google.com/?q=Dhaka+Bangladesh' }
   ];
@@ -91,60 +82,34 @@ const Footer = () => {
       {/* Top Section */}
       <div className="border-b border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="grid lg:grid-cols-3 gap-8">
-            {/* Newsletter */}
-            <div className="lg:col-span-1">
-              <h3 className="text-xl font-bold mb-4">Stay Updated</h3>
-              <p className="text-gray-400 mb-6">
-                Get the latest job opportunities and career tips delivered to your inbox.
-              </p>
-              <form onSubmit={handleSubscribe} className="space-y-4">
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your email"
-                  className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white placeholder-gray-500"
-                  required
-                />
-                <button
-                  type="submit"
-                  className="w-full px-4 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors duration-300"
-                >
-                  Subscribe
-                </button>
-              </form>
-            </div>
-
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
             {/* Links */}
-            <div className="lg:col-span-2 grid grid-cols-2 md:grid-cols-3 gap-8">
-              {Object.entries(footerSections).map(([key, section]) => (
-                <div key={key}>
-                  <button
-                    onClick={() => setActiveSection(activeSection === key ? null : key)}
-                    className="flex items-center justify-between w-full text-left lg:hidden mb-4"
-                  >
-                    <h4 className="font-semibold">{section.title}</h4>
-                    <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${activeSection === key ? 'rotate-180' : ''}`} />
-                  </button>
-                  <div className={`${activeSection === key || !activeSection ? 'block' : 'hidden'} lg:block`}>
-                    <h4 className="font-semibold mb-4 hidden lg:block">{section.title}</h4>
-                    <ul className="space-y-2">
-                      {section.links.map((link, index) => (
-                        <li key={index}>
-                          <a
-                            href={link.href}
-                            className="text-gray-400 hover:text-white transition-colors duration-300"
-                          >
-                            {link.name}
-                          </a>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
+            {Object.entries(footerSections).map(([key, section]) => (
+              <div key={key}>
+                <button
+                  onClick={() => setActiveSection(activeSection === key ? null : key)}
+                  className="flex items-center justify-between w-full text-left lg:hidden mb-4"
+                >
+                  <h4 className="font-semibold">{section.title}</h4>
+                  <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${activeSection === key ? 'rotate-180' : ''}`} />
+                </button>
+                <div className={`${activeSection === key || !activeSection ? 'block' : 'hidden'} lg:block`}>
+                  <h4 className="font-semibold mb-4 hidden lg:block">{section.title}</h4>
+                  <ul className="space-y-2">
+                    {section.links.map((link, index) => (
+                      <li key={index}>
+                        <a
+                          href={link.href}
+                          className="text-gray-400 hover:text-white transition-colors duration-300"
+                        >
+                          {link.name}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
