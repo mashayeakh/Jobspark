@@ -7,10 +7,9 @@ import { useRouter, useSearchParams } from 'next/navigation';
 
 import {
   Calendar as CalendarIcon,
-  Clock,
-  MapPin,
-  Users,
-import { Video, Calendar, Clock, MapPin, Building, Users, Search, Filter, Edit, XCircle, Mail, Phone, MessageSquare, FileText, ChevronDown, CheckCircle, Send, Trash2, AlertCircle, ChevronRight, Plus } from 'lucide-react';
+  Video, Calendar, Clock, MapPin, Building, Users, Search, Filter, Edit, XCircle, Mail, Phone, MessageSquare, FileText, ChevronDown, CheckCircle, Send, Trash2, AlertCircle, ChevronRight, Plus,
+  Briefcase
+} from 'lucide-react';
 import Link from 'next/link';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Textarea } from '@/components/ui/textarea';
