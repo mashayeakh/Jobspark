@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import React, { useEffect, useState } from 'react';
@@ -13,24 +14,26 @@ const FinalCTA = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const response = await apiClient.get<any>('/jobs/public-stats');
-        if (response.success && response.data?.result) {
+    let ignore = false;
+
+    apiClient.get<any>('/jobs/public-stats')
+      .then((response) => {
+        if (!ignore && response.success && response.data?.result) {
           const { jobSeekers, jobs } = response.data.result;
           setCounters({
             jobSeekers: jobSeekers || 0,
             jobs: jobs || 0
           });
         }
-      } catch (err) {
+      })
+      .catch((err) => {
         console.error('Failed to fetch stats:', err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchStats();
+      })
+      .finally(() => {
+        if (!ignore) setIsLoading(false);
+      });
+
+    return () => { ignore = true; };
   }, []);
 
   const stats = [
@@ -114,13 +117,13 @@ const FinalCTA = () => {
             <p className="text-gray-300 mb-6">
               Post jobs and connect with pre-vetted, qualified candidates
             </p>
-            <a
+            <Link
               href="/hire"
               className="inline-flex items-center gap-2 text-purple-400 font-semibold hover:text-purple-300 transition-colors duration-300"
             >
               Start Hiring
               <ArrowRight className="w-4 h-4" />
-            </a>
+            </Link>
           </div>
         </div>
 

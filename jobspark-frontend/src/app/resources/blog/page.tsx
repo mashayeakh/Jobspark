@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 
 import React, { useState, useEffect } from 'react';
@@ -18,6 +19,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { blogService, Blog } from '@/services/blogService';
 import { Loader2 } from 'lucide-react';
+import Link from 'next/link';
 
 const BLOG_POSTS = [
   {
@@ -256,11 +258,11 @@ export default function BlogPage() {
             <h4 className="text-lg font-black text-slate-900 mb-2">JobsPark Intelligence</h4>
             <p className="text-sm text-slate-500 font-medium">Empowering the next generation of global talent.</p>
           </div>
-          <div className="flex gap-8">
-            {['Twitter', 'LinkedIn', 'Instagram', 'Medium'].map((social) => (
-              <a key={social} href="#" className="text-sm font-bold text-slate-400 hover:text-[#4880FF] transition-colors">{social}</a>
-            ))}
-          </div>
+            <div className="flex gap-6">
+              {['Twitter', 'LinkedIn', 'Facebook'].map((social) => (
+                <Link key={social} href="#" className="text-sm font-bold text-slate-400 hover:text-[#4880FF] transition-colors">{social}</Link>
+              ))}
+            </div>
         </div>
       </footer>
     </div>

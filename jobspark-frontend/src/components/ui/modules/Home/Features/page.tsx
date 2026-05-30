@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { Search, Users, Briefcase, Shield, Zap, Globe, Award, Clock, TrendingUp } from 'lucide-react';
+import Link from 'next/link';
 
 const Features = () => {
   const [activeTab, setActiveTab] = useState('jobseekers');
@@ -129,12 +130,12 @@ const Features = () => {
               Join thousands of professionals who&apos;ve already found their perfect match through JobSpark
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a
+              <Link
                 href="/signup"
                 className="px-8 py-4 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
               >
                 Get Started Free
-              </a>
+              </Link>
               {/* <a
                 href="/demo"
                 className="px-8 py-4 bg-white text-gray-900 font-semibold rounded-xl border-2 border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all duration-300"

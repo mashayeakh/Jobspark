@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Mail, Phone, Send, MessageSquare } from 'lucide-react';
 import { toast } from 'sonner';
 import apiClient from '@/lib/api';
+import Link from 'next/link';
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -68,7 +69,7 @@ export default function ContactPage() {
                 {contactInfo.map((info, index) => {
                   const Icon = info.icon;
                   return (
-                    <a
+                    <Link
                       key={index}
                       href={info.link}
                       className="flex items-center gap-4 rounded-2xl border border-gray-100 bg-gray-50 p-4 hover:border-blue-300 transition-colors"
@@ -80,7 +81,7 @@ export default function ContactPage() {
                         <p className="text-sm text-gray-500">{info.title}</p>
                         <p className="font-medium text-gray-900">{info.value}</p>
                       </div>
-                    </a>
+                    </Link>
                   );
                 })}
               </div>

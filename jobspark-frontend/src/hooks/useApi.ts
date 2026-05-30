@@ -7,7 +7,7 @@ export function useApi<T>(
   dependencies: any[] = []
 ) {
   const [data, setData] = useState<T | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const execute = async () => {
@@ -30,10 +30,19 @@ export function useApi<T>(
   };
 
   useEffect(() => {
+    let isMounted = true;
+    
     const timeoutId = setTimeout(() => {
-      execute();
+      if (isMounted) {
+        execute();
+      }
     }, 0);
-    return () => clearTimeout(timeoutId);
+    
+    return () => {
+      isMounted = false;
+      clearTimeout(timeoutId);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, dependencies);
 
   return { data, loading, error, refetch: execute };

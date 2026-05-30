@@ -22,6 +22,7 @@ import {
   Loader2
 } from 'lucide-react';
 import { adminService, Company } from '@/services/adminService';
+import Link from 'next/link';
 
 export default function CompanyManagementPage() {
   const [companies, setCompanies] = useState<Company[]>([]);
@@ -204,7 +205,7 @@ export default function CompanyManagementPage() {
                             <p className="font-bold text-[#202224]">{company.name}</p>
                             <p className="text-sm text-gray-400 font-medium">{company.email}</p>
                             {company.website && (
-                              <a
+                              <Link
                                 href={company.website}
                                 target="_blank"
                                 rel="noopener noreferrer"
@@ -212,7 +213,7 @@ export default function CompanyManagementPage() {
                               >
                                 <Globe className="h-3 w-3" />
                                 {company.website}
-                              </a>
+                              </Link>
                             )}
                           </div>
                         </div>

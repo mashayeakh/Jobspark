@@ -1,10 +1,12 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ChevronDown, ChevronUp, HelpCircle, Briefcase, Users, Zap, Shield, Globe, Award } from 'lucide-react';
+import { ChevronDown, ChevronUp, HelpCircle, Briefcase, Users, Zap, Shield, Globe, Award, X, Rocket } from 'lucide-react';
+import Link from 'next/link';
 
 const FAQ = () => {
   const [openQuestion, setOpenQuestion] = useState<number | null>(null);
+  const [comingSoonModal, setComingSoonModal] = useState<string | null>(null);
 
   const faqCategories = [
     {
@@ -191,9 +193,9 @@ const FAQ = () => {
             <p className="text-gray-600 mb-4">
               Get help whenever you need it from our dedicated support team
             </p>
-            <a href="/support" className="text-blue-600 font-medium hover:text-blue-700">
+            <button onClick={() => setComingSoonModal('24/7 Support')} className="text-blue-600 font-medium hover:text-blue-700 cursor-pointer">
               Contact Support →
-            </a>
+            </button>
           </div>
 
           <div className="bg-white rounded-2xl p-6 text-center border border-gray-200 hover:shadow-lg transition-shadow duration-300">
@@ -204,9 +206,9 @@ const FAQ = () => {
             <p className="text-gray-600 mb-4">
               Access guides, tutorials, and best practices for job seeking and hiring
             </p>
-            <a href="/resources" className="text-purple-600 font-medium hover:text-purple-700">
+            <button onClick={() => setComingSoonModal('Resource Center')} className="text-purple-600 font-medium hover:text-purple-700 cursor-pointer">
               Browse Resources →
-            </a>
+            </button>
           </div>
 
           <div className="bg-white rounded-2xl p-6 text-center border border-gray-200 hover:shadow-lg transition-shadow duration-300">
@@ -217,9 +219,9 @@ const FAQ = () => {
             <p className="text-gray-600 mb-4">
               Chat with our team instantly for quick answers to your questions
             </p>
-            <a href="/chat" className="text-green-600 font-medium hover:text-green-700">
+            <button onClick={() => setComingSoonModal('Live Chat')} className="text-green-600 font-medium hover:text-green-700 cursor-pointer">
               Start Chat →
-            </a>
+            </button>
           </div>
         </div>
 
@@ -233,16 +235,45 @@ const FAQ = () => {
               Our support team is here to help you succeed. Reach out anytime!
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a
+              <Link
                 href="/contact"
                 className="px-8 py-4 bg-white text-blue-600 font-semibold rounded-xl hover:bg-gray-100 transition-all duration-300 transform hover:scale-105"
               >
                 Contact Us
-              </a>
+              </Link>
             </div>
           </div>
         </div>
       </div>
+      {/* Coming Soon Modal */}
+      {comingSoonModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setComingSoonModal(null)}>
+          <div className="bg-white rounded-2xl w-full max-w-md p-8 shadow-2xl relative text-center" onClick={(e) => e.stopPropagation()}>
+            <button
+              onClick={() => setComingSoonModal(null)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+            >
+              <X className="w-6 h-6" />
+            </button>
+
+            <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Rocket className="w-10 h-10 text-blue-600" />
+            </div>
+
+            <h3 className="text-2xl font-bold text-gray-900 mb-2">Coming Soon!</h3>
+            <p className="text-gray-600 mb-6">
+              <span className="font-semibold text-gray-800">{comingSoonModal}</span> is currently under development. We&apos;re working hard to bring this feature to you soon!
+            </p>
+
+            <button
+              onClick={() => setComingSoonModal(null)}
+              className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 cursor-pointer"
+            >
+              Got it!
+            </button>
+          </div>
+        </div>
+      )}
     </section>
   );
 };

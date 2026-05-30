@@ -7,13 +7,13 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { authService } from "@/services/authService";
 import { useRouter, usePathname } from "next/navigation";
-import { 
-  User, 
-  Settings, 
-  LayoutDashboard, 
-  LogOut, 
-  Briefcase, 
-  Users, 
+import {
+  User,
+  Settings,
+  LayoutDashboard,
+  LogOut,
+  Briefcase,
+  Users,
   FileText,
   ChevronDown
 } from "lucide-react";
@@ -234,7 +234,7 @@ const Navbar = ({
         <nav className={styles.nav}>
           <div className="flex items-center w-[250px]">
             {/* Logo */}
-            <a href={logo.url} className="flex items-center gap-2">
+            <Link href={logo.url} className="flex items-center gap-2">
               <img
                 src={logo.src}
                 className="max-h-8 dark:invert"
@@ -243,7 +243,7 @@ const Navbar = ({
               <span className={cn("font-bold tracking-tighter text-gray-900", styles.logoSize)}>
                 {logo.title}
               </span>
-            </a>
+            </Link>
           </div>
 
           <div className="flex items-center justify-center flex-1">
@@ -268,10 +268,10 @@ const Navbar = ({
             ) : !user ? (
               <>
                 <Button asChild variant="ghost" size="sm" className="text-gray-600 hover:text-gray-900">
-                  <a href={auth.login.url}>{auth.login.title}</a>
+                  <Link href={auth.login.url}>{auth.login.title}</Link>
                 </Button>
                 <Button asChild size="sm" className="bg-blue-600 hover:bg-blue-700">
-                  <a href={auth.signup.url}>{auth.signup.title}</a>
+                  <Link href={auth.signup.url}>{auth.signup.title}</Link>
                 </Button>
               </>
             ) : (
@@ -279,10 +279,10 @@ const Navbar = ({
                 {/* Post a Job button for recruiters */}
                 {user.role === 'RECRUITER' && (
                   <Button asChild variant="outline" size="sm" className="border-blue-200 text-blue-600 hover:bg-blue-50">
-                    <a href="/recruiter/post-job" className="flex items-center gap-2">
+                    <Link href="/recruiter/post-job" className="flex items-center gap-2">
                       <Plus className="size-4" />
                       Post a Job
-                    </a>
+                    </Link>
                   </Button>
                 )}
 
@@ -309,58 +309,58 @@ const Navbar = ({
                       </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator className="my-2 bg-gray-50" />
-                    
+
                     <div className="space-y-0.5">
                       {user.role === 'RECRUITER' ? (
                         <>
                           <DropdownMenuItem asChild className="rounded-xl px-3 py-2.5 focus:bg-blue-50 focus:text-blue-600 cursor-pointer group">
-                            <a href="/recruiter/dashboard" className="flex items-center gap-3 w-full">
+                            <Link href="/recruiter/dashboard" className="flex items-center gap-3 w-full">
                               <LayoutDashboard className="size-4 text-gray-400 group-focus:text-blue-600" />
                               <span className="text-sm font-bold">Recruiter Dashboard</span>
-                            </a>
+                            </Link>
                           </DropdownMenuItem>
                           <DropdownMenuItem asChild className="rounded-xl px-3 py-2.5 focus:bg-blue-50 focus:text-blue-600 cursor-pointer group">
-                            <a href="/recruiter/jobs" className="flex items-center gap-3 w-full">
+                            <Link href="/recruiter/jobs" className="flex items-center gap-3 w-full">
                               <Briefcase className="size-4 text-gray-400 group-focus:text-blue-600" />
                               <span className="text-sm font-bold">My Job Postings</span>
-                            </a>
+                            </Link>
                           </DropdownMenuItem>
                           <DropdownMenuItem asChild className="rounded-xl px-3 py-2.5 focus:bg-blue-50 focus:text-blue-600 cursor-pointer group">
-                            <a href="/recruiter/candidates" className="flex items-center gap-3 w-full">
+                            <Link href="/recruiter/candidates" className="flex items-center gap-3 w-full">
                               <Users className="size-4 text-gray-400 group-focus:text-blue-600" />
                               <span className="text-sm font-bold">Candidates</span>
-                            </a>
+                            </Link>
                           </DropdownMenuItem>
                         </>
                       ) : (
                         <>
                           <DropdownMenuItem asChild className="rounded-xl px-3 py-2.5 focus:bg-blue-50 focus:text-blue-600 cursor-pointer group">
-                            <a href="/dashboard" className="flex items-center gap-3 w-full">
+                            <Link href="/dashboard" className="flex items-center gap-3 w-full">
                               <LayoutDashboard className="size-4 text-gray-400 group-focus:text-blue-600" />
                               <span className="text-sm font-bold">Dashboard</span>
-                            </a>
+                            </Link>
                           </DropdownMenuItem>
                           <DropdownMenuItem asChild className="rounded-xl px-3 py-2.5 focus:bg-blue-50 focus:text-blue-600 cursor-pointer group">
-                            <a href="/applications" className="flex items-center gap-3 w-full">
+                            <Link href="/applications" className="flex items-center gap-3 w-full">
                               <FileText className="size-4 text-gray-400 group-focus:text-blue-600" />
                               <span className="text-sm font-bold">My Applications</span>
-                            </a>
+                            </Link>
                           </DropdownMenuItem>
                         </>
                       )}
 
                       <DropdownMenuItem asChild className="rounded-xl px-3 py-2.5 focus:bg-blue-50 focus:text-blue-600 cursor-pointer group">
-                        <a href={user.role === 'RECRUITER' ? "/recruiter/settings" : "/settings"} className="flex items-center gap-3 w-full">
+                        <Link href={user.role === 'RECRUITER' ? "/recruiter/settings" : "/settings"} className="flex items-center gap-3 w-full">
                           <Settings className="size-4 text-gray-400 group-focus:text-blue-600" />
                           <span className="text-sm font-bold">Account Settings</span>
-                        </a>
+                        </Link>
                       </DropdownMenuItem>
                     </div>
 
                     <DropdownMenuSeparator className="my-2 bg-gray-50" />
-                    
-                    <DropdownMenuItem 
-                      onClick={handleLogout} 
+
+                    <DropdownMenuItem
+                      onClick={handleLogout}
                       className="rounded-xl px-3 py-2.5 focus:bg-red-50 text-red-600 focus:text-red-700 cursor-pointer group"
                     >
                       <div className="flex items-center gap-3 w-full">
@@ -379,7 +379,7 @@ const Navbar = ({
         <div className="block lg:hidden">
           <div className="flex items-center justify-between py-3">
             {/* Logo */}
-            <a href={logo.url} className="flex items-center gap-2">
+            <Link href={logo.url} className="flex items-center gap-2">
               <img
                 src={logo.src}
                 className="max-h-8 dark:invert"
@@ -388,7 +388,7 @@ const Navbar = ({
               <span className="text-lg font-bold tracking-tighter text-gray-900">
                 {logo.title}
               </span>
-            </a>
+            </Link>
             <div className="flex items-center gap-2">
 
               <Sheet>
@@ -400,14 +400,14 @@ const Navbar = ({
                 <SheetContent className="overflow-y-auto">
                   <SheetHeader>
                     <SheetTitle>
-                      <a href={logo.url} className="flex items-center gap-2">
+                      <Link href={logo.url} className="flex items-center gap-2">
                         <img
                           src={logo.src}
                           className="max-h-8 dark:invert"
                           alt={logo.alt}
                         />
                         <span className="text-lg font-bold">{logo.title}</span>
-                      </a>
+                      </Link>
                     </SheetTitle>
                   </SheetHeader>
                   <div className="flex flex-col gap-6 p-4">
@@ -425,10 +425,10 @@ const Navbar = ({
                       ) : !user ? (
                         <>
                           <Button asChild variant="outline" className="w-full rounded-xl h-11">
-                            <a href={auth.login.url}>{auth.login.title}</a>
+                            <Link href={auth.login.url}>{auth.login.title}</Link>
                           </Button>
                           <Button asChild className="w-full bg-blue-600 hover:bg-blue-700 rounded-xl h-11 shadow-lg shadow-blue-100">
-                            <a href={auth.signup.url}>{auth.signup.title}</a>
+                            <Link href={auth.signup.url}>{auth.signup.title}</Link>
                           </Button>
                         </>
                       ) : (
@@ -445,50 +445,50 @@ const Navbar = ({
                               </Badge>
                             </div>
                           </div>
-                          
+
                           <div className="grid grid-cols-1 gap-2">
                             {user.role === 'RECRUITER' ? (
                               <>
                                 <Button asChild variant="outline" className="justify-start gap-3 h-11 rounded-xl border-gray-100 hover:bg-blue-50 hover:text-blue-600 transition-all">
-                                  <a href="/recruiter/dashboard">
+                                  <Link href="/recruiter/dashboard">
                                     <LayoutDashboard className="size-4" />
                                     Dashboard
-                                  </a>
+                                  </Link>
                                 </Button>
                                 <Button asChild variant="outline" className="justify-start gap-3 h-11 rounded-xl border-gray-100 hover:bg-blue-50 hover:text-blue-600 transition-all">
-                                  <a href="/recruiter/jobs">
+                                  <Link href="/recruiter/jobs">
                                     <Briefcase className="size-4" />
                                     Job Postings
-                                  </a>
+                                  </Link>
                                 </Button>
                               </>
                             ) : (
                               <>
                                 <Button asChild variant="outline" className="justify-start gap-3 h-11 rounded-xl border-gray-100 hover:bg-blue-50 hover:text-blue-600 transition-all">
-                                  <a href="/dashboard">
+                                  <Link href="/dashboard">
                                     <LayoutDashboard className="size-4" />
                                     Dashboard
-                                  </a>
+                                  </Link>
                                 </Button>
                                 <Button asChild variant="outline" className="justify-start gap-3 h-11 rounded-xl border-gray-100 hover:bg-blue-50 hover:text-blue-600 transition-all">
-                                  <a href="/applications">
+                                  <Link href="/applications">
                                     <FileText className="size-4" />
                                     Applications
-                                  </a>
+                                  </Link>
                                 </Button>
                               </>
                             )}
                             <Button asChild variant="outline" className="justify-start gap-3 h-11 rounded-xl border-gray-100 hover:bg-blue-50 hover:text-blue-600 transition-all">
-                              <a href={user.role === 'RECRUITER' ? "/recruiter/settings" : "/settings"}>
+                              <Link href={user.role === 'RECRUITER' ? "/recruiter/settings" : "/settings"}>
                                 <Settings className="size-4" />
                                 Settings
-                              </a>
+                              </Link>
                             </Button>
                           </div>
 
-                          <Button 
-                            onClick={handleLogout} 
-                            variant="ghost" 
+                          <Button
+                            onClick={handleLogout}
+                            variant="ghost"
                             className="w-full justify-center gap-2 h-11 rounded-xl text-red-600 hover:bg-red-50 hover:text-red-700 font-bold transition-all"
                           >
                             <LogOut className="size-4" />
@@ -510,7 +510,7 @@ const Navbar = ({
 
 const renderMenuItem = (item: MenuItem, pathname: string) => {
   const isActive = item.url === '/' ? pathname === item.url : pathname.startsWith(item.url);
-  
+
   if (item.items) {
     return (
       <NavigationMenuItem key={item.title}>
@@ -580,16 +580,16 @@ const renderMobileMenuItem = (item: MenuItem, pathname: string) => {
   }
 
   return (
-    <a key={item.title} href={item.url} className={cn("text-md font-semibold", isActive && "text-blue-600")}>
+    <Link key={item.title} href={item.url} className={cn("text-md font-semibold", isActive && "text-blue-600")}>
       {item.title}
-    </a>
+    </Link>
   );
 };
 
 const SubMenuLink = ({ item, pathname }: { item: MenuItem, pathname?: string }) => {
   const isActive = pathname && (item.url === '/' ? pathname === item.url : pathname.startsWith(item.url));
   return (
-    <a
+    <Link
       className={cn("flex min-w-80 flex-row gap-4 rounded-md p-3 leading-none no-underline transition-colors outline-none select-none hover:bg-muted hover:text-accent-foreground", isActive && "bg-muted text-accent-foreground")}
       href={item.url}
     >
@@ -602,7 +602,7 @@ const SubMenuLink = ({ item, pathname }: { item: MenuItem, pathname?: string }) 
           </p>
         )}
       </div>
-    </a>
+    </Link>
   );
 };
 

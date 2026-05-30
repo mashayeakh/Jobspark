@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import React, { useEffect, useState } from 'react';
@@ -20,11 +21,11 @@ const Stats = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const response = await apiClient.get<any>('/jobs/public-stats');
-        if (response.success && response.data?.result) {
+    let ignore = false;
+    
+    apiClient.get<any>('/jobs/public-stats')
+      .then((response) => {
+        if (!ignore && response.success && response.data?.result) {
           const { jobSeekers, jobs, hireRate } = response.data.result;
           setTargetStats({
             jobSeekers: jobSeekers || 0,
@@ -32,13 +33,15 @@ const Stats = () => {
             hireRate: hireRate || 95
           });
         }
-      } catch (err) {
+      })
+      .catch((err) => {
         console.error('Failed to fetch public stats:', err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchStats();
+      })
+      .finally(() => {
+        if (!ignore) setIsLoading(false);
+      });
+
+    return () => { ignore = true; };
   }, []);
 
   useEffect(() => {

@@ -370,18 +370,18 @@ export default function UserProfilePage({ params }: { params: Promise<{ userId: 
                   </div>
                   <div className="flex items-start gap-3 text-gray-700">
                     <Mail className="size-5 shrink-0 text-gray-500" />
-                    <span className="flex items-center gap-1">Email <a href={`mailto:${user.email}`} className="text-[#0a66c2] hover:underline font-medium">{user.email}</a></span>
+                    <span className="flex items-center gap-1">Email <Link href={`mailto:${user.email}`} className="text-[#0a66c2] hover:underline font-medium">{user.email}</Link></span>
                   </div>
                   {user.linkedinUrl && (
                     <div className="flex items-start gap-3 text-gray-700">
                       <LinkIcon className="size-5 shrink-0 text-gray-500" />
-                      <span className="flex items-center gap-1">LinkedIn <a href={user.linkedinUrl} target="_blank" rel="noreferrer" className="text-[#0a66c2] hover:underline font-medium">{user.linkedinUrl}</a></span>
+                      <span className="flex items-center gap-1">LinkedIn <Link href={user.linkedinUrl} target="_blank" rel="noreferrer" className="text-[#0a66c2] hover:underline font-medium">{user.linkedinUrl}</Link></span>
                     </div>
                   )}
                   {user.websiteUrl && (
                     <div className="flex items-start gap-3 text-gray-700">
                       <LinkIcon className="size-5 shrink-0 text-gray-500" />
-                      <span className="flex items-center gap-1">Website <a href={user.websiteUrl} target="_blank" rel="noreferrer" className="text-[#0a66c2] hover:underline font-medium">{user.websiteUrl}</a></span>
+                      <span className="flex items-center gap-1">Website <Link href={user.websiteUrl} target="_blank" rel="noreferrer" className="text-[#0a66c2] hover:underline font-medium">{user.websiteUrl}</Link></span>
                     </div>
                   )}
                 </div>

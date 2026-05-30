@@ -306,9 +306,9 @@ export default function JobDetailTemplate({ job, backPath, backLabel }: JobDetai
             </div>
             {job.company?.website && (
                <div className="px-6 py-4 bg-gray-50 border-t border-gray-100">
-                  <a href={job.company.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-xs font-bold text-gray-600 hover:text-gray-900">
+                  <Link href={job.company.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-xs font-bold text-gray-600 hover:text-gray-900">
                      <Globe className="w-4 h-4" /> Visit Website <ExternalLink className="w-3 h-3" />
-                  </a>
+                  </Link>
                </div>
             )}
           </div>

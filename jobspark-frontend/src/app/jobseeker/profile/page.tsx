@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import Link from 'next/link';
 
 function formatSalary(min?: number | null, max?: number | null) {
     if (min && max) return `$${(min / 1000).toFixed(0)}k – $${(max / 1000).toFixed(0)}k`;
@@ -471,13 +472,13 @@ export default function JobSeekerProfilePage() {
                                         <div className="space-y-3">
                                             {formData.resumeUrl ? (
                                                 <div className="flex items-center justify-between bg-white px-3 py-2 rounded-xl border border-blue-100">
-                                                    <a href={formData.resumeUrl}
+                                                    <Link href={formData.resumeUrl}
                                                         download
                                                         target="_blank"
                                                         rel="noreferrer" className="flex items-center gap-2 text-sm font-semibold text-[#4880FF] hover:underline truncate">
                                                         <FileText className="w-4 h-4 shrink-0" />
                                                         <span className="truncate">Current Resume</span>
-                                                    </a>
+                                                    </Link>
                                                     <Button
                                                         variant="ghost"
                                                         size="sm"
@@ -522,13 +523,13 @@ export default function JobSeekerProfilePage() {
                                         </div>
                                     ) : (
                                         profile?.resumeUrl ? (
-                                            <a href={profile.resumeUrl}
+                                            <Link href={profile.resumeUrl}
                                                 download
                                                 target="_blank"
                                                 rel="noreferrer" className="inline-flex items-center gap-2 text-sm font-semibold text-[#4880FF] hover:underline bg-white px-4 py-2 rounded-xl border border-blue-100 shadow-sm transition-transform hover:scale-105 active:scale-95">
                                                 <FileText className="w-4 h-4" />
                                                 View Resume
-                                            </a>
+                                            </Link>
                                         ) : (
                                             <p className="text-sm font-medium text-gray-500 bg-white px-4 py-2 rounded-xl border border-gray-100 inline-flex items-center gap-2">
                                                 <X className="w-4 h-4 text-gray-400" />

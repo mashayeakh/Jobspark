@@ -38,8 +38,10 @@ import {
   Link as LinkIcon,
   MessageSquare,
   ExternalLink,
-  Calendar
+  Calendar,
+  Download
 } from 'lucide-react';
+import Link from 'next/link';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -514,7 +516,7 @@ export default function ApplicationReviewPage() {
                 </Button>
 
                 {application.seeker.resumeUrl ? (
-                  <a
+                  <Link
                     href={application.seeker.resumeUrl}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -523,7 +525,7 @@ export default function ApplicationReviewPage() {
                     <FileText className="h-4 w-4" />
                     View Resume
                     <ExternalLink className="h-3.5 w-3.5" />
-                  </a>
+                  </Link>
                 ) : (
                   <div
                     title="Candidate has not uploaded a resume"
@@ -618,14 +620,15 @@ export default function ApplicationReviewPage() {
                       </div>
                     </div>
                     {application.seeker.resumeUrl ? (
-                      <a
+                      <Link
                         href={application.seeker.resumeUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-[#4880FF] text-xs font-bold gap-1 flex items-center hover:underline"
+                        className="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-lg font-medium hover:bg-blue-100 transition-colors"
                       >
-                        View Resume <ExternalLink className="h-3 w-3" />
-                      </a>
+                        <Download className="w-4 h-4" />
+                        Download PDF
+                      </Link>
                     ) : (
                       <span className="text-gray-300 text-xs font-bold">No Resume</span>
                     )}

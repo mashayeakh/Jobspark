@@ -4,6 +4,7 @@ import { ArrowRight, Wifi } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { authService } from "@/services/authService";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 interface ButtonConfig {
     text: string;
@@ -112,13 +113,13 @@ const HeroSection = (props: Props) => {
                         {/* Buttons */}
                         <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start animate-fade-in-up animation-delay-400">
                             {primaryButton && (
-                                <a
+                                <Link
                                     href={primaryButton.url}
                                     className="px-8 py-4 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
                                 >
                                     {primaryButton.text}
                                     <ArrowRight className="w-5 h-5" />
-                                </a>
+                                </Link>
                             )}
                             {secondaryButton && (
                                 <button

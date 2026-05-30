@@ -6,6 +6,7 @@ import { Code, Palette, Megaphone, BarChart, Heart, Wrench, Camera, Music, Brief
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { categoryService, Category } from '@/services/categoryService';
 import { useApi } from '@/hooks/useApi';
+import Link from 'next/link';
 
 const Categories = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -167,13 +168,13 @@ const Categories = () => {
                   <h4 className="text-sm font-bold text-gray-400 uppercase tracking-wider">Popular Specializations</h4>
                   <div className="flex flex-wrap gap-2.5 max-h-[250px] overflow-y-auto pb-2">
                     {selectedCategoryData.jobs.map((job, index) => (
-                      <a
+                      <Link
                         href={`/jobs?category=${selectedCategoryData.id}`}
                         key={index}
                         className="inline-flex items-center px-4 py-2 rounded-xl bg-gray-50 text-gray-700 text-sm font-medium hover:bg-blue-50 hover:text-blue-700 hover:shadow-sm border border-gray-100 hover:border-blue-200 transition-all duration-200"
                       >
                         {job}
-                      </a>
+                      </Link>
                     ))}
                   </div>
                 </div>
@@ -181,13 +182,13 @@ const Categories = () => {
 
               <div className="px-8 py-5 bg-gray-50 border-t border-gray-100 flex justify-between items-center">
                 <span className="text-sm text-gray-500 font-medium">Explore all opportunities</span>
-                <a
+                <Link
                   href={`/jobs?category=${selectedCategoryData.id}`}
                   className="inline-flex items-center gap-2 px-6 py-3 bg-gray-900 text-white font-semibold rounded-xl hover:bg-blue-600 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
                 >
                   View All Jobs
                   <ArrowRight className="w-4 h-4" />
-                </a>
+                </Link>
               </div>
             </DialogContent>
           )}

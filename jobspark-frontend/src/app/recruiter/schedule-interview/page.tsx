@@ -10,26 +10,8 @@ import {
   Clock,
   MapPin,
   Users,
-  Mail,
-  Phone,
-  Video,
-  Building,
-  Briefcase,
-  Send,
-  Edit,
-  Trash2,
-  CheckCircle,
-  XCircle,
-  AlertCircle,
-  FileText,
-  MessageSquare,
-  ChevronRight,
-  ChevronDown,
-  Plus,
-  Search,
-  Filter,
-  Calendar
-} from 'lucide-react';
+import { Video, Calendar, Clock, MapPin, Building, Users, Search, Filter, Edit, XCircle, Mail, Phone, MessageSquare, FileText, ChevronDown, CheckCircle, Send, Trash2, AlertCircle, ChevronRight, Plus } from 'lucide-react';
+import Link from 'next/link';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Textarea } from '@/components/ui/textarea';
 import {
@@ -826,14 +808,14 @@ ${user?.email || 'recruitment@company.com'}
                                   <div className="flex items-center gap-2">
                                     <Video className="h-4 w-4 text-gray-400" />
                                     <span className="font-medium">Meeting:</span>
-                                    <a
+                                    <Link
                                       href={interview.meetingLink}
                                       target="_blank"
                                       rel="noopener noreferrer"
                                       className="text-blue-600 hover:underline"
                                     >
                                       Join Meeting
-                                    </a>
+                                    </Link>
                                   </div>
                                 )}
                                 {interview.notes && (

@@ -20,8 +20,8 @@ const Testimonials = () => {
   const [company, setCompany] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const fetchReviews = async () => {
-    setIsLoading(true);
+  const fetchReviews = async (showLoading = false) => {
+    if (showLoading) setIsLoading(true);
     try {
       const response = await reviewService.getReviews();
       if (response.success && response.data) {
@@ -35,7 +35,22 @@ const Testimonials = () => {
   };
 
   useEffect(() => {
-    fetchReviews();
+    let ignore = false;
+
+    reviewService.getReviews()
+      .then((response) => {
+        if (!ignore && response.success && response.data) {
+          setReviews(response.data);
+        }
+      })
+      .catch((error) => {
+        console.error('Failed to fetch reviews:', error);
+      })
+      .finally(() => {
+        if (!ignore) setIsLoading(false);
+      });
+
+    return () => { ignore = true; };
   }, []);
 
   const nextTestimonial = () => {
@@ -88,7 +103,7 @@ const Testimonials = () => {
         setContent('');
         setRating(5);
         setCompany('');
-        fetchReviews(); // Refresh list
+        fetchReviews(true); // Refresh list with loading indicator
       } else {
         toast.error(response.error || 'Failed to submit review');
       }

@@ -94,10 +94,10 @@ export default function CompanyDetailsClient({ id }: { id: string }) {
               <div className="flex flex-wrap gap-x-6 gap-y-3 text-sm font-medium text-gray-600">
                 <div className="flex flex-col">
                   <span className="text-gray-400 text-xs uppercase tracking-wider mb-1">Website</span>
-                  <a href={company.website || '#'} className="text-blue-600 hover:underline flex items-center gap-1">
+                  <Link href={company.website || '#'} className="text-blue-600 hover:underline flex items-center gap-1">
                     <Globe className="w-4 h-4" />
                     {company.website?.replace(/^https?:\/\//, '') || 'Website Unavailable'}
-                  </a>
+                  </Link>
                 </div>
                 <div className="flex flex-col">
                   <span className="text-gray-400 text-xs uppercase tracking-wider mb-1">Location</span>
@@ -201,7 +201,7 @@ export default function CompanyDetailsClient({ id }: { id: string }) {
 
               {totalJobPages > 1 && (
                 <div className="mt-8 flex justify-center items-center gap-4">
-                  <button 
+                  <button
                     onClick={() => setCurrentJobPage(p => Math.max(1, p - 1))}
                     disabled={currentJobPage === 1}
                     className="px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
@@ -211,7 +211,7 @@ export default function CompanyDetailsClient({ id }: { id: string }) {
                   <span className="text-sm text-gray-600 font-medium">
                     Page {currentJobPage} of {totalJobPages}
                   </span>
-                  <button 
+                  <button
                     onClick={() => setCurrentJobPage(p => Math.min(totalJobPages, p + 1))}
                     disabled={currentJobPage === totalJobPages}
                     className="px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
