@@ -28,17 +28,26 @@ model JobSeekerProfile {
 }
 
 model RecruiterProfile {
-  id          String      @id @default(cuid())
-  userId      String      @unique
-  companyId   String
-  position    String?
-  name        String
-  bio         String?
-  phoneNumber String?
-  jobs        Job[]
-  company     Company     @relation(fields: [companyId], references: [id])
-  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  interviews  Interview[] @relation("InterviewToRecruiterProfile")
+  id            String         @id @default(cuid())
+  userId        String         @unique
+  companyId     String
+  position      String?
+  name          String
+  bio           String?
+  phoneNumber   String?
+  jobs          Job[]
+  company       Company        @relation(fields: [companyId], references: [id])
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  interviews    Interview[]    @relation("InterviewToRecruiterProfile")
+  subscriptions Subscription[]
+
+  // Stripe fields
+  stripeCustomerId      String?
+  stripeSubscriptionId  String?
+  stripePriceId         String?
+  subscriptionStatus    SubscriptionStatus?
+  subscriptionStartedAt DateTime?
+  currentPeriodEnd      DateTime?
 
   @@index([companyId])
 }

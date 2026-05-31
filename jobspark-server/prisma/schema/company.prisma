@@ -1,25 +1,25 @@
 model Company {
-  id          String             @id @default(cuid())
-  name        String
-  logo        String?
-  coverImage  String?
-  website     String?
-  description String?
-  industry    String
-  size        String?
-  location    String?
-  isVerified  Boolean            @default(false)
-  createdAt   DateTime           @default(now())
-  updatedAt   DateTime           @updatedAt
-  benefits    String?
-  email       String?
-  mission     String?
-  phone       String?
-  socialLinks Json?
-  tagline     String?
-  values      String?
-  foundedYear String?
+  id           String             @id @default(cuid())
+  name         String
+  logo         String?
+  coverImage   String?
+  website      String?
+  description  String?
+  industry     String
+  size         String?
+  location     String?
+  isVerified   Boolean            @default(false)
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+  benefits     String?
+  email        String?
+  mission      String?
+  phone        String?
+  socialLinks  Json?
+  tagline      String?
+  values       String?
+  foundedYear  String?
   headquarters String?
-  jobs        Job[]
-  recruiters  RecruiterProfile[]
+  jobs         Job[]
+  recruiters   RecruiterProfile[]
 }

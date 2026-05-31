@@ -22,6 +22,8 @@ model User {
   supportSessions     SupportSession[]
   supportTickets      SupportTicket[]
   reviews             Review[]
+  payments            Payment[]
+  subscriptions       Subscription[]
 
   @@index([email])
   @@index([role])

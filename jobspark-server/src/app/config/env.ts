@@ -26,8 +26,8 @@ const loadEnvVariables = () => {
         // "EMAIL_SENDER_SMTP_HOST",
         // "EMAIL_SENDER_SMTP_PORT",
         // "EMAIL_SENDER_SMTP_FROM",
-        // "STRIPE_SECRET_KEY",
-        // "STRIPE_WEBHOOK_SECRET",
+        "STRIPE_SECRET_KEY",
+        "STRIPE_WEBHOOK_SECRET",
         "CLOUDINARY_CLOUD_NAME",
         "CLOUDINARY_API_KEY",
         "CLOUDINARY_API_SECRET",
@@ -116,10 +116,10 @@ const loadEnvVariables = () => {
         //     SMTP_PORT: process.env.EMAIL_SENDER_SMTP_PORT as string,
         //     SMTP_FROM: process.env.EMAIL_SENDER_SMTP_FROM as string,
         // },
-        // STRIPE: {
-        //     STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY as string,
-        //     STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET as string,
-        // },
+        STRIPE: {
+            STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY as string,
+            STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET as string,
+        },
 
         CLOUDINARY: {
             CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME as string,

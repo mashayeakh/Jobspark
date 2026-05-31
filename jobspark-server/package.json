@@ -13,6 +13,7 @@
     "db:seed": "tsx prisma/seed.ts",
     "db:seed3": "tsx prisma/seed3.ts",
     "db:reset": "prisma migrate reset --force && npm run db:seed",
+    "stripe:webhook":"stripe listen --forward-to localhost:5000/webhook", 
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "engines": {
@@ -60,6 +61,7 @@
     "pg": "^8.20.0",
     "prisma": "^7.8.0",
     "puppeteer-core": "^24.43.0",
+    "stripe": "^22.2.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {

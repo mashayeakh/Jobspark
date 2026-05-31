@@ -1,0 +1,43 @@
+model StripeWebhookEvent {
+  id          String   @id
+  eventType   String
+  processedAt DateTime @default(now())
+}
+
+model Payment {
+  id             String           @id @default(cuid())
+  userId         String
+  amount         Float
+  status         PaymentStatus    @default(PENDING)
+  transactionId  String?          @unique
+  subscriptionId String?
+  type           SubscriptionType @default(MONTHLY)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  subscription Subscription? @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+}
+
+model Subscription {
+  id          String             @id @default(cuid())
+  userId      String
+  recruiterId String?
+  type        SubscriptionType   @default(MONTHLY)
+  status      SubscriptionStatus @default(PENDING)
+  startDate   DateTime           @default(now())
+  endDate     DateTime
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  payments  Payment[]
+  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recruiter RecruiterProfile? @relation(fields: [recruiterId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([status])
+  @@index([recruiterId])
+}

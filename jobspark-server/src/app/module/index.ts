@@ -114,4 +114,13 @@ router.use("/ai/bio-generator", BioGeneratorRouter);
 //!AI Blog Generator
 router.use("/ai/blog-generator", BlogGeneratorRoutes);
 
+import { SubscriptionRoutes } from "./subscription/subscription.route";
+import { PaymentRouter } from "./payment/payment.route";
+
+//!Subscription
+router.use("/subscription", SubscriptionRoutes);
+
+//!Payment
+router.use("/payment", PaymentRouter);
+
 export default router;

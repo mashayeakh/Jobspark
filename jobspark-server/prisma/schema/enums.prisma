@@ -70,3 +70,25 @@ enum InterviewStatus {
   CANCELLED
   RESCHEDULED
 }
+
+enum SubscriptionStatus {
+  ACTIVE
+  TRIALING
+  PAST_DUE
+  UNPAID
+  CANCELED
+  INCOMPLETE
+  PENDING
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+enum SubscriptionType {
+  MONTHLY
+  YEARLY
+}

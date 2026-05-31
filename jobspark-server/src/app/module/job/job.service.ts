@@ -3,6 +3,7 @@ import { prisma } from "../../lib/prisma";
 import { CreateJobDto, JobFiltersDto, UpdateJobDto } from "./job.dto";
 import { AppError } from "@/app/errorHelpers/AppError";
 import httpStatus from "http-status";
+import { SubscriptionService } from "../subscription/subscription.service";
 
 export const JobService = {
   updateExpiredJobs: async () => {
@@ -33,6 +34,14 @@ export const JobService = {
 
     if (!recruiter) {
       throw new AppError(httpStatus.FORBIDDEN, "Only recruiters can post jobs.");
+    }
+
+    const canPost = await SubscriptionService.canRecruiterPostJob(userId);
+    if (!canPost) {
+      throw new AppError(
+        httpStatus.FORBIDDEN,
+        "Free job limit reached. Please subscribe to continue posting jobs."
+      );
     }
 
     // Create job first (outside transaction to avoid timeout)

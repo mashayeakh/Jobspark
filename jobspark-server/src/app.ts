@@ -6,11 +6,21 @@ import { errorHandler } from './app/middleware/globalErrorHandler';
 import { envVars } from './app/config/env';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
+import { SubscriptionController } from './app/module/subscription/subscription.controller';
+import { PaymentController } from './app/module/payment/payment.controller';
 
 export const app: Application = express()
 
-// Middleware to parse JSON request bodies
-app.use(express.json());
+// Middleware to parse JSON request bodies - MUST be before webhook routes
+const jsonMiddleware = express.json();
+
+//for stripe payment webhooks (raw body needed for signature verification)
+app.post("/webhook", express.raw({ type: "application/json" }), PaymentController.webhook);
+app.post("/payment/webhook", express.raw({ type: "application/json" }), PaymentController.webhook);
+
+// Apply JSON middleware after webhook routes
+app.use(jsonMiddleware);
+
 const allowedOrigins = new Set(
     [
         envVars.FRONTEND_URL,

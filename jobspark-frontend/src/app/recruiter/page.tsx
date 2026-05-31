@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import React, { useEffect, useState } from 'react';
@@ -53,6 +54,53 @@ const RecruiterPage = () => {
 
         router.push('/recruiter/post-job');
     };
+
+    const handleSubscribeClick = async (e: React.MouseEvent, planName: string, defaultHref: string) => {
+        e.preventDefault();
+        const user = authService.getUser();
+        const isAuthenticated = authService.isAuthenticated();
+
+        if (!isAuthenticated) {
+            router.push(`/login?returnTo=${defaultHref}`);
+            return;
+        }
+
+        if (user?.role !== 'RECRUITER') {
+            alert('Only recruiters can subscribe to these plans.');
+            return;
+        }
+
+        if (planName === 'Professional') {
+            // Initiate Stripe Checkout
+            try {
+                // Change UI to loading state if possible (or just wait)
+                const target = e.target as HTMLButtonElement;
+                const originalText = target.innerText;
+                target.innerText = 'Loading...';
+                target.disabled = true;
+
+                const response = await apiClient.post<any>('/payment/create-checkout-session', {});
+
+                if (response.success && response.data?.checkoutUrl) {
+                    window.location.assign(response.data.checkoutUrl);
+                } else {
+                    console.error('API Response:', response);
+                    alert('Failed to start checkout process. Please try again.');
+                    target.innerText = originalText;
+                    target.disabled = false;
+                }
+            } catch (error) {
+                console.error('Checkout error:', error);
+                alert('An error occurred. Please try again later.');
+                const target = e.target as HTMLButtonElement;
+                target.innerText = 'Start Subscribing';
+                target.disabled = false;
+            }
+        } else {
+            router.push(defaultHref);
+        }
+    };
+
     const features = [
         {
             icon: Search,
@@ -100,7 +148,7 @@ const RecruiterPage = () => {
             name: 'Starter',
             price: 'Free',
             description: 'Perfect for small teams getting started',
-            features: ['1 job posting', 'Basic search', 'Email support'],
+            features: ['2 free job postings', 'Basic candidate search', 'Email support', 'Application tracking'],
             cta: 'Get Started',
             popular: false
         },
@@ -108,19 +156,11 @@ const RecruiterPage = () => {
             name: 'Professional',
             price: '$299',
             period: '/month',
-            description: 'Ideal for growing companies',
-            features: ['10 job postings', 'Advanced search', 'ATS integration', 'Priority support'],
-            cta: 'Start Free Trial',
+            description: 'Unlimited job postings for growing teams',
+            features: ['Unlimited job postings', 'Advanced search & filters', 'Priority support', 'Full ATS access'],
+            cta: 'Start Subscribing',
             popular: true
         },
-        {
-            name: 'Enterprise',
-            price: 'Custom',
-            description: 'Tailored solutions for large organizations',
-            features: ['Unlimited postings', 'Custom workflows', 'Dedicated support', 'API access'],
-            cta: 'Contact Sales',
-            popular: false
-        }
     ];
 
 
@@ -273,15 +313,15 @@ const RecruiterPage = () => {
                                         ))}
                                     </div>
 
-                                    <Link
-                                        href={plan.name === 'Enterprise' ? '/contact' : '/signup'}
-                                        className={`w-full block px-6 py-3 font-semibold rounded-lg transition-colors duration-300 ${plan.popular
+                                    <button
+                                        onClick={(e) => handleSubscribeClick(e, plan.name, plan.name === 'Enterprise' ? '/contact' : '/signup')}
+                                        className={`w-full block text-center px-6 py-3 font-semibold rounded-lg transition-colors duration-300 ${plan.popular
                                             ? 'bg-green-600 text-white hover:bg-green-700'
                                             : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
                                             }`}
                                     >
                                         {plan.cta}
-                                    </Link>
+                                    </button>
                                 </div>
                             </div>
                         ))}
