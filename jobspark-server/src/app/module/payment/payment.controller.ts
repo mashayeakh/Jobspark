@@ -22,8 +22,34 @@ export const PaymentController = {
 
         res.status(200).json({
             success: true,
-            message: "Checkout session created",
+            message: session.message,
             data: session,
+        });
+    }),
+
+    getAllPayments: catchAsyc(async (req: Request, res: Response) => {
+        const payments = await PaymentService.getAllPayments();
+
+        res.status(200).json({
+            success: true,
+            message: "Payments retrieved successfully",
+            data: payments,
+        });
+    }),
+
+    approvePayment: catchAsyc(async (req: Request, res: Response) => {
+        const { paymentId } = req.body;
+        
+        if (!paymentId) {
+            throw new AppError(httpStatus.BAD_REQUEST, "Payment ID is required");
+        }
+
+        const result = await PaymentService.approvePayment(paymentId);
+
+        res.status(200).json({
+            success: true,
+            message: result.message,
+            data: result,
         });
     }),
 

@@ -47,14 +47,24 @@ class ApiClient {
       const data = await response.json();
       console.log('Raw API Response:', data); // Debug log
 
-      // Backend returns response directly, not wrapped
-      if (data.success === false) {
+      // If backend returned a wrapped response { success, message, data }, unwrap it
+      if (data && typeof data === 'object' && 'success' in data) {
+        if (data.success === false) {
+          return {
+            success: false,
+            error: data.message || data.error || 'Request failed',
+          };
+        }
+
+        // Prefer the inner `data` field when present so callers get the payload directly
         return {
-          success: false,
-          error: data.message,
+          success: true,
+          data: data.data ?? data,
+          message: data.message,
         };
       }
 
+      // Fallback: return raw parsed JSON
       return {
         success: true,
         data: data,

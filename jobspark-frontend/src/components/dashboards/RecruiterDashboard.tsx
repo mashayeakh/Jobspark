@@ -28,7 +28,7 @@ import {
   Legend
 } from 'recharts';
 import { RecruiterDashboardData } from '@/services/recruiterService';
-import { SubscriptionStatus } from './SubscriptionStatus';
+
 
 interface RecruiterDashboardProps {
   data: RecruiterDashboardData;
@@ -95,7 +95,6 @@ export function RecruiterDashboard({ data }: RecruiterDashboardProps) {
         </Button>
       </div>
 
-      <SubscriptionStatus />
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

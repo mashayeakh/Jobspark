@@ -8,9 +8,9 @@ import { PaymentStatus, SubscriptionStatus } from "prisma/generated/prisma/brows
 
 //! Define subscription plans and their prices
 const SUBSCRIPTION_PRICE = {
-    MONTHLY: { amount: 9.99, amountInCents: 999, label: "Monthly" },
-    YEARLY: { amount: 99.99, amountInCents: 9999, label: "Yearly" },
-    PROFESSIONAL: { amount: 299, amountInCents: 29900, label: "Professional Monthly Subscription" }
+    MONTHLY: { amount: 299.00, amountInCents: 29900, label: "Monthly" },
+    YEARLY: { amount: 2990.00, amountInCents: 299000, label: "Yearly" },
+    PROFESSIONAL: { amount: 299.00, amountInCents: 29900, label: "Professional Monthly Subscription" }
 };
 
 const calculateSubscriptionEndDate = (startDate: Date, type: string) => {
@@ -40,11 +40,51 @@ export const PaymentService = {
             throw new AppError(status.FORBIDDEN, "Only recruiters can subscribe. Please create a recruiter profile first.");
         }
 
+        // Check for existing pending payments
+        const existingPending = await prisma.payment.findFirst({
+            where: {
+                userId,
+                status: PaymentStatus.PENDING
+            }
+        });
+
+        if (existingPending) {
+            throw new AppError(status.BAD_REQUEST, "You already have a pending payment waiting for admin approval.");
+        }
+
         const now = new Date();
         const endDate = calculateSubscriptionEndDate(now, type);
-        const sessionId = `session_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
-        const paymentId = `pay_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
-        const subscriptionId = `sub_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+        const transactionId = `pay_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+
+        const subscription = await prisma.subscription.create({
+            data: {
+                userId,
+                recruiterId: recruiter.id,
+                type: type as any,
+                status: SubscriptionStatus.PENDING,
+                startDate: now,
+                endDate: endDate,
+            }
+        });
+
+        const payment = await prisma.payment.create({
+            data: {
+                userId,
+                subscriptionId: subscription.id,
+                amount: plan.amount,
+                type: type as any,
+                status: PaymentStatus.PENDING,
+                transactionId: transactionId,
+            }
+        });
+
+        // Update recruiter profile to show pending
+        await prisma.recruiterProfile.update({
+            where: { id: recruiter.id },
+            data: {
+                subscriptionStatus: SubscriptionStatus.PENDING,
+            }
+        });
 
         // Create Stripe checkout session
         let stripeSession;
@@ -64,11 +104,13 @@ export const PaymentService = {
                         quantity: 1
                     }
                 ],
-                success_url: `${envVars.FRONTEND_URL}/recruiter/dashboard?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
-                cancel_url: `${envVars.FRONTEND_URL}/recruiter?checkout=cancel`,
+                success_url: `${envVars.FRONTEND_URL}/recruiter/subscription?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
+                cancel_url: `${envVars.FRONTEND_URL}/recruiter/subscription?checkout=cancel`,
                 metadata: {
                     userId,
                     recruiterId: recruiter.id,
+                    paymentId: payment.id,
+                    subscriptionId: subscription.id,
                     subscriptionType: type,
                 }
             });
@@ -81,24 +123,74 @@ export const PaymentService = {
             throw new AppError(status.INTERNAL_SERVER_ERROR, "Failed to generate checkout URL");
         }
 
-        // Try to save to database (optional - won't block if table doesn't exist)
-        try {
-            await prisma.recruiterProfile.update({
-                where: { id: recruiter.id },
-                data: {
-                    stripeSubscriptionId: stripeSession.id,
-                }
-            });
-        } catch (err) {
-            console.log("Note: Could not save to database, but checkout session created successfully");
-        }
-
         return {
             checkoutUrl: stripeSession.url,
-            paymentId,
-            subscriptionId,
-            sessionId: stripeSession.id
+            paymentId: payment.id,
+            subscriptionId: subscription.id,
+            transactionId: payment.transactionId,
+            message: "Stripe checkout session created."
         };
+    },
+
+    async getAllPayments() {
+        return prisma.payment.findMany({
+            include: {
+                user: {
+                    select: {
+                        name: true,
+                        email: true,
+                    }
+                },
+                subscription: true
+            },
+            orderBy: {
+                createdAt: 'desc'
+            }
+        });
+    },
+
+    async approvePayment(paymentId: string) {
+        const payment = await prisma.payment.findUnique({
+            where: { id: paymentId },
+            include: { subscription: true }
+        });
+
+        if (!payment) {
+            throw new AppError(status.NOT_FOUND, "Payment not found");
+        }
+
+        if (payment.status === PaymentStatus.COMPLETED) {
+            throw new AppError(status.BAD_REQUEST, "Payment is already approved");
+        }
+
+        // Update payment to COMPLETED
+        await prisma.payment.update({
+            where: { id: paymentId },
+            data: { status: PaymentStatus.COMPLETED }
+        });
+
+        // Update subscription to ACTIVE
+        if (payment.subscriptionId) {
+            await prisma.subscription.update({
+                where: { id: payment.subscriptionId },
+                data: { status: SubscriptionStatus.ACTIVE }
+            });
+
+            // Update recruiter profile
+            const subscription = payment.subscription;
+            if (subscription && subscription.recruiterId) {
+                await prisma.recruiterProfile.update({
+                    where: { id: subscription.recruiterId },
+                    data: {
+                        subscriptionStatus: "ACTIVE",
+                        currentPeriodEnd: subscription.endDate,
+                        subscriptionStartedAt: new Date(),
+                    }
+                });
+            }
+        }
+
+        return { message: "Payment approved successfully" };
     },
 
     constructWebhookEvent(rawBody: Buffer, signature: string) {
@@ -130,54 +222,25 @@ export const PaymentService = {
                 where: { id: paymentId }
             }).catch(() => null);
 
-            if (existingPayment && existingPayment.status === PaymentStatus.COMPLETED) {
-                return { message: "Payment already verified" };
-            }
-
-            // Update payment status
+            // Instead of marking COMPLETED, we just save the Stripe transaction ID.
+            // The payment stays PENDING until the admin approves it.
             if (existingPayment) {
                 await prisma.payment.update({
                     where: { id: paymentId },
                     data: {
-                        status: PaymentStatus.COMPLETED,
                         transactionId: session.id
                     }
                 }).catch(() => null);
             }
 
-            // Update subscription status
-            try {
-                await prisma.subscription.update({
-                    where: { id: subscriptionId },
-                    data: {
-                        status: SubscriptionStatus.ACTIVE
-                    }
-                }).catch(() => null);
-            } catch (e) {
-                // Ignore
-            }
-
-            // Update recruiter subscription
-            if (recruiterId) {
-                const endDate = new Date();
-                endDate.setMonth(endDate.getMonth() + 1);
-
-                await prisma.recruiterProfile.update({
-                    where: { id: recruiterId },
-                    data: {
-                        subscriptionStatus: "ACTIVE",
-                        stripeCustomerId: session.customer as string || undefined,
-                        stripeSubscriptionId: session.id,
-                        currentPeriodEnd: endDate,
-                        subscriptionStartedAt: new Date(),
-                    }
-                }).catch(() => null);
-            }
+            // We do NOT activate the subscription or update recruiter profile here.
+            // Admin must approve it via the /admin/payments page.
+            
         } catch (e) {
             console.error("Error updating payment status:", e);
         }
 
-        return { message: "Payment verified. Subscription activated." };
+        return { message: "Payment verified from Stripe. Waiting for admin approval." };
     },
 
     async handleStripeWebhookEvent(event: Stripe.Event) {
@@ -205,39 +268,21 @@ export const PaymentService = {
                     return { message: "Event already processed" };
                 }
 
+                // Just record the transaction ID, leave status PENDING for admin approval
                 await prisma.payment.update({
                     where: { id: paymentId },
                     data: {
-                        status: PaymentStatus.COMPLETED,
                         transactionId: session.id
                     }
                 }).catch(() => null);
 
-                // Update subscription
-                try {
-                    await prisma.subscription.update({
-                        where: { id: subscriptionId },
-                        data: {
-                            status: SubscriptionStatus.ACTIVE
-                        }
-                    }).catch(() => null);
-                } catch (e) {
-                    // Ignore
-                }
-
-                // Update recruiter profile
+                // Update recruiter profile with Stripe IDs just in case, but keep status PENDING
                 if (recruiterId) {
-                    const endDate = new Date();
-                    endDate.setMonth(endDate.getMonth() + 1);
-
                     await prisma.recruiterProfile.update({
                         where: { id: recruiterId },
                         data: {
-                            subscriptionStatus: "ACTIVE",
                             stripeCustomerId: session.customer as string || undefined,
                             stripeSubscriptionId: session.id,
-                            currentPeriodEnd: endDate,
-                            subscriptionStartedAt: new Date(),
                         }
                     }).catch(() => null);
                 }

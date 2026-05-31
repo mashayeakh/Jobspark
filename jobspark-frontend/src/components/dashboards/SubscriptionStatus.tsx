@@ -21,12 +21,13 @@ export function SubscriptionStatus() {
   const [status, setStatus] = useState<SubscriptionStatusData | null>(null);
   const [loading, setLoading] = useState(true);
   const [portalLoading, setPortalLoading] = useState(false);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
     const fetchStatus = async () => {
       try {
-        const response = await apiClient.get<any>('/subscription/status');
+        const response = await apiClient.get<any>('/payment/subscription-details');
         if (response.success && response.data) {
           setStatus(response.data);
         }
@@ -53,8 +54,20 @@ export function SubscriptionStatus() {
     }
   };
 
-  const handleUpgrade = () => {
-    router.push('/recruiter#pricing');
+  const handleUpgrade = async () => {
+    setCheckoutLoading(true);
+    try {
+      const response = await apiClient.post<any>('/payment/create-checkout-session', {});
+      if (response.success && response.data?.checkoutUrl) {
+        window.location.assign(response.data.checkoutUrl);
+      } else {
+        console.error('Failed to create checkout session', response);
+      }
+    } catch (err) {
+      console.error('Failed to create checkout session', err);
+    } finally {
+      setCheckoutLoading(false);
+    }
   };
 
   if (loading || !status) return null;
@@ -67,14 +80,22 @@ export function SubscriptionStatus() {
             <Shield className="h-5 w-5 text-blue-600" />
             Subscription Plan
           </CardTitle>
-          <Badge className={status.isSubscribed ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}>
+          <Badge className={
+            status.subscriptionStatus === 'ACTIVE' 
+              ? 'bg-green-100 text-green-800' 
+              : status.subscriptionStatus === 'PENDING'
+                ? 'bg-yellow-100 text-yellow-800'
+                : 'bg-gray-100 text-gray-800'
+          }>
             {status.subscriptionStatus}
           </Badge>
         </div>
         <CardDescription>
-          {status.isSubscribed 
+          {status.subscriptionStatus === 'ACTIVE'
             ? 'You are on the Premium plan with unlimited job postings.' 
-            : 'You are on the Free plan. Upgrade to post more jobs.'}
+            : status.subscriptionStatus === 'PENDING'
+              ? 'Your subscription request is pending admin approval.'
+              : 'You are on the Free plan. Upgrade to post more jobs.'}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -100,7 +121,7 @@ export function SubscriptionStatus() {
         </div>
         
         <div className="flex items-center gap-3">
-          {status.isSubscribed ? (
+          {status.subscriptionStatus === 'ACTIVE' ? (
             <Button 
               variant="outline" 
               className="bg-white" 
@@ -110,12 +131,20 @@ export function SubscriptionStatus() {
               <CreditCard className="h-4 w-4 mr-2" />
               {portalLoading ? 'Loading...' : 'Manage Billing'}
             </Button>
+          ) : status.subscriptionStatus === 'PENDING' ? (
+            <Button 
+              className="bg-yellow-500 hover:bg-yellow-600 text-white" 
+              disabled
+            >
+              Waiting for Admin Approval
+            </Button>
           ) : (
             <Button 
               className="bg-blue-600 hover:bg-blue-700 text-white" 
               onClick={handleUpgrade}
+              disabled={checkoutLoading}
             >
-              Upgrade Plan
+              {checkoutLoading ? 'Loading...' : 'Subscribe to Premium'}
             </Button>
           )}
         </div>

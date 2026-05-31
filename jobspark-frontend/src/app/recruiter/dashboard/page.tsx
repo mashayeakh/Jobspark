@@ -51,20 +51,23 @@ export default function RecruiterDashboardPage() {
       setUser(userData);
     }, 0);
 
-    recruiterService.getDashboard()
-      .then((response) => {
-        if (response.success && response.data) {
-          setDashboardData(response.data);
+    const fetchData = async () => {
+      try {
+        // Fetch dashboard data
+        const dashboardResponse = await recruiterService.getDashboard();
+        if (dashboardResponse.success && dashboardResponse.data) {
+          setDashboardData(dashboardResponse.data);
         } else {
-          setError(response.error || 'Failed to load dashboard data');
+          setError(dashboardResponse.error || 'Failed to load dashboard data');
         }
-      })
-      .catch((err) => {
+      } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred');
-      })
-      .finally(() => {
+      } finally {
         setLoading(false);
-      });
+      }
+    };
+
+    fetchData();
 
     return () => clearTimeout(timer);
   }, [router]);
@@ -81,8 +84,10 @@ export default function RecruiterDashboardPage() {
             {error}
           </div>
         )}
+
+        {/* Main Dashboard */}
         <RecruiterDashboard data={dashboardData} />
       </div>
     </div>
-  )
+  );
 }

@@ -30,6 +30,7 @@ import { BlogRoutes } from "./blog/blog.route";
 import { ReviewRoutes } from "./review/review.route";
 import { NewsletterRoutes } from "./newsletter/newsletter.route";
 import { ContactRoutes } from "./contact/contact.route";
+import { PaymentRouter } from "./payment/payment.route";
 
 const router = express.Router();
 
@@ -81,6 +82,9 @@ router.use("/newsletter", NewsletterRoutes);
 //!Contact
 router.use("/contact", ContactRoutes);
 
+//!Payment
+router.use("/payment", PaymentRouter);
+
 //!AI Fraud Detection
 router.use("/admin/fraud-shield", FraudDetectionRouter);
 
@@ -115,7 +119,6 @@ router.use("/ai/bio-generator", BioGeneratorRouter);
 router.use("/ai/blog-generator", BlogGeneratorRoutes);
 
 import { SubscriptionRoutes } from "./subscription/subscription.route";
-import { PaymentRouter } from "./payment/payment.route";
 
 //!Subscription
 router.use("/subscription", SubscriptionRoutes);

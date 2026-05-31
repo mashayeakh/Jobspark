@@ -92,18 +92,22 @@ export class AuthService {
 
   // Helper methods to get stored data
   getAccessToken(): string | null {
+    if (typeof window === 'undefined') return null;
     return localStorage.getItem('accessToken');
   }
 
   getRefreshToken(): string | null {
+    if (typeof window === 'undefined') return null;
     return localStorage.getItem('refreshToken');
   }
 
   getSessionToken(): string | null {
+    if (typeof window === 'undefined') return null;
     return localStorage.getItem('sessionToken');
   }
 
   getUser(): User | null {
+    if (typeof window === 'undefined') return null;
     const userStr = localStorage.getItem('user');
     return userStr ? JSON.parse(userStr) : null;
   }
@@ -114,6 +118,7 @@ export class AuthService {
 
   // Helper method to clear all auth data
   clearAuthData(): void {
+    if (typeof window === 'undefined') return;
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('sessionToken');

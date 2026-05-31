@@ -34,7 +34,8 @@ import {
   Calendar,
   Plus,
   ChevronRight,
-  BookText
+  BookText,
+  CreditCard
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -69,6 +70,7 @@ const getNavigationData = (userRole: string) => {
             { title: "Job Moderation", url: "/admin/job-moderation", icon: Briefcase },
             { title: "Blogs", url: "/admin/blogs", icon: BookText },
             { title: "Taxonomy", url: "/admin/taxonomy", icon: FileText },
+            { title: "Payments", url: "/admin/payments", icon: CreditCard },
             { title: "Platform Settings", url: "/admin/settings", icon: Settings },
           ]
         }
@@ -100,6 +102,7 @@ const getNavigationData = (userRole: string) => {
             { title: "Job Postings", url: "/recruiter/jobs", icon: Briefcase },
             { title: "Candidates", url: "/recruiter/candidates", icon: Users },
             { title: "Analytics", url: "/recruiter/analytics", icon: BarChart3 },
+            { title: "Subscription", url: "/recruiter/subscription", icon: CreditCard },
             { title: "Settings", url: "/recruiter/settings", icon: Settings },
           ]
         },

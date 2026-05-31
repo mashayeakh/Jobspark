@@ -3,10 +3,12 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Users, Briefcase, TrendingUp, Zap, Shield, Globe, BarChart, Clock, Award, ArrowRight, Search, Target, CheckCircle } from 'lucide-react';
+import { Users, Briefcase, TrendingUp, Zap, Shield, Globe, BarChart, Clock, Award, ArrowRight, Search, Target, CheckCircle, Crown, AlertCircle } from 'lucide-react';
 import { authService } from '@/services/authService';
 import { useRouter } from 'next/navigation';
 import apiClient from '@/lib/api';
+import { paymentService, SubscriptionDetails } from '@/services/paymentService';
+import { SubscriptionSidebar } from '@/components/subscription/SubscriptionSidebar';
 
 const RecruiterPage = () => {
     const router = useRouter();
@@ -15,26 +17,36 @@ const RecruiterPage = () => {
         companies: 0
     });
     const [isLoading, setIsLoading] = useState(true);
+    const [subscriptionDetails, setSubscriptionDetails] = useState<SubscriptionDetails | null>(null);
+    const [subscriptionLoading, setSubscriptionLoading] = useState(true);
 
     useEffect(() => {
-        const fetchStats = async () => {
+        const fetchData = async () => {
             try {
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                const response = await apiClient.get<any>('/jobs/public-stats');
-                if (response.success && response.data?.result) {
-                    const { jobSeekers, companies } = response.data.result;
+                // Fetch stats
+                const statsResponse = await apiClient.get<any>('/jobs/public-stats');
+                if (statsResponse.success && statsResponse.data?.result) {
+                    const { jobSeekers, companies } = statsResponse.data.result;
                     setCounters({
                         jobSeekers: jobSeekers || 0,
                         companies: companies || 0
                     });
                 }
+
+                // Fetch subscription details
+                const isAuth = authService.isAuthenticated();
+                if (isAuth) {
+                    const subDetails = await paymentService.getSubscriptionDetails();
+                    setSubscriptionDetails(subDetails);
+                }
             } catch (err) {
-                console.error('Failed to fetch stats:', err);
+                console.error('Failed to fetch data:', err);
             } finally {
                 setIsLoading(false);
+                setSubscriptionLoading(false);
             }
         };
-        fetchStats();
+        fetchData();
     }, []);
 
     const handlePostJobClick = (e: React.MouseEvent) => {
@@ -70,10 +82,16 @@ const RecruiterPage = () => {
             return;
         }
 
+        // Check if already subscribed
+        if (subscriptionDetails?.isSubscribed) {
+            alert('You already have an active subscription! Visit your dashboard to manage it.');
+            router.push('/recruiter/dashboard');
+            return;
+        }
+
         if (planName === 'Professional') {
             // Initiate Stripe Checkout
             try {
-                // Change UI to loading state if possible (or just wait)
                 const target = e.target as HTMLButtonElement;
                 const originalText = target.innerText;
                 target.innerText = 'Loading...';
@@ -81,17 +99,19 @@ const RecruiterPage = () => {
 
                 const response = await apiClient.post<any>('/payment/create-checkout-session', {});
 
+                console.log('Checkout API full response:', JSON.stringify(response, null, 2));
+
                 if (response.success && response.data?.checkoutUrl) {
                     window.location.assign(response.data.checkoutUrl);
                 } else {
-                    console.error('API Response:', response);
-                    alert('Failed to start checkout process. Please try again.');
+                    console.error('Checkout failed - response:', response);
+                    alert(`Failed to start checkout: ${response.error || response.message || 'Unknown error'}`);
                     target.innerText = originalText;
                     target.disabled = false;
                 }
             } catch (error) {
-                console.error('Checkout error:', error);
-                alert('An error occurred. Please try again later.');
+                console.error('Checkout exception:', error);
+                alert(`Checkout error: ${error instanceof Error ? error.message : 'Unknown error'}`);
                 const target = e.target as HTMLButtonElement;
                 target.innerText = 'Start Subscribing';
                 target.disabled = false;
@@ -165,196 +185,211 @@ const RecruiterPage = () => {
 
 
     return (
-        <div className="min-h-screen bg-gray-50">
-            {/* Hero Section */}
-            <section className="bg-gradient-to-br from-green-600 to-blue-700 text-white py-20">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="text-center">
-                        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6">
-                            Recruiter Dashboard
-                        </h1>
-                        <p className="text-xl sm:text-2xl text-green-100 mb-8 max-w-3xl mx-auto">
-                            Powerful tools to find, evaluate, and hire top talent efficiently
-                        </p>
-                        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                            <button
-                                onClick={handlePostJobClick}
-                                className="px-8 py-4 bg-white text-green-600 font-semibold rounded-xl hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2"
-                            >
-                                Post a Job
-                                <Briefcase className="w-5 h-5" />
-                            </button>
-                            <Link
-                                href="/signup"
-                                className="px-8 py-4 bg-green-700 text-white font-semibold rounded-xl hover:bg-green-800 transition-all duration-300 border-2 border-green-500 flex items-center justify-center"
-                            >
-                                Start Free Trial
-                            </Link>
+        <div className="flex min-h-screen bg-gray-50">
+            {/* Main Content */}
+            <div className="flex-1">
+                {/* Hero Section */}
+                <section className="bg-gradient-to-br from-green-600 to-blue-700 text-white py-20">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="text-center">
+                            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6">
+                                Recruiter Dashboard
+                            </h1>
+                            <p className="text-xl sm:text-2xl text-green-100 mb-8 max-w-3xl mx-auto">
+                                Powerful tools to find, evaluate, and hire top talent efficiently
+                            </p>
+                            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                                <button
+                                    onClick={handlePostJobClick}
+                                    className="px-8 py-4 bg-white text-green-600 font-semibold rounded-xl hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2"
+                                >
+                                    Post a Job
+                                    <Briefcase className="w-5 h-5" />
+                                </button>
+                                <Link
+                                    href="/signup"
+                                    className="px-8 py-4 bg-green-700 text-white font-semibold rounded-xl hover:bg-green-800 transition-all duration-300 border-2 border-green-500 flex items-center justify-center"
+                                >
+                                    Start Free Trial
+                                </Link>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </section>
+                </section>
 
-            {/* Stats Section */}
-            <section className="py-16 bg-white">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-8">
-                        {stats.map((stat, index) => (
-                            <div key={index} className="text-center">
-                                <div className="text-3xl sm:text-4xl font-bold text-green-600 mb-2">
-                                    {stat.value}
-                                </div>
-                                <div className="text-gray-600 font-medium">
-                                    {stat.label}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </section>
-
-            {/* Features Section */}
-            <section className="py-16 bg-gray-50">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="text-center mb-12">
-                        <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-                            Everything You Need to Hire Better
-                        </h2>
-                        <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-                            Comprehensive tools designed to streamline your recruitment process
-                        </p>
-                    </div>
-
-                    <div className="grid md:grid-cols-2 gap-8">
-                        {features.map((feature, index) => {
-                            const Icon = feature.icon;
-                            return (
-                                <div key={index} className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100">
-                                    {/* Icon */}
-                                    <div className="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mb-6">
-                                        <Icon className="w-8 h-8 text-green-600" />
+                {/* Stats Section */}
+                <section className="py-16 bg-white">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-8">
+                            {stats.map((stat, index) => (
+                                <div key={index} className="text-center">
+                                    <div className="text-3xl sm:text-4xl font-bold text-green-600 mb-2">
+                                        {stat.value}
                                     </div>
-
-                                    {/* Content */}
-                                    <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                                        {feature.title}
-                                    </h3>
-                                    <p className="text-gray-600 mb-6 leading-relaxed">
-                                        {feature.description}
-                                    </p>
-
-                                    {/* Features List */}
-                                    <div className="space-y-2 mb-8">
-                                        {feature.features.map((item, itemIndex) => (
-                                            <div key={itemIndex} className="flex items-center gap-2">
-                                                <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
-                                                <span className="text-gray-700">{item}</span>
-                                            </div>
-                                        ))}
+                                    <div className="text-gray-600 font-medium">
+                                        {stat.label}
                                     </div>
-
-                                    {/* CTA */}
-                                    <Link
-                                        href={feature.href}
-                                        className="inline-flex items-center gap-2 px-6 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-colors duration-300"
-                                    >
-                                        {feature.cta}
-                                        <ArrowRight className="w-4 h-4" />
-                                    </Link>
                                 </div>
-                            );
-                        })}
+                            ))}
+                        </div>
                     </div>
-                </div>
-            </section>
+                </section>
 
-            {/* Pricing Section */}
-            <section className="py-16 bg-white">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="text-center mb-12">
-                        <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-                            Simple, Transparent Pricing
+                {/* Features Section */}
+                <section className="py-16 bg-gray-50">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="text-center mb-12">
+                            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+                                Everything You Need to Hire Better
+                            </h2>
+                            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+                                Comprehensive tools designed to streamline your recruitment process
+                            </p>
+                        </div>
+
+                        <div className="grid md:grid-cols-2 gap-8">
+                            {features.map((feature, index) => {
+                                const Icon = feature.icon;
+                                return (
+                                    <div key={index} className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100">
+                                        {/* Icon */}
+                                        <div className="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mb-6">
+                                            <Icon className="w-8 h-8 text-green-600" />
+                                        </div>
+
+                                        {/* Content */}
+                                        <h3 className="text-2xl font-bold text-gray-900 mb-4">
+                                            {feature.title}
+                                        </h3>
+                                        <p className="text-gray-600 mb-6 leading-relaxed">
+                                            {feature.description}
+                                        </p>
+
+                                        {/* Features List */}
+                                        <div className="space-y-2 mb-8">
+                                            {feature.features.map((item, itemIndex) => (
+                                                <div key={itemIndex} className="flex items-center gap-2">
+                                                    <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+                                                    <span className="text-gray-700">{item}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        {/* CTA */}
+                                        <Link
+                                            href={feature.href}
+                                            className="inline-flex items-center gap-2 px-6 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-colors duration-300"
+                                        >
+                                            {feature.cta}
+                                            <ArrowRight className="w-4 h-4" />
+                                        </Link>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                </section>
+
+                {/* Pricing Section */}
+                <section className="py-16 bg-white">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="text-center mb-12">
+                            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+                                Simple, Transparent Pricing
+                            </h2>
+                            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+                                Choose the plan that fits your hiring needs
+                            </p>
+                        </div>
+
+                        <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+                            {pricing.map((plan, index) => (
+                                <div
+                                    key={index}
+                                    className={`bg-white rounded-2xl p-8 border-2 ${plan.popular
+                                        ? 'border-green-500 shadow-xl relative'
+                                        : 'border-gray-200 hover:border-gray-300'
+                                        } transition-all duration-300`}
+                                >
+                                    {plan.popular && (
+                                        <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-1 rounded-full text-sm font-semibold">
+                                            Most Popular
+                                        </div>
+                                    )}
+
+                                    <div className="text-center">
+                                        <div className="text-4xl font-bold text-gray-900 mb-2">
+                                            {plan.price}
+                                            {plan.period && <span className="text-lg text-gray-600">{plan.period}</span>}
+                                        </div>
+                                        <div className="text-gray-600 mb-6">
+                                            {plan.description}
+                                        </div>
+
+                                        <div className="space-y-3 mb-8">
+                                            {plan.features.map((feature, featureIndex) => (
+                                                <div key={featureIndex} className="flex items-center gap-2">
+                                                    <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+                                                    <span className="text-gray-700">{feature}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        <button
+                                            onClick={(e) => handleSubscribeClick(e, plan.name, plan.name === 'Enterprise' ? '/contact' : '/signup')}
+                                            disabled={subscriptionDetails?.isSubscribed && plan.popular}
+                                            className={`w-full block text-center px-6 py-3 font-semibold rounded-lg transition-colors duration-300 ${subscriptionDetails?.isSubscribed && plan.popular
+                                                ? 'bg-gray-300 text-gray-700 cursor-not-allowed'
+                                                : plan.popular
+                                                    ? 'bg-green-600 text-white hover:bg-green-700'
+                                                    : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
+                                                }`}
+                                        >
+                                            {subscriptionDetails?.isSubscribed && plan.popular ? (
+                                                <div className="flex items-center justify-center gap-2">
+                                                    <CheckCircle className="w-4 h-4" />
+                                                    Current Plan
+                                                </div>
+                                            ) : (
+                                                plan.cta
+                                            )}
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+
+                {/* CTA Section */}
+                <section className="py-20 bg-gradient-to-r from-green-600 to-blue-700 text-white">
+                    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                        <h2 className="text-3xl sm:text-4xl font-bold mb-4">
+                            Ready to Transform Your Hiring?
                         </h2>
-                        <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-                            Choose the plan that fits your hiring needs
+                        <p className="text-xl text-green-100 mb-8">
+                            Join thousands of companies who&apos;ve reduced time-to-hire by 60%
                         </p>
-                    </div>
-
-                    <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-                        {pricing.map((plan, index) => (
-                            <div
-                                key={index}
-                                className={`bg-white rounded-2xl p-8 border-2 ${plan.popular
-                                    ? 'border-green-500 shadow-xl relative'
-                                    : 'border-gray-200 hover:border-gray-300'
-                                    } transition-all duration-300`}
+                        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                            <Link
+                                href="/demo"
+                                className="px-8 py-4 bg-white text-green-600 font-semibold rounded-xl hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 flex items-center justify-center"
                             >
-                                {plan.popular && (
-                                    <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-1 rounded-full text-sm font-semibold">
-                                        Most Popular
-                                    </div>
-                                )}
-
-                                <div className="text-center">
-                                    <div className="text-4xl font-bold text-gray-900 mb-2">
-                                        {plan.price}
-                                        {plan.period && <span className="text-lg text-gray-600">{plan.period}</span>}
-                                    </div>
-                                    <div className="text-gray-600 mb-6">
-                                        {plan.description}
-                                    </div>
-
-                                    <div className="space-y-3 mb-8">
-                                        {plan.features.map((feature, featureIndex) => (
-                                            <div key={featureIndex} className="flex items-center gap-2">
-                                                <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
-                                                <span className="text-gray-700">{feature}</span>
-                                            </div>
-                                        ))}
-                                    </div>
-
-                                    <button
-                                        onClick={(e) => handleSubscribeClick(e, plan.name, plan.name === 'Enterprise' ? '/contact' : '/signup')}
-                                        className={`w-full block text-center px-6 py-3 font-semibold rounded-lg transition-colors duration-300 ${plan.popular
-                                            ? 'bg-green-600 text-white hover:bg-green-700'
-                                            : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
-                                            }`}
-                                    >
-                                        {plan.cta}
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
+                                Schedule Demo
+                            </Link>
+                            <button
+                                onClick={handlePostJobClick}
+                                className="px-8 py-4 bg-transparent text-white font-semibold rounded-xl border-2 border-white hover:bg-white hover:text-green-600 transition-all duration-300 flex items-center justify-center gap-2"
+                            >
+                                Post Your First Job
+                                <Briefcase className="w-5 h-5" />
+                            </button>
+                        </div>
                     </div>
-                </div>
-            </section>
+                </section>
+            </div>
 
-            {/* CTA Section */}
-            <section className="py-20 bg-gradient-to-r from-green-600 to-blue-700 text-white">
-                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                    <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-                        Ready to Transform Your Hiring?
-                    </h2>
-                    <p className="text-xl text-green-100 mb-8">
-                        Join thousands of companies who&apos;ve reduced time-to-hire by 60%
-                    </p>
-                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                        <Link
-                            href="/demo"
-                            className="px-8 py-4 bg-white text-green-600 font-semibold rounded-xl hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 flex items-center justify-center"
-                        >
-                            Schedule Demo
-                        </Link>
-                        <button
-                            onClick={handlePostJobClick}
-                            className="px-8 py-4 bg-transparent text-white font-semibold rounded-xl border-2 border-white hover:bg-white hover:text-green-600 transition-all duration-300 flex items-center justify-center gap-2"
-                        >
-                            Post Your First Job
-                            <Briefcase className="w-5 h-5" />
-                        </button>
-                    </div>
-                </div>
-            </section>
+
         </div>
     );
 };
