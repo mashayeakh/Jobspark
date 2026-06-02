@@ -29,7 +29,7 @@ import { Toaster } from "sonner";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const hidePublicChrome = pathname === "/signup" || pathname === "/login" || pathname === "/forgetPassword" || pathname === "/verify-email" || pathname.startsWith("/admin/") || pathname.startsWith("/jobseeker/") || pathname.startsWith("/recruiter/");
+  const hidePublicChrome = pathname === "/signup" || pathname === "/login" || pathname === "/forgot-password" || pathname === "/forgetPassword" || pathname === "/verify-email" || pathname.startsWith("/admin/") || pathname.startsWith("/jobseeker/") || pathname.startsWith("/recruiter/");
   const [notificationCount, setNotificationCount] = useState(4);
 
   // const { data: session } = authClient.useSession();
