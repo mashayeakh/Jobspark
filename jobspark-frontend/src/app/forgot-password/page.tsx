@@ -168,11 +168,7 @@ export default function ForgotPasswordPage() {
             </Link>
           </div>
 
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#F3F4FF] text-[#5551FF] font-medium text-sm mb-6">
-            <Clapperboard className="w-4 h-4" />
-            Account recovery
-          </div>
+        
 
           {/* Heading */}
           <h1 className="text-[44px] font-bold text-[#0B0F19] mb-4 tracking-tight leading-[1.1]">
