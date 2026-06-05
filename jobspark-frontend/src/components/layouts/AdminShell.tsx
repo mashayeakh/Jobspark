@@ -19,28 +19,15 @@ import {
 } from "@/components/ui/sidebar"
 import { authService } from '@/services/authService';
 import { useRouter, usePathname } from 'next/navigation';
-import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { 
-  Search, 
   Bell, 
   Globe, 
   MessageSquare, 
   Calendar,
   ChevronDown,
-  User,
-  Settings,
-  LogOut,
   Maximize2
 } from "lucide-react"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 
 interface AdminShellProps {
   children: React.ReactNode;
@@ -94,18 +81,7 @@ export function AdminShell({ children, title }: AdminShellProps) {
               orientation="vertical"
               className="h-6 opacity-20"
             />
-            {/* Search Bar */}
-            <div className="relative hidden lg:block w-96">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <Input 
-                placeholder="Search everything..." 
-                className="pl-11 h-12 bg-gray-50/50 border-gray-100 rounded-xl focus:ring-2 focus:ring-blue-100 transition-all border-0 ring-1 ring-gray-100"
-              />
-              <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1">
-                <kbd className="px-1.5 py-0.5 rounded border border-gray-200 bg-white text-[10px] font-bold text-gray-400">⌘</kbd>
-                <kbd className="px-1.5 py-0.5 rounded border border-gray-200 bg-white text-[10px] font-bold text-gray-400">K</kbd>
-              </div>
-            </div>
+
           </div>
 
           <div className="flex items-center gap-3">
@@ -126,54 +102,6 @@ export function AdminShell({ children, title }: AdminShellProps) {
               </Button>
             </div>
 
-            <Separator orientation="vertical" className="h-8 hidden md:block opacity-20" />
-
-            {/* User Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="h-12 px-2 hover:bg-gray-50 rounded-xl transition-all">
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 p-[2px]">
-                      <div className="h-full w-full rounded-[10px] bg-white flex items-center justify-center font-bold text-blue-600 overflow-hidden">
-                        {user?.name ? user.name.charAt(0).toUpperCase() : 'A'}
-                      </div>
-                    </div>
-                    <div className="text-left hidden sm:block">
-                      <p className="text-sm font-bold text-gray-900 leading-tight">{user?.name || 'Admin'}</p>
-                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Super Admin</p>
-                    </div>
-                    <ChevronDown className="h-4 w-4 text-gray-400 hidden sm:block" />
-                  </div>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56 p-2 rounded-2xl border-gray-100 shadow-xl shadow-blue-50">
-                <DropdownMenuLabel className="font-bold text-gray-400 text-[10px] uppercase tracking-widest px-2 py-2">Account</DropdownMenuLabel>
-                <DropdownMenuItem className="rounded-xl h-10 font-bold focus:bg-blue-50 focus:text-blue-600 cursor-pointer">
-                  <User className="mr-2 h-4 w-4" />
-                  <span>Profile</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem className="rounded-xl h-10 font-bold focus:bg-blue-50 focus:text-blue-600 cursor-pointer">
-                  <Settings className="mr-2 h-4 w-4" />
-                  <span>Settings</span>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator className="my-2 bg-gray-50" />
-                <DropdownMenuItem 
-                  className="rounded-xl h-10 font-bold text-red-600 focus:bg-red-50 focus:text-red-600 cursor-pointer"
-                  onClick={async () => {
-                    try {
-                      await authService.logout();
-                      router.push('/login');
-                    } catch (error) {
-                      console.error('Admin logout failed:', error);
-                      router.push('/login');
-                    }
-                  }}
-                >
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span>Logout</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
           </div>
         </header>
 
