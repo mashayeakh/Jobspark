@@ -6,6 +6,8 @@ import { AppSidebar } from '@/components/app-sidebar';
 import { authService } from '@/services/authService';
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { Separator } from '@/components/ui/separator';
+import { Button } from "@/components/ui/button";
+import { Home } from "lucide-react";
 
 export default function JobSeekerLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
@@ -43,10 +45,23 @@ export default function JobSeekerLayout({ children }: { children: React.ReactNod
         <SidebarProvider>
             <AppSidebar userRole="jobseeker" />
             <SidebarInset>
-                <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
-                    <SidebarTrigger className="-ml-1" />
-                    <Separator orientation="vertical" className="mr-2 data-vertical:h-4 data-vertical:self-auto" />
-                    <div className="text-sm font-semibold text-slate-700">Job Seeker Portal</div>
+                <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4 justify-between">
+                    <div className="flex items-center gap-2">
+                        <SidebarTrigger className="-ml-1" />
+                        <Separator orientation="vertical" className="mr-2 data-vertical:h-4 data-vertical:self-auto" />
+                        <div className="text-sm font-semibold text-slate-700">Job Seeker Portal</div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-10 w-10 rounded-xl text-gray-500 hover:text-blue-600 hover:bg-blue-50"
+                            onClick={() => router.push('/')}
+                            title="Go to Home"
+                        >
+                            <Home className="h-5 w-5" />
+                        </Button>
+                    </div>
                 </header>
                 <div className="flex flex-1 flex-col gap-4 p-4">{children}</div>
             </SidebarInset>

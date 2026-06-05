@@ -13,6 +13,8 @@ import {
 import { Separator } from "@/components/ui/separator"
 import { RecruiterLoading } from '@/components/shared/RecruiterLoading';
 import { DynamicBreadcrumbs } from '@/components/shared/DynamicBreadcrumbs';
+import { Button } from "@/components/ui/button";
+import { Home } from "lucide-react";
 
 export default function RecruiterLayout({
   children,
@@ -51,11 +53,22 @@ export default function RecruiterLayout({
     <SidebarProvider>
       <AppSidebar userRole="recruiter" />
       <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
-          <div className="flex items-center gap-2 flex-1">
+        <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4 justify-between">
+          <div className="flex items-center gap-2">
             <SidebarTrigger className="-ml-1" />
             <Separator orientation="vertical" className="mr-2 h-4" />
             <DynamicBreadcrumbs />
+          </div>
+          <div className="flex items-center gap-2">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="h-10 w-10 rounded-xl text-gray-500 hover:text-blue-600 hover:bg-blue-50"
+              onClick={() => router.push('/')}
+              title="Go to Home"
+            >
+              <Home className="h-5 w-5" />
+            </Button>
           </div>
         </header>
         <div className="flex flex-1 flex-col gap-4 p-4">

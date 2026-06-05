@@ -6,14 +6,55 @@ import { Badge } from '@/components/ui/badge';
 import { DollarSign, ArrowUpRight, ArrowDownRight, CreditCard, Download, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-const transactions = [
-  { id: 'TRX-9401', client: 'Google', amount: '+$1,200.00', status: 'Completed', date: 'Oct 24, 2024' },
-  { id: 'TRX-9402', client: 'Meta', amount: '+$2,450.00', status: 'Completed', date: 'Oct 23, 2024' },
-  { id: 'TRX-9403', client: 'Netflix', amount: '-$150.00', status: 'Refunded', date: 'Oct 22, 2024' },
-  { id: 'TRX-9404', client: 'Amazon', amount: '+$800.00', status: 'Pending', date: 'Oct 21, 2024' },
-];
+import React, { useEffect, useState } from 'react';
+import apiClient from '@/lib/api';
+
+interface Payment {
+    id: string;
+    amount: number;
+    status: string;
+    createdAt: string;
+    user: {
+        name: string;
+        email: string;
+    };
+    subscription: {
+        planId: string;
+    };
+}
 
 export default function FinancialsPage() {
+  const [payments, setPayments] = useState<Payment[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+      let mounted = true;
+      const fetchPayments = async () => {
+          try {
+              const response = await apiClient.get<any>('/payment/all');
+              if (mounted && response.success && response.data) {
+                  setPayments(response.data);
+              }
+          } catch (err) {
+              console.error('Failed to fetch payments', err);
+          } finally {
+              if (mounted) setLoading(false);
+          }
+      };
+      fetchPayments();
+      return () => { mounted = false; };
+  }, []);
+
+  const totalRevenue = payments
+    .filter(p => p.status === 'COMPLETED')
+    .reduce((sum, p) => sum + p.amount, 0);
+
+  const activeSubscriptions = payments.filter(p => p.status === 'COMPLETED').length;
+  
+  const refundRequests = payments.filter(p => p.status === 'REFUNDED');
+  const totalRefundValue = refundRequests.reduce((sum, p) => sum + p.amount, 0);
+
+  const recentTransactions = [...payments].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 10);
   return (
     <AdminShell title="Financials">
       <div className="p-8 space-y-8">
@@ -46,10 +87,10 @@ export default function FinancialsPage() {
                 </div>
               </div>
               <p className="text-blue-100 font-medium mb-1">Total Revenue</p>
-              <h3 className="text-4xl font-bold mb-6">$124,500.00</h3>
+              <h3 className="text-4xl font-bold mb-6">${totalRevenue.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</h3>
               <div className="flex items-center gap-2 text-blue-200 text-sm font-medium">
                 <Calendar className="h-4 w-4" />
-                Updated 1 hour ago
+                Updated just now
               </div>
             </CardContent>
           </Card>
@@ -66,7 +107,7 @@ export default function FinancialsPage() {
                 </div>
               </div>
               <p className="text-gray-500 font-bold mb-1">Active Subscriptions</p>
-              <h3 className="text-4xl font-bold text-[#202224] mb-6">1,245</h3>
+              <h3 className="text-4xl font-bold text-[#202224] mb-6">{activeSubscriptions}</h3>
               <p className="text-sm text-gray-400 font-bold uppercase tracking-wider">Premium Enterprise Plan</p>
             </CardContent>
           </Card>
@@ -83,8 +124,8 @@ export default function FinancialsPage() {
                 </div>
               </div>
               <p className="text-gray-500 font-bold mb-1">Refund Requests</p>
-              <h3 className="text-4xl font-bold text-[#202224] mb-6">14</h3>
-              <p className="text-sm text-gray-400 font-bold uppercase tracking-wider">Total Value: $2,400</p>
+              <h3 className="text-4xl font-bold text-[#202224] mb-6">{refundRequests.length}</h3>
+              <p className="text-sm text-gray-400 font-bold uppercase tracking-wider">Total Value: ${totalRefundValue.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
             </CardContent>
           </Card>
         </div>
@@ -111,23 +152,39 @@ export default function FinancialsPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
-                  {transactions.map((trx) => (
+                  {recentTransactions.length === 0 && !loading && (
+                    <tr>
+                      <td colSpan={5} className="px-8 py-12 text-center text-gray-500 font-medium">
+                        No transactions found.
+                      </td>
+                    </tr>
+                  )}
+                  {loading && (
+                    <tr>
+                      <td colSpan={5} className="px-8 py-12 text-center text-gray-500 font-medium">
+                        Loading transactions...
+                      </td>
+                    </tr>
+                  )}
+                  {recentTransactions.map((trx) => (
                     <tr key={trx.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-8 py-6 font-bold text-blue-600">{trx.id}</td>
-                      <td className="px-8 py-6 font-bold text-[#202224]">{trx.client}</td>
-                      <td className={`px-8 py-6 font-bold ${trx.amount.startsWith('+') ? 'text-green-600' : 'text-red-600'}`}>
-                        {trx.amount}
+                      <td className="px-8 py-6 font-bold text-blue-600">TRX-{trx.id.substring(0, 6).toUpperCase()}</td>
+                      <td className="px-8 py-6 font-bold text-[#202224]">{trx.user?.name || 'Unknown'}</td>
+                      <td className={`px-8 py-6 font-bold ${trx.status === 'REFUNDED' ? 'text-red-600' : 'text-green-600'}`}>
+                        {trx.status === 'REFUNDED' ? '-' : '+'}${trx.amount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
                       </td>
                       <td className="px-8 py-6">
                         <Badge className={`${
-                          trx.status === 'Completed' ? 'bg-green-50 text-green-600' : 
-                          trx.status === 'Refunded' ? 'bg-red-50 text-red-600' : 
+                          trx.status === 'COMPLETED' ? 'bg-green-50 text-green-600' : 
+                          trx.status === 'REFUNDED' ? 'bg-red-50 text-red-600' : 
                           'bg-yellow-50 text-yellow-600'
                         } border-0 rounded-lg px-3 py-1 font-bold`}>
                           {trx.status}
                         </Badge>
                       </td>
-                      <td className="px-8 py-6 text-gray-400 font-bold">{trx.date}</td>
+                      <td className="px-8 py-6 text-gray-400 font-bold">
+                        {new Date(trx.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
+                      </td>
                     </tr>
                   ))}
                 </tbody>

@@ -22,7 +22,8 @@ import { useRouter, usePathname } from 'next/navigation';
 import { Button } from "@/components/ui/button"
 import { 
   ChevronDown,
-  Maximize2
+  Maximize2,
+  Home
 } from "lucide-react"
 
 interface AdminShellProps {
@@ -95,6 +96,15 @@ export function AdminShell({ children, title }: AdminShellProps) {
           <div className="flex items-center gap-3">
             {/* Action Icons */}
             <div className="hidden md:flex items-center gap-1 mr-4">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="h-10 w-10 rounded-xl text-gray-500 hover:text-blue-600 hover:bg-blue-50"
+                onClick={() => router.push('/')}
+                title="Go to Home"
+              >
+                <Home className="h-5 w-5" />
+              </Button>
               <Button 
                 variant="ghost" 
                 size="icon" 
