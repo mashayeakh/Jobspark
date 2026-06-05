@@ -21,10 +21,6 @@ import { authService } from '@/services/authService';
 import { useRouter, usePathname } from 'next/navigation';
 import { Button } from "@/components/ui/button"
 import { 
-  Bell, 
-  Globe, 
-  MessageSquare, 
-  Calendar,
   ChevronDown,
   Maximize2
 } from "lucide-react"
@@ -39,6 +35,18 @@ export function AdminShell({ children, title }: AdminShellProps) {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
+
+  const toggleFullScreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(err => {
+        console.log(`Error attempting to enable fullscreen: ${err.message}`);
+      });
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+    }
+  };
 
   useEffect(() => {
     const userData = authService.getUser();
@@ -87,17 +95,12 @@ export function AdminShell({ children, title }: AdminShellProps) {
           <div className="flex items-center gap-3">
             {/* Action Icons */}
             <div className="hidden md:flex items-center gap-1 mr-4">
-              <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl text-gray-500 hover:text-blue-600 hover:bg-blue-50">
-                <Globe className="h-5 w-5" />
-              </Button>
-              <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl text-gray-500 hover:text-blue-600 hover:bg-blue-50">
-                <Calendar className="h-5 w-5" />
-              </Button>
-              <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl text-gray-500 hover:text-blue-600 hover:bg-blue-50">
-                <MessageSquare className="h-5 w-5" />
-              </Button>
-
-              <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl text-gray-500 hover:text-blue-600 hover:bg-blue-50">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="h-10 w-10 rounded-xl text-gray-500 hover:text-blue-600 hover:bg-blue-50"
+                onClick={toggleFullScreen}
+              >
                 <Maximize2 className="h-5 w-5" />
               </Button>
             </div>
