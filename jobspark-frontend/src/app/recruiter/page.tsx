@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation';
 import apiClient from '@/lib/api';
 import { paymentService, SubscriptionDetails } from '@/services/paymentService';
 import { SubscriptionSidebar } from '@/components/subscription/SubscriptionSidebar';
+import { toast } from 'sonner';
 
 const RecruiterPage = () => {
     const router = useRouter();
@@ -60,7 +61,7 @@ const RecruiterPage = () => {
         }
 
         if (user?.role !== 'RECRUITER') {
-            alert('Only recruiters can post jobs.');
+            toast.error('Only recruiters can post jobs.');
             return;
         }
 
@@ -78,13 +79,13 @@ const RecruiterPage = () => {
         }
 
         if (user?.role !== 'RECRUITER') {
-            alert('Only recruiters can subscribe to these plans.');
+            toast.error('Only recruiters can subscribe to these plans.');
             return;
         }
 
         // Check if already subscribed
         if (subscriptionDetails?.isSubscribed) {
-            alert('You already have an active subscription! Visit your dashboard to manage it.');
+            toast.info('You already have an active subscription! Visit your dashboard to manage it.');
             router.push('/recruiter/dashboard');
             return;
         }
@@ -105,13 +106,13 @@ const RecruiterPage = () => {
                     window.location.assign(response.data.checkoutUrl);
                 } else {
                     console.error('Checkout failed - response:', response);
-                    alert(`Failed to start checkout: ${response.error || response.message || 'Unknown error'}`);
+                    toast.error(`Failed to start checkout: ${response.error || response.message || 'Unknown error'}`);
                     target.innerText = originalText;
                     target.disabled = false;
                 }
             } catch (error) {
                 console.error('Checkout exception:', error);
-                alert(`Checkout error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+                toast.error(`Checkout error: ${error instanceof Error ? error.message : 'Unknown error'}`);
                 const target = e.target as HTMLButtonElement;
                 target.innerText = 'Start Subscribing';
                 target.disabled = false;
@@ -266,7 +267,7 @@ const RecruiterPage = () => {
                                         </p>
 
                                         {/* Features List */}
-                                        <div className="space-y-2 mb-8">
+                                        <div className="space-y-3">
                                             {feature.features.map((item, itemIndex) => (
                                                 <div key={itemIndex} className="flex items-center gap-2">
                                                     <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
@@ -274,15 +275,6 @@ const RecruiterPage = () => {
                                                 </div>
                                             ))}
                                         </div>
-
-                                        {/* CTA */}
-                                        <Link
-                                            href={feature.href}
-                                            className="inline-flex items-center gap-2 px-6 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-colors duration-300"
-                                        >
-                                            {feature.cta}
-                                            <ArrowRight className="w-4 h-4" />
-                                        </Link>
                                     </div>
                                 );
                             })}
