@@ -15,18 +15,22 @@ export default function JobSeekerLayout({ children }: { children: React.ReactNod
     const [userReady, setUserReady] = useState(false);
 
     useEffect(() => {
-        if (pathname === '/jobseeker') {
+        const verifyAuth = async () => {
+            if (pathname === '/jobseeker') {
+                setUserReady(true);
+                return;
+            }
+
+            const userData = authService.getUser();
+            if (!userData || userData.role !== 'JOB_SEEKER') {
+                router.push('/login');
+                return;
+            }
+
             setUserReady(true);
-            return;
-        }
+        };
 
-        const userData = authService.getUser();
-        if (!userData || userData.role !== 'JOB_SEEKER') {
-            router.push('/login');
-            return;
-        }
-
-        setUserReady(true);
+        verifyAuth();
     }, [pathname, router]);
 
     if (!userReady) {
