@@ -34,6 +34,7 @@ import { authService } from '@/services/authService';
 import { categoryService } from '@/services/categoryService';
 import { jobService } from '@/services/jobService';
 import { recruiterService } from '@/services/recruiterService';
+import { toast } from 'sonner';
 
 
 const CATEGORY_SKILLS: Record<string, string[]> = {
@@ -187,6 +188,36 @@ We offer a competitive salary, flexible work environment, and opportunities for 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!formData.title) {
+      toast.error('Job Title is required');
+      return;
+    }
+    if (!formData.company) {
+      toast.error('Company Name is required');
+      return;
+    }
+    if (!formData.description) {
+      toast.error('Job Description is required');
+      return;
+    }
+    if (!formData.type) {
+      toast.error('Job Type is required');
+      return;
+    }
+    if (!formData.locationType) {
+      toast.error('Location Type is required');
+      return;
+    }
+    if (!formData.experienceLevel) {
+      toast.error('Experience Level is required');
+      return;
+    }
+    if (!formData.location) {
+      toast.error('Location is required');
+      return;
+    }
+
     setIsSubmitting(true);
     setSubmitMessage('');
     setErrorMessage('');
@@ -304,7 +335,7 @@ We offer a competitive salary, flexible work environment, and opportunities for 
               </div>
             )}
 
-            <form id="post-job-form" onSubmit={handleSubmit} className="space-y-8">
+            <form id="post-job-form" noValidate onSubmit={handleSubmit} className="space-y-8">
               {/* Basic Info Card */}
               <Card className="border-0 shadow-sm overflow-hidden rounded-3xl bg-white/80 backdrop-blur">
                 <div className="h-1.5 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600" />

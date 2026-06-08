@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { jobService } from '@/services/jobService';
 import { workStyleService } from '@/services/workStyleService';
 import { useApi } from '@/hooks/useApi';
+import { toast } from 'sonner';
 
 export default function PostJobPage() {
   const router = useRouter();
@@ -49,6 +50,19 @@ export default function PostJobPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!formData.title) {
+      toast.error('Job Title is required');
+      return;
+    }
+    if (!formData.description) {
+      toast.error('Job Description is required');
+      return;
+    }
+    if (!formData.location) {
+      toast.error('Location is required');
+      return;
+    }
+
     setIsSubmitting(true);
     setSubmitMessage('');
 
@@ -98,7 +112,7 @@ export default function PostJobPage() {
               <p className="text-gray-600">Create a new job opening to find the perfect candidate</p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form noValidate onSubmit={handleSubmit} className="space-y-6">
               {/* Basic Information */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>

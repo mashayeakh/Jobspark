@@ -13,7 +13,15 @@ const Newsletter = () => {
 
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) return;
+    if (!email) {
+      toast.error('Please enter your email address.');
+      return;
+    }
+    const termsCheckbox = (e.target as any).elements.terms;
+    if (termsCheckbox && !termsCheckbox.checked) {
+      toast.error('Please agree to receive job alerts.');
+      return;
+    }
 
     setIsLoading(true);
 
@@ -140,7 +148,7 @@ const Newsletter = () => {
                 </div>
               </div>
 
-              <form onSubmit={handleSubscribe} className="space-y-4">
+              <form noValidate onSubmit={handleSubscribe} className="space-y-4">
                 <div>
                   <input
                     type="email"

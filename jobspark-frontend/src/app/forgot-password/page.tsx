@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Mail, Clapperboard, X } from 'lucide-react';
 import Link from 'next/link';
+import { toast } from 'sonner';
 
 interface AnimatedCircle {
   id: number;
@@ -76,6 +77,10 @@ export default function ForgotPasswordPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!email) {
+      toast.error('Please enter your email address');
+      return;
+    }
     setIsLoading(true);
     // Simulate API call
     setTimeout(() => {
@@ -180,7 +185,7 @@ export default function ForgotPasswordPage() {
             Enter your email and we&apos;ll send you a reset otp to recover access to your JobSpark account.
           </p>
 
-          <form onSubmit={handleSubmit} className="space-y-12">
+          <form noValidate onSubmit={handleSubmit} className="space-y-12">
             {/* Input Group */}
             <div className="relative group">
               <div className="flex items-start gap-3">

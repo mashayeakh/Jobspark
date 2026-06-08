@@ -112,6 +112,14 @@ const LoginPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!email) {
+      setError('Please enter your email address.');
+      return;
+    }
+    if (!password) {
+      setError('Please enter your password.');
+      return;
+    }
     setIsLoading(true);
     setError('');
 
@@ -231,7 +239,7 @@ const LoginPage = () => {
             <p className="text-gray-600 mb-8">Welcome back! Please enter your details.</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form noValidate onSubmit={handleSubmit} className="space-y-6">
             {/* Error Message */}
             {error && (
               <div className="p-3 bg-red-50 border border-red-200 rounded-lg">

@@ -10,7 +10,7 @@ import { SearchIcon } from "lucide-react"
 
 export function SearchForm({ ...props }: React.ComponentProps<"form">) {
   return (
-    <form {...props}>
+    <form noValidate {...props}>
       <SidebarGroup className="py-0">
         <SidebarGroupContent className="relative">
           <Label htmlFor="search" className="sr-only">

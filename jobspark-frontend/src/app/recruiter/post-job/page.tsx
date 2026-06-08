@@ -12,6 +12,7 @@ import { useApi } from '@/hooks/useApi';
 import { recruiterService } from '@/services/recruiterService';
 import { authService } from '@/services/authService';
 import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -207,6 +208,36 @@ export default function PostJobPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!formData.title) {
+      toast.error('Job Title is required');
+      return;
+    }
+    if (!formData.company) {
+      toast.error('Company Name is required');
+      return;
+    }
+    if (!formData.description) {
+      toast.error('Job Description is required');
+      return;
+    }
+    if (!formData.type) {
+      toast.error('Job Type is required');
+      return;
+    }
+    if (!formData.locationType) {
+      toast.error('Location Type is required');
+      return;
+    }
+    if (!formData.experienceLevel) {
+      toast.error('Experience Level is required');
+      return;
+    }
+    if (!formData.location) {
+      toast.error('Location is required');
+      return;
+    }
+
     setIsSubmitting(true);
     setSubmitMessage('');
     setErrorMessage('');
@@ -362,7 +393,7 @@ export default function PostJobPage() {
                   </div>
                 )}
 
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <form noValidate onSubmit={handleSubmit} className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">

@@ -134,7 +134,7 @@ export default function JobseekerReviewsPage() {
               </div>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-8 space-y-6">
+            <form noValidate onSubmit={handleSubmit} className="p-8 space-y-6">
               <div className="space-y-3">
                 <Label className="text-sm font-bold text-slate-700 ml-1 uppercase tracking-wider">Rating</Label>
                 <div className="flex items-center gap-2">

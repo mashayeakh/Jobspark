@@ -303,7 +303,7 @@ const Testimonials = () => {
 
             <h3 className="text-2xl font-bold text-gray-900 mb-6">Share Your Experience</h3>
 
-            <form onSubmit={handleSubmitReview}>
+            <form noValidate onSubmit={handleSubmitReview}>
               <div className="mb-6">
                 <label className="block text-sm font-medium text-gray-700 mb-2">Rating</label>
                 <div className="flex items-center gap-2">

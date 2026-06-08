@@ -76,6 +76,26 @@ export default function PostJobSimplePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!formData.title) {
+      toast.error('Job Title is required');
+      return;
+    }
+    if (!formData.company) {
+      toast.error('Company is required');
+      return;
+    }
+    if (!formData.description) {
+      toast.error('Job Description is required');
+      return;
+    }
+    if (!formData.responsibilities) {
+      toast.error('Responsibilities are required');
+      return;
+    }
+    if (!formData.requirements) {
+      toast.error('Requirements are required');
+      return;
+    }
     setIsSubmitting(true);
 
     try {
@@ -118,7 +138,7 @@ export default function PostJobSimplePage() {
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form noValidate onSubmit={handleSubmit} className="space-y-6">
           {/* Basic Information */}
           <Card>
             <CardHeader>

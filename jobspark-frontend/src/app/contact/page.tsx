@@ -17,6 +17,22 @@ export default function ContactPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!formData.name) {
+      toast.error('Please enter your full name');
+      return;
+    }
+    if (!formData.email) {
+      toast.error('Please enter your email address');
+      return;
+    }
+    if (!formData.subject) {
+      toast.error('Please select a subject');
+      return;
+    }
+    if (!formData.message) {
+      toast.error('Please enter your message');
+      return;
+    }
     setIsSubmitting(true);
 
     const response = await apiClient.post('/contact/send', formData);
@@ -104,7 +120,7 @@ export default function ContactPage() {
               </div>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-5">
+            <form noValidate onSubmit={handleSubmit} className="space-y-5">
               <div className="grid gap-4 md:grid-cols-2">
                 <label className="block text-sm font-medium text-gray-700">
                   Full Name

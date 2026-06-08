@@ -5,6 +5,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { X, Mail, Lock, Eye, EyeOff, User, Building, Briefcase, ChevronRight } from 'lucide-react';
 import { apiClient } from '@/lib/api';
+import { toast } from 'sonner';
 
 
 interface AnimatedCircle {
@@ -114,8 +115,37 @@ const SignupPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (!formData.name) {
+      toast.error('Please enter your full name');
+      return;
+    }
+    if (!formData.email) {
+      toast.error('Please enter your email');
+      return;
+    }
+    if (!formData.password) {
+      toast.error('Please enter a password');
+      return;
+    }
     if (formData.password !== formData.confirmPassword) {
-      alert('Passwords do not match');
+      toast.error('Passwords do not match');
+      return;
+    }
+
+    if (formData.accountType === 'recruiter') {
+      if (!formData.companyName) {
+        toast.error('Please enter your company name');
+        return;
+      }
+      if (!formData.industry) {
+        toast.error('Please enter your industry');
+        return;
+      }
+    }
+
+    const termsCheckbox = (e.target as any).elements.terms;
+    if (termsCheckbox && !termsCheckbox.checked) {
+      toast.error('Please agree to the Terms of Service and Privacy Policy');
       return;
     }
 
@@ -131,11 +161,11 @@ const SignupPage = () => {
         // Redirect to login on success
         window.location.href = '/login';
       } else {
-        alert(response.error || 'Signup failed. Please try again.');
+        toast.error(response.error || 'Signup failed. Please try again.');
       }
     } catch (error) {
       console.error('Signup error:', error);
-      alert('An unexpected error occurred. Please try again.');
+      toast.error('An unexpected error occurred. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -268,7 +298,7 @@ const SignupPage = () => {
 
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form noValidate onSubmit={handleSubmit} className="space-y-4">
             {/* Name Field */}
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
