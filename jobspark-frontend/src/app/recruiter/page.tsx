@@ -3,7 +3,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Users, Briefcase, TrendingUp, Zap, Shield, Globe, BarChart, Clock, Award, ArrowRight, Search, Target, CheckCircle, Crown, AlertCircle } from 'lucide-react';
+import { Users, Briefcase, TrendingUp, Zap, Shield, Globe, BarChart, Clock, Award, ArrowRight, Search, Target, CheckCircle, Crown, AlertCircle, Loader2 } from 'lucide-react';
 import { authService } from '@/services/authService';
 import { useRouter } from 'next/navigation';
 import apiClient from '@/lib/api';
@@ -20,6 +20,7 @@ const RecruiterPage = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [subscriptionDetails, setSubscriptionDetails] = useState<SubscriptionDetails | null>(null);
     const [subscriptionLoading, setSubscriptionLoading] = useState(true);
+    const [loadingAction, setLoadingAction] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -50,8 +51,10 @@ const RecruiterPage = () => {
         fetchData();
     }, []);
 
-    const handlePostJobClick = (e: React.MouseEvent) => {
+    const handlePostJobClick = (e: React.MouseEvent, actionId: string = 'post-job') => {
         e.preventDefault();
+        setLoadingAction(actionId);
+
         const user = authService.getUser();
         const isAuthenticated = authService.isAuthenticated();
 
@@ -62,6 +65,7 @@ const RecruiterPage = () => {
 
         if (user?.role !== 'RECRUITER') {
             toast.error('Only recruiters can post jobs.');
+            setLoadingAction(null);
             return;
         }
 
@@ -70,6 +74,9 @@ const RecruiterPage = () => {
 
     const handleSubscribeClick = async (e: React.MouseEvent, planName: string, defaultHref: string) => {
         e.preventDefault();
+        const actionId = `subscribe-${planName}`;
+        setLoadingAction(actionId);
+
         const user = authService.getUser();
         const isAuthenticated = authService.isAuthenticated();
 
@@ -80,6 +87,7 @@ const RecruiterPage = () => {
 
         if (user?.role !== 'RECRUITER') {
             toast.error('Only recruiters can subscribe to these plans.');
+            setLoadingAction(null);
             return;
         }
 
@@ -93,11 +101,6 @@ const RecruiterPage = () => {
         if (planName === 'Professional') {
             // Initiate Stripe Checkout
             try {
-                const target = e.target as HTMLButtonElement;
-                const originalText = target.innerText;
-                target.innerText = 'Loading...';
-                target.disabled = true;
-
                 const response = await apiClient.post<any>('/payment/create-checkout-session', {});
 
                 console.log('Checkout API full response:', JSON.stringify(response, null, 2));
@@ -107,15 +110,12 @@ const RecruiterPage = () => {
                 } else {
                     console.error('Checkout failed - response:', response);
                     toast.error(`Failed to start checkout: ${response.error || response.message || 'Unknown error'}`);
-                    target.innerText = originalText;
-                    target.disabled = false;
+                    setLoadingAction(null);
                 }
             } catch (error) {
                 console.error('Checkout exception:', error);
                 toast.error(`Checkout error: ${error instanceof Error ? error.message : 'Unknown error'}`);
-                const target = e.target as HTMLButtonElement;
-                target.innerText = 'Start Subscribing';
-                target.disabled = false;
+                setLoadingAction(null);
             }
         } else {
             router.push(defaultHref);
@@ -201,16 +201,20 @@ const RecruiterPage = () => {
                             </p>
                             <div className="flex flex-col sm:flex-row gap-4 justify-center">
                                 <button
-                                    onClick={handlePostJobClick}
-                                    className="px-8 py-4 bg-white text-green-600 font-semibold rounded-xl hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2"
+                                    onClick={(e) => handlePostJobClick(e, 'hero-post-job')}
+                                    disabled={loadingAction === 'hero-post-job'}
+                                    className="cursor-pointer px-8 py-4 bg-white text-green-600 font-semibold rounded-xl hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2 disabled:opacity-80 disabled:transform-none"
                                 >
+                                    {loadingAction === 'hero-post-job' ? <Loader2 className="w-5 h-5 animate-spin" /> : null}
                                     Post a Job
-                                    <Briefcase className="w-5 h-5" />
+                                    {loadingAction !== 'hero-post-job' && <Briefcase className="w-5 h-5" />}
                                 </button>
                                 <Link
                                     href="/signup"
-                                    className="px-8 py-4 bg-green-700 text-white font-semibold rounded-xl hover:bg-green-800 transition-all duration-300 border-2 border-green-500 flex items-center justify-center"
+                                    onClick={() => setLoadingAction('hero-signup')}
+                                    className={`cursor-pointer px-8 py-4 bg-green-700 text-white font-semibold rounded-xl hover:bg-green-800 transition-all duration-300 border-2 border-green-500 flex items-center justify-center gap-2 ${loadingAction === 'hero-signup' ? 'opacity-80' : ''}`}
                                 >
+                                    {loadingAction === 'hero-signup' && <Loader2 className="w-5 h-5 animate-spin" />}
                                     Start Free Trial
                                 </Link>
                             </div>
@@ -329,14 +333,15 @@ const RecruiterPage = () => {
 
                                         <button
                                             onClick={(e) => handleSubscribeClick(e, plan.name, plan.name === 'Enterprise' ? '/contact' : '/signup')}
-                                            disabled={subscriptionDetails?.isSubscribed && plan.popular}
-                                            className={`w-full block text-center px-6 py-3 font-semibold rounded-lg transition-colors duration-300 ${subscriptionDetails?.isSubscribed && plan.popular
+                                            disabled={(subscriptionDetails?.isSubscribed && plan.popular) || loadingAction === `subscribe-${plan.name}`}
+                                            className={`cursor-pointer w-full block text-center px-6 py-3 font-semibold rounded-lg transition-colors duration-300 flex items-center justify-center gap-2 ${subscriptionDetails?.isSubscribed && plan.popular
                                                 ? 'bg-gray-300 text-gray-700 cursor-not-allowed'
                                                 : plan.popular
                                                     ? 'bg-green-600 text-white hover:bg-green-700'
                                                     : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
-                                                }`}
+                                                } ${loadingAction === `subscribe-${plan.name}` ? 'opacity-80' : ''}`}
                                         >
+                                            {loadingAction === `subscribe-${plan.name}` && <Loader2 className="w-5 h-5 animate-spin" />}
                                             {subscriptionDetails?.isSubscribed && plan.popular ? (
                                                 <div className="flex items-center justify-center gap-2">
                                                     <CheckCircle className="w-4 h-4" />
@@ -365,16 +370,20 @@ const RecruiterPage = () => {
                         <div className="flex flex-col sm:flex-row gap-4 justify-center">
                             <Link
                                 href="/demo"
-                                className="px-8 py-4 bg-white text-green-600 font-semibold rounded-xl hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 flex items-center justify-center"
+                                onClick={() => setLoadingAction('cta-demo')}
+                                className={`cursor-pointer px-8 py-4 bg-white text-green-600 font-semibold rounded-xl hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2 ${loadingAction === 'cta-demo' ? 'opacity-80 transform-none' : ''}`}
                             >
+                                {loadingAction === 'cta-demo' && <Loader2 className="w-5 h-5 animate-spin" />}
                                 Schedule Demo
                             </Link>
                             <button
-                                onClick={handlePostJobClick}
-                                className="px-8 py-4 bg-transparent text-white font-semibold rounded-xl border-2 border-white hover:bg-white hover:text-green-600 transition-all duration-300 flex items-center justify-center gap-2"
+                                onClick={(e) => handlePostJobClick(e, 'cta-post-job')}
+                                disabled={loadingAction === 'cta-post-job'}
+                                className="cursor-pointer px-8 py-4 bg-transparent text-white font-semibold rounded-xl border-2 border-white hover:bg-white hover:text-green-600 transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-80"
                             >
+                                {loadingAction === 'cta-post-job' ? <Loader2 className="w-5 h-5 animate-spin" /> : null}
                                 Post Your First Job
-                                <Briefcase className="w-5 h-5" />
+                                {loadingAction !== 'cta-post-job' && <Briefcase className="w-5 h-5" />}
                             </button>
                         </div>
                     </div>
