@@ -22,22 +22,29 @@ import {
   Coins,
   TrendingUp,
   Building,
-  Sparkles
+  Sparkles,
+  Palette,
+  GraduationCap,
+  Truck,
+  BrainCircuit,
+  Users
 } from 'lucide-react';
 import { Job, jobService } from '@/services/jobService';
 import { applicationService } from '@/services/applicationService';
 
-// ─── RocketJobs Styled Category Icon ──────────────────────────────────────────
+// ─── Category Pill Tab ──────────────────────────────────────────────────────
 function CategoryIcon({ icon: Icon, label, isActive, onClick }: { icon: any, label: string, isActive: boolean, onClick: () => void }) {
   return (
     <button
       onClick={onClick}
-      className={`flex flex-col items-center gap-2 min-w-[80px] p-2 transition-all duration-200 border-b-2 ${isActive ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-900'}`}
+      className={`flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 whitespace-nowrap border ${
+        isActive
+          ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-200'
+          : 'bg-white text-gray-500 border-gray-200 hover:border-blue-300 hover:text-blue-600 hover:bg-blue-50'
+      }`}
     >
-      <div className={`p-3 rounded-xl transition-all duration-300 ${isActive ? 'bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-200 scale-110' : 'bg-gray-100'}`}>
-        <Icon className="w-5 h-5" />
-      </div>
-      <span className={`text-[11px] font-black uppercase tracking-wider transition-colors ${isActive ? 'text-blue-600' : 'text-gray-400'}`}>{label}</span>
+      <Icon className="w-4 h-4 flex-shrink-0" />
+      {label}
     </button>
   );
 }
@@ -180,6 +187,18 @@ export default function JobListingTemplate({
   meta,
   currentPage: serverPage,
   onPageChange,
+  // Optional controlled filter props (used when parent manages server-side filtering)
+  titleSearch: controlledTitleSearch,
+  locationSearch: controlledLocationSearch,
+  activeCategory: controlledActiveCategory,
+  workStyle: controlledWorkStyle,
+  minSalary: controlledMinSalary,
+  onTitleSearchChange,
+  onLocationSearchChange,
+  onActiveCategoryChange,
+  onWorkStyleChange,
+  onMinSalaryChange,
+  categories: categoriesFromProp,
 }: {
   basePath: string;
   allJobs: any[];
@@ -188,22 +207,45 @@ export default function JobListingTemplate({
   meta?: Meta | null;
   currentPage?: number;
   onPageChange?: (page: number) => void;
+  // Controlled filter props (all optional — when absent, component manages its own state)
+  titleSearch?: string;
+  locationSearch?: string;
+  activeCategory?: string;
+  workStyle?: string;
+  minSalary?: number;
+  onTitleSearchChange?: (v: string) => void;
+  onLocationSearchChange?: (v: string) => void;
+  onActiveCategoryChange?: (v: string) => void;
+  onWorkStyleChange?: (v: string) => void;
+  onMinSalaryChange?: (v: number) => void;
+  categories?: any[];
 }) {
-  const [titleSearch, setTitleSearch] = useState('');
-  const [locationSearch, setLocationSearch] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
+  // ── Local state (used when no controlled props are passed) ─────────────────
+  const [localTitleSearch, setLocalTitleSearch] = useState('');
+  const [localLocationSearch, setLocalLocationSearch] = useState('');
+  const [localCurrentPage, setLocalCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  const [activeCategory, setActiveCategory] = useState('All');
-  const [workStyle, setWorkStyle] = useState('All');
-  const [minSalary, setMinSalary] = useState(0);
+  const [localActiveCategory, setLocalActiveCategory] = useState('All');
+  const [localWorkStyle, setLocalWorkStyle] = useState('All');
+  const [localMinSalary, setLocalMinSalary] = useState(0);
 
-  // Reset page atomically with each filter change (avoids useEffect cascade anti-pattern)
-  const updateTitleSearch    = (v: string)  => { setTitleSearch(v);    setCurrentPage(1); };
-  const updateLocationSearch = (v: string)  => { setLocationSearch(v); setCurrentPage(1); };
-  const updateActiveCategory = (v: string)  => { setActiveCategory(v); setCurrentPage(1); };
-  const updateWorkStyle      = (v: string)  => { setWorkStyle(v);      setCurrentPage(1); };
-  const updateMinSalary      = (v: number)  => { setMinSalary(v);      setCurrentPage(1); };
+  // ── Resolve: use controlled props if provided, else local state ─────────────
+  const isControlled = !!onTitleSearchChange; // any one callback signals controlled mode
+
+  const titleSearch    = isControlled ? (controlledTitleSearch    ?? '') : localTitleSearch;
+  const locationSearch = isControlled ? (controlledLocationSearch ?? '') : localLocationSearch;
+  const activeCategory = isControlled ? (controlledActiveCategory ?? 'All') : localActiveCategory;
+  const workStyle      = isControlled ? (controlledWorkStyle      ?? 'All') : localWorkStyle;
+  const minSalary      = isControlled ? (controlledMinSalary      ?? 0)   : localMinSalary;
+  const currentPage    = isControlled ? (serverPage ?? 1) : localCurrentPage;
+
+  // Unified setters — delegate to parent callbacks or local state
+  const updateTitleSearch    = (v: string)  => isControlled ? onTitleSearchChange!(v)    : (setLocalTitleSearch(v),    setLocalCurrentPage(1));
+  const updateLocationSearch = (v: string)  => isControlled ? onLocationSearchChange!(v) : (setLocalLocationSearch(v), setLocalCurrentPage(1));
+  const updateActiveCategory = (v: string)  => isControlled ? onActiveCategoryChange!(v) : (setLocalActiveCategory(v), setLocalCurrentPage(1));
+  const updateWorkStyle      = (v: string)  => isControlled ? onWorkStyleChange!(v)      : (setLocalWorkStyle(v),      setLocalCurrentPage(1));
+  const updateMinSalary      = (v: number)  => isControlled ? onMinSalaryChange!(v)      : (setLocalMinSalary(v),      setLocalCurrentPage(1));
 
   const [appliedJobIds, setAppliedJobIds] = useState<Set<string>>(new Set());
 
@@ -222,19 +264,54 @@ export default function JobListingTemplate({
     return () => { isMounted = false; };
   }, []);
 
-  const categories = [
-    { label: 'All', icon: Search },
-    { label: 'IT', icon: Code },
-    { label: 'Marketing', icon: Megaphone },
-    { label: 'Sales', icon: Coins },
-    { label: 'Business', icon: BusinessIcon },
-    { label: 'Support', icon: Headset },
-    { label: 'Health', icon: Activity },
-    { label: 'Creative', icon: Camera },
-  ];
+  const dynamicCategories = useMemo(() => {
+    if (!categoriesFromProp || categoriesFromProp.length === 0) {
+      // Fallback to static list if none provided
+      return [
+        { id: 'All', label: 'All', icon: Search },
+        { id: 'IT', label: 'IT', icon: Code },
+        { id: 'Marketing', label: 'Marketing', icon: Megaphone },
+        { id: 'Sales', label: 'Sales', icon: Coins },
+        { id: 'Business', label: 'Business', icon: BusinessIcon },
+        { id: 'Support', label: 'Support', icon: Headset },
+        { id: 'Health', label: 'Health', icon: Activity },
+        { id: 'Creative', label: 'Creative', icon: Camera },
+      ];
+    }
 
-  // REAL-TIME SEARCH LOGIC — all jobs are shown; applied ones get a badge instead of being hidden
+    const titleIconMap: { [key: string]: any } = {
+      'Software & Engineering': Code,
+      'Development': Code,
+      'Design & Creative': Palette,
+      'Finance & Accounting': Coins,
+      'Design': Palette,
+      'Healthcare': Activity,
+      'Marketing': Megaphone,
+      'Business': BusinessIcon,
+      'Education': GraduationCap,
+      'Operations & Logistics': Truck,
+      'Data & AI': BrainCircuit,
+      'Marketing & Sales': Megaphone,
+      'Customer Support': Headset,
+      'Finance': Coins,
+      'Human Resources': Users,
+    };
+
+    const list = categoriesFromProp.map(cat => ({
+      id: cat.id,
+      label: cat.name,
+      icon: titleIconMap[cat.name] || Briefcase,
+    }));
+
+    return [{ id: 'All', label: 'All', icon: Search }, ...list];
+  }, [categoriesFromProp]);
+
+  // REAL-TIME SEARCH LOGIC
+  // In controlled/server-paginated mode, the server already filtered the jobs —
+  // so we skip client-side filtering entirely and just return allJobs as-is.
   const filtered = useMemo(() => {
+    if (isControlled) return allJobs || [];
+
     return (allJobs || []).filter((j: Job) => {
       // 1. Search filtering
       const companyName = typeof j.company === 'string' ? j.company : j.company?.name || '';
@@ -245,7 +322,7 @@ export default function JobListingTemplate({
 
       const matchLocationInput = !locationSearch || (j.location || '').toLowerCase().includes(locationSearch.toLowerCase());
 
-      // 2. Work Style Filtering (Inclusive of "Global Remote")
+      // 2. Work Style Filtering
       const normalizedWS = (j.locationType || '').toUpperCase();
       const locationText = (j.location || '').toLowerCase();
 
@@ -259,38 +336,49 @@ export default function JobListingTemplate({
       }
 
       // 3. Category match
+      const jobCategoryId = j.categoryId || '';
       const categoryName = (j.category?.name || j.category || '').toString().toLowerCase();
-      const matchCategory = activeCategory === 'All' || categoryName.includes(activeCategory.toLowerCase());
+      const matchCategory = activeCategory === 'All' || 
+                            jobCategoryId === activeCategory || 
+                            categoryName.includes(activeCategory.toLowerCase()) ||
+                            (activeCategory === 'IT' && (categoryName.includes('software') || categoryName.includes('development') || categoryName.includes('engineering'))) ||
+                            (activeCategory === 'Creative' && (categoryName.includes('design') || categoryName.includes('creative')));
 
       // 4. Salary match
       const matchSalary = minSalary === 0 || (j.salaryMin && j.salaryMin >= minSalary) || (j.salaryMax && j.salaryMax >= minSalary);
 
       return matchTitle && matchLocationInput && matchWS && matchCategory && matchSalary;
     });
-  }, [allJobs, titleSearch, locationSearch, workStyle, activeCategory, minSalary]);
+  }, [isControlled, allJobs, titleSearch, locationSearch, workStyle, activeCategory, minSalary]);
+
 
   // ── Determine pagination mode ─────────────────────────────────────────────
   // Server-side mode: meta + onPageChange are provided by the parent page.
   // Client-side mode: fall back to in-memory slicing (used by sub-listing pages).
   const isServerPaginated = !!(meta && onPageChange);
 
+  // In server-paginated + controlled mode, the server already filtered the jobs,
+  // so filtered === allJobs and we can trust meta.total for the count.
+  // In client-side mode, we still need to slice filtered[] ourselves.
   const clientTotalPages = Math.max(1, Math.ceil(filtered.length / itemsPerPage));
-  const clientPage       = currentPage; // local state
 
-  const activePage   = isServerPaginated ? (serverPage ?? 1) : clientPage;
+  const activePage   = isServerPaginated ? (serverPage ?? 1) : currentPage;
   const totalPages   = isServerPaginated ? (meta!.totalPages ?? 1) : clientTotalPages;
-  const totalResults = isServerPaginated ? meta!.total : filtered.length;
+
+  // If controlled (server does the filtering), trust meta.total for total count.
+  // Otherwise use filtered.length (client-side filtering).
+  const totalResults = (isServerPaginated && isControlled) ? (meta!.total ?? filtered.length) : filtered.length;
 
   const paginatedJobs = isServerPaginated
     ? allJobs // server already returned the correct slice
-    : filtered.slice((clientPage - 1) * itemsPerPage, clientPage * itemsPerPage);
+    : filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const handlePageChange = (page: number) => {
     const clamped = Math.min(Math.max(1, page), totalPages);
     if (isServerPaginated) {
       onPageChange!(clamped);
     } else {
-      setCurrentPage(clamped);
+      setLocalCurrentPage(clamped);
     }
   };
 
@@ -343,15 +431,21 @@ export default function JobListingTemplate({
           </div>
 
           {/* Category Bar */}
-          <div className="flex items-center gap-4 overflow-x-auto no-scrollbar pb-2">
-            {categories.map(cat => (
-              <CategoryIcon
-                key={cat.label}
-                {...cat}
-                isActive={activeCategory === cat.label}
-                onClick={() => updateActiveCategory(cat.label)}
-              />
-            ))}
+          <div className="relative">
+            {/* Left fade */}
+            <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-white to-transparent z-10" />
+            {/* Right fade */}
+            <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white to-transparent z-10" />
+            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-3 px-2">
+              {dynamicCategories.map(cat => (
+                <CategoryIcon
+                  key={cat.id}
+                  {...cat}
+                  isActive={activeCategory === cat.id}
+                  onClick={() => updateActiveCategory(cat.id)}
+                />
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -501,7 +595,12 @@ export default function JobListingTemplate({
                   <h3 className="text-3xl font-black text-gray-900 tracking-tight">No offers match your criteria</h3>
                   <p className="text-gray-400 mt-4 font-bold text-lg max-w-sm mx-auto leading-relaxed">Try adjusting your filters or use more general keywords to find what you&apos;re looking for.</p>
                   <button
-                    onClick={() => { setTitleSearch(''); setMinSalary(0); setWorkStyle('All'); setActiveCategory('All'); }}
+                    onClick={() => { 
+                      updateTitleSearch('');
+                      updateMinSalary(0);
+                      updateWorkStyle('All');
+                      updateActiveCategory('All');
+                    }}
                     className="mt-12 px-12 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-[1.5rem] font-black uppercase tracking-[0.2em] text-xs shadow-2xl shadow-blue-200 hover:opacity-90 transition-all active:scale-95"
                   >
                     Clear all filters

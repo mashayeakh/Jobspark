@@ -60,6 +60,8 @@ export interface JobFiltersDto {
   maxSalary?: number;
   categoryId?: string;
   subCategoryId?: string;
+  location?: string;
   page?: string | number;
   limit?: string | number;
 }
+

@@ -2,7 +2,12 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Code, Palette, Megaphone, BarChart, Heart, Wrench, Camera, Music, Briefcase, GraduationCap, Cpu, Search, ArrowRight } from 'lucide-react';
+import { 
+  Code, Palette, Megaphone, BarChart, Heart, Wrench, Camera, Music, 
+  Briefcase, GraduationCap, Cpu, Search, ArrowRight,
+  Terminal, CircleDollarSign, PenTool, HeartPulse, Truck, 
+  BrainCircuit, TrendingUp, Headset, Landmark, Users 
+} from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { categoryService, Category } from '@/services/categoryService';
 import { useApi } from '@/hooks/useApi';
@@ -43,14 +48,76 @@ const Categories = () => {
     // '#ec4899': 'from-pink-500 to-pink-600',     // Marketing
   };
 
+  // Fallback mapping by category name since backend icons might be generic
+  const titleIconMap: { [key: string]: any } = {
+    'Software & Engineering': Terminal,
+    'Development': Code,
+    'Design & Creative': Palette,
+    'Finance & Accounting': CircleDollarSign,
+    'Design': PenTool,
+    'Healthcare': HeartPulse,
+    'Marketing': Megaphone,
+    'Business': Briefcase,
+    'Education': GraduationCap,
+    'Operations & Logistics': Truck,
+    'Data & AI': BrainCircuit,
+    'Marketing & Sales': TrendingUp,
+    'Customer Support': Headset,
+    'Finance': Landmark,
+    'Human Resources': Users,
+  };
+
+  const titleColorMap: { [key: string]: string } = {
+    'Software & Engineering': 'from-indigo-500 to-indigo-600',
+    'Development': 'from-cyan-500 to-cyan-600',
+    'Design & Creative': 'from-pink-500 to-pink-600',
+    'Finance & Accounting': 'from-emerald-500 to-emerald-600',
+    'Design': 'from-purple-500 to-purple-600',
+    'Healthcare': 'from-rose-500 to-rose-600',
+    'Marketing': 'from-orange-500 to-orange-600',
+    'Business': 'from-green-500 to-green-600',
+    'Education': 'from-yellow-500 to-yellow-600',
+    'Operations & Logistics': 'from-teal-500 to-teal-600',
+    'Data & AI': 'from-sky-500 to-sky-600',
+    'Marketing & Sales': 'from-red-500 to-red-600',
+    'Customer Support': 'from-blue-500 to-blue-600',
+    'Finance': 'from-lime-500 to-lime-600',
+    'Human Resources': 'from-fuchsia-500 to-fuchsia-600',
+  };
+
+  const fallbackColors = [
+    'from-blue-500 to-blue-600',
+    'from-purple-500 to-purple-600',
+    'from-green-500 to-green-600',
+    'from-orange-500 to-orange-600',
+    'from-indigo-500 to-indigo-600',
+    'from-teal-500 to-teal-600',
+    'from-rose-500 to-rose-600',
+    'from-pink-500 to-pink-600',
+    'from-yellow-500 to-yellow-600',
+    'from-cyan-500 to-cyan-600',
+  ];
+
+  const getColorForCategory = (name: string, backendColorHex?: string) => {
+    if (titleColorMap[name]) return titleColorMap[name];
+    if (backendColorHex && colorMap[backendColorHex]) return colorMap[backendColorHex];
+    
+    // Deterministic fallback color based on category name length & char codes
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) {
+      hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return fallbackColors[Math.abs(hash) % fallbackColors.length];
+  };
+
   // Transform API data to component format
   const categories = categoriesData?.map(category => ({
     id: category.slug,
-    icon: iconMap[category.icon] || Code,
+    icon: titleIconMap[category.name] || iconMap[category.icon] || Code,
     title: category.name,
     count: category._count.jobs.toString(),
-    color: colorMap[category.color] || 'from-blue-500 to-blue-600',
-    jobs: category.subcategories.map(sub => sub.name)
+    color: getColorForCategory(category.name, category.color),
+    jobs: category.subcategories.map((sub: any) => sub.name)
   })) || [];
 
   const selectedCategoryData = categories.find(cat => cat.id === selectedCategory);
@@ -106,36 +173,31 @@ const Categories = () => {
 
         {/* Categories Grid */}
         {!loading && !error && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 mb-12">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-12">
             {filteredCategories.map((category) => {
               const Icon = category.icon;
               return (
                 <button
                   key={category.id}
                   onClick={() => setSelectedCategory(category.id === selectedCategory ? null : category.id)}
-                  className={`group relative flex items-center p-5 rounded-2xl border transition-all duration-300 ${selectedCategory === category.id
-                    ? 'border-blue-500 bg-blue-50/50 shadow-md scale-[1.02]'
-                    : 'border-gray-100 bg-white hover:border-blue-200 hover:shadow-xl hover:-translate-y-1'
-                    }`}
+                  className="group relative flex flex-col w-full aspect-[5/4] rounded-sm overflow-hidden shadow-sm hover:shadow-md transition-all duration-300"
                 >
-                  {/* Icon */}
-                  <div className={`flex-shrink-0 w-14 h-14 bg-gradient-to-br ${category.color} rounded-2xl flex items-center justify-center shadow-sm group-hover:shadow-md transition-all duration-300`}>
-                    <Icon className="w-7 h-7 text-white" />
+                  {/* Top area */}
+                  <div className={`flex-1 flex items-center justify-center w-full relative bg-gradient-to-br ${category.color}`}>
+                    <Icon className="w-16 h-16 text-black/20 group-hover:opacity-0 transition-opacity duration-300" />
+                    
+                    <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <span className="text-white font-bold tracking-[0.2em] text-sm uppercase">
+                        {category.count} {parseInt(category.count) === 1 ? 'JOB' : 'JOBS'}
+                      </span>
+                    </div>
                   </div>
 
-                  {/* Text Content */}
-                  <div className="ml-4 text-left flex-1">
-                    <div className="font-bold text-gray-900 group-hover:text-blue-700 transition-colors text-[1.05rem]">
+                  {/* Bottom area */}
+                  <div className="h-12 bg-[#e2e4e6] flex items-center justify-center w-full">
+                    <span className="text-xs font-bold text-gray-700 uppercase tracking-wide px-2 text-center truncate w-full">
                       {category.title}
-                    </div>
-                    <div className="text-sm text-gray-500 mt-1 font-medium">
-                      {category.count} open jobs
-                    </div>
-                  </div>
-
-                  {/* Hover Arrow */}
-                  <div className="ml-2 opacity-0 group-hover:opacity-100 transform -translate-x-2 group-hover:translate-x-0 transition-all duration-300">
-                    <ArrowRight className="w-5 h-5 text-blue-600" />
+                    </span>
                   </div>
                 </button>
               );

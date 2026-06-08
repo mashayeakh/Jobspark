@@ -133,6 +133,7 @@ export const JobService = {
       maxSalary, 
       categoryId, 
       subCategoryId,
+      location,
       page = 1,
       limit = 10 
     } = filters;
@@ -156,6 +157,9 @@ export const JobService = {
     if (maxSalary) where.salaryMax = { lte: Number(maxSalary) };
     if (categoryId) where.categoryId = categoryId;
     if (subCategoryId) where.subCategoryId = subCategoryId;
+    if (location) {
+      where.location = { contains: location, mode: "insensitive" };
+    }
 
     const skip = (Number(page) - 1) * Number(limit);
     const take = Number(limit);

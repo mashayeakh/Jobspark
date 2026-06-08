@@ -86,15 +86,15 @@ export interface CreateJobData {
 }
 
 export interface JobFilters {
-  search?: string;
+  searchTerm?: string;
   type?: Job['type'];
   locationType?: Job['locationType'];
   experienceLevel?: Job['experienceLevel'];
   location?: string;
   categoryId?: string;
   subCategoryId?: string;
-  salaryMin?: number;
-  salaryMax?: number;
+  minSalary?: number;
+  maxSalary?: number;
   remote?: boolean;
 }
 
@@ -219,9 +219,13 @@ export class JobService {
     const response = await apiClient.get<JobResponse>('/jobs/saved');
 
     if (response.success && response.data) {
+      const result = response.data.result;
+      // Narrow the union: the saved-jobs endpoint returns a plain array,
+      // but the shared JobResponse type also allows the paginated shape.
+      const jobs = Array.isArray(result) ? result : result.jobs;
       return {
         success: true,
-        data: response.data.result,
+        data: jobs,
       };
     }
 
@@ -267,9 +271,13 @@ export class JobService {
     const response = await apiClient.get<JobResponse>('/jobs/my-jobs');
 
     if (response.success && response.data) {
+      const result = response.data.result;
+      // Narrow the union: recruiter jobs endpoint returns a plain array,
+      // but the shared JobResponse type also allows the paginated shape.
+      const jobs = Array.isArray(result) ? result : result.jobs;
       return {
         success: true,
-        data: response.data.result,
+        data: jobs,
       };
     }
 

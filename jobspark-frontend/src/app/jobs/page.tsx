@@ -1,8 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
 import JobListingTemplate from '@/components/jobs/JobListingTemplate';
 import { jobService, Job, Meta } from '@/services/jobService';
+import { categoryService } from '@/services/categoryService';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -12,12 +14,60 @@ export default function JobsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [categories, setCategories] = useState<any[]>([]);
 
-  const fetchJobs = useCallback(async (page: number) => {
+  // ── Filter state (lifted here so we can send them to the server) ──────────
+  const [titleSearch, setTitleSearch] = useState('');
+  const [locationSearch, setLocationSearch] = useState('');
+  const [activeCategory, setActiveCategory] = useState('All');
+  const [workStyle, setWorkStyle] = useState('All');
+  const [minSalary, setMinSalary] = useState(0);
+
+  // Load active categories from backend
+  useEffect(() => {
+    let isMounted = true;
+    const loadCategories = async () => {
+      const res = await categoryService.getActiveCategories();
+      if (res.success && res.data && isMounted) {
+        setCategories(res.data);
+      }
+    };
+    loadCategories();
+    return () => { isMounted = false; };
+  }, []);
+
+  const fetchJobs = useCallback(async (
+    page: number,
+    title: string,
+    location: string,
+    category: string,
+    ws: string,
+    salary: number,
+  ) => {
     setLoading(true);
     setError(null);
     try {
-      const response = await jobService.getJobs({ page, limit: ITEMS_PER_PAGE });
+      // Build server-side filter params
+      const params: Record<string, any> = { page, limit: ITEMS_PER_PAGE };
+
+      // Text search (title / keyword)
+      if (title) params.searchTerm = title;
+      if (location) params.location = location;
+
+      // Category filter using ID
+      if (category !== 'All') {
+        params.categoryId = category;
+      }
+
+      // Work style / location type
+      if (ws === 'Remote') params.locationType = 'REMOTE';
+      else if (ws === 'Hybrid') params.locationType = 'HYBRID';
+      else if (ws === 'Onsite') params.locationType = 'ONSITE';
+
+      // Salary
+      if (salary > 0) params.minSalary = salary;
+
+      const response = await jobService.getJobs(params);
       if (response.success && response.data) {
         setJobs(response.data.jobs);
         setMeta(response.data.meta ?? null);
@@ -31,10 +81,19 @@ export default function JobsPage() {
     }
   }, []);
 
+  // Re-fetch whenever any filter or page changes
   useEffect(() => {
-    const id = setTimeout(() => fetchJobs(currentPage), 0);
+    const id = setTimeout(() => {
+      fetchJobs(currentPage, titleSearch, locationSearch, activeCategory, workStyle, minSalary);
+    }, 300); // 300 ms debounce for typing
     return () => clearTimeout(id);
-  }, [fetchJobs, currentPage]);
+  }, [fetchJobs, currentPage, titleSearch, locationSearch, activeCategory, workStyle, minSalary]);
+
+  // Reset to page 1 whenever a filter changes (not page itself)
+  const handleFilterChange = (setter: (v: any) => void, value: any) => {
+    setter(value);
+    setCurrentPage(1);
+  };
 
   // Transform API data to match component format
   const transformedJobs = jobs.map(job => ({
@@ -66,15 +125,24 @@ export default function JobsPage() {
   return (
     <JobListingTemplate
       basePath="/jobs"
-      heroTag="Over 130k remote & local startup jobs"
-      heroHeadline="Find what's next:"
-      accentColor="text-rose-500"
       allJobs={transformedJobs}
       loading={loading}
       error={error}
       meta={meta}
       currentPage={currentPage}
       onPageChange={setCurrentPage}
+      // Pass filter state down so template controls are in sync
+      titleSearch={titleSearch}
+      locationSearch={locationSearch}
+      activeCategory={activeCategory}
+      workStyle={workStyle}
+      minSalary={minSalary}
+      onTitleSearchChange={(v) => handleFilterChange(setTitleSearch, v)}
+      onLocationSearchChange={(v) => handleFilterChange(setLocationSearch, v)}
+      onActiveCategoryChange={(v) => handleFilterChange(setActiveCategory, v)}
+      onWorkStyleChange={(v) => handleFilterChange(setWorkStyle, v)}
+      onMinSalaryChange={(v) => handleFilterChange(setMinSalary, v)}
+      categories={categories}
     />
   );
 }
