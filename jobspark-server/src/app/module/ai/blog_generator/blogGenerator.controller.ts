@@ -7,7 +7,7 @@ import { BlogGeneratorService } from "./blogGenerator.service";
 export const BlogGeneratorController = {
   generateBlog: catchAsyc(async (req: Request, res: Response) => {
     const { topic } = req.body;
-    
+
     if (!topic) {
       return sendResponse(res, {
         httpStatusCode: httpStatus.BAD_REQUEST,
