@@ -25,10 +25,10 @@ redisClient.on("connect", () => {
 })
 
 // 2. Standard Err Response
-const rateLimitHandler = (req: Request, res: Response) => {
-    res.status(status.TOO_MANY_REQUESTS).json({
+const rateLimitHandler = (req: Request, res: Response, next: any, options: Options) => {
+    res.status(options.statusCode || status.TOO_MANY_REQUESTS).json({
         success: false,
-        message: "Too many requests. Please slow down and try again later",
+        message: options.message || "Too many requests. Please slow down and try again later",
         details: {
             retryAfter: res.getHeader("Retry-After"),
 

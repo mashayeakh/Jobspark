@@ -12,7 +12,7 @@ import { generalApiLimiter } from './app/middleware/rateLimiter';
 
 export const app: Application = express()
 
-app.set("trust proxy", 1); //needed for rate limiting to get real client ip
+app.set("trust proxy", true); //needed for rate limiting to get real client ip
 
 // Middleware to parse JSON request bodies - MUST be before webhook routes
 const jsonMiddleware = express.json();
