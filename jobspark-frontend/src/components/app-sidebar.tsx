@@ -125,8 +125,8 @@ const getNavigationData = (userRole: string) => {
         {
           label: "AI TOOLS",
           items: [
-            { title: "Job Description Generator", url: "/recruiter/jd-generator", icon: Calendar },
-            { title: "Interview Question Generator", url: "/recruiter/interview-question-generator", icon: Calendar },
+            { title: "Job Description Generator", url: "/recruiter/jd-generator", icon: Bot },
+            { title: "Interview Question Generator", url: "/recruiter/interview-question-generator", icon: Bot },
           ]
         },
       ];
