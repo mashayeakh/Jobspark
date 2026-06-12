@@ -107,7 +107,7 @@ const Newsletter = () => {
 
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Benefits */}
-          <div className="space-y-6">
+          <div className="space-y-6 mb-8 lg:mb-0">
             <h3 className="text-2xl font-bold mb-6">
               Why subscribe to our newsletter?
             </h3>

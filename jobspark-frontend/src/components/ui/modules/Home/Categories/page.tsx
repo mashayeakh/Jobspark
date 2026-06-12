@@ -184,7 +184,7 @@ const Categories = () => {
                 >
                   {/* Top area */}
                   <div className={`flex-1 flex items-center justify-center w-full relative bg-gradient-to-br ${category.color}`}>
-                    <Icon className="w-16 h-16 text-black/20 group-hover:opacity-0 transition-opacity duration-300" />
+                    <Icon className="w-10 h-10 sm:w-16 sm:h-16 text-black/20 group-hover:opacity-0 transition-opacity duration-300" />
                     
                     <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                       <span className="text-white font-bold tracking-[0.2em] text-sm uppercase">
@@ -194,8 +194,8 @@ const Categories = () => {
                   </div>
 
                   {/* Bottom area */}
-                  <div className="h-12 bg-[#e2e4e6] flex items-center justify-center w-full">
-                    <span className="text-xs font-bold text-gray-700 uppercase tracking-wide px-2 text-center truncate w-full">
+                  <div className="h-10 sm:h-12 bg-[#e2e4e6] flex items-center justify-center w-full">
+                    <span className="text-[10px] sm:text-xs font-bold text-gray-700 uppercase tracking-wide px-2 text-center truncate w-full">
                       {category.title}
                     </span>
                   </div>

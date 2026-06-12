@@ -155,8 +155,8 @@ export default function JobDetailTemplate({ job, backPath, backLabel }: JobDetai
         <div className="lg:col-span-8 space-y-4">
 
           {/* Header Card */}
-          <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-            <div className="flex flex-col md:flex-row gap-6">
+          <div className="bg-white border border-gray-200 rounded-lg p-4 sm:p-6 shadow-sm">
+            <div className="flex flex-col md:flex-row gap-4 sm:gap-6">
               <div className="w-24 h-24 rounded border border-gray-100 bg-white flex items-center justify-center flex-shrink-0 overflow-hidden shadow-inner">
                 {job.company?.logo ? (
                   <img src={job.company.logo} alt={typeof job.company === 'string' ? job.company : job.company?.name || 'Company'} className="w-full h-full object-contain p-2" />
@@ -166,8 +166,8 @@ export default function JobDetailTemplate({ job, backPath, backLabel }: JobDetai
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex justify-between items-start">
-                   <div>
-                      <h1 className="text-3xl font-bold text-gray-900 leading-tight tracking-tight">{job.title}</h1>
+                   <div className="flex-1 min-w-0 pr-2">
+                      <h1 className="text-xl sm:text-3xl font-bold text-gray-900 leading-tight tracking-tight">{job.title}</h1>
                       <div className="mt-2 flex flex-wrap items-center gap-2 text-base font-medium">
                         <Link href={`/company/${job.companyId}`} className="text-gray-900 hover:text-[#0a66c2] hover:underline">
                           {typeof job.company === 'string' ? job.company : job.company?.name || 'Company'}
@@ -176,7 +176,7 @@ export default function JobDetailTemplate({ job, backPath, backLabel }: JobDetai
                         <span className="text-gray-600 font-normal">{job.location}</span>
                       </div>
                    </div>
-                   <div className="hidden md:flex items-center gap-2">
+                   <div className="hidden md:flex items-center gap-2 flex-shrink-0">
                       <button onClick={handleShare} className="p-2.5 rounded-full hover:bg-gray-100 text-gray-600 transition-colors border border-gray-200" aria-label="Share">
                         <Share2 className="w-5 h-5" />
                       </button>
@@ -199,16 +199,36 @@ export default function JobDetailTemplate({ job, backPath, backLabel }: JobDetai
                   <span className="flex items-center gap-2"><Clock className="w-4 h-4" /> Posted {timeAgo(job.createdAt)}</span>
                 </div>
 
-                <div className="mt-8">
+                <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                   <button
                     onClick={handleApply}
                     disabled={applied || loadingApply}
-                    className={`w-full md:w-auto px-10 py-2.5 rounded-full font-bold transition-all text-base tracking-wide ${applied
+                    className={`w-full sm:w-auto px-10 py-2.5 rounded-full font-bold transition-all text-base tracking-wide ${applied
                       ? 'bg-gray-200 text-gray-500 cursor-not-allowed shadow-none'
                       : 'bg-[#0a66c2] text-white hover:bg-[#004182] shadow-sm'}`}
                   >
                     {applied ? '✓ Applied' : loadingApply ? 'Processing...' : 'Apply Now'}
                   </button>
+                  {/* Mobile-only save/share buttons */}
+                  <div className="flex md:hidden items-center gap-2">
+                    <button
+                      onClick={handleSave}
+                      disabled={loadingSave}
+                      className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-full border font-bold transition-colors ${
+                        saved ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-[#0a66c2] border-[#0a66c2] hover:bg-blue-50'
+                      }`}
+                    >
+                      {saved ? <BookmarkCheck className="w-5 h-5 fill-current" /> : <Bookmark className="w-5 h-5" />}
+                      {saved ? 'Saved' : 'Save'}
+                    </button>
+                    <button
+                      onClick={handleShare}
+                      className="p-2.5 rounded-full hover:bg-gray-100 text-gray-600 transition-colors border border-gray-200"
+                      aria-label="Share"
+                    >
+                      <Share2 className="w-5 h-5" />
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

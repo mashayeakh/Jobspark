@@ -70,18 +70,18 @@ export default function AboutPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* ── Hero Section ── */}
-      <section className="relative py-24 overflow-hidden">
+      <section className="relative py-12 sm:py-24 overflow-hidden">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[600px] bg-gradient-to-b from-blue-50/50 to-transparent -z-10" />
         <div className="max-w-7xl mx-auto px-4 text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 text-blue-600 text-xs font-black uppercase tracking-[0.2em] mb-8 animate-fade-in">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 text-blue-600 text-xs font-black uppercase tracking-[0.2em] mb-6 sm:mb-8 animate-fade-in">
             <Sparkles className="w-4 h-4" />
             Our Mission
           </div>
-          <h1 className="text-5xl md:text-7xl font-black text-gray-900 tracking-tight mb-8">
+          <h1 className="text-3xl sm:text-5xl md:text-7xl font-black text-gray-900 tracking-tight mb-6 sm:mb-8">
             Connecting Talent with <br />
             <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Infinite Opportunity.</span>
           </h1>
-          <p className="text-xl text-gray-500 max-w-2xl mx-auto font-medium leading-relaxed mb-12">
+          <p className="text-lg text-gray-500 max-w-2xl mx-auto font-medium leading-relaxed mb-8 sm:mb-12">
             We&apos;re building the world&apos;s most intelligent job platform, designed to help every professional find their perfect career match.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
@@ -103,7 +103,7 @@ export default function AboutPage() {
 
       {/* ── Stats ── */}
       <section className="py-20 border-y border-gray-50 bg-gray-50/30">
-        <div className="max-w-7xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-12">
+        <div className="max-w-7xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-12">
           {[
             { label: 'Active Users', value: isLoading ? '...' : `${counters.jobSeekers}`, icon: Users },
             { label: 'Partner Companies', value: isLoading ? '...' : `${counters.companies}`, icon: Building },
@@ -160,7 +160,7 @@ export default function AboutPage() {
 
       {/* ── CTA ── */}
       <section className="py-24 px-4">
-        <div className="max-w-5xl mx-auto p-12 md:p-20 rounded-[3rem] bg-gradient-to-br from-blue-600 to-indigo-700 text-white relative overflow-hidden shadow-2xl shadow-blue-200">
+        <div className="max-w-5xl mx-auto p-8 sm:p-12 md:p-20 rounded-[2rem] sm:rounded-[3rem] bg-gradient-to-br from-blue-600 to-indigo-700 text-white relative overflow-hidden shadow-2xl shadow-blue-200">
           <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32 blur-3xl" />
           <div className="relative z-10 text-center">
             <h2 className="text-4xl md:text-5xl font-black mb-8 tracking-tight">Ready to build the future?</h2>

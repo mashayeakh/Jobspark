@@ -41,13 +41,16 @@ const Footer = () => {
         </div>
 
         <div className="mt-12 border-t border-slate-800 pt-8">
-          <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-sm text-slate-400">© 2024 JobSpark. All rights reserved.</p>
-            <ul className="flex flex-wrap gap-4 text-sm font-semibold text-slate-400">
-              <li><Link href="https://twitter.com/jobspark" target="_blank" rel="noreferrer" className="hover:text-white">X</Link></li>
-              <li><Link href="https://linkedin.com/company/jobspark" target="_blank" rel="noreferrer" className="hover:text-white">LinkedIn</Link></li>
-              <li><Link href="https://youtube.com/jobspark" target="_blank" rel="noreferrer" className="hover:text-white">YouTube</Link></li>
-            </ul>  <button onClick={scrollToTop} className="rounded-xl bg-slate-800 px-3 py-2 text-slate-300 hover:bg-slate-700">Top</button>
+            <div className="flex flex-wrap items-center gap-4">
+              <ul className="flex flex-wrap gap-4 text-sm font-semibold text-slate-400">
+                <li><Link href="https://twitter.com/jobspark" target="_blank" rel="noreferrer" className="hover:text-white">X</Link></li>
+                <li><Link href="https://linkedin.com/company/jobspark" target="_blank" rel="noreferrer" className="hover:text-white">LinkedIn</Link></li>
+                <li><Link href="https://youtube.com/jobspark" target="_blank" rel="noreferrer" className="hover:text-white">YouTube</Link></li>
+              </ul>
+              <button onClick={scrollToTop} className="rounded-xl bg-slate-800 px-3 py-2 text-slate-300 hover:bg-slate-700">Top ↑</button>
+            </div>
           </div>
         </div>
       </div>

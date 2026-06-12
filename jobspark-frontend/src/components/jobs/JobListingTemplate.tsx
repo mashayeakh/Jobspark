@@ -98,7 +98,7 @@ function JobCard({ job, basePath, isApplied }: { job: Job; basePath: string; isA
   const companyLogo = (job.company as any)?.logo;
 
   return (
-    <div className={`bg-white rounded-[2rem] p-8 hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-500 border hover:border-blue-100 mb-6 group relative overflow-hidden ${isApplied ? 'border-emerald-100 opacity-80' : 'border-transparent'}`}>
+    <div className={`bg-white rounded-2xl lg:rounded-[2rem] p-4 sm:p-6 lg:p-8 hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-500 border hover:border-blue-100 mb-4 sm:mb-6 group relative overflow-hidden ${isApplied ? 'border-emerald-100 opacity-80' : 'border-transparent'}`}>
       {/* Decorative gradient corner */}
       <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-blue-50/50 to-transparent -mr-16 -mt-16 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
@@ -109,9 +109,9 @@ function JobCard({ job, basePath, isApplied }: { job: Job; basePath: string; isA
         </div>
       )}
 
-      <Link href={`${basePath}/${job.id}`} className="flex flex-col md:flex-row items-start gap-8 relative z-10">
+      <Link href={`${basePath}/${job.id}`} className="flex flex-col md:flex-row items-start gap-4 sm:gap-8 relative z-10">
         {/* Logo */}
-        <div className="w-20 h-20 bg-white border border-gray-100 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-sm overflow-hidden p-3 transition-transform duration-500 group-hover:scale-105">
+        <div className="w-14 h-14 sm:w-20 sm:h-20 bg-white border border-gray-100 rounded-xl sm:rounded-2xl flex items-center justify-center flex-shrink-0 shadow-sm overflow-hidden p-2 sm:p-3 transition-transform duration-500 group-hover:scale-105">
           {companyLogo ? (
             <img src={companyLogo} alt="" className="w-full h-full object-contain" />
           ) : (
@@ -122,7 +122,7 @@ function JobCard({ job, basePath, isApplied }: { job: Job; basePath: string; isA
         {/* Content Area */}
         <div className={`flex-1 min-w-0 ${isApplied ? 'mt-4' : ''}`}>
           <div className="flex justify-between items-start">
-            <h3 className="text-2xl font-black text-gray-900 group-hover:text-blue-600 transition-colors truncate pr-12 tracking-tight">
+            <h3 className="text-lg sm:text-2xl font-black text-gray-900 group-hover:text-blue-600 transition-colors truncate pr-10 sm:pr-12 tracking-tight">
               {job.title}
             </h3>
             <button
@@ -133,8 +133,8 @@ function JobCard({ job, basePath, isApplied }: { job: Job; basePath: string; isA
             </button>
           </div>
 
-          <div className="mt-2 flex flex-wrap items-center gap-5">
-            <span className="text-base font-bold text-gray-500 flex items-center gap-2">
+          <div className="mt-2 flex flex-wrap items-center gap-3 sm:gap-5">
+            <span className="text-sm sm:text-base font-bold text-gray-500 flex items-center gap-2">
               <Building className="w-4 h-4 text-gray-300" /> {companyName}
             </span>
             <span className="flex items-center gap-2 text-sm font-bold text-gray-400">
@@ -146,7 +146,7 @@ function JobCard({ job, basePath, isApplied }: { job: Job; basePath: string; isA
           </div>
 
           {/* Salary & Info Row */}
-          <div className="mt-6 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+          <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6">
             <div className="flex items-baseline gap-1.5 bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-2 rounded-xl border border-blue-100/50 flex-shrink-0 whitespace-nowrap">
               <span className={`text-base font-black tracking-tight ${!hasSalary ? 'bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent' : 'text-blue-600'}`}>
                 {formattedSalary}
@@ -154,14 +154,14 @@ function JobCard({ job, basePath, isApplied }: { job: Job; basePath: string; isA
               <span className="text-[9px] font-black text-blue-400 uppercase tracking-widest">USD/mo</span>
             </div>
 
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
               {(job.skills || []).slice(0, 3).map((skill: any, i: number) => (
-                <span key={i} className="text-[10px] font-black text-gray-400 uppercase tracking-widest bg-white border border-gray-100 px-4 py-1.5 rounded-xl group-hover:border-blue-200 transition-colors">
+                <span key={i} className="text-[10px] font-black text-gray-400 uppercase tracking-widest bg-white border border-gray-100 px-3 sm:px-4 py-1.5 rounded-xl group-hover:border-blue-200 transition-colors">
                   {typeof skill === 'string' ? skill : skill.skill?.name || skill.name}
                 </span>
               ))}
               {!isApplied && (
-                <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest bg-emerald-50 px-4 py-1.5 rounded-xl border border-emerald-100">New</span>
+                <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest bg-emerald-50 px-3 sm:px-4 py-1.5 rounded-xl border border-emerald-100">New</span>
               )}
 
               <div className="ml-2 h-10 w-10 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-lg shadow-blue-200 transform translate-x-4 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-500">
@@ -248,6 +248,7 @@ export default function JobListingTemplate({
   const updateMinSalary      = (v: number)  => isControlled ? onMinSalaryChange!(v)      : (setLocalMinSalary(v),      setLocalCurrentPage(1));
 
   const [appliedJobIds, setAppliedJobIds] = useState<Set<string>>(new Set());
+  const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -399,32 +400,61 @@ export default function JobListingTemplate({
       <div className="bg-white/80 backdrop-blur-xl border-b border-gray-100 sticky top-0 z-30 shadow-sm">
         <div className="max-w-7xl mx-auto px-4">
           {/* Brand/Search Row */}
-          <div className="flex flex-col lg:flex-row items-center gap-6 py-8">
-            <div className="w-full lg:flex-1 relative flex items-center bg-gray-50 rounded-[2rem] px-6 border-2 border-transparent focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-50 transition-all duration-300">
-              <Search className="w-5 h-5 text-gray-400 mr-3" />
+          <div className="flex flex-col lg:flex-row items-stretch gap-4 py-4 lg:py-8">
+            {/* Main search input */}
+            <div className="w-full lg:flex-1 relative flex items-center bg-gray-50 rounded-2xl px-4 border-2 border-transparent focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-50 transition-all duration-300">
+              <Search className="w-5 h-5 text-gray-400 mr-3 flex-shrink-0" />
               <input
                 type="text"
                 placeholder="Search: Title, company, keywords..."
-                className="flex-1 bg-transparent border-none focus:ring-0 py-4 text-base font-bold placeholder-gray-400"
+                className="flex-1 bg-transparent border-none focus:ring-0 py-3 text-sm lg:text-base font-bold placeholder-gray-400 min-w-0"
                 value={titleSearch}
                 onChange={(e) => updateTitleSearch(e.target.value)}
               />
-              <div className="h-8 w-px bg-gray-200 mx-4 hidden md:block"></div>
-              <MapPin className="w-5 h-5 text-gray-400 mr-3 hidden md:block" />
+              {/* Location — desktop inline */}
+              <div className="h-8 w-px bg-gray-200 mx-3 hidden md:block flex-shrink-0"></div>
+              <MapPin className="w-5 h-5 text-gray-400 mr-3 hidden md:block flex-shrink-0" />
               <input
                 type="text"
                 placeholder="Location"
-                className="flex-1 bg-transparent border-none focus:ring-0 py-4 text-base font-bold placeholder-gray-400 hidden md:block"
+                className="w-32 lg:w-40 bg-transparent border-none focus:ring-0 py-3 text-sm lg:text-base font-bold placeholder-gray-400 hidden md:block"
                 value={locationSearch}
                 onChange={(e) => updateLocationSearch(e.target.value)}
               />
-              <button className="bg-gradient-to-r from-blue-600 to-indigo-600 p-3 px-8 rounded-2xl text-white ml-2 shadow-xl shadow-blue-200 flex items-center justify-center hover:opacity-90 transition-all active:scale-95">
-                <Search className="w-5 h-5" />
+              <button className="bg-gradient-to-r from-blue-600 to-indigo-600 p-2.5 px-5 lg:px-8 rounded-xl text-white ml-2 flex-shrink-0 shadow-lg shadow-blue-200 flex items-center justify-center hover:opacity-90 transition-all active:scale-95">
+                <Search className="w-4 h-4 lg:w-5 lg:h-5" />
               </button>
             </div>
 
-            <div className="flex items-center gap-4">
-              <button className="bg-white border-2 border-gray-100 p-4 rounded-2xl hover:border-blue-500 hover:text-blue-600 transition-all shadow-sm">
+            {/* Location — mobile separate row */}
+            <div className="flex md:hidden items-center bg-gray-50 rounded-2xl px-4 border-2 border-transparent focus-within:border-blue-500 focus-within:bg-white transition-all duration-300">
+              <MapPin className="w-5 h-5 text-gray-400 mr-3 flex-shrink-0" />
+              <input
+                type="text"
+                placeholder="Location..."
+                className="flex-1 bg-transparent border-none focus:ring-0 py-3 text-sm font-bold placeholder-gray-400"
+                value={locationSearch}
+                onChange={(e) => updateLocationSearch(e.target.value)}
+              />
+            </div>
+
+            <div className="flex items-center gap-3">
+              {/* Mobile filter toggle button */}
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className={`flex lg:hidden items-center gap-2 border-2 px-4 py-2.5 rounded-xl font-bold text-sm transition-all ${
+                  showFilters
+                    ? 'bg-blue-600 text-white border-blue-600'
+                    : 'bg-white border-gray-100 text-gray-600 hover:border-blue-500 hover:text-blue-600'
+                }`}
+              >
+                <Filter className="w-4 h-4" />
+                Filters
+              </button>
+              {/* Desktop filter icon */}
+              <button 
+                onClick={() => setShowFilters(!showFilters)}
+                className="hidden lg:flex bg-white border-2 border-gray-100 p-4 rounded-2xl hover:border-blue-500 hover:text-blue-600 transition-all shadow-sm">
                 <Filter className="w-6 h-6 text-gray-400" />
               </button>
             </div>
@@ -450,18 +480,18 @@ export default function JobListingTemplate({
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-12 grid grid-cols-1 lg:grid-cols-12 gap-10">
+      <div className="max-w-7xl mx-auto px-4 py-6 lg:py-12 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10">
 
-        {/* Sidebar Filters */}
-        <div className="lg:col-span-3 space-y-8">
-          <div className="bg-white rounded-[2.5rem] p-10 shadow-xl shadow-gray-100/50 border border-gray-50">
+        {/* Sidebar Filters — hidden on mobile unless toggled */}
+        <div className={`lg:col-span-3 space-y-6 lg:space-y-8 ${showFilters ? 'block' : 'hidden lg:block'}`}>
+          <div className="bg-white rounded-2xl lg:rounded-[2.5rem] p-6 lg:p-10 shadow-xl shadow-gray-100/50 border border-gray-50">
             <div className="flex items-center justify-between mb-2">
               <h4 className="text-[11px] font-black uppercase tracking-[0.2em] text-gray-400">Salary</h4>
               <span className="text-[10px] font-black text-blue-600 bg-blue-50 px-3 py-1.5 rounded-full border border-blue-100/50">
                 {minSalary === 0 ? 'Any' : `${(minSalary / 1000).toFixed(0)}k+ USD`}
               </span>
             </div>
-            <p className="text-[10px] text-gray-300 font-bold uppercase mb-10 tracking-tight">Minimum monthly gross</p>
+            <p className="text-[10px] text-gray-300 font-bold uppercase mb-8 lg:mb-10 tracking-tight">Minimum monthly gross</p>
             <div className="relative pt-2">
               <input
                 type="range"
@@ -479,15 +509,15 @@ export default function JobListingTemplate({
             </div>
           </div>
 
-          <div className="bg-white rounded-[2.5rem] p-10 shadow-xl shadow-gray-100/50 border border-gray-50">
-            <h4 className="text-[11px] font-black uppercase tracking-[0.2em] text-gray-400 mb-10">Work style</h4>
-            <div className="space-y-8">
+          <div className="bg-white rounded-2xl lg:rounded-[2.5rem] p-6 lg:p-10 shadow-xl shadow-gray-100/50 border border-gray-50">
+            <h4 className="text-[11px] font-black uppercase tracking-[0.2em] text-gray-400 mb-6 lg:mb-10">Work style</h4>
+            <div className="flex lg:flex-col gap-4 lg:gap-8 flex-wrap">
               {['Remote', 'Hybrid', 'Onsite'].map(style => (
-                <label key={style} className="flex items-center justify-between cursor-pointer group">
+                <label key={style} className="flex items-center justify-between cursor-pointer group gap-3">
                   <span className="text-base font-black text-gray-700 group-hover:text-blue-600 transition-colors tracking-tight">{style}</span>
                   <input
                     type="checkbox"
-                    className="w-7 h-7 rounded-xl border-gray-200 text-blue-600 focus:ring-blue-500 cursor-pointer transition-all border-2"
+                    className="w-6 h-6 lg:w-7 lg:h-7 rounded-xl border-gray-200 text-blue-600 focus:ring-blue-500 cursor-pointer transition-all border-2"
                     checked={workStyle === style}
                     onChange={() => updateWorkStyle(style === workStyle ? 'All' : style)}
                   />
@@ -500,19 +530,21 @@ export default function JobListingTemplate({
         {/* Main Feed */}
         <div className="lg:col-span-9">
           {error ? (
-            <div className="bg-red-50 border border-red-100 p-12 rounded-[2.5rem] text-center text-red-600 font-black uppercase tracking-widest shadow-lg">
+            <div className="bg-red-50 border border-red-100 p-8 sm:p-12 rounded-2xl sm:rounded-[2.5rem] text-center text-red-600 font-black uppercase tracking-widest shadow-lg">
               <div className="mb-4">Failed to scan the market.</div>
               <button onClick={() => window.location.reload()} className="text-sm underline">Try again</button>
             </div>
           ) : (
             <>
-              <div className="flex items-center justify-between mb-10 px-4">
-                <h2 className="text-[13px] font-black text-gray-400 uppercase tracking-[0.2em] flex items-center gap-3">
+              <div className="flex items-center justify-between mb-6 lg:mb-10 px-2 sm:px-4 flex-wrap gap-3">
+                <h2 className="text-[11px] sm:text-[13px] font-black text-gray-400 uppercase tracking-[0.2em] flex items-center gap-2 sm:gap-3">
                   <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-                  Market scan: <span className="text-gray-900 ml-1 font-black">{totalResults} offers found</span>
+                  <span className="hidden sm:inline">Market scan: </span><span className="text-gray-900 font-black">{totalResults} offers</span>
                 </h2>
-                <div className="flex items-center gap-3 text-[11px] font-black uppercase tracking-widest text-gray-900 bg-white px-6 py-3 rounded-2xl border border-gray-100 shadow-xl shadow-gray-100/50 cursor-pointer hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-all group">
-                  <Bookmark className="w-4 h-4 text-blue-600 group-hover:scale-110 transition-transform" /> Watch this search
+                <div className="flex items-center gap-2 text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-gray-900 bg-white px-3 sm:px-6 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl border border-gray-100 shadow-xl shadow-gray-100/50 cursor-pointer hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-all group">
+                  <Bookmark className="w-4 h-4 text-blue-600 group-hover:scale-110 transition-transform" />
+                  <span className="hidden sm:inline">Watch this search</span>
+                  <span className="sm:hidden">Watch</span>
                 </div>
               </div>
 
@@ -527,14 +559,14 @@ export default function JobListingTemplate({
                     {paginatedJobs.map((j: Job) => <JobCard key={j.id} job={j} basePath={basePath} isApplied={appliedJobIds.has(j.id.toString())} />)}
                   </div>
 
-                  <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between text-sm text-gray-600">
-                    <div className="font-black uppercase tracking-[0.2em] text-gray-400">
+                  <div className="mt-6 sm:mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between text-sm text-gray-600">
+                    <div className="font-black uppercase tracking-[0.2em] text-gray-400 text-xs sm:text-sm">
                       {isServerPaginated
                         ? `Page ${activePage} of ${totalPages} · ${totalResults} results`
                         : `Showing ${(activePage - 1) * itemsPerPage + 1}–${Math.min(activePage * itemsPerPage, totalResults)} of ${totalResults} results`
                       }
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5 flex-wrap">
                       {/* First page shortcut */}
                       {activePage > 3 && (
                         <>
@@ -548,9 +580,9 @@ export default function JobListingTemplate({
                       <button
                         onClick={() => handlePageChange(activePage - 1)}
                         disabled={activePage === 1}
-                        className="px-4 py-3 rounded-2xl border border-gray-200 bg-white text-gray-600 hover:border-blue-300 hover:text-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                        className="px-3 sm:px-4 py-2 sm:py-3 rounded-xl sm:rounded-2xl border border-gray-200 bg-white text-gray-600 hover:border-blue-300 hover:text-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm"
                       >
-                        Previous
+                        ‹ Prev
                       </button>
                       <div className="flex items-center gap-1">
                         {pageWindow.map(page => (
@@ -570,9 +602,9 @@ export default function JobListingTemplate({
                       <button
                         onClick={() => handlePageChange(activePage + 1)}
                         disabled={activePage === totalPages}
-                        className="px-4 py-3 rounded-2xl border border-gray-200 bg-white text-gray-600 hover:border-blue-300 hover:text-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                        className="px-3 sm:px-4 py-2 sm:py-3 rounded-xl sm:rounded-2xl border border-gray-200 bg-white text-gray-600 hover:border-blue-300 hover:text-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm"
                       >
-                        Next
+                        Next ›
                       </button>
                       {/* Last page shortcut */}
                       {activePage < totalPages - 2 && (

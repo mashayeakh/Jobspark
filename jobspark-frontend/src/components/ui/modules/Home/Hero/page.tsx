@@ -79,7 +79,7 @@ const HeroSection = (props: Props) => {
     };
 
     return (
-        <section className={cn("min-h-screen lg:min-h-[70vh] overflow-hidden relative bg-gradient-to-br from-blue-50 via-white to-purple-50", className)}>
+        <section className={cn("min-h-[70vh] lg:min-h-[70vh] overflow-hidden relative bg-gradient-to-br from-blue-50 via-white to-purple-50", className)}>
             {/* Background Animation */}
             <div className="absolute inset-0 overflow-hidden">
                 <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
@@ -87,8 +87,8 @@ const HeroSection = (props: Props) => {
                 <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-pink-200 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse animation-delay-4000"></div>
             </div>
 
-            <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-20">
-                <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16 min-h-[60vh]">
+            <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-20">
+                <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-16">
                     {/* Content */}
                     <div className="flex-1 text-center lg:text-left space-y-6 lg:space-y-8">
                         {/* Icon */}
@@ -101,12 +101,12 @@ const HeroSection = (props: Props) => {
                         )}
 
                         {/* Heading */}
-                        <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-gray-900 leading-tight animate-fade-in-up">
+                        <h1 className="text-2xl sm:text-3xl lg:text-5xl xl:text-6xl font-bold text-gray-900 leading-tight animate-fade-in-up">
                             {heading}
                         </h1>
 
                         {/* Description */}
-                        <p className="text-lg sm:text-xl lg:text-2xl text-gray-600 max-w-2xl animate-fade-in-up animation-delay-200">
+                        <p className="text-base sm:text-lg lg:text-2xl text-gray-600 max-w-2xl animate-fade-in-up animation-delay-200">
                             {description}
                         </p>
 
@@ -167,8 +167,8 @@ const HeroSection = (props: Props) => {
                 </div>
             </div>
 
-            {/* Scroll Indicator */}
-            <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+            {/* Scroll Indicator — hidden on small screens to avoid overlap */}
+            <div className="hidden sm:flex absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
                 <div className="w-6 h-10 border-2 border-gray-300 rounded-full flex justify-center">
                     <div className="w-1 h-3 bg-gray-300 rounded-full mt-2"></div>
                 </div>
