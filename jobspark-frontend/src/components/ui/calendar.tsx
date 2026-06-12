@@ -20,9 +20,9 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>(
     React.useEffect(() => {
       if (selected) {
         if (Array.isArray(selected)) {
-          setSelectedDate(selected[0])
+          setSelectedDate(selected[0] as Date)
         } else {
-          setSelectedDate(selected)
+          setSelectedDate(selected as Date)
         }
       }
     }, [selected])

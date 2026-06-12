@@ -54,8 +54,8 @@ const PopoverTrigger = React.forwardRef<HTMLButtonElement, PopoverTriggerProps>(
     }
 
     if (asChild && React.isValidElement(children)) {
-      return React.cloneElement(children, {
-        ...children.props,
+      return React.cloneElement(children as React.ReactElement<any>, {
+        ...(children as React.ReactElement<any>).props,
         ...props,
         ref,
         onClick: handleClick

@@ -2,6 +2,7 @@ import React from 'react';
 import { authService } from '@/services/authService';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   Sidebar,
   SidebarContent,
@@ -35,7 +36,8 @@ import {
   Plus,
   ChevronRight,
   BookText,
-  CreditCard
+  CreditCard,
+  Search,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -107,11 +109,26 @@ const getNavigationData = (userRole: string) => {
           ]
         },
         {
+          label: "HIRING PIPELINE",
+          items: [
+            { title: "Kanban board", url: "/recruiter/kanban-board", icon: LayoutDashboard },
+            { title: "Pipeline stages", url: "/recruiter/pipeline-stages", icon: Building },
+            { title: "Task Management", url: "/recruiter/task-management", icon: Briefcase },
+          ]
+        },
+        {
           label: "Interview",
           items: [
             { title: "Manage Interviews", url: "/recruiter/manage-interviews", icon: Calendar },
           ]
-        }
+        },
+        {
+          label: "AI TOOLS",
+          items: [
+            { title: "Job Description Generator", url: "/recruiter/jd-generator", icon: Calendar },
+            { title: "Interview Question Generator", url: "/recruiter/interview-question-generator", icon: Calendar },
+          ]
+        },
       ];
     default:
       return [];
@@ -145,84 +162,94 @@ export function AppSidebar({ userRole, ...props }: AppSidebarProps) {
       router.push('/login');
     }
   };
-
   return (
-    <Sidebar className="border-r border-gray-100 bg-white" {...props}>
+    <Sidebar className="border-r-0 !bg-[#313ee7] !text-white [&_[data-sidebar=sidebar]]:!bg-[#313ee7] [&_[data-sidebar=sidebar]]:!text-white" {...props}>
       <SidebarHeader className="p-6">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#4880FF] text-white shadow-lg shadow-blue-200">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-[#313ee7] shadow-sm">
             <Zap className="h-6 w-6 fill-current" />
           </div>
           <div>
-            <h2 className="text-xl font-bold tracking-tight text-gray-900">Jobs<span className="text-[#4880FF]">Park</span></h2>
-            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Admin Portal</p>
+            <h2 className="text-xl font-bold tracking-tight text-white">Jobs<span className="text-white/80">Park</span></h2>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-white/60">{user?.role} Portal</p>
           </div>
         </div>
       </SidebarHeader>
 
       <SidebarContent className="px-4">
+        {/* <div className="px-2 pb-4">
+          <div className="flex items-center gap-2 rounded-lg bg-white/10 px-3 py-2 text-white border border-white/10 shadow-inner">
+            <Search className="h-4 w-4 opacity-70" />
+            <input type="text" placeholder="Searcdddh" className="bg-transparent text-sm outline-none placeholder:text-white/50 w-full" />
+          </div>
+        </div> */}
+
         {groups.map((group, idx) => (
-          <SidebarGroup key={idx} className="py-2">
-            <SidebarGroupLabel className="px-2 text-[11px] font-bold uppercase tracking-wider text-gray-400">
-              {group.label}
-            </SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {group.items.map((item) => {
-                  const isActive = pathname === item.url;
-                  const Icon = item.icon;
-                  return (
-                    <SidebarMenuItem key={item.title}>
-                      <Link
-                        href={item.url}
-                        className={cn(
-                          "group relative flex items-center gap-3 rounded-xl px-3 py-6 transition-all duration-200",
-                          isActive
-                            ? "bg-[#4880FF] text-white shadow-md shadow-blue-100 hover:bg-[#3d72eb] hover:text-white"
-                            : "text-gray-500 hover:bg-gray-50 hover:text-[#4880FF]"
-                        )}
-                      >
-                        <Icon className={cn(
-                          "h-5 w-5 transition-colors",
-                          isActive ? "text-white" : "text-gray-400 group-hover:text-[#4880FF]"
-                        )} />
-                        <span className="flex-1 font-bold whitespace-nowrap">{item.title}</span>
-                        {item.badge && (
-                          <span className={cn(
-                            "rounded-md px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-tighter",
-                            isActive ? "bg-white/20 text-white" : "bg-blue-50 text-[#4880FF]"
-                          )}>
-                            {item.badge}
-                          </span>
-                        )}
-                        {isActive && (
-                          <ChevronRight className="h-4 w-4 opacity-50" />
-                        )}
-                      </Link>
-                    </SidebarMenuItem>
-                  );
-                })}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
+          <Collapsible key={idx} defaultOpen className="group/collapsible">
+            <SidebarGroup className="py-1">
+              <SidebarGroupLabel asChild>
+                <CollapsibleTrigger className="flex w-full items-center justify-between px-2 text-[11px] font-bold uppercase tracking-wider text-white/60 hover:text-white transition-colors cursor-pointer">
+                  {group.label}
+                  <ChevronRight className="h-3 w-3 transition-transform group-data-[state=open]/collapsible:rotate-90" />
+                </CollapsibleTrigger>
+              </SidebarGroupLabel>
+              <CollapsibleContent>
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    {group.items.map((item) => {
+                      const isActive = pathname === item.url;
+                      const Icon = item.icon;
+                      return (
+                        <SidebarMenuItem key={item.title}>
+                          <Link
+                            href={item.url}
+                            className={cn(
+                              "group relative flex items-center gap-3 rounded-lg px-3 py-2.5 transition-all duration-200 mt-1",
+                              isActive
+                                ? "bg-white/20 text-white shadow-sm font-semibold"
+                                : "text-white/70 hover:bg-white/10 hover:text-white font-medium"
+                            )}
+                          >
+                            <Icon className={cn(
+                              "h-5 w-5 transition-colors",
+                              isActive ? "text-white" : "text-white/70 group-hover:text-white"
+                            )} />
+                            <span className="flex-1 whitespace-nowrap">{item.title}</span>
+                            {item.badge && (
+                              <span className={cn(
+                                "rounded-md px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-tighter",
+                                isActive ? "bg-white/20 text-white" : "bg-white/10 text-white/90"
+                              )}>
+                                {item.badge}
+                              </span>
+                            )}
+                          </Link>
+                        </SidebarMenuItem>
+                      );
+                    })}
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </CollapsibleContent>
+            </SidebarGroup>
+          </Collapsible>
         ))}
       </SidebarContent>
 
       <SidebarFooter className="p-4">
-        <div className="group flex items-center gap-3 rounded-2xl border border-gray-100 bg-gray-50/50 p-3 transition-all hover:bg-gray-100/50">
-          <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl border-2 border-white shadow-sm ring-2 ring-blue-50">
-            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-blue-400 to-indigo-600 text-white font-bold text-sm">
+        <div className="group flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-3 transition-all hover:bg-white/10">
+          <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl border-2 border-white/20 shadow-sm">
+            <div className="flex h-full w-full items-center justify-center bg-white text-[#313ee7] font-bold text-sm">
               {user?.name ? user.name.charAt(0).toUpperCase() : 'A'}
             </div>
           </div>
           <div className="flex-1 overflow-hidden">
-            <p className="truncate text-sm font-bold text-gray-900 leading-none mb-1">{user?.name || 'Administrator'}</p>
-            <p className="truncate text-[10px] font-bold uppercase text-gray-400 leading-none">{userRole || 'Admin'}</p>
+            <p className="truncate text-sm font-bold text-white leading-none mb-1">{user?.name || 'Administrator'}</p>
+            <p className="truncate text-[10px] font-bold uppercase text-white/60 leading-none">{userRole || 'Admin'}</p>
           </div>
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+            className="h-8 w-8 rounded-lg text-white/50 hover:text-white hover:bg-white/20 transition-colors"
             onClick={handleLogout}
           >
             <LogOut className="h-4 w-4" />
