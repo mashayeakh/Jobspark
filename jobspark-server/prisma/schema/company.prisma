@@ -20,6 +20,7 @@ model Company {
   values       String?
   foundedYear  String?
   headquarters String?
-  jobs         Job[]
-  recruiters   RecruiterProfile[]
+  jobs           Job[]
+  recruiters     RecruiterProfile[]
+  pipelineStages PipelineStage[]
 }

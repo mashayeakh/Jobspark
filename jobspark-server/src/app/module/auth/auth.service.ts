@@ -44,11 +44,19 @@ export const AuthService = {
                 throw new AppError(httpStatus.BAD_REQUEST, "Company name and industry are required for recruiters.");
             }
 
-            // Create company first
+            // Create company first with default pipeline stages
             const company = await prisma.company.create({
                 data: {
                     name: companyName,
                     industry: industry,
+                    pipelineStages: {
+                        create: [
+                            { name: 'Applied', color: 'bg-blue-500', isDefault: true, order: 1 },
+                            { name: 'HR Review', color: 'bg-purple-500', isDefault: true, order: 2 },
+                            { name: 'HR Interview', color: 'bg-indigo-500', isDefault: false, order: 3 },
+                            { name: 'Offer Sent', color: 'bg-green-500', isDefault: false, order: 4 }
+                        ]
+                    }
                 }
             });
 

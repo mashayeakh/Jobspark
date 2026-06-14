@@ -5,12 +5,15 @@ model Application {
   status     ApplicationStatus      @default(PENDING)
   appliedAt  DateTime               @default(now())
   updatedAt  DateTime               @updatedAt
-  job        Job                    @relation(fields: [jobId], references: [id])
-  seeker     JobSeekerProfile       @relation(fields: [seekerId], references: [id])
-  logs       ApplicationStatusLog[]
-  interviews Interview[]
+  job             Job                    @relation(fields: [jobId], references: [id])
+  seeker          JobSeekerProfile       @relation(fields: [seekerId], references: [id])
+  pipelineStageId String?
+  pipelineStage   PipelineStage?         @relation(fields: [pipelineStageId], references: [id])
+  logs            ApplicationStatusLog[]
+  interviews      Interview[]
 
   @@unique([jobId, seekerId])
+  @@index([pipelineStageId])
 }
 
 model ApplicationStatusLog {

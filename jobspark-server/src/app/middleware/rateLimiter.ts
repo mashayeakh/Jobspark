@@ -38,11 +38,12 @@ const rateLimitHandler = (req: Request, res: Response, next: any, options: Optio
 
 //3. Factory Function
 //custom limiter
-export const createRateLimiter = (options: Partial<Options>) => {
+export const createRateLimiter = (name: string, options: Partial<Options>) => {
     return rateLimit({
         // Always use Redis store — fails open if Redis is down
         store: new RedisStore({
             sendCommand: (...args: string[]) => (redisClient as any).call(...args),
+            prefix: `rl:${name}:`
         }),
         standardHeaders: "draft-8",
         legacyHeaders: false,
@@ -77,23 +78,23 @@ const userKeyGenerator = (req: Request): string => {
 //5. pre-built named limiter
 
 // Auth: Login - 10 attempts per 15 mins per ip
-export const loginLimiter = createRateLimiter({
+export const loginLimiter = createRateLimiter('login', {
     windowMs: 15 * 60 * 1000,
     limit: 10,
     keyGenerator: ipKeyGenerator,
-    message: "Too many logiin attempt. Please try again in 15 minutes."
+    message: "Too many login attempts. Please try again in 15 minutes."
 });
 
 // Auth: Register - 5 accounts per hour per ip
-export const registerLimiter = createRateLimiter({
+export const registerLimiter = createRateLimiter('register', {
     windowMs: 60 * 60 * 1000,
     limit: 5,
     keyGenerator: ipKeyGenerator,
-    message: "Too many registration attemp. Please try again in 1 hour."
+    message: "Too many registration attempts. Please try again in 1 hour."
 });
 
 // Contact Form — 5 submissions per hour per IP
-export const contactLimiter = createRateLimiter({
+export const contactLimiter = createRateLimiter('contact', {
     windowMs: 60 * 60 * 1000,
     limit: 5,
     keyGenerator: ipKeyGenerator,
@@ -102,7 +103,7 @@ export const contactLimiter = createRateLimiter({
 });
 
 // newsletter - 3 subscriptions per hour per ip
-export const newsletterLimiter = createRateLimiter({
+export const newsletterLimiter = createRateLimiter('newsletter', {
     windowMs: 60 * 60 * 1000,
     limit: 3,
     keyGenerator: ipKeyGenerator,
@@ -112,15 +113,15 @@ export const newsletterLimiter = createRateLimiter({
 //AI toures - 30 request per hour tracked per authenticated user (no Ip)
 
 //this prevents shared office / uni ips from blocking each other. 
-export const aiLimiter = createRateLimiter({
+export const aiLimiter = createRateLimiter('ai', {
     windowMs: 60 * 60 * 1000,
     limit: 30,
     keyGenerator: userKeyGenerator,
-    message: "Too many AI request. Please try again in 1 hour.",
+    message: "Too many AI requests. Please try again in 1 hour.",
 })
 
 // Admin Routes — 100 requests per 15 minutes (generous, admins are trusted)
-export const adminLimiter = createRateLimiter({
+export const adminLimiter = createRateLimiter('admin', {
     windowMs: 15 * 60 * 1000,
     limit: 100,
     keyGenerator: userKeyGenerator,
@@ -128,7 +129,7 @@ export const adminLimiter = createRateLimiter({
 });
 
 // General API — safety net for all /api/v2/ routes (200 req / 15 min)
-export const generalApiLimiter = createRateLimiter({
+export const generalApiLimiter = createRateLimiter('general', {
     windowMs: 15 * 60 * 1000,
     limit: 200,
     keyGenerator: ipKeyGenerator,

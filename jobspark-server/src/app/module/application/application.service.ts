@@ -224,7 +224,10 @@ export const ApplicationService = {
       // Update the application status
       const updatedApplication = await tx.application.update({
         where: { id: applicationId },
-        data: { status: newStatus },
+        data: { 
+          status: newStatus,
+          ...(payload.pipelineStageId && { pipelineStageId: payload.pipelineStageId })
+        },
       });
 
       // Create audit log entry

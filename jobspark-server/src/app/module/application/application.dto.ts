@@ -6,5 +6,6 @@ export interface ApplyJobDto {
 
 export interface UpdateApplicationStatusDto {
   status: ApplicationStatus;
+  pipelineStageId?: string;
   reason?: string;
 }
