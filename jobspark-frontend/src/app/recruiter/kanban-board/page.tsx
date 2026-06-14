@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -129,16 +130,55 @@ const getPriorityColor = (priority: Priority) => {
   }
 };
 
+import { recruiterService } from '@/services/recruiterService';
+import { companyService } from '@/services/companyService';
+
 export default function KanbanBoardPage() {
-  const [columns, setColumns] = useState(initialData);
+  const [columns, setColumns] = useState<Record<string, ColumnData>>({});
   const [isMounted, setIsMounted] = useState(false);
   const [activeFilter, setActiveFilter] = useState('By Status');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsMounted(true);
-    }, 0);
-    return () => clearTimeout(timer);
+    const fetchData = async () => {
+      try {
+        const profileRes = await recruiterService.getProfile();
+        if (profileRes.success && profileRes.data) {
+          const cId = profileRes.data.companyId;
+          const stagesData = await companyService.getPipelineStages(cId);
+
+          if (stagesData && stagesData.length > 0) {
+            const dynamicColumns: Record<string, ColumnData> = {};
+            const colors = ['bg-blue-500', 'bg-purple-500', 'bg-amber-500', 'bg-emerald-500', 'bg-pink-500', 'bg-indigo-500'];
+
+            stagesData.forEach((stage: any, index: number) => {
+              // Map existing initialData to the dynamic stages if they match loosely, or just empty
+              const matchedKey = Object.keys(initialData).find(k => initialData[k].title.toLowerCase().includes(stage.name.toLowerCase()) || stage.name.toLowerCase().includes(initialData[k].title.toLowerCase()));
+
+              dynamicColumns[stage.id] = {
+                id: stage.id,
+                title: stage.name,
+                color: stage.color || colors[index % colors.length],
+                items: matchedKey ? initialData[matchedKey].items : []
+              };
+            });
+            setColumns(dynamicColumns);
+          } else {
+            setColumns(initialData);
+          }
+        } else {
+          setColumns(initialData);
+        }
+      } catch (e) {
+        console.error("Failed to fetch kanban stages:", e);
+        setColumns(initialData);
+      } finally {
+        setLoading(false);
+        setIsMounted(true);
+      }
+    };
+
+    fetchData();
   }, []);
 
   const onDragEnd = (result: DropResult) => {
@@ -172,14 +212,14 @@ export default function KanbanBoardPage() {
     });
   };
 
-  if (!isMounted) return <div className="p-8 text-gray-500">Loading Kanban Board...</div>;
+  if (!isMounted || loading) return <div className="p-8 text-gray-500">Loading Kanban Board...</div>;
 
   return (
     <div className="flex flex-1 flex-col p-8 bg-[#f8f9fc] h-full min-w-0">
       <div className="flex items-center justify-between mb-8 flex-shrink-0">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Kanban Dashboard</h1>
-          <p className="text-gray-500 mt-1">Manage recruitment pipeline and candidate tasks</p>
+          <p className="text-gray-500 mt-1">Madfdsfdsfdnage recruitment pipeline and candidate tasks</p>
         </div>
         <div className="flex items-center gap-4">
           <div className="flex items-center space-x-2 bg-white rounded-xl p-1.5 shadow-sm border border-gray-100">

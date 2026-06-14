@@ -48,6 +48,31 @@ class CompanyService {
     }
     return null;
   }
+
+  async getPipelineStages(companyId: string) {
+    const response = await apiClient.get<any>(`/companies/${companyId}/pipeline-stages`);
+    return response.success && response.data?.result ? response.data.result : [];
+  }
+
+  async createPipelineStage(companyId: string, data: any) {
+    const response = await apiClient.post<any>(`/companies/${companyId}/pipeline-stages`, data);
+    return response.success ? response.data?.result : null;
+  }
+
+  async updatePipelineStage(companyId: string, stageId: string, data: any) {
+    const response = await apiClient.patch<any>(`/companies/${companyId}/pipeline-stages/${stageId}`, data);
+    return response.success ? response.data?.result : null;
+  }
+
+  async deletePipelineStage(companyId: string, stageId: string) {
+    const response = await apiClient.delete<any>(`/companies/${companyId}/pipeline-stages/${stageId}`);
+    return response.success;
+  }
+
+  async reorderPipelineStages(companyId: string, stages: {id: string, order: number}[]) {
+    const response = await apiClient.put<any>(`/companies/${companyId}/pipeline-stages/reorder`, { stages });
+    return response.success;
+  }
 }
 
 export const companyService = new CompanyService();

@@ -39,7 +39,35 @@ const seedTasks = [
   },
 ];
 
-type Task = typeof seedTasks[0];
+type MCQDetails = {
+  questions: number;
+  duration: string;
+  passingScore: number;
+  candidateScore?: number;
+};
+
+type TextDetails = {
+  instructions: string;
+};
+
+type PDFDetails = {
+  fileName: string;
+  fileSize: string;
+};
+
+type TaskDetails = MCQDetails | TextDetails | PDFDetails;
+
+type Task = {
+  id: string;
+  type: string;
+  title: string;
+  candidate: { name: string; initials: string; color: string };
+  status: string;
+  priority: string;
+  isAiGenerated: boolean;
+  dueDate: string;
+  details: TaskDetails;
+};
 
 const getStatusColor = (status: string) => {
   const map: Record<string, string> = {

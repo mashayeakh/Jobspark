@@ -1,24 +1,14 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
+import { motion, Reorder } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { GripVertical, Edit2, Trash2, Plus, Users, ArrowRight, CheckCircle2, Clock, Mail } from 'lucide-react';
 import { cn } from '@/lib/utils';
-
-// Hardcoded Pipeline Stages
-const initialStages = [
-  { id: '1', name: 'Applied', candidates: 45, conversion: '100%', active: false, completed: true },
-  { id: '2', name: 'HR Review', candidates: 25, conversion: '55%', active: false, completed: true },
-  { id: '3', name: 'HR Interview', candidates: 12, conversion: '48%', active: false, completed: true },
-  { id: '4', name: 'Assessment Assigned', candidates: 8, conversion: '66%', active: true, completed: false },
-  { id: '5', name: 'Assessment Submitted', candidates: 5, conversion: '62%', active: false, completed: false },
-  { id: '6', name: 'Technical Interview', candidates: 3, conversion: '60%', active: false, completed: false },
-  { id: '7', name: 'Final Interview', candidates: 2, conversion: '66%', active: false, completed: false },
-  { id: '8', name: 'Offer Sent', candidates: 1, conversion: '50%', active: false, completed: false },
-  { id: '9', name: 'Hired', candidates: 1, conversion: '100%', active: false, completed: false },
-];
+import { recruiterService } from '@/services/recruiterService';
+import { companyService } from '@/services/companyService';
 
 const candidateTimeline = [
   { id: 1, title: 'Application Submitted', date: 'Oct 24, 2023', icon: Users, status: 'completed' },
@@ -29,7 +19,82 @@ const candidateTimeline = [
 ];
 
 export default function PipelineStagesPage() {
-  const [stages, setStages] = useState(initialStages);
+  const [stages, setStages] = useState<any[]>([]);
+  const [companyId, setCompanyId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const profileRes = await recruiterService.getProfile();
+        if (profileRes.success && profileRes.data) {
+          const cId = profileRes.data.companyId;
+          setCompanyId(cId);
+          
+          const stagesData = await companyService.getPipelineStages(cId);
+          if (stagesData && stagesData.length > 0) {
+            setStages(stagesData.map((s: any) => ({ ...s, candidates: Math.floor(Math.random() * 50), conversion: '50%', active: false, completed: false })));
+          } else {
+            // Default stages if none exist
+            setStages([
+              { id: '1', name: 'Applied', candidates: 45, conversion: '100%', active: false, completed: true },
+              { id: '2', name: 'HR Review', candidates: 25, conversion: '55%', active: false, completed: true },
+              { id: '3', name: 'Hired', candidates: 1, conversion: '100%', active: false, completed: false }
+            ]);
+          }
+        }
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  const handleReorder = async (newStages: any[]) => {
+    setStages(newStages);
+  };
+
+  const saveOrder = async () => {
+    if (!companyId) return;
+    const stagesToSave = stages.map((s, idx) => ({ id: s.id, order: idx + 1 }));
+    await companyService.reorderPipelineStages(companyId, stagesToSave);
+    alert("Pipeline order saved!");
+  };
+
+  const handleAddStage = async () => {
+    if (!companyId) return;
+    const name = prompt("Enter new stage name:");
+    if (!name) return;
+    
+    // We want to insert the new stage just before the last stage (which is usually the final outcome like 'Offer Sent')
+    const insertIndex = stages.length > 0 ? stages.length - 1 : 0;
+    
+    const newStage = await companyService.createPipelineStage(companyId, { name, order: insertIndex + 1 });
+    if (newStage) {
+      const newStageObj = { ...newStage, candidates: 0, conversion: '0%', active: false, completed: false };
+      
+      const newStages = [...stages];
+      // Insert at second to last position
+      newStages.splice(insertIndex, 0, newStageObj);
+      setStages(newStages);
+      
+      // Automatically save the new order
+      const stagesToSave = newStages.map((s, idx) => ({ id: s.id, order: idx + 1 }));
+      await companyService.reorderPipelineStages(companyId, stagesToSave);
+    }
+  };
+
+  const handleDeleteStage = async (stageId: string) => {
+    if (!companyId) return;
+    if (confirm("Are you sure you want to delete this stage?")) {
+      await companyService.deletePipelineStage(companyId, stageId);
+      setStages(stages.filter(s => s.id !== stageId));
+    }
+  };
+
+  if (loading) return <div className="p-8">Loading pipeline stages...</div>;
 
   return (
     <div className="flex flex-1 flex-col gap-8 p-8 bg-[#f8f9fc] min-h-full">
@@ -39,8 +104,8 @@ export default function PipelineStagesPage() {
           <p className="text-gray-500 mt-1">Configure your hiring process and track candidate progression</p>
         </div>
         <div className="flex gap-3">
-          <Button variant="outline" className="font-medium shadow-sm">Save Order</Button>
-          <Button className="bg-[#4880FF] hover:bg-blue-600 shadow-sm"><Plus className="w-4 h-4 mr-2" /> Add Stage</Button>
+          <Button onClick={saveOrder} variant="outline" className="font-medium shadow-sm">Save Order</Button>
+          <Button onClick={handleAddStage} className="bg-[#4880FF] hover:bg-blue-600 shadow-sm"><Plus className="w-4 h-4 mr-2" /> Add Stage</Button>
         </div>
       </div>
 
@@ -81,7 +146,7 @@ export default function PipelineStagesPage() {
                   stage.active ? "bg-[#4880FF] text-white ring-4 ring-blue-100" : "bg-white border-2 border-gray-200 text-gray-400"
                 )}
               >
-                {stage.completed ? <CheckCircle2 className="w-5 h-5" /> : <span className="text-sm font-bold">{stage.id}</span>}
+                {stage.completed ? <CheckCircle2 className="w-5 h-5" /> : <span className="text-sm font-bold">{idx + 1}</span>}
               </motion.div>
               
               <div className="text-center">
@@ -107,10 +172,11 @@ export default function PipelineStagesPage() {
             </div>
           </div>
           
-          <div className="space-y-3">
+          <Reorder.Group axis="y" values={stages} onReorder={handleReorder} className="space-y-3">
             {stages.map((stage, idx) => (
-              <motion.div 
-                key={stage.id}
+              <Reorder.Item 
+                key={stage.id} 
+                value={stage}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.05 }}
@@ -119,20 +185,20 @@ export default function PipelineStagesPage() {
                 <div className="flex items-center gap-4">
                   <GripVertical className="w-5 h-5 text-gray-500 group-hover:text-gray-300" />
                   <div className="w-6 h-6 rounded-full bg-[#343846] flex items-center justify-center text-xs font-bold text-blue-400">
-                    {stage.id}
+                    {idx + 1}
                   </div>
                   <div>
                     <h3 className="text-sm font-bold text-white">{stage.name}</h3>
-                    <p className="text-xs text-gray-400">{stage.id === '1' ? 'Entry stage' : stage.id === '9' ? 'Final stage' : 'Interview stage'} · {stage.candidates} candidate{stage.candidates !== 1 ? 's' : ''}</p>
+                    <p className="text-xs text-gray-400">{idx === 0 ? 'Entry stage' : idx === stages.length - 1 ? 'Final stage' : 'Interview stage'} · {stage.candidates} candidate{stage.candidates !== 1 ? 's' : ''}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                   <button className="p-2 hover:bg-[#343846] rounded-md transition-colors text-gray-400 hover:text-white"><Edit2 className="w-4 h-4" /></button>
-                  <button className="p-2 hover:bg-red-500/20 rounded-md transition-colors text-gray-400 hover:text-red-400"><Trash2 className="w-4 h-4" /></button>
+                  <button onClick={() => handleDeleteStage(stage.id)} className="p-2 hover:bg-red-500/20 rounded-md transition-colors text-gray-400 hover:text-red-400"><Trash2 className="w-4 h-4" /></button>
                 </div>
-              </motion.div>
+              </Reorder.Item>
             ))}
-          </div>
+          </Reorder.Group>
         </Card>
 
         {/* Candidate Timeline Overview */}
