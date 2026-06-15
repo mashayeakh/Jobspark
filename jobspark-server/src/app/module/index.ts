@@ -10,6 +10,7 @@ import { AdminRoutes } from "./admin/admin.route";
 import { CategoryRoutes } from "./category/category.route";
 import { WorkStyleRoutes } from "./workstyle/workstyle.route";
 import { CompanyRoutes } from "./company/company.route";
+import { CommunicationRoutes } from "./communication/communication.route";
 
 
 import { ContentSanityRouter } from "./ai/content_sanity/contentSanity.route";
@@ -60,6 +61,9 @@ router.use("/jobs", JobRoutes);
 
 //!Applications
 router.use("/applications", ApplicationRoutes);
+
+//!Communication
+router.use("/communication", CommunicationRoutes);
 
 //!Network & Notifications
 router.use("/network", NetworkRoutes);

@@ -11,6 +11,8 @@ model Application {
   pipelineStage   PipelineStage?         @relation(fields: [pipelineStageId], references: [id])
   logs            ApplicationStatusLog[]
   interviews      Interview[]
+  conversation    Conversation?
+  emailThreads    EmailThread[]
 
   @@unique([jobId, seekerId])
   @@index([pipelineStageId])

@@ -92,3 +92,10 @@ enum SubscriptionType {
   MONTHLY
   YEARLY
 }
+
+enum EmailStatus {
+  SENT
+  DELIVERED
+  READ
+  FAILED
+}

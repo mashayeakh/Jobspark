@@ -1,0 +1,43 @@
+model Conversation {
+  id            String       @id @default(cuid())
+  applicationId String       @unique
+  application   Application  @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  messages      Message[]
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderId       String
+  sender         User         @relation(fields: [senderId], references: [id])
+  content        String
+  isRead         Boolean      @default(false)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+model EmailThread {
+  id            String         @id @default(cuid())
+  applicationId String
+  application   Application    @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  subject       String
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  emails        EmailMessage[]
+}
+
+model EmailMessage {
+  id             String       @id @default(cuid())
+  threadId       String
+  thread         EmailThread  @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  senderId       String
+  sender         User         @relation(fields: [senderId], references: [id])
+  recipientEmail String
+  body           String
+  status         EmailStatus  @default(SENT)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}

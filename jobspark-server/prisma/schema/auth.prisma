@@ -24,6 +24,8 @@ model User {
   reviews             Review[]
   payments            Payment[]
   subscriptions       Subscription[]
+  sentMessages        Message[]
+  sentEmails          EmailMessage[]
 
   @@index([email])
   @@index([role])

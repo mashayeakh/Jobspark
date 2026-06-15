@@ -1,4 +1,6 @@
 import { app } from "./app";
+import http from "http";
+import { initSocket } from "./socket";
 import dotenv from 'dotenv'
 import { seedAdmin } from "./app/scripts/seedAdmin";
 import { initCronJobs } from "./app/Utils/cronJobs";
@@ -13,7 +15,10 @@ const bootstrap = async () => {
         // Seed admin on every startup (idempotent - safe to run multiple times)
         await seedAdmin();
         initCronJobs();
-        app.listen(port, () => {
+        const server = http.createServer(app);
+        initSocket(server);
+        
+        server.listen(port, () => {
 
             console.log(`Server is running on http://localhost:${port}`);
         });
