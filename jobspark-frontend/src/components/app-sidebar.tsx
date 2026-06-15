@@ -38,6 +38,7 @@ import {
   BookText,
   CreditCard,
   Search,
+  MessageSquare,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -114,6 +115,12 @@ const getNavigationData = (userRole: string) => {
             { title: "Kanban board", url: "/recruiter/kanban-board", icon: LayoutDashboard },
             { title: "Pipeline stages", url: "/recruiter/pipeline-stages", icon: Building },
             { title: "Task Management", url: "/recruiter/task-management", icon: Briefcase },
+          ]
+        },
+        {
+          label: "COMMUNICATION",
+          items: [
+            { title: "Communication Center", url: "/recruiter/communication", icon: MessageSquare },
           ]
         },
         {
