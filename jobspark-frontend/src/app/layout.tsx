@@ -26,6 +26,7 @@ const poppins = Poppins({
 });
 
 import { Toaster } from "sonner";
+import { BackendWarmer } from "@/components/BackendWarmer";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -43,6 +44,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         >
           <LoadingBarProvider>
             {!hidePublicChrome && <Navbar variant="default" notificationCount={notificationCount} />}
+            <BackendWarmer />
             {children}
             <Toaster position="top-center" richColors />
           </LoadingBarProvider>
