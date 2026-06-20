@@ -4,7 +4,7 @@ import { UserStatus } from './prisma/generated/prisma/client';
 
 async function main() {
   const email = "demojob_seeker@gmail.com";
-  
+
   try {
     const existing = await prisma.user.findUnique({ where: { email } });
     if (existing) {
@@ -28,7 +28,7 @@ async function main() {
     const result = await auth.api.signUpEmail({
       body: {
         email: email,
-        password: "Password123!",
+        password: "Recruit@123",
         name: "Demo",
         role: "JOB_SEEKER",
       },
@@ -39,7 +39,7 @@ async function main() {
         where: { id: result.user.id },
         data: { emailVerified: true, status: UserStatus.ACTIVE },
       });
-      
+
       await prisma.jobSeekerProfile.create({
         data: {
           userId: result.user.id,

@@ -26,7 +26,7 @@ function futureDate(daysAhead: number) {
 // ─────────────────────────────────────────────
 // STATIC DATA
 // ─────────────────────────────────────────────
-const PASSWORD_HASH = await bcrypt.hash("Password123!", 10);
+const PASSWORD_HASH = await bcrypt.hash("Recruit@123", 10);
 
 const COMPANIES = [
     {
@@ -938,7 +938,7 @@ async function main() {
     console.log(`   📂 Categories    : ${CATEGORIES_DATA.length}`);
     console.log(`   🛠  Skills        : ${Object.keys(skillMap).length}`);
     console.log("═".repeat(50));
-    console.log("\n🔑 All recruiter passwords: Password123!");
+    console.log("\n🔑 All recruiter passwords: Recruit@123");
     console.log("📧 Recruiter emails: recruiter1@jobspark.dev → recruiter8@jobspark.dev\n");
 }
 

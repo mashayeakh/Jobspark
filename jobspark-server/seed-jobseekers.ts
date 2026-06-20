@@ -5,7 +5,7 @@ import { prisma } from './src/app/lib/prisma';
 
 async function main() {
   console.log("Seeding mock job seekers...");
-  const password = await bcrypt.hash("Password123!", 10);
+  const password = await bcrypt.hash("Recruit@123", 10);
 
   const mockUsers = [
     {
@@ -85,7 +85,7 @@ async function main() {
       console.log(`User already exists: ${u.name}`);
     }
   }
-  
+
   console.log("Job seeker seeding completed!");
 }
 

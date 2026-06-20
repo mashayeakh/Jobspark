@@ -142,7 +142,7 @@ const LoginPage = () => {
       } else {
         setError(response.error || 'Login failed. Please check your credentials.');
       }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       setError(error?.message || 'Login failed. Please try again.');
     } finally {
@@ -362,24 +362,24 @@ const LoginPage = () => {
           {showDemoModal && (
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
               {/* Backdrop */}
-              <div 
+              <div
                 className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity duration-300"
                 onClick={() => setShowDemoModal(false)}
               />
-              
+
               {/* Modal Box */}
               <div className="relative bg-white rounded-3xl w-full max-w-md p-6 sm:p-8 shadow-2xl border border-gray-100 overflow-hidden transform scale-100 transition-all duration-300 animate-in zoom-in-95 duration-200">
                 {/* Decorative top border with gradient */}
                 <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-blue-600 to-purple-600" />
-                
+
                 {/* Close button */}
-                <button 
+                <button
                   onClick={() => setShowDemoModal(false)}
                   className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors font-semibold"
                 >
                   <X className="w-5 h-5" />
                 </button>
-                
+
                 {/* Header */}
                 <div className="mb-6 mt-2 text-center sm:text-left">
                   <h3 className="text-2xl font-bold text-gray-900 flex items-center justify-center sm:justify-start gap-2">
@@ -390,7 +390,7 @@ const LoginPage = () => {
                     Select an account type to automatically populate inputs or copy credentials.
                   </p>
                 </div>
-                
+
                 {/* Credential Cards */}
                 <div className="space-y-4">
                   {/* Recruiter Card */}
@@ -401,15 +401,15 @@ const LoginPage = () => {
                         Recruiter / Hiring Manager
                       </span>
                     </div>
-                    
+
                     <div className="space-y-2">
                       <div className="flex items-center justify-between bg-white px-3 py-2 rounded-xl border border-gray-100">
                         <div className="truncate pr-2">
                           <span className="text-[10px] text-gray-400 block font-medium uppercase tracking-wider">Email</span>
-                          <span className="text-sm font-semibold text-gray-800">jane@techcorp.com</span>
+                          <span className="text-sm font-semibold text-gray-800">imran.hossain@medicareplus.bd</span>
                         </div>
-                        <button 
-                          onClick={() => handleCopy('jane@techcorp.com', 'recruiter-email')}
+                        <button
+                          onClick={() => handleCopy('imran.hossain@medicareplus.bd', 'recruiter-email')}
                           className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-400 hover:text-gray-600 transition-colors flex-shrink-0"
                           title="Copy Email"
                         >
@@ -420,14 +420,14 @@ const LoginPage = () => {
                           )}
                         </button>
                       </div>
-                      
+
                       <div className="flex items-center justify-between bg-white px-3 py-2 rounded-xl border border-gray-100">
                         <div className="truncate pr-2">
                           <span className="text-[10px] text-gray-400 block font-medium uppercase tracking-wider">Password</span>
-                          <span className="text-sm font-mono font-semibold text-gray-800">Password123!</span>
+                          <span className="text-sm font-mono font-semibold text-gray-800">Recruit@123</span>
                         </div>
-                        <button 
-                          onClick={() => handleCopy('Password123!', 'recruiter-password')}
+                        <button
+                          onClick={() => handleCopy('Recruit@123', 'recruiter-password')}
                           className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-400 hover:text-gray-600 transition-colors flex-shrink-0"
                           title="Copy Password"
                         >
@@ -439,16 +439,16 @@ const LoginPage = () => {
                         </button>
                       </div>
                     </div>
-                    
+
                     <button
-                      onClick={() => handleAutoFill('jane@techcorp.com', 'Password123!')}
+                      onClick={() => handleAutoFill('imran.hossain@medicareplus.bd', 'Recruit@123')}
                       className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-xl transition-all duration-300 flex items-center justify-center gap-1.5 shadow-sm hover:shadow group-hover:scale-[1.01]"
                     >
                       <UserCheck className="w-4 h-4" />
                       Auto-fill Recruiter
                     </button>
                   </div>
-                  
+
                   {/* Admin Card */}
                   <div className="group border border-gray-100 hover:border-purple-200 bg-gray-50/50 hover:bg-purple-50/20 p-5 rounded-2xl transition-all duration-300 relative shadow-sm hover:shadow-md text-left">
                     <div className="flex items-center justify-between mb-3">
@@ -457,14 +457,14 @@ const LoginPage = () => {
                         System Administrator
                       </span>
                     </div>
-                    
+
                     <div className="space-y-2">
                       <div className="flex items-center justify-between bg-white px-3 py-2 rounded-xl border border-gray-100">
                         <div className="truncate pr-2">
                           <span className="text-[10px] text-gray-400 block font-medium uppercase tracking-wider">Email</span>
                           <span className="text-sm font-semibold text-gray-800">admin@jobspark.com</span>
                         </div>
-                        <button 
+                        <button
                           onClick={() => handleCopy('admin@jobspark.com', 'admin-email')}
                           className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-400 hover:text-gray-600 transition-colors flex-shrink-0"
                           title="Copy Email"
@@ -476,13 +476,13 @@ const LoginPage = () => {
                           )}
                         </button>
                       </div>
-                      
+
                       <div className="flex items-center justify-between bg-white px-3 py-2 rounded-xl border border-gray-100">
                         <div className="truncate pr-2">
                           <span className="text-[10px] text-gray-400 block font-medium uppercase tracking-wider">Password</span>
                           <span className="text-sm font-mono font-semibold text-gray-800">admin123</span>
                         </div>
-                        <button 
+                        <button
                           onClick={() => handleCopy('admin123', 'admin-password')}
                           className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-400 hover:text-gray-600 transition-colors flex-shrink-0"
                           title="Copy Password"
@@ -495,7 +495,7 @@ const LoginPage = () => {
                         </button>
                       </div>
                     </div>
-                    
+
                     <button
                       onClick={() => handleAutoFill('admin@jobspark.com', 'admin123')}
                       className="w-full mt-4 bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2.5 rounded-xl transition-all duration-300 flex items-center justify-center gap-1.5 shadow-sm hover:shadow group-hover:scale-[1.01]"

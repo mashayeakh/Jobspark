@@ -11,7 +11,7 @@ const USERS_TO_FIX = [
   { email: "demojob_seeker@gmail.com", name: "Demo", role: "JOB_SEEKER" },
 ];
 
-const PASSWORD = "Password123!";
+const PASSWORD = "Recruit@123";
 
 async function main() {
   console.log("Completely rebuilding user accounts for Better Auth...\n");
@@ -41,7 +41,7 @@ async function main() {
           where: { id: result.user.id },
           data: { emailVerified: true, status: UserStatus.ACTIVE },
         });
-        
+
         // 4. Create the JobSeeker profile
         await prisma.jobSeekerProfile.create({
           data: {
@@ -58,7 +58,7 @@ async function main() {
     }
   }
 
-  console.log("\n✅ Done! ALL users can now definitively log in with: Password123!");
+  console.log("\n✅ Done! ALL users can now definitively log in with: Recruit@123");
 }
 
 main()
