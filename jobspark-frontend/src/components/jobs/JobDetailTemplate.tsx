@@ -8,6 +8,8 @@ import {
   CheckCircle, Bookmark, BookmarkCheck, Share2, Building, Users, ChevronRight, FileText, ExternalLink, Globe
 } from 'lucide-react';
 import { Job, jobService } from '@/services/jobService';
+import { authService } from '@/services/authService';
+import { toast } from 'sonner';
 
 interface JobDetailTemplateProps {
   job: Job;
@@ -98,6 +100,10 @@ export default function JobDetailTemplate({ job, backPath, backLabel }: JobDetai
   };
 
   const handleSave = async () => {
+    if (!authService.isAuthenticated()) {
+      toast.error('Please log in to save jobs.');
+      return;
+    }
     if (loadingSave) return;
     setLoadingSave(true);
     try {
@@ -107,6 +113,10 @@ export default function JobDetailTemplate({ job, backPath, backLabel }: JobDetai
   };
 
   const handleApply = async () => {
+    if (!authService.isAuthenticated()) {
+      toast.error('Please log in to apply for this job.');
+      return;
+    }
     if (loadingApply || applied) return;
     setLoadingApply(true);
     try {
@@ -169,7 +179,7 @@ export default function JobDetailTemplate({ job, backPath, backLabel }: JobDetai
                    <div className="flex-1 min-w-0 pr-2">
                       <h1 className="text-xl sm:text-3xl font-bold text-gray-900 leading-tight tracking-tight">{job.title}</h1>
                       <div className="mt-2 flex flex-wrap items-center gap-2 text-base font-medium">
-                        <Link href={`/company/${job.companyId}`} className="text-gray-900 hover:text-[#0a66c2] hover:underline">
+                        <Link href={`/companies/${job.companyId}`} className="text-gray-900 hover:text-[#0a66c2] hover:underline">
                           {typeof job.company === 'string' ? job.company : job.company?.name || 'Company'}
                         </Link>
                         <span className="text-gray-400 font-normal">•</span>
@@ -320,7 +330,7 @@ export default function JobDetailTemplate({ job, backPath, backLabel }: JobDetai
               <p className="text-sm text-gray-600 leading-relaxed mb-6 line-clamp-4 font-normal">
                 {job.company?.description || 'No company description available.'}
               </p>
-              <Link href={`/company/${job.companyId}`} className="flex items-center gap-1.5 text-sm font-bold text-[#0a66c2] hover:underline">
+              <Link href={`/companies/${job.companyId}`} className="flex items-center gap-1.5 text-sm font-bold text-[#0a66c2] hover:underline">
                 View Company Profile <ChevronRight className="w-4 h-4" />
               </Link>
             </div>

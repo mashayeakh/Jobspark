@@ -6,6 +6,8 @@ import Image from 'next/image';
 import { Company, companyService } from '@/services/companyService';
 import { Loader2, MapPin, Users, Globe, Building2, Bookmark, Share2 } from 'lucide-react';
 import Link from 'next/link';
+import { toast } from 'sonner';
+import { authService } from '@/services/authService';
 export default function CompanyDetailsClient({ id }: { id: string }) {
   const [company, setCompany] = useState<Company | null>(null);
   const [suggestedCompanies, setSuggestedCompanies] = useState<Company[]>([]);
@@ -163,7 +165,7 @@ export default function CompanyDetailsClient({ id }: { id: string }) {
             <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold text-gray-900">Jobs From {company.name}</h2>
-                <Link href={`/companies/${company.id}/jobs`} className="text-blue-600 font-semibold hover:underline text-sm">
+                <Link href="/jobs" className="text-blue-600 font-semibold hover:underline text-sm">
                   View All Jobs
                 </Link>
               </div>
@@ -178,10 +180,21 @@ export default function CompanyDetailsClient({ id }: { id: string }) {
                       <div className="flex-1">
                         <div className="flex justify-between items-start gap-4">
                           <div>
-                            <h3 className="text-lg font-bold text-gray-900 group-hover:text-blue-600 transition-colors">{job.title}</h3>
+                            <Link href={`/jobs/${job.id}`} className="block">
+                              <h3 className="text-lg font-bold text-gray-900 group-hover:text-blue-600 transition-colors">{job.title}</h3>
+                            </Link>
                             <p className="text-sm text-gray-500 mb-3">{company.name} • {job.location || 'Remote'}</p>
                           </div>
-                          <button className="text-gray-400 hover:text-blue-600 transition-colors">
+                          <button 
+                            className="text-gray-400 hover:text-blue-600 transition-colors"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              if (!authService.isAuthenticated()) {
+                                toast.error('Please log in to save jobs.');
+                                return;
+                              }
+                            }}
+                          >
                             <Bookmark className="w-5 h-5" />
                           </button>
                         </div>
