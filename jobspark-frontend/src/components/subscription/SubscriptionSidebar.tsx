@@ -5,6 +5,7 @@ import { Crown, Check, AlertCircle, ArrowRight, LogOut } from 'lucide-react';
 import { SubscriptionDetails } from '@/services/paymentService';
 import { authService } from '@/services/authService';
 import Link from 'next/link';
+import { useState } from 'react';
 
 interface SubscriptionSidebarProps {
     subscription: SubscriptionDetails | null;
@@ -12,6 +13,7 @@ interface SubscriptionSidebarProps {
 }
 
 export const SubscriptionSidebar = ({ subscription, onUpgradeClick }: SubscriptionSidebarProps) => {
+    const [isLoggingOut, setIsLoggingOut] = useState(false);
     const isAuthenticated = authService.isAuthenticated();
     const user = authService.getUser();
 
@@ -163,15 +165,30 @@ export const SubscriptionSidebar = ({ subscription, onUpgradeClick }: Subscripti
 
             {/* Logout */}
             <button
-                onClick={() => {
-                    authService.logout();
-                    window.location.href = '/';
+                onClick={async () => {
+                    setIsLoggingOut(true);
+                    try {
+                        await authService.logout();
+                        window.location.href = '/';
+                    } catch (error) {
+                        console.error('Logout failed:', error);
+                        setIsLoggingOut(false);
+                    }
                 }}
-                className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg font-semibold transition text-sm"
+                disabled={isLoggingOut}
+                className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg font-semibold transition text-sm disabled:opacity-50"
             >
                 <LogOut className="w-4 h-4" />
                 Sign Out
             </button>
+            {isLoggingOut && (
+                <div className="fixed inset-0 z-[9999] bg-gray-900/80 backdrop-blur-sm flex flex-col items-center justify-center">
+                    <div className="flex flex-col items-center gap-4">
+                        <div className="h-12 w-12 rounded-full border-4 border-gray-600 border-t-blue-500 animate-spin" />
+                        <p className="text-lg font-semibold text-white">Logging out now..</p>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

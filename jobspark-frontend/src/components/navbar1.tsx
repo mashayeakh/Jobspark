@@ -140,6 +140,7 @@ const Navbar = ({
   const [isScrolled, setIsScrolled] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
 
@@ -186,11 +187,13 @@ const Navbar = ({
   }, []);
 
   const handleLogout = async () => {
+    setIsLoggingOut(true);
     try {
       await authService.logout();
       router.push("/login");
     } catch (error) {
       console.error("Logout failed:", error);
+      setIsLoggingOut(false);
       router.push("/login");
     }
   };
@@ -361,6 +364,7 @@ const Navbar = ({
 
                     <DropdownMenuItem
                       onClick={handleLogout}
+                      disabled={isLoggingOut}
                       className="rounded-xl px-3 py-2.5 focus:bg-red-50 text-red-600 focus:text-red-700 cursor-pointer group"
                     >
                       <div className="flex items-center gap-3 w-full">
@@ -489,7 +493,8 @@ const Navbar = ({
                           <Button
                             onClick={handleLogout}
                             variant="ghost"
-                            className="w-full justify-center gap-2 h-11 rounded-xl text-red-600 hover:bg-red-50 hover:text-red-700 font-bold transition-all"
+                            disabled={isLoggingOut}
+                            className="w-full justify-center gap-2 h-11 rounded-xl text-red-600 hover:bg-red-50 hover:text-red-700 font-bold transition-all disabled:opacity-50"
                           >
                             <LogOut className="size-4" />
                             Log out
@@ -504,6 +509,14 @@ const Navbar = ({
           </div>
         </div>
       </div>
+      {isLoggingOut && (
+        <div className="fixed inset-0 z-[9999] bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center">
+          <div className="flex flex-col items-center gap-4">
+            <div className="h-12 w-12 rounded-full border-4 border-blue-200 border-t-blue-600 animate-spin" />
+            <p className="text-lg font-semibold text-slate-700">Logging out now..</p>
+          </div>
+        </div>
+      )}
     </section >
   );
 };

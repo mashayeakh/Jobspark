@@ -50,6 +50,7 @@ export default function SettingsPage() {
     bio: ''
   });
   const [saving, setSaving] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   useEffect(() => {
     if (!user || user.role !== 'RECRUITER') {
@@ -101,11 +102,13 @@ export default function SettingsPage() {
   };
 
   const handleLogout = async () => {
+    setIsLoggingOut(true);
     try {
       await authService.logout();
       router.push('/login');
     } catch (error) {
       console.error('Logout failed:', error);
+      setIsLoggingOut(false);
       router.push('/login');
     }
   };
@@ -315,7 +318,8 @@ export default function SettingsPage() {
 
           <Button 
             variant="ghost" 
-            className="w-full text-rose-500 hover:text-rose-600 hover:bg-rose-50 font-bold text-sm rounded-xl h-11 transition-colors"
+            disabled={isLoggingOut}
+            className="w-full text-rose-500 hover:text-rose-600 hover:bg-rose-50 font-bold text-sm rounded-xl h-11 transition-colors disabled:opacity-50"
             onClick={handleLogout}
           >
             <LogOut className="h-4 w-4 mr-2" />
@@ -388,6 +392,14 @@ export default function SettingsPage() {
           </div>
         </CardContent>
       </Card>
+      {isLoggingOut && (
+        <div className="fixed inset-0 z-[9999] bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center">
+          <div className="flex flex-col items-center gap-4">
+            <div className="h-12 w-12 rounded-full border-4 border-blue-200 border-t-blue-600 animate-spin" />
+            <p className="text-lg font-semibold text-slate-700">Logging out now..</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

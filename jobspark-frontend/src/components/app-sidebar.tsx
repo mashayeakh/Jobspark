@@ -147,6 +147,7 @@ export function AppSidebar({ userRole, ...props }: AppSidebarProps) {
   const pathname = usePathname();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [user, setUser] = React.useState<any>(null);
+  const [isLoggingOut, setIsLoggingOut] = React.useState(false);
 
   React.useEffect(() => {
     const userData = authService.getUser();
@@ -160,11 +161,13 @@ export function AppSidebar({ userRole, ...props }: AppSidebarProps) {
   const groups = getNavigationData(userRole || '');
 
   const handleLogout = async () => {
+    setIsLoggingOut(true);
     try {
       await authService.logout();
       router.push('/login');
     } catch (error) {
       console.error('Logout failed:', error);
+      setIsLoggingOut(false);
       // Still redirect even if backend fails, but at least we tried
       router.push('/login');
     }
@@ -256,7 +259,8 @@ export function AppSidebar({ userRole, ...props }: AppSidebarProps) {
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8 rounded-lg text-white/50 hover:text-white hover:bg-white/20 transition-colors"
+            disabled={isLoggingOut}
+            className="h-8 w-8 rounded-lg text-white/50 hover:text-white hover:bg-white/20 transition-colors disabled:opacity-50"
             onClick={handleLogout}
           >
             <LogOut className="h-4 w-4" />
@@ -265,6 +269,14 @@ export function AppSidebar({ userRole, ...props }: AppSidebarProps) {
       </SidebarFooter>
 
       <SidebarRail />
+      {isLoggingOut && (
+        <div className="fixed inset-0 z-[9999] bg-gray-900/80 backdrop-blur-sm flex flex-col items-center justify-center">
+          <div className="flex flex-col items-center gap-4">
+            <div className="h-12 w-12 rounded-full border-4 border-gray-600 border-t-blue-500 animate-spin" />
+            <p className="text-lg font-semibold text-white">Logging out now..</p>
+          </div>
+        </div>
+      )}
     </Sidebar>
   )
 }
