@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { X, Mail, Lock, Eye, EyeOff, Copy, Check, Shield, UserCheck, Key } from 'lucide-react';
+import { X, Mail, Lock, Eye, EyeOff, Copy, Check, Shield, UserCheck, Key, ArrowRight, ChevronRight } from 'lucide-react';
 import { authService } from '@/services/authService';
 
 interface AnimatedCircle {
@@ -321,7 +321,8 @@ const LoginPage = () => {
               ) : (
                 <>
                   Sign in
-                  <div className="w-5 h-5 border-l-2 border-white transform rotate-90"></div>
+                  {/* <ArrowRight className="w-5 h-5 text-white ml-2" /> */}
+                  <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </>
               )}
             </button>
