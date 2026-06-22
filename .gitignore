@@ -3,3 +3,5 @@ jobspark-frontend/node_modules
 jobspark-frontend/.next
 **/node_modules
 **/.next
+# Local Netlify folder
+.netlify
