@@ -21,7 +21,7 @@ redisClient.on("error", (err) => {
 });
 
 redisClient.on("connect", () => {
-    console.log("✅ [RateLimiter] Redis connected successfully for rate limiting. ")
+    console.log("[RateLimiter] Redis connected successfully for rate limiting. ")
 })
 
 // 2. Standard Err Response
